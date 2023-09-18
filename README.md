@@ -1,4 +1,4 @@
-# gqlclient
+# console client
 Plural Console GraphQL client
 
 ## How to use
@@ -6,5 +6,5 @@ Plural Console GraphQL client
 Execute the following command
 
 ```
-$ hack/gen-api-client
+$ make generate
 ```
