@@ -1,0 +1,19 @@
+mutation CreateServiceDeployment($clusterId: ID!, $attributes: ServiceDeploymentAttributes!) {
+    createServiceDeployment(clusterId: $clusterId, attributes: $attributes) {
+        ...SrvDeployment
+    }
+}
+
+mutation DeleteServiceDeployment($id: ID!) {
+    deleteServiceDeployment(id: $id) {
+        ...SrvDeployment
+    }
+}
+
+
+fragment SrvDeployment on ServiceDeployment {
+    id
+    name
+    namespace
+    version
+}
