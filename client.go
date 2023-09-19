@@ -159,11 +159,16 @@ type AccessTokenFragment struct {
 	ID    *string "json:\"id\" graphql:\"id\""
 	Token *string "json:\"token\" graphql:\"token\""
 }
+type ClusterEdgeFragment struct {
+	Node *ClusterFragment "json:\"node\" graphql:\"node\""
+}
 type ClusterFragment struct {
-	ID             string  "json:\"id\" graphql:\"id\""
-	Name           string  "json:\"name\" graphql:\"name\""
-	Version        string  "json:\"version\" graphql:\"version\""
-	CurrentVersion *string "json:\"currentVersion\" graphql:\"currentVersion\""
+	ID             string                   "json:\"id\" graphql:\"id\""
+	Name           string                   "json:\"name\" graphql:\"name\""
+	Version        string                   "json:\"version\" graphql:\"version\""
+	CurrentVersion *string                  "json:\"currentVersion\" graphql:\"currentVersion\""
+	Provider       *ClusterProviderFragment "json:\"provider\" graphql:\"provider\""
+	NodePools      []*NodePoolFragment      "json:\"nodePools\" graphql:\"nodePools\""
 }
 type ClusterProviderFragment struct {
 	ID         string                     "json:\"id\" graphql:\"id\""
@@ -202,6 +207,13 @@ type GroupFragment struct {
 	ID          string  "json:\"id\" graphql:\"id\""
 	Name        string  "json:\"name\" graphql:\"name\""
 	Description *string "json:\"description\" graphql:\"description\""
+}
+type NodePoolFragment struct {
+	ID           string "json:\"id\" graphql:\"id\""
+	Name         string "json:\"name\" graphql:\"name\""
+	MinSize      int64  "json:\"minSize\" graphql:\"minSize\""
+	MaxSize      int64  "json:\"maxSize\" graphql:\"maxSize\""
+	InstanceType string "json:\"instanceType\" graphql:\"instanceType\""
 }
 type PolicyBindingFragment struct {
 	ID    *string        "json:\"id\" graphql:\"id\""
@@ -286,9 +298,7 @@ type ListClusterServices struct {
 }
 type ListClusters struct {
 	Clusters *struct {
-		Edges []*struct {
-			Node *ClusterFragment "json:\"node\" graphql:\"node\""
-		} "json:\"edges\" graphql:\"edges\""
+		Edges []*ClusterEdgeFragment "json:\"edges\" graphql:\"edges\""
 	} "json:\"clusters\" graphql:\"clusters\""
 }
 type ListDeploymentSettings struct {
@@ -364,6 +374,97 @@ fragment ClusterFragment on Cluster {
 	name
 	version
 	currentVersion
+	provider {
+		... ClusterProviderFragment
+	}
+	nodePools {
+		... NodePoolFragment
+	}
+}
+fragment ClusterProviderFragment on ClusterProvider {
+	id
+	name
+	namespace
+	cloud
+	editable
+	repository {
+		... GitRepositoryFragment
+	}
+	service {
+		... ServiceDeploymentFragment
+	}
+}
+fragment GitRefFragment on GitRef {
+	folder
+	ref
+}
+fragment GitRepositoryFragment on GitRepository {
+	id
+	editable
+	health
+	authMethod
+	url
+}
+fragment GroupFragment on Group {
+	id
+	name
+	description
+}
+fragment NodePoolFragment on NodePool {
+	id
+	name
+	minSize
+	maxSize
+	instanceType
+}
+fragment PolicyBindingFragment on PolicyBinding {
+	id
+	group {
+		... GroupFragment
+	}
+	user {
+		... UserFragment
+	}
+}
+fragment ServiceDeploymentFragment on ServiceDeployment {
+	id
+	name
+	namespace
+	version
+	editable
+	components {
+		id
+		name
+		group
+		kind
+		namespace
+		state
+		synced
+		version
+	}
+	configuration {
+		name
+		value
+	}
+	git {
+		... GitRefFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+	sha
+	tarball
+	readBindings {
+		... PolicyBindingFragment
+	}
+	writeBindings {
+		... PolicyBindingFragment
+	}
+}
+fragment UserFragment on User {
+	name
+	id
+	email
 }
 `
 
@@ -598,6 +699,97 @@ fragment ClusterFragment on Cluster {
 	name
 	version
 	currentVersion
+	provider {
+		... ClusterProviderFragment
+	}
+	nodePools {
+		... NodePoolFragment
+	}
+}
+fragment ClusterProviderFragment on ClusterProvider {
+	id
+	name
+	namespace
+	cloud
+	editable
+	repository {
+		... GitRepositoryFragment
+	}
+	service {
+		... ServiceDeploymentFragment
+	}
+}
+fragment GitRefFragment on GitRef {
+	folder
+	ref
+}
+fragment GitRepositoryFragment on GitRepository {
+	id
+	editable
+	health
+	authMethod
+	url
+}
+fragment GroupFragment on Group {
+	id
+	name
+	description
+}
+fragment NodePoolFragment on NodePool {
+	id
+	name
+	minSize
+	maxSize
+	instanceType
+}
+fragment PolicyBindingFragment on PolicyBinding {
+	id
+	group {
+		... GroupFragment
+	}
+	user {
+		... UserFragment
+	}
+}
+fragment ServiceDeploymentFragment on ServiceDeployment {
+	id
+	name
+	namespace
+	version
+	editable
+	components {
+		id
+		name
+		group
+		kind
+		namespace
+		state
+		synced
+		version
+	}
+	configuration {
+		name
+		value
+	}
+	git {
+		... GitRefFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+	sha
+	tarball
+	readBindings {
+		... PolicyBindingFragment
+	}
+	writeBindings {
+		... PolicyBindingFragment
+	}
+}
+fragment UserFragment on User {
+	name
+	id
+	email
 }
 `
 
@@ -733,6 +925,97 @@ fragment ClusterFragment on Cluster {
 	name
 	version
 	currentVersion
+	provider {
+		... ClusterProviderFragment
+	}
+	nodePools {
+		... NodePoolFragment
+	}
+}
+fragment ClusterProviderFragment on ClusterProvider {
+	id
+	name
+	namespace
+	cloud
+	editable
+	repository {
+		... GitRepositoryFragment
+	}
+	service {
+		... ServiceDeploymentFragment
+	}
+}
+fragment GitRefFragment on GitRef {
+	folder
+	ref
+}
+fragment GitRepositoryFragment on GitRepository {
+	id
+	editable
+	health
+	authMethod
+	url
+}
+fragment GroupFragment on Group {
+	id
+	name
+	description
+}
+fragment NodePoolFragment on NodePool {
+	id
+	name
+	minSize
+	maxSize
+	instanceType
+}
+fragment PolicyBindingFragment on PolicyBinding {
+	id
+	group {
+		... GroupFragment
+	}
+	user {
+		... UserFragment
+	}
+}
+fragment ServiceDeploymentFragment on ServiceDeployment {
+	id
+	name
+	namespace
+	version
+	editable
+	components {
+		id
+		name
+		group
+		kind
+		namespace
+		state
+		synced
+		version
+	}
+	configuration {
+		name
+		value
+	}
+	git {
+		... GitRefFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+	sha
+	tarball
+	readBindings {
+		... PolicyBindingFragment
+	}
+	writeBindings {
+		... PolicyBindingFragment
+	}
+}
+fragment UserFragment on User {
+	name
+	id
+	email
 }
 `
 
@@ -1051,10 +1334,13 @@ func (c *Client) ListClusterServices(ctx context.Context, httpRequestOptions ...
 const ListClustersDocument = `query ListClusters ($cursor: String, $before: String, $last: Int) {
 	clusters(after: $cursor, first: 100, before: $before, last: $last) {
 		edges {
-			node {
-				... ClusterFragment
-			}
+			... ClusterEdgeFragment
 		}
+	}
+}
+fragment ClusterEdgeFragment on ClusterEdge {
+	node {
+		... ClusterFragment
 	}
 }
 fragment ClusterFragment on Cluster {
@@ -1062,6 +1348,97 @@ fragment ClusterFragment on Cluster {
 	name
 	version
 	currentVersion
+	provider {
+		... ClusterProviderFragment
+	}
+	nodePools {
+		... NodePoolFragment
+	}
+}
+fragment ClusterProviderFragment on ClusterProvider {
+	id
+	name
+	namespace
+	cloud
+	editable
+	repository {
+		... GitRepositoryFragment
+	}
+	service {
+		... ServiceDeploymentFragment
+	}
+}
+fragment GitRefFragment on GitRef {
+	folder
+	ref
+}
+fragment GitRepositoryFragment on GitRepository {
+	id
+	editable
+	health
+	authMethod
+	url
+}
+fragment GroupFragment on Group {
+	id
+	name
+	description
+}
+fragment NodePoolFragment on NodePool {
+	id
+	name
+	minSize
+	maxSize
+	instanceType
+}
+fragment PolicyBindingFragment on PolicyBinding {
+	id
+	group {
+		... GroupFragment
+	}
+	user {
+		... UserFragment
+	}
+}
+fragment ServiceDeploymentFragment on ServiceDeployment {
+	id
+	name
+	namespace
+	version
+	editable
+	components {
+		id
+		name
+		group
+		kind
+		namespace
+		state
+		synced
+		version
+	}
+	configuration {
+		name
+		value
+	}
+	git {
+		... GitRefFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+	sha
+	tarball
+	readBindings {
+		... PolicyBindingFragment
+	}
+	writeBindings {
+		... PolicyBindingFragment
+	}
+}
+fragment UserFragment on User {
+	name
+	id
+	email
 }
 `
 
@@ -1285,6 +1662,97 @@ fragment ClusterFragment on Cluster {
 	name
 	version
 	currentVersion
+	provider {
+		... ClusterProviderFragment
+	}
+	nodePools {
+		... NodePoolFragment
+	}
+}
+fragment ClusterProviderFragment on ClusterProvider {
+	id
+	name
+	namespace
+	cloud
+	editable
+	repository {
+		... GitRepositoryFragment
+	}
+	service {
+		... ServiceDeploymentFragment
+	}
+}
+fragment GitRefFragment on GitRef {
+	folder
+	ref
+}
+fragment GitRepositoryFragment on GitRepository {
+	id
+	editable
+	health
+	authMethod
+	url
+}
+fragment GroupFragment on Group {
+	id
+	name
+	description
+}
+fragment NodePoolFragment on NodePool {
+	id
+	name
+	minSize
+	maxSize
+	instanceType
+}
+fragment PolicyBindingFragment on PolicyBinding {
+	id
+	group {
+		... GroupFragment
+	}
+	user {
+		... UserFragment
+	}
+}
+fragment ServiceDeploymentFragment on ServiceDeployment {
+	id
+	name
+	namespace
+	version
+	editable
+	components {
+		id
+		name
+		group
+		kind
+		namespace
+		state
+		synced
+		version
+	}
+	configuration {
+		name
+		value
+	}
+	git {
+		... GitRefFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+	sha
+	tarball
+	readBindings {
+		... PolicyBindingFragment
+	}
+	writeBindings {
+		... PolicyBindingFragment
+	}
+}
+fragment UserFragment on User {
+	name
+	id
+	email
 }
 `
 
@@ -1397,6 +1865,97 @@ fragment ClusterFragment on Cluster {
 	name
 	version
 	currentVersion
+	provider {
+		... ClusterProviderFragment
+	}
+	nodePools {
+		... NodePoolFragment
+	}
+}
+fragment ClusterProviderFragment on ClusterProvider {
+	id
+	name
+	namespace
+	cloud
+	editable
+	repository {
+		... GitRepositoryFragment
+	}
+	service {
+		... ServiceDeploymentFragment
+	}
+}
+fragment GitRefFragment on GitRef {
+	folder
+	ref
+}
+fragment GitRepositoryFragment on GitRepository {
+	id
+	editable
+	health
+	authMethod
+	url
+}
+fragment GroupFragment on Group {
+	id
+	name
+	description
+}
+fragment NodePoolFragment on NodePool {
+	id
+	name
+	minSize
+	maxSize
+	instanceType
+}
+fragment PolicyBindingFragment on PolicyBinding {
+	id
+	group {
+		... GroupFragment
+	}
+	user {
+		... UserFragment
+	}
+}
+fragment ServiceDeploymentFragment on ServiceDeployment {
+	id
+	name
+	namespace
+	version
+	editable
+	components {
+		id
+		name
+		group
+		kind
+		namespace
+		state
+		synced
+		version
+	}
+	configuration {
+		name
+		value
+	}
+	git {
+		... GitRefFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+	sha
+	tarball
+	readBindings {
+		... PolicyBindingFragment
+	}
+	writeBindings {
+		... PolicyBindingFragment
+	}
+}
+fragment UserFragment on User {
+	name
+	id
+	email
 }
 `
 
