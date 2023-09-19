@@ -1,0 +1,23 @@
+mutation CreateAccessToken {
+    createAccessToken {
+        ...AccessTokenFragment
+    }
+}
+
+mutation DeleteAccessToken($token: String!) {
+    deleteAccessToken(token: $token) {
+        ...AccessTokenFragment
+    }
+}
+
+query ListAccessTokens($cursor: String, $before: String, $last: Int) {
+    accessTokens(after: $cursor, first: 100, before: $before, last: $last) {
+        edges {... AccessTokenEdgeFragment}
+    }
+}
+
+query GetAccessToken($id: ID!){
+    accessToken(id: $id) {
+        ...AccessTokenFragment
+    }
+}

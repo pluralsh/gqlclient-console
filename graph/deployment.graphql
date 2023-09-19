@@ -1,19 +1,54 @@
 mutation CreateServiceDeployment($clusterId: ID!, $attributes: ServiceDeploymentAttributes!) {
     createServiceDeployment(clusterId: $clusterId, attributes: $attributes) {
-        ...SrvDeployment
+        ...ServiceDeploymentFragment
     }
 }
 
 mutation DeleteServiceDeployment($id: ID!) {
     deleteServiceDeployment(id: $id) {
-        ...SrvDeployment
+        ...ServiceDeploymentFragment
     }
 }
 
+mutation UpdateServiceDeployment($id: ID!, $attributes: ServiceUpdateAttributes!) {
+    updateServiceDeployment(id: $id, attributes: $attributes) {
+        ...ServiceDeploymentFragment
+    }
+}
+mutation RollbackService($id: ID!, $revisionId: ID!) {
+    rollbackService(id: $id, revisionId: $revisionId) {
+        ...ServiceDeploymentFragment
+    }
+}
 
-fragment SrvDeployment on ServiceDeployment {
-    id
-    name
-    namespace
-    version
+mutation updateServiceComponents($id: ID!, $components: [ComponentAttributes]) {
+    updateServiceComponents(id: $id, components: $components) {
+        ...ServiceDeploymentFragment
+    }
+}
+
+mutation UpdateDeploymentSettings($attributes: DeploymentSettingsAttributes!) {
+    updateDeploymentSettings(attributes: $attributes) {
+        ...DeploymentSettingsFragment
+    }
+}
+
+query ListDeploymentSettings {
+    deploymentSettings{
+        ...DeploymentSettingsFragment
+    }
+}
+
+query GetServiceDeployment($id: ID!) {
+    serviceDeployment(id: $id) {
+        ...ServiceDeploymentFragment
+    }
+}
+
+query ListServiceDeployment($cursor: String, $before: String, $last: Int, $clusterId: ID) {
+    serviceDeployments(after: $cursor, first: 100, before: $before, last: $last, clusterId: $clusterId) {
+        edges {
+            ...ServiceDeploymentEdgeFragment
+        }
+    }
 }

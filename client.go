@@ -146,33 +146,407 @@ type RootMutationType struct {
 	CreateServiceDeployment  *ServiceDeployment     "json:\"createServiceDeployment\" graphql:\"createServiceDeployment\""
 	UpdateServiceDeployment  *ServiceDeployment     "json:\"updateServiceDeployment\" graphql:\"updateServiceDeployment\""
 	DeleteServiceDeployment  *ServiceDeployment     "json:\"deleteServiceDeployment\" graphql:\"deleteServiceDeployment\""
+	RollbackService          *ServiceDeployment     "json:\"rollbackService\" graphql:\"rollbackService\""
+	PingCluster              *Cluster               "json:\"pingCluster\" graphql:\"pingCluster\""
 	UpdateServiceComponents  *ServiceDeployment     "json:\"updateServiceComponents\" graphql:\"updateServiceComponents\""
 	UpdateRbac               *bool                  "json:\"updateRbac\" graphql:\"updateRbac\""
 	UpdateDeploymentSettings *DeploymentSettings    "json:\"updateDeploymentSettings\" graphql:\"updateDeploymentSettings\""
 }
-type SrvDeployment struct {
-	ID        string "json:\"id\" graphql:\"id\""
-	Name      string "json:\"name\" graphql:\"name\""
-	Namespace string "json:\"namespace\" graphql:\"namespace\""
-	Version   string "json:\"version\" graphql:\"version\""
+type AccessTokenEdgeFragment struct {
+	Node *AccessTokenFragment "json:\"node\" graphql:\"node\""
+}
+type AccessTokenFragment struct {
+	ID    *string "json:\"id\" graphql:\"id\""
+	Token *string "json:\"token\" graphql:\"token\""
+}
+type ClusterFragment struct {
+	ID             string  "json:\"id\" graphql:\"id\""
+	Name           string  "json:\"name\" graphql:\"name\""
+	Version        string  "json:\"version\" graphql:\"version\""
+	CurrentVersion *string "json:\"currentVersion\" graphql:\"currentVersion\""
+}
+type ClusterProviderFragment struct {
+	ID         string                     "json:\"id\" graphql:\"id\""
+	Name       string                     "json:\"name\" graphql:\"name\""
+	Namespace  string                     "json:\"namespace\" graphql:\"namespace\""
+	Cloud      string                     "json:\"cloud\" graphql:\"cloud\""
+	Editable   *bool                      "json:\"editable\" graphql:\"editable\""
+	Repository *GitRepositoryFragment     "json:\"repository\" graphql:\"repository\""
+	Service    *ServiceDeploymentFragment "json:\"service\" graphql:\"service\""
+}
+type DeploymentSettingsFragment struct {
+	ID                 string                   "json:\"id\" graphql:\"id\""
+	Name               string                   "json:\"name\" graphql:\"name\""
+	WriteBindings      []*PolicyBindingFragment "json:\"writeBindings\" graphql:\"writeBindings\""
+	ReadBindings       []*PolicyBindingFragment "json:\"readBindings\" graphql:\"readBindings\""
+	CreateBindings     []*PolicyBindingFragment "json:\"createBindings\" graphql:\"createBindings\""
+	ArtifactRepository *GitRepositoryFragment   "json:\"artifactRepository\" graphql:\"artifactRepository\""
+	DeployerRepository *GitRepositoryFragment   "json:\"deployerRepository\" graphql:\"deployerRepository\""
+}
+type GitRefFragment struct {
+	Folder string "json:\"folder\" graphql:\"folder\""
+	Ref    string "json:\"ref\" graphql:\"ref\""
+}
+type GitRepositoryEdgeFragment struct {
+	Node   *GitRepositoryFragment "json:\"node\" graphql:\"node\""
+	Cursor *string                "json:\"cursor\" graphql:\"cursor\""
+}
+type GitRepositoryFragment struct {
+	ID         string      "json:\"id\" graphql:\"id\""
+	Editable   *bool       "json:\"editable\" graphql:\"editable\""
+	Health     *GitHealth  "json:\"health\" graphql:\"health\""
+	AuthMethod *AuthMethod "json:\"authMethod\" graphql:\"authMethod\""
+	URL        string      "json:\"url\" graphql:\"url\""
+}
+type GroupFragment struct {
+	ID          string  "json:\"id\" graphql:\"id\""
+	Name        string  "json:\"name\" graphql:\"name\""
+	Description *string "json:\"description\" graphql:\"description\""
+}
+type PolicyBindingFragment struct {
+	ID    *string        "json:\"id\" graphql:\"id\""
+	Group *GroupFragment "json:\"group\" graphql:\"group\""
+	User  *UserFragment  "json:\"user\" graphql:\"user\""
+}
+type ServiceDeploymentEdgeFragment struct {
+	Node *ServiceDeploymentFragment "json:\"node\" graphql:\"node\""
+}
+type ServiceDeploymentFragment struct {
+	ID         string "json:\"id\" graphql:\"id\""
+	Name       string "json:\"name\" graphql:\"name\""
+	Namespace  string "json:\"namespace\" graphql:\"namespace\""
+	Version    string "json:\"version\" graphql:\"version\""
+	Editable   *bool  "json:\"editable\" graphql:\"editable\""
+	Components []*struct {
+		ID        string          "json:\"id\" graphql:\"id\""
+		Name      string          "json:\"name\" graphql:\"name\""
+		Group     string          "json:\"group\" graphql:\"group\""
+		Kind      string          "json:\"kind\" graphql:\"kind\""
+		Namespace string          "json:\"namespace\" graphql:\"namespace\""
+		State     *ComponentState "json:\"state\" graphql:\"state\""
+		Synced    bool            "json:\"synced\" graphql:\"synced\""
+		Version   string          "json:\"version\" graphql:\"version\""
+	} "json:\"components\" graphql:\"components\""
+	Configuration []*struct {
+		Name  string "json:\"name\" graphql:\"name\""
+		Value string "json:\"value\" graphql:\"value\""
+	} "json:\"configuration\" graphql:\"configuration\""
+	Git           GitRefFragment           "json:\"git\" graphql:\"git\""
+	Repository    *GitRepositoryFragment   "json:\"repository\" graphql:\"repository\""
+	Sha           *string                  "json:\"sha\" graphql:\"sha\""
+	Tarball       *string                  "json:\"tarball\" graphql:\"tarball\""
+	ReadBindings  []*PolicyBindingFragment "json:\"readBindings\" graphql:\"readBindings\""
+	WriteBindings []*PolicyBindingFragment "json:\"writeBindings\" graphql:\"writeBindings\""
+}
+type UserFragment struct {
+	Name  string "json:\"name\" graphql:\"name\""
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+type CreateAccessToken struct {
+	CreateAccessToken *AccessTokenFragment "json:\"createAccessToken\" graphql:\"createAccessToken\""
+}
+type CreateCluster struct {
+	CreateCluster *ClusterFragment "json:\"createCluster\" graphql:\"createCluster\""
+}
+type CreateClusterProvider struct {
+	CreateClusterProvider *ClusterProviderFragment "json:\"createClusterProvider\" graphql:\"createClusterProvider\""
 }
 type CreateServiceDeployment struct {
-	CreateServiceDeployment *SrvDeployment "json:\"createServiceDeployment\" graphql:\"createServiceDeployment\""
+	CreateServiceDeployment *ServiceDeploymentFragment "json:\"createServiceDeployment\" graphql:\"createServiceDeployment\""
+}
+type DeleteAccessToken struct {
+	DeleteAccessToken *AccessTokenFragment "json:\"deleteAccessToken\" graphql:\"deleteAccessToken\""
+}
+type DeleteCluster struct {
+	DeleteCluster *ClusterFragment "json:\"deleteCluster\" graphql:\"deleteCluster\""
 }
 type DeleteServiceDeployment struct {
-	DeleteServiceDeployment *SrvDeployment "json:\"deleteServiceDeployment\" graphql:\"deleteServiceDeployment\""
+	DeleteServiceDeployment *ServiceDeploymentFragment "json:\"deleteServiceDeployment\" graphql:\"deleteServiceDeployment\""
+}
+type GetAccessToken struct {
+	AccessToken *AccessTokenFragment "json:\"accessToken\" graphql:\"accessToken\""
+}
+type GetCluster struct {
+	Cluster *ClusterFragment "json:\"cluster\" graphql:\"cluster\""
+}
+type GetClusterProvider struct {
+	ClusterProvider *ClusterProviderFragment "json:\"clusterProvider\" graphql:\"clusterProvider\""
+}
+type GetServiceDeployment struct {
+	ServiceDeployment *ServiceDeploymentFragment "json:\"serviceDeployment\" graphql:\"serviceDeployment\""
+}
+type ListAccessTokens struct {
+	AccessTokens *struct {
+		Edges []*AccessTokenEdgeFragment "json:\"edges\" graphql:\"edges\""
+	} "json:\"accessTokens\" graphql:\"accessTokens\""
+}
+type ListClusterServices struct {
+	ClusterServices []*ServiceDeploymentFragment "json:\"clusterServices\" graphql:\"clusterServices\""
+}
+type ListClusters struct {
+	Clusters *struct {
+		Edges []*struct {
+			Node *ClusterFragment "json:\"node\" graphql:\"node\""
+		} "json:\"edges\" graphql:\"edges\""
+	} "json:\"clusters\" graphql:\"clusters\""
+}
+type ListDeploymentSettings struct {
+	DeploymentSettings *DeploymentSettingsFragment "json:\"deploymentSettings\" graphql:\"deploymentSettings\""
+}
+type ListGitRepositories struct {
+	GitRepositories *struct {
+		Edges []*GitRepositoryEdgeFragment "json:\"edges\" graphql:\"edges\""
+	} "json:\"gitRepositories\" graphql:\"gitRepositories\""
+}
+type ListServiceDeployment struct {
+	ServiceDeployments *struct {
+		Edges []*ServiceDeploymentEdgeFragment "json:\"edges\" graphql:\"edges\""
+	} "json:\"serviceDeployments\" graphql:\"serviceDeployments\""
+}
+type PingCluster struct {
+	PingCluster *ClusterFragment "json:\"pingCluster\" graphql:\"pingCluster\""
+}
+type RollbackService struct {
+	RollbackService *ServiceDeploymentFragment "json:\"rollbackService\" graphql:\"rollbackService\""
+}
+type UpdateCluster struct {
+	UpdateCluster *ClusterFragment "json:\"updateCluster\" graphql:\"updateCluster\""
+}
+type UpdateClusterProvider struct {
+	UpdateClusterProvider *ClusterProviderFragment "json:\"updateClusterProvider\" graphql:\"updateClusterProvider\""
+}
+type UpdateDeploymentSettings struct {
+	UpdateDeploymentSettings *DeploymentSettingsFragment "json:\"updateDeploymentSettings\" graphql:\"updateDeploymentSettings\""
+}
+type UpdateRbac struct {
+	UpdateRbac *bool "json:\"updateRbac\" graphql:\"updateRbac\""
+}
+type UpdateServiceDeployment struct {
+	UpdateServiceDeployment *ServiceDeploymentFragment "json:\"updateServiceDeployment\" graphql:\"updateServiceDeployment\""
+}
+type CreateGitRepository struct {
+	CreateGitRepository *GitRepositoryFragment "json:\"createGitRepository\" graphql:\"createGitRepository\""
+}
+type UpdateServiceComponents struct {
+	UpdateServiceComponents *ServiceDeploymentFragment "json:\"updateServiceComponents\" graphql:\"updateServiceComponents\""
 }
 
-const CreateServiceDeploymentDocument = `mutation CreateServiceDeployment ($clusterId: ID!, $attributes: ServiceDeploymentAttributes!) {
-	createServiceDeployment(clusterId: $clusterId, attributes: $attributes) {
-		... SrvDeployment
+const CreateAccessTokenDocument = `mutation CreateAccessToken {
+	createAccessToken {
+		... AccessTokenFragment
 	}
 }
-fragment SrvDeployment on ServiceDeployment {
+fragment AccessTokenFragment on AccessToken {
+	id
+	token
+}
+`
+
+func (c *Client) CreateAccessToken(ctx context.Context, httpRequestOptions ...client.HTTPRequestOption) (*CreateAccessToken, error) {
+	vars := map[string]interface{}{}
+
+	var res CreateAccessToken
+	if err := c.Client.Post(ctx, "CreateAccessToken", CreateAccessTokenDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const CreateClusterDocument = `mutation CreateCluster ($attributes: ClusterAttributes!) {
+	createCluster(attributes: $attributes) {
+		... ClusterFragment
+	}
+}
+fragment ClusterFragment on Cluster {
+	id
+	name
+	version
+	currentVersion
+}
+`
+
+func (c *Client) CreateCluster(ctx context.Context, attributes ClusterAttributes, httpRequestOptions ...client.HTTPRequestOption) (*CreateCluster, error) {
+	vars := map[string]interface{}{
+		"attributes": attributes,
+	}
+
+	var res CreateCluster
+	if err := c.Client.Post(ctx, "CreateCluster", CreateClusterDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const CreateClusterProviderDocument = `mutation CreateClusterProvider ($attributes: ClusterProviderAttributes!) {
+	createClusterProvider(attributes: $attributes) {
+		... ClusterProviderFragment
+	}
+}
+fragment ClusterProviderFragment on ClusterProvider {
+	id
+	name
+	namespace
+	cloud
+	editable
+	repository {
+		... GitRepositoryFragment
+	}
+	service {
+		... ServiceDeploymentFragment
+	}
+}
+fragment GitRefFragment on GitRef {
+	folder
+	ref
+}
+fragment GitRepositoryFragment on GitRepository {
+	id
+	editable
+	health
+	authMethod
+	url
+}
+fragment GroupFragment on Group {
+	id
+	name
+	description
+}
+fragment PolicyBindingFragment on PolicyBinding {
+	id
+	group {
+		... GroupFragment
+	}
+	user {
+		... UserFragment
+	}
+}
+fragment ServiceDeploymentFragment on ServiceDeployment {
 	id
 	name
 	namespace
 	version
+	editable
+	components {
+		id
+		name
+		group
+		kind
+		namespace
+		state
+		synced
+		version
+	}
+	configuration {
+		name
+		value
+	}
+	git {
+		... GitRefFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+	sha
+	tarball
+	readBindings {
+		... PolicyBindingFragment
+	}
+	writeBindings {
+		... PolicyBindingFragment
+	}
+}
+fragment UserFragment on User {
+	name
+	id
+	email
+}
+`
+
+func (c *Client) CreateClusterProvider(ctx context.Context, attributes ClusterProviderAttributes, httpRequestOptions ...client.HTTPRequestOption) (*CreateClusterProvider, error) {
+	vars := map[string]interface{}{
+		"attributes": attributes,
+	}
+
+	var res CreateClusterProvider
+	if err := c.Client.Post(ctx, "CreateClusterProvider", CreateClusterProviderDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const CreateServiceDeploymentDocument = `mutation CreateServiceDeployment ($clusterId: ID!, $attributes: ServiceDeploymentAttributes!) {
+	createServiceDeployment(clusterId: $clusterId, attributes: $attributes) {
+		... ServiceDeploymentFragment
+	}
+}
+fragment GitRefFragment on GitRef {
+	folder
+	ref
+}
+fragment GitRepositoryFragment on GitRepository {
+	id
+	editable
+	health
+	authMethod
+	url
+}
+fragment GroupFragment on Group {
+	id
+	name
+	description
+}
+fragment PolicyBindingFragment on PolicyBinding {
+	id
+	group {
+		... GroupFragment
+	}
+	user {
+		... UserFragment
+	}
+}
+fragment ServiceDeploymentFragment on ServiceDeployment {
+	id
+	name
+	namespace
+	version
+	editable
+	components {
+		id
+		name
+		group
+		kind
+		namespace
+		state
+		synced
+		version
+	}
+	configuration {
+		name
+		value
+	}
+	git {
+		... GitRefFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+	sha
+	tarball
+	readBindings {
+		... PolicyBindingFragment
+	}
+	writeBindings {
+		... PolicyBindingFragment
+	}
+}
+fragment UserFragment on User {
+	name
+	id
+	email
 }
 `
 
@@ -190,16 +564,125 @@ func (c *Client) CreateServiceDeployment(ctx context.Context, clusterID string, 
 	return &res, nil
 }
 
-const DeleteServiceDeploymentDocument = `mutation DeleteServiceDeployment ($id: ID!) {
-	deleteServiceDeployment(id: $id) {
-		... SrvDeployment
+const DeleteAccessTokenDocument = `mutation DeleteAccessToken ($token: String!) {
+	deleteAccessToken(token: $token) {
+		... AccessTokenFragment
 	}
 }
-fragment SrvDeployment on ServiceDeployment {
+fragment AccessTokenFragment on AccessToken {
+	id
+	token
+}
+`
+
+func (c *Client) DeleteAccessToken(ctx context.Context, token string, httpRequestOptions ...client.HTTPRequestOption) (*DeleteAccessToken, error) {
+	vars := map[string]interface{}{
+		"token": token,
+	}
+
+	var res DeleteAccessToken
+	if err := c.Client.Post(ctx, "DeleteAccessToken", DeleteAccessTokenDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const DeleteClusterDocument = `mutation DeleteCluster ($id: ID!) {
+	deleteCluster(id: $id) {
+		... ClusterFragment
+	}
+}
+fragment ClusterFragment on Cluster {
+	id
+	name
+	version
+	currentVersion
+}
+`
+
+func (c *Client) DeleteCluster(ctx context.Context, id string, httpRequestOptions ...client.HTTPRequestOption) (*DeleteCluster, error) {
+	vars := map[string]interface{}{
+		"id": id,
+	}
+
+	var res DeleteCluster
+	if err := c.Client.Post(ctx, "DeleteCluster", DeleteClusterDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const DeleteServiceDeploymentDocument = `mutation DeleteServiceDeployment ($id: ID!) {
+	deleteServiceDeployment(id: $id) {
+		... ServiceDeploymentFragment
+	}
+}
+fragment GitRefFragment on GitRef {
+	folder
+	ref
+}
+fragment GitRepositoryFragment on GitRepository {
+	id
+	editable
+	health
+	authMethod
+	url
+}
+fragment GroupFragment on Group {
+	id
+	name
+	description
+}
+fragment PolicyBindingFragment on PolicyBinding {
+	id
+	group {
+		... GroupFragment
+	}
+	user {
+		... UserFragment
+	}
+}
+fragment ServiceDeploymentFragment on ServiceDeployment {
 	id
 	name
 	namespace
 	version
+	editable
+	components {
+		id
+		name
+		group
+		kind
+		namespace
+		state
+		synced
+		version
+	}
+	configuration {
+		name
+		value
+	}
+	git {
+		... GitRefFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+	sha
+	tarball
+	readBindings {
+		... PolicyBindingFragment
+	}
+	writeBindings {
+		... PolicyBindingFragment
+	}
+}
+fragment UserFragment on User {
+	name
+	id
+	email
 }
 `
 
@@ -210,6 +693,1105 @@ func (c *Client) DeleteServiceDeployment(ctx context.Context, id string, httpReq
 
 	var res DeleteServiceDeployment
 	if err := c.Client.Post(ctx, "DeleteServiceDeployment", DeleteServiceDeploymentDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const GetAccessTokenDocument = `query GetAccessToken ($id: ID!) {
+	accessToken(id: $id) {
+		... AccessTokenFragment
+	}
+}
+fragment AccessTokenFragment on AccessToken {
+	id
+	token
+}
+`
+
+func (c *Client) GetAccessToken(ctx context.Context, id string, httpRequestOptions ...client.HTTPRequestOption) (*GetAccessToken, error) {
+	vars := map[string]interface{}{
+		"id": id,
+	}
+
+	var res GetAccessToken
+	if err := c.Client.Post(ctx, "GetAccessToken", GetAccessTokenDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const GetClusterDocument = `query GetCluster ($id: ID) {
+	cluster(id: $id) {
+		... ClusterFragment
+	}
+}
+fragment ClusterFragment on Cluster {
+	id
+	name
+	version
+	currentVersion
+}
+`
+
+func (c *Client) GetCluster(ctx context.Context, id *string, httpRequestOptions ...client.HTTPRequestOption) (*GetCluster, error) {
+	vars := map[string]interface{}{
+		"id": id,
+	}
+
+	var res GetCluster
+	if err := c.Client.Post(ctx, "GetCluster", GetClusterDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const GetClusterProviderDocument = `query GetClusterProvider ($id: ID!) {
+	clusterProvider(id: $id) {
+		... ClusterProviderFragment
+	}
+}
+fragment ClusterProviderFragment on ClusterProvider {
+	id
+	name
+	namespace
+	cloud
+	editable
+	repository {
+		... GitRepositoryFragment
+	}
+	service {
+		... ServiceDeploymentFragment
+	}
+}
+fragment GitRefFragment on GitRef {
+	folder
+	ref
+}
+fragment GitRepositoryFragment on GitRepository {
+	id
+	editable
+	health
+	authMethod
+	url
+}
+fragment GroupFragment on Group {
+	id
+	name
+	description
+}
+fragment PolicyBindingFragment on PolicyBinding {
+	id
+	group {
+		... GroupFragment
+	}
+	user {
+		... UserFragment
+	}
+}
+fragment ServiceDeploymentFragment on ServiceDeployment {
+	id
+	name
+	namespace
+	version
+	editable
+	components {
+		id
+		name
+		group
+		kind
+		namespace
+		state
+		synced
+		version
+	}
+	configuration {
+		name
+		value
+	}
+	git {
+		... GitRefFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+	sha
+	tarball
+	readBindings {
+		... PolicyBindingFragment
+	}
+	writeBindings {
+		... PolicyBindingFragment
+	}
+}
+fragment UserFragment on User {
+	name
+	id
+	email
+}
+`
+
+func (c *Client) GetClusterProvider(ctx context.Context, id string, httpRequestOptions ...client.HTTPRequestOption) (*GetClusterProvider, error) {
+	vars := map[string]interface{}{
+		"id": id,
+	}
+
+	var res GetClusterProvider
+	if err := c.Client.Post(ctx, "GetClusterProvider", GetClusterProviderDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const GetServiceDeploymentDocument = `query GetServiceDeployment ($id: ID!) {
+	serviceDeployment(id: $id) {
+		... ServiceDeploymentFragment
+	}
+}
+fragment GitRefFragment on GitRef {
+	folder
+	ref
+}
+fragment GitRepositoryFragment on GitRepository {
+	id
+	editable
+	health
+	authMethod
+	url
+}
+fragment GroupFragment on Group {
+	id
+	name
+	description
+}
+fragment PolicyBindingFragment on PolicyBinding {
+	id
+	group {
+		... GroupFragment
+	}
+	user {
+		... UserFragment
+	}
+}
+fragment ServiceDeploymentFragment on ServiceDeployment {
+	id
+	name
+	namespace
+	version
+	editable
+	components {
+		id
+		name
+		group
+		kind
+		namespace
+		state
+		synced
+		version
+	}
+	configuration {
+		name
+		value
+	}
+	git {
+		... GitRefFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+	sha
+	tarball
+	readBindings {
+		... PolicyBindingFragment
+	}
+	writeBindings {
+		... PolicyBindingFragment
+	}
+}
+fragment UserFragment on User {
+	name
+	id
+	email
+}
+`
+
+func (c *Client) GetServiceDeployment(ctx context.Context, id string, httpRequestOptions ...client.HTTPRequestOption) (*GetServiceDeployment, error) {
+	vars := map[string]interface{}{
+		"id": id,
+	}
+
+	var res GetServiceDeployment
+	if err := c.Client.Post(ctx, "GetServiceDeployment", GetServiceDeploymentDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const ListAccessTokensDocument = `query ListAccessTokens ($cursor: String, $before: String, $last: Int) {
+	accessTokens(after: $cursor, first: 100, before: $before, last: $last) {
+		edges {
+			... AccessTokenEdgeFragment
+		}
+	}
+}
+fragment AccessTokenEdgeFragment on AccessTokenEdge {
+	node {
+		... AccessTokenFragment
+	}
+}
+fragment AccessTokenFragment on AccessToken {
+	id
+	token
+}
+`
+
+func (c *Client) ListAccessTokens(ctx context.Context, cursor *string, before *string, last *int64, httpRequestOptions ...client.HTTPRequestOption) (*ListAccessTokens, error) {
+	vars := map[string]interface{}{
+		"cursor": cursor,
+		"before": before,
+		"last":   last,
+	}
+
+	var res ListAccessTokens
+	if err := c.Client.Post(ctx, "ListAccessTokens", ListAccessTokensDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const ListClusterServicesDocument = `query ListClusterServices {
+	clusterServices {
+		... ServiceDeploymentFragment
+	}
+}
+fragment GitRefFragment on GitRef {
+	folder
+	ref
+}
+fragment GitRepositoryFragment on GitRepository {
+	id
+	editable
+	health
+	authMethod
+	url
+}
+fragment GroupFragment on Group {
+	id
+	name
+	description
+}
+fragment PolicyBindingFragment on PolicyBinding {
+	id
+	group {
+		... GroupFragment
+	}
+	user {
+		... UserFragment
+	}
+}
+fragment ServiceDeploymentFragment on ServiceDeployment {
+	id
+	name
+	namespace
+	version
+	editable
+	components {
+		id
+		name
+		group
+		kind
+		namespace
+		state
+		synced
+		version
+	}
+	configuration {
+		name
+		value
+	}
+	git {
+		... GitRefFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+	sha
+	tarball
+	readBindings {
+		... PolicyBindingFragment
+	}
+	writeBindings {
+		... PolicyBindingFragment
+	}
+}
+fragment UserFragment on User {
+	name
+	id
+	email
+}
+`
+
+func (c *Client) ListClusterServices(ctx context.Context, httpRequestOptions ...client.HTTPRequestOption) (*ListClusterServices, error) {
+	vars := map[string]interface{}{}
+
+	var res ListClusterServices
+	if err := c.Client.Post(ctx, "ListClusterServices", ListClusterServicesDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const ListClustersDocument = `query ListClusters ($cursor: String, $before: String, $last: Int) {
+	clusters(after: $cursor, first: 100, before: $before, last: $last) {
+		edges {
+			node {
+				... ClusterFragment
+			}
+		}
+	}
+}
+fragment ClusterFragment on Cluster {
+	id
+	name
+	version
+	currentVersion
+}
+`
+
+func (c *Client) ListClusters(ctx context.Context, cursor *string, before *string, last *int64, httpRequestOptions ...client.HTTPRequestOption) (*ListClusters, error) {
+	vars := map[string]interface{}{
+		"cursor": cursor,
+		"before": before,
+		"last":   last,
+	}
+
+	var res ListClusters
+	if err := c.Client.Post(ctx, "ListClusters", ListClustersDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const ListDeploymentSettingsDocument = `query ListDeploymentSettings {
+	deploymentSettings {
+		... DeploymentSettingsFragment
+	}
+}
+fragment DeploymentSettingsFragment on DeploymentSettings {
+	id
+	name
+	writeBindings {
+		... PolicyBindingFragment
+	}
+	readBindings {
+		... PolicyBindingFragment
+	}
+	createBindings {
+		... PolicyBindingFragment
+	}
+	artifactRepository {
+		... GitRepositoryFragment
+	}
+	deployerRepository {
+		... GitRepositoryFragment
+	}
+}
+fragment GitRepositoryFragment on GitRepository {
+	id
+	editable
+	health
+	authMethod
+	url
+}
+fragment GroupFragment on Group {
+	id
+	name
+	description
+}
+fragment PolicyBindingFragment on PolicyBinding {
+	id
+	group {
+		... GroupFragment
+	}
+	user {
+		... UserFragment
+	}
+}
+fragment UserFragment on User {
+	name
+	id
+	email
+}
+`
+
+func (c *Client) ListDeploymentSettings(ctx context.Context, httpRequestOptions ...client.HTTPRequestOption) (*ListDeploymentSettings, error) {
+	vars := map[string]interface{}{}
+
+	var res ListDeploymentSettings
+	if err := c.Client.Post(ctx, "ListDeploymentSettings", ListDeploymentSettingsDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const ListGitRepositoriesDocument = `query ListGitRepositories ($cursor: String, $before: String, $last: Int) {
+	gitRepositories(after: $cursor, first: 100, before: $before, last: $last) {
+		edges {
+			... GitRepositoryEdgeFragment
+		}
+	}
+}
+fragment GitRepositoryEdgeFragment on GitRepositoryEdge {
+	node {
+		... GitRepositoryFragment
+	}
+	cursor
+}
+fragment GitRepositoryFragment on GitRepository {
+	id
+	editable
+	health
+	authMethod
+	url
+}
+`
+
+func (c *Client) ListGitRepositories(ctx context.Context, cursor *string, before *string, last *int64, httpRequestOptions ...client.HTTPRequestOption) (*ListGitRepositories, error) {
+	vars := map[string]interface{}{
+		"cursor": cursor,
+		"before": before,
+		"last":   last,
+	}
+
+	var res ListGitRepositories
+	if err := c.Client.Post(ctx, "ListGitRepositories", ListGitRepositoriesDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const ListServiceDeploymentDocument = `query ListServiceDeployment ($cursor: String, $before: String, $last: Int, $clusterId: ID) {
+	serviceDeployments(after: $cursor, first: 100, before: $before, last: $last, clusterId: $clusterId) {
+		edges {
+			... ServiceDeploymentEdgeFragment
+		}
+	}
+}
+fragment GitRefFragment on GitRef {
+	folder
+	ref
+}
+fragment GitRepositoryFragment on GitRepository {
+	id
+	editable
+	health
+	authMethod
+	url
+}
+fragment GroupFragment on Group {
+	id
+	name
+	description
+}
+fragment PolicyBindingFragment on PolicyBinding {
+	id
+	group {
+		... GroupFragment
+	}
+	user {
+		... UserFragment
+	}
+}
+fragment ServiceDeploymentEdgeFragment on ServiceDeploymentEdge {
+	node {
+		... ServiceDeploymentFragment
+	}
+}
+fragment ServiceDeploymentFragment on ServiceDeployment {
+	id
+	name
+	namespace
+	version
+	editable
+	components {
+		id
+		name
+		group
+		kind
+		namespace
+		state
+		synced
+		version
+	}
+	configuration {
+		name
+		value
+	}
+	git {
+		... GitRefFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+	sha
+	tarball
+	readBindings {
+		... PolicyBindingFragment
+	}
+	writeBindings {
+		... PolicyBindingFragment
+	}
+}
+fragment UserFragment on User {
+	name
+	id
+	email
+}
+`
+
+func (c *Client) ListServiceDeployment(ctx context.Context, cursor *string, before *string, last *int64, clusterID *string, httpRequestOptions ...client.HTTPRequestOption) (*ListServiceDeployment, error) {
+	vars := map[string]interface{}{
+		"cursor":    cursor,
+		"before":    before,
+		"last":      last,
+		"clusterId": clusterID,
+	}
+
+	var res ListServiceDeployment
+	if err := c.Client.Post(ctx, "ListServiceDeployment", ListServiceDeploymentDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const PingClusterDocument = `mutation PingCluster ($attributes: ClusterPing!) {
+	pingCluster(attributes: $attributes) {
+		... ClusterFragment
+	}
+}
+fragment ClusterFragment on Cluster {
+	id
+	name
+	version
+	currentVersion
+}
+`
+
+func (c *Client) PingCluster(ctx context.Context, attributes ClusterPing, httpRequestOptions ...client.HTTPRequestOption) (*PingCluster, error) {
+	vars := map[string]interface{}{
+		"attributes": attributes,
+	}
+
+	var res PingCluster
+	if err := c.Client.Post(ctx, "PingCluster", PingClusterDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const RollbackServiceDocument = `mutation RollbackService ($id: ID!, $revisionId: ID!) {
+	rollbackService(id: $id, revisionId: $revisionId) {
+		... ServiceDeploymentFragment
+	}
+}
+fragment GitRefFragment on GitRef {
+	folder
+	ref
+}
+fragment GitRepositoryFragment on GitRepository {
+	id
+	editable
+	health
+	authMethod
+	url
+}
+fragment GroupFragment on Group {
+	id
+	name
+	description
+}
+fragment PolicyBindingFragment on PolicyBinding {
+	id
+	group {
+		... GroupFragment
+	}
+	user {
+		... UserFragment
+	}
+}
+fragment ServiceDeploymentFragment on ServiceDeployment {
+	id
+	name
+	namespace
+	version
+	editable
+	components {
+		id
+		name
+		group
+		kind
+		namespace
+		state
+		synced
+		version
+	}
+	configuration {
+		name
+		value
+	}
+	git {
+		... GitRefFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+	sha
+	tarball
+	readBindings {
+		... PolicyBindingFragment
+	}
+	writeBindings {
+		... PolicyBindingFragment
+	}
+}
+fragment UserFragment on User {
+	name
+	id
+	email
+}
+`
+
+func (c *Client) RollbackService(ctx context.Context, id string, revisionID string, httpRequestOptions ...client.HTTPRequestOption) (*RollbackService, error) {
+	vars := map[string]interface{}{
+		"id":         id,
+		"revisionId": revisionID,
+	}
+
+	var res RollbackService
+	if err := c.Client.Post(ctx, "RollbackService", RollbackServiceDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const UpdateClusterDocument = `mutation UpdateCluster ($id: ID!, $attributes: ClusterUpdateAttributes!) {
+	updateCluster(id: $id, attributes: $attributes) {
+		... ClusterFragment
+	}
+}
+fragment ClusterFragment on Cluster {
+	id
+	name
+	version
+	currentVersion
+}
+`
+
+func (c *Client) UpdateCluster(ctx context.Context, id string, attributes ClusterUpdateAttributes, httpRequestOptions ...client.HTTPRequestOption) (*UpdateCluster, error) {
+	vars := map[string]interface{}{
+		"id":         id,
+		"attributes": attributes,
+	}
+
+	var res UpdateCluster
+	if err := c.Client.Post(ctx, "UpdateCluster", UpdateClusterDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const UpdateClusterProviderDocument = `mutation UpdateClusterProvider ($id: ID!, $attributes: ClusterProviderUpdateAttributes!) {
+	updateClusterProvider(id: $id, attributes: $attributes) {
+		... ClusterProviderFragment
+	}
+}
+fragment ClusterProviderFragment on ClusterProvider {
+	id
+	name
+	namespace
+	cloud
+	editable
+	repository {
+		... GitRepositoryFragment
+	}
+	service {
+		... ServiceDeploymentFragment
+	}
+}
+fragment GitRefFragment on GitRef {
+	folder
+	ref
+}
+fragment GitRepositoryFragment on GitRepository {
+	id
+	editable
+	health
+	authMethod
+	url
+}
+fragment GroupFragment on Group {
+	id
+	name
+	description
+}
+fragment PolicyBindingFragment on PolicyBinding {
+	id
+	group {
+		... GroupFragment
+	}
+	user {
+		... UserFragment
+	}
+}
+fragment ServiceDeploymentFragment on ServiceDeployment {
+	id
+	name
+	namespace
+	version
+	editable
+	components {
+		id
+		name
+		group
+		kind
+		namespace
+		state
+		synced
+		version
+	}
+	configuration {
+		name
+		value
+	}
+	git {
+		... GitRefFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+	sha
+	tarball
+	readBindings {
+		... PolicyBindingFragment
+	}
+	writeBindings {
+		... PolicyBindingFragment
+	}
+}
+fragment UserFragment on User {
+	name
+	id
+	email
+}
+`
+
+func (c *Client) UpdateClusterProvider(ctx context.Context, id string, attributes ClusterProviderUpdateAttributes, httpRequestOptions ...client.HTTPRequestOption) (*UpdateClusterProvider, error) {
+	vars := map[string]interface{}{
+		"id":         id,
+		"attributes": attributes,
+	}
+
+	var res UpdateClusterProvider
+	if err := c.Client.Post(ctx, "UpdateClusterProvider", UpdateClusterProviderDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const UpdateDeploymentSettingsDocument = `mutation UpdateDeploymentSettings ($attributes: DeploymentSettingsAttributes!) {
+	updateDeploymentSettings(attributes: $attributes) {
+		... DeploymentSettingsFragment
+	}
+}
+fragment DeploymentSettingsFragment on DeploymentSettings {
+	id
+	name
+	writeBindings {
+		... PolicyBindingFragment
+	}
+	readBindings {
+		... PolicyBindingFragment
+	}
+	createBindings {
+		... PolicyBindingFragment
+	}
+	artifactRepository {
+		... GitRepositoryFragment
+	}
+	deployerRepository {
+		... GitRepositoryFragment
+	}
+}
+fragment GitRepositoryFragment on GitRepository {
+	id
+	editable
+	health
+	authMethod
+	url
+}
+fragment GroupFragment on Group {
+	id
+	name
+	description
+}
+fragment PolicyBindingFragment on PolicyBinding {
+	id
+	group {
+		... GroupFragment
+	}
+	user {
+		... UserFragment
+	}
+}
+fragment UserFragment on User {
+	name
+	id
+	email
+}
+`
+
+func (c *Client) UpdateDeploymentSettings(ctx context.Context, attributes DeploymentSettingsAttributes, httpRequestOptions ...client.HTTPRequestOption) (*UpdateDeploymentSettings, error) {
+	vars := map[string]interface{}{
+		"attributes": attributes,
+	}
+
+	var res UpdateDeploymentSettings
+	if err := c.Client.Post(ctx, "UpdateDeploymentSettings", UpdateDeploymentSettingsDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const UpdateRbacDocument = `mutation UpdateRbac ($rbac: RbacAttributes!, $serviceId: ID, $clusterId: ID, $providerId: ID) {
+	updateRbac(rbac: $rbac, serviceId: $serviceId, clusterId: $clusterId, providerId: $providerId)
+}
+`
+
+func (c *Client) UpdateRbac(ctx context.Context, rbac RbacAttributes, serviceID *string, clusterID *string, providerID *string, httpRequestOptions ...client.HTTPRequestOption) (*UpdateRbac, error) {
+	vars := map[string]interface{}{
+		"rbac":       rbac,
+		"serviceId":  serviceID,
+		"clusterId":  clusterID,
+		"providerId": providerID,
+	}
+
+	var res UpdateRbac
+	if err := c.Client.Post(ctx, "UpdateRbac", UpdateRbacDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const UpdateServiceDeploymentDocument = `mutation UpdateServiceDeployment ($id: ID!, $attributes: ServiceUpdateAttributes!) {
+	updateServiceDeployment(id: $id, attributes: $attributes) {
+		... ServiceDeploymentFragment
+	}
+}
+fragment GitRefFragment on GitRef {
+	folder
+	ref
+}
+fragment GitRepositoryFragment on GitRepository {
+	id
+	editable
+	health
+	authMethod
+	url
+}
+fragment GroupFragment on Group {
+	id
+	name
+	description
+}
+fragment PolicyBindingFragment on PolicyBinding {
+	id
+	group {
+		... GroupFragment
+	}
+	user {
+		... UserFragment
+	}
+}
+fragment ServiceDeploymentFragment on ServiceDeployment {
+	id
+	name
+	namespace
+	version
+	editable
+	components {
+		id
+		name
+		group
+		kind
+		namespace
+		state
+		synced
+		version
+	}
+	configuration {
+		name
+		value
+	}
+	git {
+		... GitRefFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+	sha
+	tarball
+	readBindings {
+		... PolicyBindingFragment
+	}
+	writeBindings {
+		... PolicyBindingFragment
+	}
+}
+fragment UserFragment on User {
+	name
+	id
+	email
+}
+`
+
+func (c *Client) UpdateServiceDeployment(ctx context.Context, id string, attributes ServiceUpdateAttributes, httpRequestOptions ...client.HTTPRequestOption) (*UpdateServiceDeployment, error) {
+	vars := map[string]interface{}{
+		"id":         id,
+		"attributes": attributes,
+	}
+
+	var res UpdateServiceDeployment
+	if err := c.Client.Post(ctx, "UpdateServiceDeployment", UpdateServiceDeploymentDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const CreateGitRepositoryDocument = `mutation createGitRepository ($attributes: GitAttributes!) {
+	createGitRepository(attributes: $attributes) {
+		... GitRepositoryFragment
+	}
+}
+fragment GitRepositoryFragment on GitRepository {
+	id
+	editable
+	health
+	authMethod
+	url
+}
+`
+
+func (c *Client) CreateGitRepository(ctx context.Context, attributes GitAttributes, httpRequestOptions ...client.HTTPRequestOption) (*CreateGitRepository, error) {
+	vars := map[string]interface{}{
+		"attributes": attributes,
+	}
+
+	var res CreateGitRepository
+	if err := c.Client.Post(ctx, "createGitRepository", CreateGitRepositoryDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const UpdateServiceComponentsDocument = `mutation updateServiceComponents ($id: ID!, $components: [ComponentAttributes]) {
+	updateServiceComponents(id: $id, components: $components) {
+		... ServiceDeploymentFragment
+	}
+}
+fragment GitRefFragment on GitRef {
+	folder
+	ref
+}
+fragment GitRepositoryFragment on GitRepository {
+	id
+	editable
+	health
+	authMethod
+	url
+}
+fragment GroupFragment on Group {
+	id
+	name
+	description
+}
+fragment PolicyBindingFragment on PolicyBinding {
+	id
+	group {
+		... GroupFragment
+	}
+	user {
+		... UserFragment
+	}
+}
+fragment ServiceDeploymentFragment on ServiceDeployment {
+	id
+	name
+	namespace
+	version
+	editable
+	components {
+		id
+		name
+		group
+		kind
+		namespace
+		state
+		synced
+		version
+	}
+	configuration {
+		name
+		value
+	}
+	git {
+		... GitRefFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+	sha
+	tarball
+	readBindings {
+		... PolicyBindingFragment
+	}
+	writeBindings {
+		... PolicyBindingFragment
+	}
+}
+fragment UserFragment on User {
+	name
+	id
+	email
+}
+`
+
+func (c *Client) UpdateServiceComponents(ctx context.Context, id string, components []*ComponentAttributes, httpRequestOptions ...client.HTTPRequestOption) (*UpdateServiceComponents, error) {
+	vars := map[string]interface{}{
+		"id":         id,
+		"components": components,
+	}
+
+	var res UpdateServiceComponents
+	if err := c.Client.Post(ctx, "updateServiceComponents", UpdateServiceComponentsDocument, &res, vars, httpRequestOptions...); err != nil {
 		return nil, err
 	}
 

@@ -260,17 +260,20 @@ type CloudSettingsAttributes struct {
 }
 
 type Cluster struct {
-	ID            string           `json:"id"`
-	Name          string           `json:"name"`
-	Version       string           `json:"version"`
-	DeletedAt     *string          `json:"deletedAt"`
-	ReadBindings  []*PolicyBinding `json:"readBindings"`
-	WriteBindings []*PolicyBinding `json:"writeBindings"`
-	NodePools     []*NodePool      `json:"nodePools"`
-	Provider      *ClusterProvider `json:"provider"`
-	Service       *Service         `json:"service"`
-	InsertedAt    *string          `json:"insertedAt"`
-	UpdatedAt     *string          `json:"updatedAt"`
+	ID             string             `json:"id"`
+	Name           string             `json:"name"`
+	Version        string             `json:"version"`
+	CurrentVersion *string            `json:"currentVersion"`
+	DeletedAt      *string            `json:"deletedAt"`
+	PingedAt       *string            `json:"pingedAt"`
+	ReadBindings   []*PolicyBinding   `json:"readBindings"`
+	WriteBindings  []*PolicyBinding   `json:"writeBindings"`
+	NodePools      []*NodePool        `json:"nodePools"`
+	Provider       *ClusterProvider   `json:"provider"`
+	Service        *ServiceDeployment `json:"service"`
+	Editable       *bool              `json:"editable"`
+	InsertedAt     *string            `json:"insertedAt"`
+	UpdatedAt      *string            `json:"updatedAt"`
 }
 
 type ClusterAttributes struct {
@@ -299,16 +302,21 @@ type ClusterInfo struct {
 	Version    *string `json:"version"`
 }
 
+type ClusterPing struct {
+	CurrentVersion string `json:"currentVersion"`
+}
+
 type ClusterProvider struct {
-	ID         string         `json:"id"`
-	Name       string         `json:"name"`
-	Namespace  string         `json:"namespace"`
-	Cloud      string         `json:"cloud"`
-	Git        GitRef         `json:"git"`
-	Repository *GitRepository `json:"repository"`
-	Service    *Service       `json:"service"`
-	InsertedAt *string        `json:"insertedAt"`
-	UpdatedAt  *string        `json:"updatedAt"`
+	ID         string             `json:"id"`
+	Name       string             `json:"name"`
+	Namespace  string             `json:"namespace"`
+	Cloud      string             `json:"cloud"`
+	Git        GitRef             `json:"git"`
+	Repository *GitRepository     `json:"repository"`
+	Service    *ServiceDeployment `json:"service"`
+	Editable   *bool              `json:"editable"`
+	InsertedAt *string            `json:"insertedAt"`
+	UpdatedAt  *string            `json:"updatedAt"`
 }
 
 type ClusterProviderAttributes struct {
@@ -658,6 +666,7 @@ type GitRepository struct {
 	AuthMethod *AuthMethod `json:"authMethod"`
 	Health     *GitHealth  `json:"health"`
 	PulledAt   *string     `json:"pulledAt"`
+	Editable   *bool       `json:"editable"`
 	InsertedAt *string     `json:"insertedAt"`
 	UpdatedAt  *string     `json:"updatedAt"`
 }
@@ -1438,9 +1447,11 @@ type ServiceDeployment struct {
 	Repository    *GitRepository          `json:"repository"`
 	ReadBindings  []*PolicyBinding        `json:"readBindings"`
 	WriteBindings []*PolicyBinding        `json:"writeBindings"`
+	Revision      *Revision               `json:"revision"`
 	Configuration []*ServiceConfiguration `json:"configuration"`
 	Components    []*ServiceComponent     `json:"components"`
 	Revisions     *RevisionConnection     `json:"revisions"`
+	Editable      *bool                   `json:"editable"`
 	InsertedAt    *string                 `json:"insertedAt"`
 	UpdatedAt     *string                 `json:"updatedAt"`
 }

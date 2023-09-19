@@ -1,0 +1,65 @@
+mutation CreateCluster($attributes: ClusterAttributes!) {
+    createCluster(attributes: $attributes) {
+        ... ClusterFragment
+    }
+}
+
+mutation UpdateCluster($id: ID!, $attributes: ClusterUpdateAttributes!) {
+    updateCluster(id: $id, attributes: $attributes){
+        ... ClusterFragment
+    }
+}
+
+mutation DeleteCluster($id: ID!) {
+    deleteCluster(id: $id) {
+        ...ClusterFragment
+    }
+}
+
+mutation CreateClusterProvider($attributes: ClusterProviderAttributes!) {
+    createClusterProvider(attributes: $attributes) {
+        ...ClusterProviderFragment
+    }
+
+}
+
+mutation UpdateClusterProvider($id: ID!, $attributes: ClusterProviderUpdateAttributes!) {
+    updateClusterProvider(id: $id, attributes: $attributes) {
+        ...ClusterProviderFragment
+    }
+
+}
+
+mutation PingCluster($attributes: ClusterPing!) {
+    pingCluster(attributes: $attributes) {
+        ...ClusterFragment
+    }
+}
+
+query ListClusters($cursor: String, $before: String, $last: Int) {
+    clusters(after: $cursor, first: 100, before: $before, last: $last) {
+        edges {
+            node {
+                ...ClusterFragment
+            }
+        }
+    }
+}
+
+query GetCluster($id: ID) {
+    cluster(id: $id) {
+        ...ClusterFragment
+    }
+}
+
+query GetClusterProvider($id: ID!) {
+    clusterProvider(id: $id) {
+        ...ClusterProviderFragment
+    }
+}
+
+query ListClusterServices {
+    clusterServices {
+        ...ServiceDeploymentFragment
+    }
+}

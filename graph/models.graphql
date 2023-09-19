@@ -1,0 +1,135 @@
+fragment ServiceDeploymentFragment on ServiceDeployment {
+    id
+    name
+    namespace
+    version
+    editable
+    components {
+        id
+        name
+        group
+        kind
+        namespace
+        state
+        synced
+        version
+    }
+    configuration {
+        name
+        value
+    }
+    git {
+        ...GitRefFragment
+    }
+    repository {
+        ... GitRepositoryFragment
+    }
+    sha
+    tarball
+    readBindings {
+        ...PolicyBindingFragment
+    }
+    writeBindings {
+        ...PolicyBindingFragment
+    }
+}
+
+fragment PolicyBindingFragment on PolicyBinding {
+    id
+    group {
+        ...GroupFragment
+    }
+    user {
+        ...UserFragment
+    }
+}
+
+fragment UserFragment on User {
+    name
+    id
+    email
+}
+
+fragment GroupFragment on Group {
+    id
+    name
+    description
+}
+
+fragment GitRepositoryFragment on GitRepository {
+    id
+    editable
+    health
+    authMethod
+    url
+}
+
+fragment GitRefFragment on GitRef {
+    folder
+    ref
+}
+
+fragment ClusterFragment on Cluster {
+    id
+    name
+    version
+    currentVersion
+}
+
+fragment ClusterProviderFragment on ClusterProvider {
+    id
+    name
+    namespace
+    cloud
+    editable
+    repository {
+        ...GitRepositoryFragment
+    }
+    service {
+        ...ServiceDeploymentFragment
+    }
+}
+
+fragment AccessTokenFragment on AccessToken {
+    id
+    token
+}
+
+fragment AccessTokenEdgeFragment on AccessTokenEdge {
+    node {
+        ...AccessTokenFragment
+    }
+}
+
+fragment GitRepositoryEdgeFragment on GitRepositoryEdge {
+    node {
+        ...GitRepositoryFragment
+    }
+    cursor
+}
+
+fragment DeploymentSettingsFragment on DeploymentSettings {
+    id
+    name
+    writeBindings {
+        ...PolicyBindingFragment
+    }
+    readBindings {
+        ...PolicyBindingFragment
+    }
+    createBindings {
+        ...PolicyBindingFragment
+    }
+    artifactRepository {
+        ...GitRepositoryFragment
+    }
+    deployerRepository {
+        ...GitRepositoryFragment
+    }
+}
+
+fragment ServiceDeploymentEdgeFragment on ServiceDeploymentEdge{
+    node {
+        ...ServiceDeploymentFragment
+    }
+}
