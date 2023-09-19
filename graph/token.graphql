@@ -12,7 +12,7 @@ mutation DeleteAccessToken($token: String!) {
 
 query ListAccessTokens($cursor: String, $before: String, $last: Int) {
     accessTokens(after: $cursor, first: 100, before: $before, last: $last) {
-        edges {... AccessTokenEdgeFragment}
+        edges {... AccessTokenEdgeFragment }
     }
 }
 

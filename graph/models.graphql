@@ -74,6 +74,16 @@ fragment ClusterFragment on Cluster {
     name
     version
     currentVersion
+    provider { ...ClusterProviderFragment }
+    nodePools { ...NodePoolFragment }
+}
+
+fragment NodePoolFragment on NodePool {
+    id
+    name
+    minSize
+    maxSize
+    instanceType
 }
 
 fragment ClusterProviderFragment on ClusterProvider {
@@ -128,8 +138,12 @@ fragment DeploymentSettingsFragment on DeploymentSettings {
     }
 }
 
-fragment ServiceDeploymentEdgeFragment on ServiceDeploymentEdge{
+fragment ServiceDeploymentEdgeFragment on ServiceDeploymentEdge {
     node {
         ...ServiceDeploymentFragment
     }
+}
+
+fragment ClusterEdgeFragment on ClusterEdge {
+    node { ...ClusterFragment }
 }
