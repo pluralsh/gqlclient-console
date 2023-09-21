@@ -61,6 +61,22 @@ type Account struct {
 	Subscription       *PluralSubscription `json:"subscription"`
 }
 
+// a representation of a kubernetes api deprecation
+type APIDeprecation struct {
+	// the kubernetes version the deprecation was posted
+	DeprecatedIn *string `json:"deprecatedIn"`
+	// the kubernetes version the api version will be removed and unusable in
+	RemovedIn *string `json:"removedIn"`
+	// the api you can replace this resource with
+	Replacement *string `json:"replacement"`
+	// the kubernetes version the replacement api was created in
+	AvailableIn *string `json:"availableIn"`
+	// whether you cannot safely upgrade to the next kubernetes version if this deprecation exists
+	Blocking *bool `json:"blocking"`
+	// the component of this deprecation
+	Component *ServiceComponent `json:"component"`
+}
+
 type Application struct {
 	Name          string            `json:"name"`
 	Spec          ApplicationSpec   `json:"spec"`
@@ -144,7 +160,9 @@ type AvailableFeatures struct {
 	DatabaseManagement *bool `json:"databaseManagement"`
 }
 
+// aws node customizations
 type AwsCloud struct {
+	// custom launch template for your nodes, useful for Golden AMI setups
 	LaunchTemplateID *string `json:"launchTemplateId"`
 }
 
@@ -251,6 +269,7 @@ type CloudProviderSettingsAttributes struct {
 	Gcp *GcpSettingsAttributes `json:"gcp,omitempty"`
 }
 
+// cloud specific settings for a node pool
 type CloudSettings struct {
 	Aws *AwsCloud `json:"aws"`
 }
@@ -259,21 +278,38 @@ type CloudSettingsAttributes struct {
 	Aws *AwsCloudAttributes `json:"aws,omitempty"`
 }
 
+// a representation of a cluster you can deploy to
 type Cluster struct {
-	ID             string             `json:"id"`
-	Name           string             `json:"name"`
-	Version        string             `json:"version"`
-	CurrentVersion *string            `json:"currentVersion"`
-	DeletedAt      *string            `json:"deletedAt"`
-	PingedAt       *string            `json:"pingedAt"`
-	ReadBindings   []*PolicyBinding   `json:"readBindings"`
-	WriteBindings  []*PolicyBinding   `json:"writeBindings"`
-	NodePools      []*NodePool        `json:"nodePools"`
-	Provider       *ClusterProvider   `json:"provider"`
-	Service        *ServiceDeployment `json:"service"`
-	Editable       *bool              `json:"editable"`
-	InsertedAt     *string            `json:"insertedAt"`
-	UpdatedAt      *string            `json:"updatedAt"`
+	// internal id of this cluster
+	ID string `json:"id"`
+	// human readable name of this cluster, will also translate to cloud k8s name
+	Name string `json:"name"`
+	// desired k8s version for the cluster
+	Version string `json:"version"`
+	// current k8s version as told to us by the deployment operator
+	CurrentVersion *string `json:"currentVersion"`
+	// when this cluster was scheduled for deletion
+	DeletedAt *string `json:"deletedAt"`
+	// last time the deploy operator pinged this cluster
+	PingedAt *string `json:"pingedAt"`
+	// read policy for this cluster
+	ReadBindings []*PolicyBinding `json:"readBindings"`
+	// write policy for this cluster
+	WriteBindings []*PolicyBinding `json:"writeBindings"`
+	// list of node pool specs managed by CAPI
+	NodePools []*NodePool `json:"nodePools"`
+	// the provider we use to create this cluster (null if BYOK)
+	Provider *ClusterProvider `json:"provider"`
+	// the service used to deploy the CAPI resources of this cluster
+	Service *ServiceDeployment `json:"service"`
+	// key/value tags to filter clusters
+	Tags []*Tag `json:"tags"`
+	// all api deprecations for all services in this cluster
+	APIDeprecations []*APIDeprecation `json:"apiDeprecations"`
+	// whether the current user can edit this cluster
+	Editable   *bool   `json:"editable"`
+	InsertedAt *string `json:"insertedAt"`
+	UpdatedAt  *string `json:"updatedAt"`
 }
 
 type ClusterAttributes struct {
@@ -283,6 +319,7 @@ type ClusterAttributes struct {
 	NodePools     []*NodePoolAttributes      `json:"nodePools,omitempty"`
 	ReadBindings  []*PolicyBindingAttributes `json:"readBindings,omitempty"`
 	WriteBindings []*PolicyBindingAttributes `json:"writeBindings,omitempty"`
+	Tags          []*TagAttributes           `json:"tags,omitempty"`
 }
 
 type ClusterConnection struct {
@@ -306,17 +343,26 @@ type ClusterPing struct {
 	CurrentVersion string `json:"currentVersion"`
 }
 
+// a CAPI provider for a cluster, cloud is inferred from name if not provided manually
 type ClusterProvider struct {
-	ID         string             `json:"id"`
-	Name       string             `json:"name"`
-	Namespace  string             `json:"namespace"`
-	Cloud      string             `json:"cloud"`
-	Git        GitRef             `json:"git"`
-	Repository *GitRepository     `json:"repository"`
-	Service    *ServiceDeployment `json:"service"`
-	Editable   *bool              `json:"editable"`
-	InsertedAt *string            `json:"insertedAt"`
-	UpdatedAt  *string            `json:"updatedAt"`
+	// the id of this provider
+	ID string `json:"id"`
+	// a human readable name for the provider, globally unique
+	Name string `json:"name"`
+	// the namespace the CAPI resources are deployed into
+	Namespace string `json:"namespace"`
+	// the name of the cloud service for this provider
+	Cloud string `json:"cloud"`
+	// the details of how cluster manifests will be synced from git when created with this provider
+	Git GitRef `json:"git"`
+	// the repository used to serve cluster manifests
+	Repository *GitRepository `json:"repository"`
+	// the service of the CAPI controller itself
+	Service *ServiceDeployment `json:"service"`
+	// whether the current user can edit this resource
+	Editable   *bool   `json:"editable"`
+	InsertedAt *string `json:"insertedAt"`
+	UpdatedAt  *string `json:"updatedAt"`
 }
 
 type ClusterProviderAttributes struct {
@@ -584,17 +630,24 @@ type Deployment struct {
 
 func (Deployment) IsKubernetesData() {}
 
+// global settings for CD, these specify global read/write policies and also allow for customization of the repos for CAPI resources and the deploy operator
 type DeploymentSettings struct {
-	ID                 string           `json:"id"`
-	Name               string           `json:"name"`
-	ArtifactRepository *GitRepository   `json:"artifactRepository"`
-	DeployerRepository *GitRepository   `json:"deployerRepository"`
-	ReadBindings       []*PolicyBinding `json:"readBindings"`
-	WriteBindings      []*PolicyBinding `json:"writeBindings"`
-	GitBindings        []*PolicyBinding `json:"gitBindings"`
-	CreateBindings     []*PolicyBinding `json:"createBindings"`
-	InsertedAt         *string          `json:"insertedAt"`
-	UpdatedAt          *string          `json:"updatedAt"`
+	ID   string `json:"id"`
+	Name string `json:"name"`
+	// the repo to fetch CAPI manifests from, for both providers and clusters
+	ArtifactRepository *GitRepository `json:"artifactRepository"`
+	// the repo to fetch the deploy operators manifests from
+	DeployerRepository *GitRepository `json:"deployerRepository"`
+	// read policy across all clusters
+	ReadBindings []*PolicyBinding `json:"readBindings"`
+	// write policy across all clusters
+	WriteBindings []*PolicyBinding `json:"writeBindings"`
+	// policy for managing git repos
+	GitBindings []*PolicyBinding `json:"gitBindings"`
+	// policy for creation of new clusters
+	CreateBindings []*PolicyBinding `json:"createBindings"`
+	InsertedAt     *string          `json:"insertedAt"`
+	UpdatedAt      *string          `json:"updatedAt"`
 }
 
 type DeploymentSettingsAttributes struct {
@@ -643,15 +696,23 @@ type GcpSettingsAttributes struct {
 }
 
 type GitAttributes struct {
-	URL        string  `json:"url"`
+	// the url of this repository
+	URL string `json:"url"`
+	// an ssh private key to use with this repo if an ssh url was given
 	PrivateKey *string `json:"privateKey,omitempty"`
+	// a passphrase to decrypt the given private key
 	Passphrase *string `json:"passphrase,omitempty"`
-	Username   *string `json:"username,omitempty"`
-	Password   *string `json:"password,omitempty"`
+	// the http username for authenticated http repos, defaults to apiKey for github
+	Username *string `json:"username,omitempty"`
+	// the http password for http authenticated repos
+	Password *string `json:"password,omitempty"`
 }
 
+// a representation of where to pull manifests from git
 type GitRef struct {
-	Ref    string `json:"ref"`
+	// a general git ref, either a branch name or commit sha understandable by `git checkout <ref>`
+	Ref string `json:"ref"`
+	// the folder manifests live under
 	Folder string `json:"folder"`
 }
 
@@ -660,15 +721,22 @@ type GitRefAttributes struct {
 	Folder string `json:"folder"`
 }
 
+// a git repository available for deployments
 type GitRepository struct {
-	ID         string      `json:"id"`
-	URL        string      `json:"url"`
+	// internal id of this repository
+	ID string `json:"id"`
+	// the git url of the repository, either https or ssh supported
+	URL string `json:"url"`
+	// whether its a http or ssh url
 	AuthMethod *AuthMethod `json:"authMethod"`
-	Health     *GitHealth  `json:"health"`
-	PulledAt   *string     `json:"pulledAt"`
-	Editable   *bool       `json:"editable"`
-	InsertedAt *string     `json:"insertedAt"`
-	UpdatedAt  *string     `json:"updatedAt"`
+	// whether we can currently pull this repo with the provided credentials
+	Health *GitHealth `json:"health"`
+	// the last successsful git pull timestamp
+	PulledAt *string `json:"pulledAt"`
+	// whether the current user can edit this repo
+	Editable   *bool   `json:"editable"`
+	InsertedAt *string `json:"insertedAt"`
+	UpdatedAt  *string `json:"updatedAt"`
 }
 
 type GitRepositoryConnection struct {
@@ -684,6 +752,28 @@ type GitRepositoryEdge struct {
 type GitStatus struct {
 	Cloned *bool   `json:"cloned"`
 	Output *string `json:"output"`
+}
+
+// a rules based mechanism to redeploy a service across a fleet of clusters
+type GlobalService struct {
+	// internal id of this global service
+	ID string `json:"id"`
+	// a human readable name for this global service
+	Name string `json:"name"`
+	// a set of tags to select clusters for this global service
+	Tags []*Tag `json:"tags"`
+	// the service to replicate across clusters
+	Service *ServiceDeployment `json:"service"`
+	// whether to only apply to clusters with this provider
+	Provider   *ClusterProvider `json:"provider"`
+	InsertedAt *string          `json:"insertedAt"`
+	UpdatedAt  *string          `json:"updatedAt"`
+}
+
+type GlobalServiceAttributes struct {
+	Name       string           `json:"name"`
+	Tags       []*TagAttributes `json:"tags,omitempty"`
+	ProviderID *string          `json:"providerId,omitempty"`
 }
 
 type Group struct {
@@ -957,17 +1047,26 @@ type NodeMetric struct {
 	Usage     *NodeUsage `json:"usage"`
 }
 
+// a specification for a node pool to be created in this cluster
 type NodePool struct {
-	ID            string                 `json:"id"`
-	Name          string                 `json:"name"`
-	MinSize       int64                  `json:"minSize"`
-	MaxSize       int64                  `json:"maxSize"`
-	InstanceType  string                 `json:"instanceType"`
-	Labels        map[string]interface{} `json:"labels"`
-	Taints        []*Taint               `json:"taints"`
-	CloudSettings *CloudSettings         `json:"cloudSettings"`
-	InsertedAt    *string                `json:"insertedAt"`
-	UpdatedAt     *string                `json:"updatedAt"`
+	// internal id for this node pool
+	ID string `json:"id"`
+	// name of this node pool (must be unique)
+	Name string `json:"name"`
+	// minimum number of instances in this node pool
+	MinSize int64 `json:"minSize"`
+	// maximum number of instances in this node pool
+	MaxSize int64 `json:"maxSize"`
+	// the type of node to use (usually cloud-specific)
+	InstanceType string `json:"instanceType"`
+	// kubernetes labels to apply to the nodes in this pool, useful for node selectors
+	Labels map[string]interface{} `json:"labels"`
+	// any taints you'd want to apply to a node, for eg preventing scheduling on spot instances
+	Taints []*Taint `json:"taints"`
+	// cloud specific settings for the node groups
+	CloudSettings *CloudSettings `json:"cloudSettings"`
+	InsertedAt    *string        `json:"insertedAt"`
+	UpdatedAt     *string        `json:"updatedAt"`
 }
 
 type NodePoolAttributes struct {
@@ -1251,10 +1350,15 @@ type Resources struct {
 	Requests *ResourceSpec `json:"requests"`
 }
 
+// a representation of a past revision of a service
 type Revision struct {
-	ID         string  `json:"id"`
-	Version    string  `json:"version"`
-	Git        GitRef  `json:"git"`
+	// id of this revision
+	ID string `json:"id"`
+	// the service's semver
+	Version string `json:"version"`
+	// git spec of the prior revision
+	Git GitRef `json:"git"`
+	// the sha this service was pulled from
 	Sha        *string `json:"sha"`
 	InsertedAt *string `json:"insertedAt"`
 	UpdatedAt  *string `json:"updatedAt"`
@@ -1419,41 +1523,86 @@ type Service struct {
 	Events   []*Event      `json:"events"`
 }
 
-type ServiceComponent struct {
-	ID        string          `json:"id"`
-	State     *ComponentState `json:"state"`
-	Synced    bool            `json:"synced"`
-	Group     string          `json:"group"`
-	Version   string          `json:"version"`
-	Kind      string          `json:"kind"`
-	Namespace string          `json:"namespace"`
-	Name      string          `json:"name"`
+type ServiceCloneAttributes struct {
+	Name          string              `json:"name"`
+	Namespace     *string             `json:"namespace,omitempty"`
+	Configuration []*ConfigAttributes `json:"configuration,omitempty"`
 }
 
+// representation of a kubernets component deployed by a service
+type ServiceComponent struct {
+	// internal id
+	ID string `json:"id"`
+	// kubernetes component health enum
+	State *ComponentState `json:"state"`
+	// whether this component has been applied to the k8s api
+	Synced bool `json:"synced"`
+	// api group of this resource
+	Group string `json:"group"`
+	// api version of this resource
+	Version string `json:"version"`
+	// api kind of this resource
+	Kind string `json:"kind"`
+	// kubernetes namespace of this resource
+	Namespace string `json:"namespace"`
+	// kubernetes name of this resource
+	Name string `json:"name"`
+	// the service this component belongs to
+	Service *ServiceDeployment `json:"service"`
+	// any api deprecations discovered from this component
+	APIDeprecations []*APIDeprecation `json:"apiDeprecations"`
+}
+
+// a configuration item k/v pair
 type ServiceConfiguration struct {
 	Name  string `json:"name"`
 	Value string `json:"value"`
 }
 
+// a reference to a service deployed from a git repo into a cluster
 type ServiceDeployment struct {
-	ID            string                  `json:"id"`
-	Name          string                  `json:"name"`
-	Namespace     string                  `json:"namespace"`
-	Version       string                  `json:"version"`
-	Git           GitRef                  `json:"git"`
-	Sha           *string                 `json:"sha"`
-	Tarball       *string                 `json:"tarball"`
-	DeletedAt     *string                 `json:"deletedAt"`
-	Repository    *GitRepository          `json:"repository"`
-	ReadBindings  []*PolicyBinding        `json:"readBindings"`
-	WriteBindings []*PolicyBinding        `json:"writeBindings"`
-	Revision      *Revision               `json:"revision"`
+	// internal id of this service
+	ID string `json:"id"`
+	// human readable name of this service, must be unique per cluster
+	Name string `json:"name"`
+	// kubernetes namespace this service will be deployed to
+	Namespace string `json:"namespace"`
+	// semver of this service
+	Version string `json:"version"`
+	// description on where in git the service's manifests should be fetched
+	Git GitRef `json:"git"`
+	// latest git sha we pulled from
+	Sha *string `json:"sha"`
+	// https url to fetch the latest tarball of kubernetes manifests
+	Tarball *string `json:"tarball"`
+	// the time this service was scheduled for deletion
+	DeletedAt *string `json:"deletedAt"`
+	// the git repo of this service
+	Repository *GitRepository `json:"repository"`
+	// read policy for this service
+	ReadBindings []*PolicyBinding `json:"readBindings"`
+	// write policy of this service
+	WriteBindings []*PolicyBinding `json:"writeBindings"`
+	// a list of errors generated by the deployment operator
+	Errors []*ServiceError `json:"errors"`
+	// the cluster this service is deployed into
+	Cluster *Cluster `json:"cluster"`
+	// the current revision of this service
+	Revision *Revision `json:"revision"`
+	// possibly secret configuration used to template the manifests of this service
 	Configuration []*ServiceConfiguration `json:"configuration"`
-	Components    []*ServiceComponent     `json:"components"`
-	Revisions     *RevisionConnection     `json:"revisions"`
-	Editable      *bool                   `json:"editable"`
-	InsertedAt    *string                 `json:"insertedAt"`
-	UpdatedAt     *string                 `json:"updatedAt"`
+	// the kubernetes component of a service
+	Components []*ServiceComponent `json:"components"`
+	// the global service this service is the source for
+	GlobalService *GlobalService `json:"globalService"`
+	// whether this service is controlled by a global service
+	Owner *GlobalService `json:"owner"`
+	// a relay connection of all revisions of this service, these are periodically pruned up to a history limit
+	Revisions *RevisionConnection `json:"revisions"`
+	// whether this service is editable
+	Editable   *bool   `json:"editable"`
+	InsertedAt *string `json:"insertedAt"`
+	UpdatedAt  *string `json:"updatedAt"`
 }
 
 type ServiceDeploymentAttributes struct {
@@ -1475,6 +1624,17 @@ type ServiceDeploymentConnection struct {
 type ServiceDeploymentEdge struct {
 	Node   *ServiceDeployment `json:"node"`
 	Cursor *string            `json:"cursor"`
+}
+
+// an error sent from the deploy operator about sync progress
+type ServiceError struct {
+	Source  string `json:"source"`
+	Message string `json:"message"`
+}
+
+type ServiceErrorAttributes struct {
+	Source  string `json:"source"`
+	Message string `json:"message"`
 }
 
 type ServicePort struct {
@@ -1563,6 +1723,17 @@ type StatusCondition struct {
 	Type    string `json:"type"`
 }
 
+type Tag struct {
+	Name  string `json:"name"`
+	Value string `json:"value"`
+}
+
+type TagAttributes struct {
+	Name  string `json:"name"`
+	Value string `json:"value"`
+}
+
+// a kubernetes node taint
 type Taint struct {
 	Key    string `json:"key"`
 	Value  string `json:"value"`
