@@ -4,6 +4,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
     namespace
     version
     editable
+    deletedAt
     components {
         id
         name
@@ -22,7 +23,14 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 
 fragment ServiceDeploymentExtended on ServiceDeployment {
     configuration { name value }
+    revision { ...RevisionFragment }
     ...ServiceDeploymentFragment
+}
+
+fragment RevisionFragment on Revision {
+    id
+    sha
+    git { ref folder }
 }
 
 fragment PolicyBindingFragment on PolicyBinding {

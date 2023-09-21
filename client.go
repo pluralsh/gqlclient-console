@@ -223,6 +223,14 @@ type PolicyBindingFragment struct {
 	Group *GroupFragment "json:\"group\" graphql:\"group\""
 	User  *UserFragment  "json:\"user\" graphql:\"user\""
 }
+type RevisionFragment struct {
+	ID  string  "json:\"id\" graphql:\"id\""
+	Sha *string "json:\"sha\" graphql:\"sha\""
+	Git struct {
+		Ref    string "json:\"ref\" graphql:\"ref\""
+		Folder string "json:\"folder\" graphql:\"folder\""
+	} "json:\"git\" graphql:\"git\""
+}
 type ServiceDeploymentEdgeFragment struct {
 	Node *ServiceDeploymentFragment "json:\"node\" graphql:\"node\""
 }
@@ -231,11 +239,13 @@ type ServiceDeploymentExtended struct {
 		Name  string "json:\"name\" graphql:\"name\""
 		Value string "json:\"value\" graphql:\"value\""
 	} "json:\"configuration\" graphql:\"configuration\""
-	ID         string "json:\"id\" graphql:\"id\""
-	Name       string "json:\"name\" graphql:\"name\""
-	Namespace  string "json:\"namespace\" graphql:\"namespace\""
-	Version    string "json:\"version\" graphql:\"version\""
-	Editable   *bool  "json:\"editable\" graphql:\"editable\""
+	Revision   *RevisionFragment "json:\"revision\" graphql:\"revision\""
+	ID         string            "json:\"id\" graphql:\"id\""
+	Name       string            "json:\"name\" graphql:\"name\""
+	Namespace  string            "json:\"namespace\" graphql:\"namespace\""
+	Version    string            "json:\"version\" graphql:\"version\""
+	Editable   *bool             "json:\"editable\" graphql:\"editable\""
+	DeletedAt  *string           "json:\"deletedAt\" graphql:\"deletedAt\""
 	Components []*struct {
 		ID        string          "json:\"id\" graphql:\"id\""
 		Name      string          "json:\"name\" graphql:\"name\""
@@ -252,11 +262,12 @@ type ServiceDeploymentExtended struct {
 	Tarball    *string                "json:\"tarball\" graphql:\"tarball\""
 }
 type ServiceDeploymentFragment struct {
-	ID         string "json:\"id\" graphql:\"id\""
-	Name       string "json:\"name\" graphql:\"name\""
-	Namespace  string "json:\"namespace\" graphql:\"namespace\""
-	Version    string "json:\"version\" graphql:\"version\""
-	Editable   *bool  "json:\"editable\" graphql:\"editable\""
+	ID         string  "json:\"id\" graphql:\"id\""
+	Name       string  "json:\"name\" graphql:\"name\""
+	Namespace  string  "json:\"namespace\" graphql:\"namespace\""
+	Version    string  "json:\"version\" graphql:\"version\""
+	Editable   *bool   "json:\"editable\" graphql:\"editable\""
+	DeletedAt  *string "json:\"deletedAt\" graphql:\"deletedAt\""
 	Components []*struct {
 		ID        string          "json:\"id\" graphql:\"id\""
 		Name      string          "json:\"name\" graphql:\"name\""
@@ -440,6 +451,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	namespace
 	version
 	editable
+	deletedAt
 	components {
 		id
 		name
@@ -509,6 +521,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	namespace
 	version
 	editable
+	deletedAt
 	components {
 		id
 		name
@@ -565,6 +578,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	namespace
 	version
 	editable
+	deletedAt
 	components {
 		id
 		name
@@ -678,6 +692,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	namespace
 	version
 	editable
+	deletedAt
 	components {
 		id
 		name
@@ -734,6 +749,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	namespace
 	version
 	editable
+	deletedAt
 	components {
 		id
 		name
@@ -846,6 +862,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	namespace
 	version
 	editable
+	deletedAt
 	components {
 		id
 		name
@@ -915,6 +932,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	namespace
 	version
 	editable
+	deletedAt
 	components {
 		id
 		name
@@ -965,10 +983,21 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment RevisionFragment on Revision {
+	id
+	sha
+	git {
+		ref
+		folder
+	}
+}
 fragment ServiceDeploymentExtended on ServiceDeployment {
 	configuration {
 		name
 		value
+	}
+	revision {
+		... RevisionFragment
 	}
 	... ServiceDeploymentFragment
 }
@@ -978,6 +1007,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	namespace
 	version
 	editable
+	deletedAt
 	components {
 		id
 		name
@@ -1067,6 +1097,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	namespace
 	version
 	editable
+	deletedAt
 	components {
 		id
 		name
@@ -1160,6 +1191,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	namespace
 	version
 	editable
+	deletedAt
 	components {
 		id
 		name
@@ -1325,6 +1357,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	namespace
 	version
 	editable
+	deletedAt
 	components {
 		id
 		name
@@ -1416,6 +1449,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	namespace
 	version
 	editable
+	deletedAt
 	components {
 		id
 		name
@@ -1472,6 +1506,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	namespace
 	version
 	editable
+	deletedAt
 	components {
 		id
 		name
@@ -1561,6 +1596,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	namespace
 	version
 	editable
+	deletedAt
 	components {
 		id
 		name
@@ -1631,6 +1667,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	namespace
 	version
 	editable
+	deletedAt
 	components {
 		id
 		name
@@ -1774,6 +1811,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	namespace
 	version
 	editable
+	deletedAt
 	components {
 		id
 		name
@@ -1858,6 +1896,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	namespace
 	version
 	editable
+	deletedAt
 	components {
 		id
 		name
