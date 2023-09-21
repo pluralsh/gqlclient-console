@@ -21,8 +21,8 @@ mutation RollbackService($id: ID!, $revisionId: ID!) {
     }
 }
 
-mutation updateServiceComponents($id: ID!, $components: [ComponentAttributes]) {
-    updateServiceComponents(id: $id, components: $components) {
+mutation updateServiceComponents($id: ID!, $components: [ComponentAttributes], $errors: [ServiceErrorAttributes]) {
+    updateServiceComponents(id: $id, components: $components, errors: $errors) {
         ...ServiceDeploymentFragment
     }
 }
@@ -41,7 +41,7 @@ query ListDeploymentSettings {
 
 query GetServiceDeployment($id: ID!) {
     serviceDeployment(id: $id) {
-        ...ServiceDeploymentFragment
+        ...ServiceDeploymentExtended
     }
 }
 

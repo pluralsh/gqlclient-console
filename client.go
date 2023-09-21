@@ -92,8 +92,8 @@ type RootQueryType struct {
 	Cluster               *Cluster                     "json:\"cluster\" graphql:\"cluster\""
 	ClusterProvider       *ClusterProvider             "json:\"clusterProvider\" graphql:\"clusterProvider\""
 	ServiceDeployments    *ServiceDeploymentConnection "json:\"serviceDeployments\" graphql:\"serviceDeployments\""
-	ServiceDeployment     *ServiceDeployment           "json:\"serviceDeployment\" graphql:\"serviceDeployment\""
 	ClusterServices       []*ServiceDeployment         "json:\"clusterServices\" graphql:\"clusterServices\""
+	ServiceDeployment     *ServiceDeployment           "json:\"serviceDeployment\" graphql:\"serviceDeployment\""
 	DeploymentSettings    *DeploymentSettings          "json:\"deploymentSettings\" graphql:\"deploymentSettings\""
 }
 type RootMutationType struct {
@@ -147,6 +147,9 @@ type RootMutationType struct {
 	UpdateServiceDeployment  *ServiceDeployment     "json:\"updateServiceDeployment\" graphql:\"updateServiceDeployment\""
 	DeleteServiceDeployment  *ServiceDeployment     "json:\"deleteServiceDeployment\" graphql:\"deleteServiceDeployment\""
 	RollbackService          *ServiceDeployment     "json:\"rollbackService\" graphql:\"rollbackService\""
+	CloneService             *ServiceDeployment     "json:\"cloneService\" graphql:\"cloneService\""
+	CreateGlobalService      *GlobalService         "json:\"createGlobalService\" graphql:\"createGlobalService\""
+	DeleteGlobalService      *GlobalService         "json:\"deleteGlobalService\" graphql:\"deleteGlobalService\""
 	PingCluster              *Cluster               "json:\"pingCluster\" graphql:\"pingCluster\""
 	UpdateServiceComponents  *ServiceDeployment     "json:\"updateServiceComponents\" graphql:\"updateServiceComponents\""
 	UpdateRbac               *bool                  "json:\"updateRbac\" graphql:\"updateRbac\""
@@ -223,6 +226,31 @@ type PolicyBindingFragment struct {
 type ServiceDeploymentEdgeFragment struct {
 	Node *ServiceDeploymentFragment "json:\"node\" graphql:\"node\""
 }
+type ServiceDeploymentExtended struct {
+	Configuration []*struct {
+		Name  string "json:\"name\" graphql:\"name\""
+		Value string "json:\"value\" graphql:\"value\""
+	} "json:\"configuration\" graphql:\"configuration\""
+	ID         string "json:\"id\" graphql:\"id\""
+	Name       string "json:\"name\" graphql:\"name\""
+	Namespace  string "json:\"namespace\" graphql:\"namespace\""
+	Version    string "json:\"version\" graphql:\"version\""
+	Editable   *bool  "json:\"editable\" graphql:\"editable\""
+	Components []*struct {
+		ID        string          "json:\"id\" graphql:\"id\""
+		Name      string          "json:\"name\" graphql:\"name\""
+		Group     string          "json:\"group\" graphql:\"group\""
+		Kind      string          "json:\"kind\" graphql:\"kind\""
+		Namespace string          "json:\"namespace\" graphql:\"namespace\""
+		State     *ComponentState "json:\"state\" graphql:\"state\""
+		Synced    bool            "json:\"synced\" graphql:\"synced\""
+		Version   string          "json:\"version\" graphql:\"version\""
+	} "json:\"components\" graphql:\"components\""
+	Git        GitRefFragment         "json:\"git\" graphql:\"git\""
+	Repository *GitRepositoryFragment "json:\"repository\" graphql:\"repository\""
+	Sha        *string                "json:\"sha\" graphql:\"sha\""
+	Tarball    *string                "json:\"tarball\" graphql:\"tarball\""
+}
 type ServiceDeploymentFragment struct {
 	ID         string "json:\"id\" graphql:\"id\""
 	Name       string "json:\"name\" graphql:\"name\""
@@ -239,16 +267,10 @@ type ServiceDeploymentFragment struct {
 		Synced    bool            "json:\"synced\" graphql:\"synced\""
 		Version   string          "json:\"version\" graphql:\"version\""
 	} "json:\"components\" graphql:\"components\""
-	Configuration []*struct {
-		Name  string "json:\"name\" graphql:\"name\""
-		Value string "json:\"value\" graphql:\"value\""
-	} "json:\"configuration\" graphql:\"configuration\""
-	Git           GitRefFragment           "json:\"git\" graphql:\"git\""
-	Repository    *GitRepositoryFragment   "json:\"repository\" graphql:\"repository\""
-	Sha           *string                  "json:\"sha\" graphql:\"sha\""
-	Tarball       *string                  "json:\"tarball\" graphql:\"tarball\""
-	ReadBindings  []*PolicyBindingFragment "json:\"readBindings\" graphql:\"readBindings\""
-	WriteBindings []*PolicyBindingFragment "json:\"writeBindings\" graphql:\"writeBindings\""
+	Git        GitRefFragment         "json:\"git\" graphql:\"git\""
+	Repository *GitRepositoryFragment "json:\"repository\" graphql:\"repository\""
+	Sha        *string                "json:\"sha\" graphql:\"sha\""
+	Tarball    *string                "json:\"tarball\" graphql:\"tarball\""
 }
 type UserFragment struct {
 	Name  string "json:\"name\" graphql:\"name\""
@@ -286,7 +308,7 @@ type GetClusterProvider struct {
 	ClusterProvider *ClusterProviderFragment "json:\"clusterProvider\" graphql:\"clusterProvider\""
 }
 type GetServiceDeployment struct {
-	ServiceDeployment *ServiceDeploymentFragment "json:\"serviceDeployment\" graphql:\"serviceDeployment\""
+	ServiceDeployment *ServiceDeploymentExtended "json:\"serviceDeployment\" graphql:\"serviceDeployment\""
 }
 type ListAccessTokens struct {
 	AccessTokens *struct {
@@ -405,26 +427,12 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
-fragment GroupFragment on Group {
-	id
-	name
-	description
-}
 fragment NodePoolFragment on NodePool {
 	id
 	name
 	minSize
 	maxSize
 	instanceType
-}
-fragment PolicyBindingFragment on PolicyBinding {
-	id
-	group {
-		... GroupFragment
-	}
-	user {
-		... UserFragment
-	}
 }
 fragment ServiceDeploymentFragment on ServiceDeployment {
 	id
@@ -442,10 +450,6 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		synced
 		version
 	}
-	configuration {
-		name
-		value
-	}
 	git {
 		... GitRefFragment
 	}
@@ -454,17 +458,6 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	}
 	sha
 	tarball
-	readBindings {
-		... PolicyBindingFragment
-	}
-	writeBindings {
-		... PolicyBindingFragment
-	}
-}
-fragment UserFragment on User {
-	name
-	id
-	email
 }
 `
 
@@ -510,20 +503,6 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
-fragment GroupFragment on Group {
-	id
-	name
-	description
-}
-fragment PolicyBindingFragment on PolicyBinding {
-	id
-	group {
-		... GroupFragment
-	}
-	user {
-		... UserFragment
-	}
-}
 fragment ServiceDeploymentFragment on ServiceDeployment {
 	id
 	name
@@ -540,10 +519,6 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		synced
 		version
 	}
-	configuration {
-		name
-		value
-	}
 	git {
 		... GitRefFragment
 	}
@@ -552,17 +527,6 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	}
 	sha
 	tarball
-	readBindings {
-		... PolicyBindingFragment
-	}
-	writeBindings {
-		... PolicyBindingFragment
-	}
-}
-fragment UserFragment on User {
-	name
-	id
-	email
 }
 `
 
@@ -595,20 +559,6 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
-fragment GroupFragment on Group {
-	id
-	name
-	description
-}
-fragment PolicyBindingFragment on PolicyBinding {
-	id
-	group {
-		... GroupFragment
-	}
-	user {
-		... UserFragment
-	}
-}
 fragment ServiceDeploymentFragment on ServiceDeployment {
 	id
 	name
@@ -625,10 +575,6 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		synced
 		version
 	}
-	configuration {
-		name
-		value
-	}
 	git {
 		... GitRefFragment
 	}
@@ -637,17 +583,6 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	}
 	sha
 	tarball
-	readBindings {
-		... PolicyBindingFragment
-	}
-	writeBindings {
-		... PolicyBindingFragment
-	}
-}
-fragment UserFragment on User {
-	name
-	id
-	email
 }
 `
 
@@ -730,26 +665,12 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
-fragment GroupFragment on Group {
-	id
-	name
-	description
-}
 fragment NodePoolFragment on NodePool {
 	id
 	name
 	minSize
 	maxSize
 	instanceType
-}
-fragment PolicyBindingFragment on PolicyBinding {
-	id
-	group {
-		... GroupFragment
-	}
-	user {
-		... UserFragment
-	}
 }
 fragment ServiceDeploymentFragment on ServiceDeployment {
 	id
@@ -767,10 +688,6 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		synced
 		version
 	}
-	configuration {
-		name
-		value
-	}
 	git {
 		... GitRefFragment
 	}
@@ -779,17 +696,6 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	}
 	sha
 	tarball
-	readBindings {
-		... PolicyBindingFragment
-	}
-	writeBindings {
-		... PolicyBindingFragment
-	}
-}
-fragment UserFragment on User {
-	name
-	id
-	email
 }
 `
 
@@ -822,20 +728,6 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
-fragment GroupFragment on Group {
-	id
-	name
-	description
-}
-fragment PolicyBindingFragment on PolicyBinding {
-	id
-	group {
-		... GroupFragment
-	}
-	user {
-		... UserFragment
-	}
-}
 fragment ServiceDeploymentFragment on ServiceDeployment {
 	id
 	name
@@ -852,10 +744,6 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		synced
 		version
 	}
-	configuration {
-		name
-		value
-	}
 	git {
 		... GitRefFragment
 	}
@@ -864,17 +752,6 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	}
 	sha
 	tarball
-	readBindings {
-		... PolicyBindingFragment
-	}
-	writeBindings {
-		... PolicyBindingFragment
-	}
-}
-fragment UserFragment on User {
-	name
-	id
-	email
 }
 `
 
@@ -956,26 +833,12 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
-fragment GroupFragment on Group {
-	id
-	name
-	description
-}
 fragment NodePoolFragment on NodePool {
 	id
 	name
 	minSize
 	maxSize
 	instanceType
-}
-fragment PolicyBindingFragment on PolicyBinding {
-	id
-	group {
-		... GroupFragment
-	}
-	user {
-		... UserFragment
-	}
 }
 fragment ServiceDeploymentFragment on ServiceDeployment {
 	id
@@ -993,10 +856,6 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		synced
 		version
 	}
-	configuration {
-		name
-		value
-	}
 	git {
 		... GitRefFragment
 	}
@@ -1005,17 +864,6 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	}
 	sha
 	tarball
-	readBindings {
-		... PolicyBindingFragment
-	}
-	writeBindings {
-		... PolicyBindingFragment
-	}
-}
-fragment UserFragment on User {
-	name
-	id
-	email
 }
 `
 
@@ -1061,20 +909,6 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
-fragment GroupFragment on Group {
-	id
-	name
-	description
-}
-fragment PolicyBindingFragment on PolicyBinding {
-	id
-	group {
-		... GroupFragment
-	}
-	user {
-		... UserFragment
-	}
-}
 fragment ServiceDeploymentFragment on ServiceDeployment {
 	id
 	name
@@ -1091,10 +925,6 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		synced
 		version
 	}
-	configuration {
-		name
-		value
-	}
 	git {
 		... GitRefFragment
 	}
@@ -1103,17 +933,6 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	}
 	sha
 	tarball
-	readBindings {
-		... PolicyBindingFragment
-	}
-	writeBindings {
-		... PolicyBindingFragment
-	}
-}
-fragment UserFragment on User {
-	name
-	id
-	email
 }
 `
 
@@ -1132,7 +951,7 @@ func (c *Client) GetClusterProvider(ctx context.Context, id string, httpRequestO
 
 const GetServiceDeploymentDocument = `query GetServiceDeployment ($id: ID!) {
 	serviceDeployment(id: $id) {
-		... ServiceDeploymentFragment
+		... ServiceDeploymentExtended
 	}
 }
 fragment GitRefFragment on GitRef {
@@ -1146,19 +965,12 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
-fragment GroupFragment on Group {
-	id
-	name
-	description
-}
-fragment PolicyBindingFragment on PolicyBinding {
-	id
-	group {
-		... GroupFragment
+fragment ServiceDeploymentExtended on ServiceDeployment {
+	configuration {
+		name
+		value
 	}
-	user {
-		... UserFragment
-	}
+	... ServiceDeploymentFragment
 }
 fragment ServiceDeploymentFragment on ServiceDeployment {
 	id
@@ -1176,10 +988,6 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		synced
 		version
 	}
-	configuration {
-		name
-		value
-	}
 	git {
 		... GitRefFragment
 	}
@@ -1188,17 +996,6 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	}
 	sha
 	tarball
-	readBindings {
-		... PolicyBindingFragment
-	}
-	writeBindings {
-		... PolicyBindingFragment
-	}
-}
-fragment UserFragment on User {
-	name
-	id
-	email
 }
 `
 
@@ -1264,20 +1061,6 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
-fragment GroupFragment on Group {
-	id
-	name
-	description
-}
-fragment PolicyBindingFragment on PolicyBinding {
-	id
-	group {
-		... GroupFragment
-	}
-	user {
-		... UserFragment
-	}
-}
 fragment ServiceDeploymentFragment on ServiceDeployment {
 	id
 	name
@@ -1294,10 +1077,6 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		synced
 		version
 	}
-	configuration {
-		name
-		value
-	}
 	git {
 		... GitRefFragment
 	}
@@ -1306,17 +1085,6 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	}
 	sha
 	tarball
-	readBindings {
-		... PolicyBindingFragment
-	}
-	writeBindings {
-		... PolicyBindingFragment
-	}
-}
-fragment UserFragment on User {
-	name
-	id
-	email
 }
 `
 
@@ -1379,26 +1147,12 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
-fragment GroupFragment on Group {
-	id
-	name
-	description
-}
 fragment NodePoolFragment on NodePool {
 	id
 	name
 	minSize
 	maxSize
 	instanceType
-}
-fragment PolicyBindingFragment on PolicyBinding {
-	id
-	group {
-		... GroupFragment
-	}
-	user {
-		... UserFragment
-	}
 }
 fragment ServiceDeploymentFragment on ServiceDeployment {
 	id
@@ -1416,10 +1170,6 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		synced
 		version
 	}
-	configuration {
-		name
-		value
-	}
 	git {
 		... GitRefFragment
 	}
@@ -1428,17 +1178,6 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	}
 	sha
 	tarball
-	readBindings {
-		... PolicyBindingFragment
-	}
-	writeBindings {
-		... PolicyBindingFragment
-	}
-}
-fragment UserFragment on User {
-	name
-	id
-	email
 }
 `
 
@@ -1575,20 +1314,6 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
-fragment GroupFragment on Group {
-	id
-	name
-	description
-}
-fragment PolicyBindingFragment on PolicyBinding {
-	id
-	group {
-		... GroupFragment
-	}
-	user {
-		... UserFragment
-	}
-}
 fragment ServiceDeploymentEdgeFragment on ServiceDeploymentEdge {
 	node {
 		... ServiceDeploymentFragment
@@ -1610,10 +1335,6 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		synced
 		version
 	}
-	configuration {
-		name
-		value
-	}
 	git {
 		... GitRefFragment
 	}
@@ -1622,17 +1343,6 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	}
 	sha
 	tarball
-	readBindings {
-		... PolicyBindingFragment
-	}
-	writeBindings {
-		... PolicyBindingFragment
-	}
-}
-fragment UserFragment on User {
-	name
-	id
-	email
 }
 `
 
@@ -1693,26 +1403,12 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
-fragment GroupFragment on Group {
-	id
-	name
-	description
-}
 fragment NodePoolFragment on NodePool {
 	id
 	name
 	minSize
 	maxSize
 	instanceType
-}
-fragment PolicyBindingFragment on PolicyBinding {
-	id
-	group {
-		... GroupFragment
-	}
-	user {
-		... UserFragment
-	}
 }
 fragment ServiceDeploymentFragment on ServiceDeployment {
 	id
@@ -1730,10 +1426,6 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		synced
 		version
 	}
-	configuration {
-		name
-		value
-	}
 	git {
 		... GitRefFragment
 	}
@@ -1742,17 +1434,6 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	}
 	sha
 	tarball
-	readBindings {
-		... PolicyBindingFragment
-	}
-	writeBindings {
-		... PolicyBindingFragment
-	}
-}
-fragment UserFragment on User {
-	name
-	id
-	email
 }
 `
 
@@ -1785,20 +1466,6 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
-fragment GroupFragment on Group {
-	id
-	name
-	description
-}
-fragment PolicyBindingFragment on PolicyBinding {
-	id
-	group {
-		... GroupFragment
-	}
-	user {
-		... UserFragment
-	}
-}
 fragment ServiceDeploymentFragment on ServiceDeployment {
 	id
 	name
@@ -1815,10 +1482,6 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		synced
 		version
 	}
-	configuration {
-		name
-		value
-	}
 	git {
 		... GitRefFragment
 	}
@@ -1827,17 +1490,6 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	}
 	sha
 	tarball
-	readBindings {
-		... PolicyBindingFragment
-	}
-	writeBindings {
-		... PolicyBindingFragment
-	}
-}
-fragment UserFragment on User {
-	name
-	id
-	email
 }
 `
 
@@ -1896,26 +1548,12 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
-fragment GroupFragment on Group {
-	id
-	name
-	description
-}
 fragment NodePoolFragment on NodePool {
 	id
 	name
 	minSize
 	maxSize
 	instanceType
-}
-fragment PolicyBindingFragment on PolicyBinding {
-	id
-	group {
-		... GroupFragment
-	}
-	user {
-		... UserFragment
-	}
 }
 fragment ServiceDeploymentFragment on ServiceDeployment {
 	id
@@ -1933,10 +1571,6 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		synced
 		version
 	}
-	configuration {
-		name
-		value
-	}
 	git {
 		... GitRefFragment
 	}
@@ -1945,17 +1579,6 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	}
 	sha
 	tarball
-	readBindings {
-		... PolicyBindingFragment
-	}
-	writeBindings {
-		... PolicyBindingFragment
-	}
-}
-fragment UserFragment on User {
-	name
-	id
-	email
 }
 `
 
@@ -2002,20 +1625,6 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
-fragment GroupFragment on Group {
-	id
-	name
-	description
-}
-fragment PolicyBindingFragment on PolicyBinding {
-	id
-	group {
-		... GroupFragment
-	}
-	user {
-		... UserFragment
-	}
-}
 fragment ServiceDeploymentFragment on ServiceDeployment {
 	id
 	name
@@ -2032,10 +1641,6 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		synced
 		version
 	}
-	configuration {
-		name
-		value
-	}
 	git {
 		... GitRefFragment
 	}
@@ -2044,17 +1649,6 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	}
 	sha
 	tarball
-	readBindings {
-		... PolicyBindingFragment
-	}
-	writeBindings {
-		... PolicyBindingFragment
-	}
-}
-fragment UserFragment on User {
-	name
-	id
-	email
 }
 `
 
@@ -2174,20 +1768,6 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
-fragment GroupFragment on Group {
-	id
-	name
-	description
-}
-fragment PolicyBindingFragment on PolicyBinding {
-	id
-	group {
-		... GroupFragment
-	}
-	user {
-		... UserFragment
-	}
-}
 fragment ServiceDeploymentFragment on ServiceDeployment {
 	id
 	name
@@ -2204,10 +1784,6 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		synced
 		version
 	}
-	configuration {
-		name
-		value
-	}
 	git {
 		... GitRefFragment
 	}
@@ -2216,17 +1792,6 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	}
 	sha
 	tarball
-	readBindings {
-		... PolicyBindingFragment
-	}
-	writeBindings {
-		... PolicyBindingFragment
-	}
-}
-fragment UserFragment on User {
-	name
-	id
-	email
 }
 `
 
@@ -2271,8 +1836,8 @@ func (c *Client) CreateGitRepository(ctx context.Context, attributes GitAttribut
 	return &res, nil
 }
 
-const UpdateServiceComponentsDocument = `mutation updateServiceComponents ($id: ID!, $components: [ComponentAttributes]) {
-	updateServiceComponents(id: $id, components: $components) {
+const UpdateServiceComponentsDocument = `mutation updateServiceComponents ($id: ID!, $components: [ComponentAttributes], $errors: [ServiceErrorAttributes]) {
+	updateServiceComponents(id: $id, components: $components, errors: $errors) {
 		... ServiceDeploymentFragment
 	}
 }
@@ -2286,20 +1851,6 @@ fragment GitRepositoryFragment on GitRepository {
 	health
 	authMethod
 	url
-}
-fragment GroupFragment on Group {
-	id
-	name
-	description
-}
-fragment PolicyBindingFragment on PolicyBinding {
-	id
-	group {
-		... GroupFragment
-	}
-	user {
-		... UserFragment
-	}
 }
 fragment ServiceDeploymentFragment on ServiceDeployment {
 	id
@@ -2317,10 +1868,6 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		synced
 		version
 	}
-	configuration {
-		name
-		value
-	}
 	git {
 		... GitRefFragment
 	}
@@ -2329,24 +1876,14 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	}
 	sha
 	tarball
-	readBindings {
-		... PolicyBindingFragment
-	}
-	writeBindings {
-		... PolicyBindingFragment
-	}
-}
-fragment UserFragment on User {
-	name
-	id
-	email
 }
 `
 
-func (c *Client) UpdateServiceComponents(ctx context.Context, id string, components []*ComponentAttributes, httpRequestOptions ...client.HTTPRequestOption) (*UpdateServiceComponents, error) {
+func (c *Client) UpdateServiceComponents(ctx context.Context, id string, components []*ComponentAttributes, errors []*ServiceErrorAttributes, httpRequestOptions ...client.HTTPRequestOption) (*UpdateServiceComponents, error) {
 	vars := map[string]interface{}{
 		"id":         id,
 		"components": components,
+		"errors":     errors,
 	}
 
 	var res UpdateServiceComponents

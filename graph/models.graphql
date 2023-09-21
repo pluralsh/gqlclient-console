@@ -14,24 +14,15 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
         synced
         version
     }
-    configuration {
-        name
-        value
-    }
-    git {
-        ...GitRefFragment
-    }
-    repository {
-        ... GitRepositoryFragment
-    }
+    git { ...GitRefFragment }
+    repository { ... GitRepositoryFragment }
     sha
     tarball
-    readBindings {
-        ...PolicyBindingFragment
-    }
-    writeBindings {
-        ...PolicyBindingFragment
-    }
+}
+
+fragment ServiceDeploymentExtended on ServiceDeployment {
+    configuration { name value }
+    ...ServiceDeploymentFragment
 }
 
 fragment PolicyBindingFragment on PolicyBinding {
