@@ -239,6 +239,7 @@ type ServiceDeploymentExtended struct {
 		Name  string "json:\"name\" graphql:\"name\""
 		Value string "json:\"value\" graphql:\"value\""
 	} "json:\"configuration\" graphql:\"configuration\""
+	Cluster    *ClusterFragment  "json:\"cluster\" graphql:\"cluster\""
 	Revision   *RevisionFragment "json:\"revision\" graphql:\"revision\""
 	ID         string            "json:\"id\" graphql:\"id\""
 	Name       string            "json:\"name\" graphql:\"name\""
@@ -972,6 +973,31 @@ const GetServiceDeploymentDocument = `query GetServiceDeployment ($id: ID!) {
 		... ServiceDeploymentExtended
 	}
 }
+fragment ClusterFragment on Cluster {
+	id
+	name
+	version
+	currentVersion
+	provider {
+		... ClusterProviderFragment
+	}
+	nodePools {
+		... NodePoolFragment
+	}
+}
+fragment ClusterProviderFragment on ClusterProvider {
+	id
+	name
+	namespace
+	cloud
+	editable
+	repository {
+		... GitRepositoryFragment
+	}
+	service {
+		... ServiceDeploymentFragment
+	}
+}
 fragment GitRefFragment on GitRef {
 	folder
 	ref
@@ -982,6 +1008,13 @@ fragment GitRepositoryFragment on GitRepository {
 	health
 	authMethod
 	url
+}
+fragment NodePoolFragment on NodePool {
+	id
+	name
+	minSize
+	maxSize
+	instanceType
 }
 fragment RevisionFragment on Revision {
 	id
@@ -995,6 +1028,9 @@ fragment ServiceDeploymentExtended on ServiceDeployment {
 	configuration {
 		name
 		value
+	}
+	cluster {
+		... ClusterFragment
 	}
 	revision {
 		... RevisionFragment

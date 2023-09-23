@@ -23,6 +23,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 
 fragment ServiceDeploymentExtended on ServiceDeployment {
     configuration { name value }
+    cluster { ...ClusterFragment }
     revision { ...RevisionFragment }
     ...ServiceDeploymentFragment
 }
