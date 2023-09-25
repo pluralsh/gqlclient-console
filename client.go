@@ -348,6 +348,13 @@ type ListServiceDeployment struct {
 		Edges []*ServiceDeploymentEdgeFragment "json:\"edges\" graphql:\"edges\""
 	} "json:\"serviceDeployments\" graphql:\"serviceDeployments\""
 }
+type ListServiceDeployments struct {
+	ServiceDeployments *struct {
+		Edges []*struct {
+			Node *ServiceDeploymentFragment "json:\"node\" graphql:\"node\""
+		} "json:\"edges\" graphql:\"edges\""
+	} "json:\"serviceDeployments\" graphql:\"serviceDeployments\""
+}
 type PingCluster struct {
 	PingCluster *ClusterFragment "json:\"pingCluster\" graphql:\"pingCluster\""
 }
@@ -1425,6 +1432,69 @@ func (c *Client) ListServiceDeployment(ctx context.Context, cursor *string, befo
 
 	var res ListServiceDeployment
 	if err := c.Client.Post(ctx, "ListServiceDeployment", ListServiceDeploymentDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const ListServiceDeploymentsDocument = `query ListServiceDeployments ($cursor: String, $before: String, $last: Int) {
+	serviceDeployments(after: $cursor, first: 100, before: $before, last: $last) {
+		edges {
+			node {
+				... ServiceDeploymentFragment
+			}
+		}
+	}
+}
+fragment GitRefFragment on GitRef {
+	folder
+	ref
+}
+fragment GitRepositoryFragment on GitRepository {
+	id
+	editable
+	health
+	authMethod
+	url
+}
+fragment ServiceDeploymentFragment on ServiceDeployment {
+	id
+	name
+	namespace
+	version
+	editable
+	deletedAt
+	components {
+		id
+		name
+		group
+		kind
+		namespace
+		state
+		synced
+		version
+	}
+	git {
+		... GitRefFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+	sha
+	tarball
+}
+`
+
+func (c *Client) ListServiceDeployments(ctx context.Context, cursor *string, before *string, last *int64, httpRequestOptions ...client.HTTPRequestOption) (*ListServiceDeployments, error) {
+	vars := map[string]interface{}{
+		"cursor": cursor,
+		"before": before,
+		"last":   last,
+	}
+
+	var res ListServiceDeployments
+	if err := c.Client.Post(ctx, "ListServiceDeployments", ListServiceDeploymentsDocument, &res, vars, httpRequestOptions...); err != nil {
 		return nil, err
 	}
 
