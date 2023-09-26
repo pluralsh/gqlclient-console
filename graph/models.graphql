@@ -141,3 +141,9 @@ fragment DeploymentSettingsFragment on DeploymentSettings {
 fragment ClusterEdgeFragment on ClusterEdge {
     node { ...ClusterFragment }
 }
+
+fragment ServiceDeploymentEdgeFragment on ServiceDeploymentEdge {
+    node {
+        ...ServiceDeploymentFragment
+    }
+}
