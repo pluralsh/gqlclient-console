@@ -45,10 +45,8 @@ query GetServiceDeployment($id: ID!) {
     }
 }
 
-query ListServiceDeployment($cursor: String, $before: String, $last: Int, $clusterId: ID) {
-    serviceDeployments(after: $cursor, first: 100, before: $before, last: $last, clusterId: $clusterId) {
-        edges {
-            ...ServiceDeploymentEdgeFragment
-        }
+query ListServiceDeployment{
+    clusterServices {
+        ...ServiceDeploymentFragment
     }
 }

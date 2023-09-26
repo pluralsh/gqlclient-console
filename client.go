@@ -231,9 +231,6 @@ type RevisionFragment struct {
 		Folder string "json:\"folder\" graphql:\"folder\""
 	} "json:\"git\" graphql:\"git\""
 }
-type ServiceDeploymentEdgeFragment struct {
-	Node *ServiceDeploymentFragment "json:\"node\" graphql:\"node\""
-}
 type ServiceDeploymentExtended struct {
 	Configuration []*struct {
 		Name  string "json:\"name\" graphql:\"name\""
@@ -347,9 +344,7 @@ type ListGitRepositories struct {
 	} "json:\"gitRepositories\" graphql:\"gitRepositories\""
 }
 type ListServiceDeployment struct {
-	ServiceDeployments *struct {
-		Edges []*ServiceDeploymentEdgeFragment "json:\"edges\" graphql:\"edges\""
-	} "json:\"serviceDeployments\" graphql:\"serviceDeployments\""
+	ClusterServices []*ServiceDeploymentFragment "json:\"clusterServices\" graphql:\"clusterServices\""
 }
 type ListServiceDeployments struct {
 	ServiceDeployments *struct {
@@ -1398,11 +1393,9 @@ func (c *Client) ListGitRepositories(ctx context.Context, cursor *string, before
 	return &res, nil
 }
 
-const ListServiceDeploymentDocument = `query ListServiceDeployment ($cursor: String, $before: String, $last: Int, $clusterId: ID) {
-	serviceDeployments(after: $cursor, first: 100, before: $before, last: $last, clusterId: $clusterId) {
-		edges {
-			... ServiceDeploymentEdgeFragment
-		}
+const ListServiceDeploymentDocument = `query ListServiceDeployment {
+	clusterServices {
+		... ServiceDeploymentFragment
 	}
 }
 fragment GitRefFragment on GitRef {
@@ -1415,11 +1408,6 @@ fragment GitRepositoryFragment on GitRepository {
 	health
 	authMethod
 	url
-}
-fragment ServiceDeploymentEdgeFragment on ServiceDeploymentEdge {
-	node {
-		... ServiceDeploymentFragment
-	}
 }
 fragment ServiceDeploymentFragment on ServiceDeployment {
 	id
@@ -1449,13 +1437,8 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 }
 `
 
-func (c *Client) ListServiceDeployment(ctx context.Context, cursor *string, before *string, last *int64, clusterID *string, httpRequestOptions ...client.HTTPRequestOption) (*ListServiceDeployment, error) {
-	vars := map[string]interface{}{
-		"cursor":    cursor,
-		"before":    before,
-		"last":      last,
-		"clusterId": clusterID,
-	}
+func (c *Client) ListServiceDeployment(ctx context.Context, httpRequestOptions ...client.HTTPRequestOption) (*ListServiceDeployment, error) {
+	vars := map[string]interface{}{}
 
 	var res ListServiceDeployment
 	if err := c.Client.Post(ctx, "ListServiceDeployment", ListServiceDeploymentDocument, &res, vars, httpRequestOptions...); err != nil {
