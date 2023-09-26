@@ -1538,13 +1538,13 @@ type ServiceComponent struct {
 	// whether this component has been applied to the k8s api
 	Synced bool `json:"synced"`
 	// api group of this resource
-	Group string `json:"group"`
+	Group *string `json:"group"`
 	// api version of this resource
-	Version string `json:"version"`
+	Version *string `json:"version"`
 	// api kind of this resource
 	Kind string `json:"kind"`
 	// kubernetes namespace of this resource
-	Namespace string `json:"namespace"`
+	Namespace *string `json:"namespace"`
 	// kubernetes name of this resource
 	Name string `json:"name"`
 	// the service this component belongs to

@@ -250,12 +250,12 @@ type ServiceDeploymentExtended struct {
 	Components []*struct {
 		ID        string          "json:\"id\" graphql:\"id\""
 		Name      string          "json:\"name\" graphql:\"name\""
-		Group     string          "json:\"group\" graphql:\"group\""
+		Group     *string         "json:\"group\" graphql:\"group\""
 		Kind      string          "json:\"kind\" graphql:\"kind\""
-		Namespace string          "json:\"namespace\" graphql:\"namespace\""
+		Namespace *string         "json:\"namespace\" graphql:\"namespace\""
 		State     *ComponentState "json:\"state\" graphql:\"state\""
 		Synced    bool            "json:\"synced\" graphql:\"synced\""
-		Version   string          "json:\"version\" graphql:\"version\""
+		Version   *string         "json:\"version\" graphql:\"version\""
 	} "json:\"components\" graphql:\"components\""
 	Git        GitRefFragment         "json:\"git\" graphql:\"git\""
 	Repository *GitRepositoryFragment "json:\"repository\" graphql:\"repository\""
@@ -272,12 +272,12 @@ type ServiceDeploymentFragment struct {
 	Components []*struct {
 		ID        string          "json:\"id\" graphql:\"id\""
 		Name      string          "json:\"name\" graphql:\"name\""
-		Group     string          "json:\"group\" graphql:\"group\""
+		Group     *string         "json:\"group\" graphql:\"group\""
 		Kind      string          "json:\"kind\" graphql:\"kind\""
-		Namespace string          "json:\"namespace\" graphql:\"namespace\""
+		Namespace *string         "json:\"namespace\" graphql:\"namespace\""
 		State     *ComponentState "json:\"state\" graphql:\"state\""
 		Synced    bool            "json:\"synced\" graphql:\"synced\""
-		Version   string          "json:\"version\" graphql:\"version\""
+		Version   *string         "json:\"version\" graphql:\"version\""
 	} "json:\"components\" graphql:\"components\""
 	Git        GitRefFragment         "json:\"git\" graphql:\"git\""
 	Repository *GitRepositoryFragment "json:\"repository\" graphql:\"repository\""
@@ -297,6 +297,9 @@ type CreateCluster struct {
 }
 type CreateClusterProvider struct {
 	CreateClusterProvider *ClusterProviderFragment "json:\"createClusterProvider\" graphql:\"createClusterProvider\""
+}
+type CreateGitRepository struct {
+	CreateGitRepository *GitRepositoryFragment "json:\"createGitRepository\" graphql:\"createGitRepository\""
 }
 type CreateServiceDeployment struct {
 	CreateServiceDeployment *ServiceDeploymentFragment "json:\"createServiceDeployment\" graphql:\"createServiceDeployment\""
@@ -375,9 +378,6 @@ type UpdateRbac struct {
 }
 type UpdateServiceDeployment struct {
 	UpdateServiceDeployment *ServiceDeploymentFragment "json:\"updateServiceDeployment\" graphql:\"updateServiceDeployment\""
-}
-type CreateGitRepository struct {
-	CreateGitRepository *GitRepositoryFragment "json:\"createGitRepository\" graphql:\"createGitRepository\""
 }
 type UpdateServiceComponents struct {
 	UpdateServiceComponents *ServiceDeploymentFragment "json:\"updateServiceComponents\" graphql:\"updateServiceComponents\""
@@ -558,6 +558,33 @@ func (c *Client) CreateClusterProvider(ctx context.Context, attributes ClusterPr
 
 	var res CreateClusterProvider
 	if err := c.Client.Post(ctx, "CreateClusterProvider", CreateClusterProviderDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const CreateGitRepositoryDocument = `mutation CreateGitRepository ($attributes: GitAttributes!) {
+	createGitRepository(attributes: $attributes) {
+		... GitRepositoryFragment
+	}
+}
+fragment GitRepositoryFragment on GitRepository {
+	id
+	editable
+	health
+	authMethod
+	url
+}
+`
+
+func (c *Client) CreateGitRepository(ctx context.Context, attributes GitAttributes, httpRequestOptions ...client.HTTPRequestOption) (*CreateGitRepository, error) {
+	vars := map[string]interface{}{
+		"attributes": attributes,
+	}
+
+	var res CreateGitRepository
+	if err := c.Client.Post(ctx, "CreateGitRepository", CreateGitRepositoryDocument, &res, vars, httpRequestOptions...); err != nil {
 		return nil, err
 	}
 
@@ -1947,33 +1974,6 @@ func (c *Client) UpdateServiceDeployment(ctx context.Context, id string, attribu
 
 	var res UpdateServiceDeployment
 	if err := c.Client.Post(ctx, "UpdateServiceDeployment", UpdateServiceDeploymentDocument, &res, vars, httpRequestOptions...); err != nil {
-		return nil, err
-	}
-
-	return &res, nil
-}
-
-const CreateGitRepositoryDocument = `mutation createGitRepository ($attributes: GitAttributes!) {
-	createGitRepository(attributes: $attributes) {
-		... GitRepositoryFragment
-	}
-}
-fragment GitRepositoryFragment on GitRepository {
-	id
-	editable
-	health
-	authMethod
-	url
-}
-`
-
-func (c *Client) CreateGitRepository(ctx context.Context, attributes GitAttributes, httpRequestOptions ...client.HTTPRequestOption) (*CreateGitRepository, error) {
-	vars := map[string]interface{}{
-		"attributes": attributes,
-	}
-
-	var res CreateGitRepository
-	if err := c.Client.Post(ctx, "createGitRepository", CreateGitRepositoryDocument, &res, vars, httpRequestOptions...); err != nil {
 		return nil, err
 	}
 

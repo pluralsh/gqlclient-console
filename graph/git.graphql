@@ -1,4 +1,4 @@
-mutation createGitRepository($attributes: GitAttributes!) {
+mutation CreateGitRepository($attributes: GitAttributes!) {
     createGitRepository(attributes: $attributes) {
         ...GitRepositoryFragment
     }
