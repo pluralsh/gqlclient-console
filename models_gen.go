@@ -285,7 +285,7 @@ type Cluster struct {
 	// human readable name of this cluster, will also translate to cloud k8s name
 	Name string `json:"name"`
 	// desired k8s version for the cluster
-	Version string `json:"version"`
+	Version *string `json:"version"`
 	// current k8s version as told to us by the deployment operator
 	CurrentVersion *string `json:"currentVersion"`
 	// when this cluster was scheduled for deletion
@@ -306,6 +306,8 @@ type Cluster struct {
 	Tags []*Tag `json:"tags"`
 	// all api deprecations for all services in this cluster
 	APIDeprecations []*APIDeprecation `json:"apiDeprecations"`
+	// a relay connection of all revisions of this service, these are periodically pruned up to a history limit
+	Revisions *RevisionConnection `json:"revisions"`
 	// whether the current user can edit this cluster
 	Editable   *bool   `json:"editable"`
 	InsertedAt *string `json:"insertedAt"`

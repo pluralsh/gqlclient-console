@@ -168,7 +168,7 @@ type ClusterEdgeFragment struct {
 type ClusterFragment struct {
 	ID             string                   "json:\"id\" graphql:\"id\""
 	Name           string                   "json:\"name\" graphql:\"name\""
-	Version        string                   "json:\"version\" graphql:\"version\""
+	Version        *string                  "json:\"version\" graphql:\"version\""
 	CurrentVersion *string                  "json:\"currentVersion\" graphql:\"currentVersion\""
 	Provider       *ClusterProviderFragment "json:\"provider\" graphql:\"provider\""
 	NodePools      []*NodePoolFragment      "json:\"nodePools\" graphql:\"nodePools\""
@@ -235,10 +235,6 @@ type ServiceDeploymentEdgeFragment struct {
 	Node *ServiceDeploymentFragment "json:\"node\" graphql:\"node\""
 }
 type ServiceDeploymentExtended struct {
-	Configuration []*struct {
-		Name  string "json:\"name\" graphql:\"name\""
-		Value string "json:\"value\" graphql:\"value\""
-	} "json:\"configuration\" graphql:\"configuration\""
 	Cluster    *ClusterFragment  "json:\"cluster\" graphql:\"cluster\""
 	Revision   *RevisionFragment "json:\"revision\" graphql:\"revision\""
 	ID         string            "json:\"id\" graphql:\"id\""
@@ -257,10 +253,14 @@ type ServiceDeploymentExtended struct {
 		Synced    bool            "json:\"synced\" graphql:\"synced\""
 		Version   *string         "json:\"version\" graphql:\"version\""
 	} "json:\"components\" graphql:\"components\""
-	Git        GitRefFragment         "json:\"git\" graphql:\"git\""
-	Repository *GitRepositoryFragment "json:\"repository\" graphql:\"repository\""
-	Sha        *string                "json:\"sha\" graphql:\"sha\""
-	Tarball    *string                "json:\"tarball\" graphql:\"tarball\""
+	Git           GitRefFragment         "json:\"git\" graphql:\"git\""
+	Repository    *GitRepositoryFragment "json:\"repository\" graphql:\"repository\""
+	Sha           *string                "json:\"sha\" graphql:\"sha\""
+	Tarball       *string                "json:\"tarball\" graphql:\"tarball\""
+	Configuration []*struct {
+		Name  string "json:\"name\" graphql:\"name\""
+		Value string "json:\"value\" graphql:\"value\""
+	} "json:\"configuration\" graphql:\"configuration\""
 }
 type ServiceDeploymentFragment struct {
 	ID         string  "json:\"id\" graphql:\"id\""
@@ -279,10 +279,14 @@ type ServiceDeploymentFragment struct {
 		Synced    bool            "json:\"synced\" graphql:\"synced\""
 		Version   *string         "json:\"version\" graphql:\"version\""
 	} "json:\"components\" graphql:\"components\""
-	Git        GitRefFragment         "json:\"git\" graphql:\"git\""
-	Repository *GitRepositoryFragment "json:\"repository\" graphql:\"repository\""
-	Sha        *string                "json:\"sha\" graphql:\"sha\""
-	Tarball    *string                "json:\"tarball\" graphql:\"tarball\""
+	Git           GitRefFragment         "json:\"git\" graphql:\"git\""
+	Repository    *GitRepositoryFragment "json:\"repository\" graphql:\"repository\""
+	Sha           *string                "json:\"sha\" graphql:\"sha\""
+	Tarball       *string                "json:\"tarball\" graphql:\"tarball\""
+	Configuration []*struct {
+		Name  string "json:\"name\" graphql:\"name\""
+		Value string "json:\"value\" graphql:\"value\""
+	} "json:\"configuration\" graphql:\"configuration\""
 }
 type UserFragment struct {
 	Name  string "json:\"name\" graphql:\"name\""
@@ -478,6 +482,10 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	}
 	sha
 	tarball
+	configuration {
+		name
+		value
+	}
 }
 `
 
@@ -548,6 +556,10 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	}
 	sha
 	tarball
+	configuration {
+		name
+		value
+	}
 }
 `
 
@@ -632,6 +644,10 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	}
 	sha
 	tarball
+	configuration {
+		name
+		value
+	}
 }
 `
 
@@ -746,6 +762,10 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	}
 	sha
 	tarball
+	configuration {
+		name
+		value
+	}
 }
 `
 
@@ -803,6 +823,10 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	}
 	sha
 	tarball
+	configuration {
+		name
+		value
+	}
 }
 `
 
@@ -916,6 +940,10 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	}
 	sha
 	tarball
+	configuration {
+		name
+		value
+	}
 }
 `
 
@@ -986,6 +1014,10 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	}
 	sha
 	tarball
+	configuration {
+		name
+		value
+	}
 }
 `
 
@@ -1059,10 +1091,6 @@ fragment RevisionFragment on Revision {
 	}
 }
 fragment ServiceDeploymentExtended on ServiceDeployment {
-	configuration {
-		name
-		value
-	}
 	cluster {
 		... ClusterFragment
 	}
@@ -1096,6 +1124,10 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	}
 	sha
 	tarball
+	configuration {
+		name
+		value
+	}
 }
 `
 
@@ -1186,6 +1218,10 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	}
 	sha
 	tarball
+	configuration {
+		name
+		value
+	}
 }
 `
 
@@ -1280,6 +1316,10 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	}
 	sha
 	tarball
+	configuration {
+		name
+		value
+	}
 }
 `
 
@@ -1446,6 +1486,10 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	}
 	sha
 	tarball
+	configuration {
+		name
+		value
+	}
 }
 `
 
@@ -1510,6 +1554,10 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	}
 	sha
 	tarball
+	configuration {
+		name
+		value
+	}
 }
 `
 
@@ -1601,6 +1649,10 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	}
 	sha
 	tarball
+	configuration {
+		name
+		value
+	}
 }
 `
 
@@ -1658,6 +1710,10 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	}
 	sha
 	tarball
+	configuration {
+		name
+		value
+	}
 }
 `
 
@@ -1748,6 +1804,10 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	}
 	sha
 	tarball
+	configuration {
+		name
+		value
+	}
 }
 `
 
@@ -1819,6 +1879,10 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	}
 	sha
 	tarball
+	configuration {
+		name
+		value
+	}
 }
 `
 
@@ -1963,6 +2027,10 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	}
 	sha
 	tarball
+	configuration {
+		name
+		value
+	}
 }
 `
 
@@ -2021,6 +2089,10 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	}
 	sha
 	tarball
+	configuration {
+		name
+		value
+	}
 }
 `
 

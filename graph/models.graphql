@@ -19,10 +19,10 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
     repository { ... GitRepositoryFragment }
     sha
     tarball
+    configuration { name value }
 }
 
 fragment ServiceDeploymentExtended on ServiceDeployment {
-    configuration { name value }
     cluster { ...ClusterFragment }
     revision { ...RevisionFragment }
     ...ServiceDeploymentFragment
