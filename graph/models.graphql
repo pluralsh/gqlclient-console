@@ -3,7 +3,6 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
     name
     namespace
     version
-    editable
     deletedAt
     components {
         id
@@ -58,7 +57,7 @@ fragment GroupFragment on Group {
 
 fragment GitRepositoryFragment on GitRepository {
     id
-    editable
+    error
     health
     authMethod
     url
