@@ -232,17 +232,26 @@ type RevisionFragment struct {
 		Folder string "json:\"folder\" graphql:\"folder\""
 	} "json:\"git\" graphql:\"git\""
 }
+type ServiceDeploymentBaseFragment struct {
+	ID         string                 "json:\"id\" graphql:\"id\""
+	Name       string                 "json:\"name\" graphql:\"name\""
+	Namespace  string                 "json:\"namespace\" graphql:\"namespace\""
+	Version    string                 "json:\"version\" graphql:\"version\""
+	Git        GitRefFragment         "json:\"git\" graphql:\"git\""
+	Repository *GitRepositoryFragment "json:\"repository\" graphql:\"repository\""
+}
 type ServiceDeploymentEdgeFragment struct {
-	Node *ServiceDeploymentFragment "json:\"node\" graphql:\"node\""
+	Node *ServiceDeploymentBaseFragment "json:\"node\" graphql:\"node\""
 }
 type ServiceDeploymentExtended struct {
-	Cluster    *ClusterFragment  "json:\"cluster\" graphql:\"cluster\""
-	Revision   *RevisionFragment "json:\"revision\" graphql:\"revision\""
-	ID         string            "json:\"id\" graphql:\"id\""
-	Name       string            "json:\"name\" graphql:\"name\""
-	Namespace  string            "json:\"namespace\" graphql:\"namespace\""
-	Version    string            "json:\"version\" graphql:\"version\""
-	DeletedAt  *string           "json:\"deletedAt\" graphql:\"deletedAt\""
+	Cluster    *ClusterFragment       "json:\"cluster\" graphql:\"cluster\""
+	Revision   *RevisionFragment      "json:\"revision\" graphql:\"revision\""
+	ID         string                 "json:\"id\" graphql:\"id\""
+	Name       string                 "json:\"name\" graphql:\"name\""
+	Namespace  string                 "json:\"namespace\" graphql:\"namespace\""
+	Version    string                 "json:\"version\" graphql:\"version\""
+	Git        GitRefFragment         "json:\"git\" graphql:\"git\""
+	Repository *GitRepositoryFragment "json:\"repository\" graphql:\"repository\""
 	Components []*struct {
 		ID        string          "json:\"id\" graphql:\"id\""
 		Name      string          "json:\"name\" graphql:\"name\""
@@ -253,21 +262,21 @@ type ServiceDeploymentExtended struct {
 		Synced    bool            "json:\"synced\" graphql:\"synced\""
 		Version   *string         "json:\"version\" graphql:\"version\""
 	} "json:\"components\" graphql:\"components\""
-	Git           GitRefFragment         "json:\"git\" graphql:\"git\""
-	Repository    *GitRepositoryFragment "json:\"repository\" graphql:\"repository\""
-	Sha           *string                "json:\"sha\" graphql:\"sha\""
-	Tarball       *string                "json:\"tarball\" graphql:\"tarball\""
+	DeletedAt     *string "json:\"deletedAt\" graphql:\"deletedAt\""
+	Sha           *string "json:\"sha\" graphql:\"sha\""
+	Tarball       *string "json:\"tarball\" graphql:\"tarball\""
 	Configuration []*struct {
 		Name  string "json:\"name\" graphql:\"name\""
 		Value string "json:\"value\" graphql:\"value\""
 	} "json:\"configuration\" graphql:\"configuration\""
 }
 type ServiceDeploymentFragment struct {
-	ID         string  "json:\"id\" graphql:\"id\""
-	Name       string  "json:\"name\" graphql:\"name\""
-	Namespace  string  "json:\"namespace\" graphql:\"namespace\""
-	Version    string  "json:\"version\" graphql:\"version\""
-	DeletedAt  *string "json:\"deletedAt\" graphql:\"deletedAt\""
+	ID         string                 "json:\"id\" graphql:\"id\""
+	Name       string                 "json:\"name\" graphql:\"name\""
+	Namespace  string                 "json:\"namespace\" graphql:\"namespace\""
+	Version    string                 "json:\"version\" graphql:\"version\""
+	Git        GitRefFragment         "json:\"git\" graphql:\"git\""
+	Repository *GitRepositoryFragment "json:\"repository\" graphql:\"repository\""
 	Components []*struct {
 		ID        string          "json:\"id\" graphql:\"id\""
 		Name      string          "json:\"name\" graphql:\"name\""
@@ -278,10 +287,9 @@ type ServiceDeploymentFragment struct {
 		Synced    bool            "json:\"synced\" graphql:\"synced\""
 		Version   *string         "json:\"version\" graphql:\"version\""
 	} "json:\"components\" graphql:\"components\""
-	Git           GitRefFragment         "json:\"git\" graphql:\"git\""
-	Repository    *GitRepositoryFragment "json:\"repository\" graphql:\"repository\""
-	Sha           *string                "json:\"sha\" graphql:\"sha\""
-	Tarball       *string                "json:\"tarball\" graphql:\"tarball\""
+	DeletedAt     *string "json:\"deletedAt\" graphql:\"deletedAt\""
+	Sha           *string "json:\"sha\" graphql:\"sha\""
+	Tarball       *string "json:\"tarball\" graphql:\"tarball\""
 	Configuration []*struct {
 		Name  string "json:\"name\" graphql:\"name\""
 		Value string "json:\"value\" graphql:\"value\""
@@ -456,12 +464,20 @@ fragment NodePoolFragment on NodePool {
 	maxSize
 	instanceType
 }
-fragment ServiceDeploymentFragment on ServiceDeployment {
+fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	id
 	name
 	namespace
 	version
-	deletedAt
+	git {
+		... GitRefFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+}
+fragment ServiceDeploymentFragment on ServiceDeployment {
+	... ServiceDeploymentBaseFragment
 	components {
 		id
 		name
@@ -472,12 +488,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		synced
 		version
 	}
-	git {
-		... GitRefFragment
-	}
-	repository {
-		... GitRepositoryFragment
-	}
+	deletedAt
 	sha
 	tarball
 	configuration {
@@ -529,12 +540,20 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
-fragment ServiceDeploymentFragment on ServiceDeployment {
+fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	id
 	name
 	namespace
 	version
-	deletedAt
+	git {
+		... GitRefFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+}
+fragment ServiceDeploymentFragment on ServiceDeployment {
+	... ServiceDeploymentBaseFragment
 	components {
 		id
 		name
@@ -545,12 +564,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		synced
 		version
 	}
-	git {
-		... GitRefFragment
-	}
-	repository {
-		... GitRepositoryFragment
-	}
+	deletedAt
 	sha
 	tarball
 	configuration {
@@ -616,12 +630,20 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
-fragment ServiceDeploymentFragment on ServiceDeployment {
+fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	id
 	name
 	namespace
 	version
-	deletedAt
+	git {
+		... GitRefFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+}
+fragment ServiceDeploymentFragment on ServiceDeployment {
+	... ServiceDeploymentBaseFragment
 	components {
 		id
 		name
@@ -632,12 +654,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		synced
 		version
 	}
-	git {
-		... GitRefFragment
-	}
-	repository {
-		... GitRepositoryFragment
-	}
+	deletedAt
 	sha
 	tarball
 	configuration {
@@ -733,12 +750,20 @@ fragment NodePoolFragment on NodePool {
 	maxSize
 	instanceType
 }
-fragment ServiceDeploymentFragment on ServiceDeployment {
+fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	id
 	name
 	namespace
 	version
-	deletedAt
+	git {
+		... GitRefFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+}
+fragment ServiceDeploymentFragment on ServiceDeployment {
+	... ServiceDeploymentBaseFragment
 	components {
 		id
 		name
@@ -749,12 +774,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		synced
 		version
 	}
-	git {
-		... GitRefFragment
-	}
-	repository {
-		... GitRepositoryFragment
-	}
+	deletedAt
 	sha
 	tarball
 	configuration {
@@ -793,12 +813,20 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
-fragment ServiceDeploymentFragment on ServiceDeployment {
+fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	id
 	name
 	namespace
 	version
-	deletedAt
+	git {
+		... GitRefFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+}
+fragment ServiceDeploymentFragment on ServiceDeployment {
+	... ServiceDeploymentBaseFragment
 	components {
 		id
 		name
@@ -809,12 +837,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		synced
 		version
 	}
-	git {
-		... GitRefFragment
-	}
-	repository {
-		... GitRepositoryFragment
-	}
+	deletedAt
 	sha
 	tarball
 	configuration {
@@ -909,12 +932,20 @@ fragment NodePoolFragment on NodePool {
 	maxSize
 	instanceType
 }
-fragment ServiceDeploymentFragment on ServiceDeployment {
+fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	id
 	name
 	namespace
 	version
-	deletedAt
+	git {
+		... GitRefFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+}
+fragment ServiceDeploymentFragment on ServiceDeployment {
+	... ServiceDeploymentBaseFragment
 	components {
 		id
 		name
@@ -925,12 +956,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		synced
 		version
 	}
-	git {
-		... GitRefFragment
-	}
-	repository {
-		... GitRepositoryFragment
-	}
+	deletedAt
 	sha
 	tarball
 	configuration {
@@ -982,12 +1008,20 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
-fragment ServiceDeploymentFragment on ServiceDeployment {
+fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	id
 	name
 	namespace
 	version
-	deletedAt
+	git {
+		... GitRefFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+}
+fragment ServiceDeploymentFragment on ServiceDeployment {
+	... ServiceDeploymentBaseFragment
 	components {
 		id
 		name
@@ -998,12 +1032,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		synced
 		version
 	}
-	git {
-		... GitRefFragment
-	}
-	repository {
-		... GitRepositoryFragment
-	}
+	deletedAt
 	sha
 	tarball
 	configuration {
@@ -1082,6 +1111,18 @@ fragment RevisionFragment on Revision {
 		folder
 	}
 }
+fragment ServiceDeploymentBaseFragment on ServiceDeployment {
+	id
+	name
+	namespace
+	version
+	git {
+		... GitRefFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+}
 fragment ServiceDeploymentExtended on ServiceDeployment {
 	cluster {
 		... ClusterFragment
@@ -1092,11 +1133,7 @@ fragment ServiceDeploymentExtended on ServiceDeployment {
 	... ServiceDeploymentFragment
 }
 fragment ServiceDeploymentFragment on ServiceDeployment {
-	id
-	name
-	namespace
-	version
-	deletedAt
+	... ServiceDeploymentBaseFragment
 	components {
 		id
 		name
@@ -1107,12 +1144,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		synced
 		version
 	}
-	git {
-		... GitRefFragment
-	}
-	repository {
-		... GitRepositoryFragment
-	}
+	deletedAt
 	sha
 	tarball
 	configuration {
@@ -1184,12 +1216,20 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
-fragment ServiceDeploymentFragment on ServiceDeployment {
+fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	id
 	name
 	namespace
 	version
-	deletedAt
+	git {
+		... GitRefFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+}
+fragment ServiceDeploymentFragment on ServiceDeployment {
+	... ServiceDeploymentBaseFragment
 	components {
 		id
 		name
@@ -1200,12 +1240,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		synced
 		version
 	}
-	git {
-		... GitRefFragment
-	}
-	repository {
-		... GitRepositoryFragment
-	}
+	deletedAt
 	sha
 	tarball
 	configuration {
@@ -1281,12 +1316,20 @@ fragment NodePoolFragment on NodePool {
 	maxSize
 	instanceType
 }
-fragment ServiceDeploymentFragment on ServiceDeployment {
+fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	id
 	name
 	namespace
 	version
-	deletedAt
+	git {
+		... GitRefFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+}
+fragment ServiceDeploymentFragment on ServiceDeployment {
+	... ServiceDeploymentBaseFragment
 	components {
 		id
 		name
@@ -1297,12 +1340,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		synced
 		version
 	}
-	git {
-		... GitRefFragment
-	}
-	repository {
-		... GitRepositoryFragment
-	}
+	deletedAt
 	sha
 	tarball
 	configuration {
@@ -1445,38 +1483,21 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
-fragment ServiceDeploymentEdgeFragment on ServiceDeploymentEdge {
-	node {
-		... ServiceDeploymentFragment
-	}
-}
-fragment ServiceDeploymentFragment on ServiceDeployment {
+fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	id
 	name
 	namespace
 	version
-	deletedAt
-	components {
-		id
-		name
-		group
-		kind
-		namespace
-		state
-		synced
-		version
-	}
 	git {
 		... GitRefFragment
 	}
 	repository {
 		... GitRepositoryFragment
 	}
-	sha
-	tarball
-	configuration {
-		name
-		value
+}
+fragment ServiceDeploymentEdgeFragment on ServiceDeploymentEdge {
+	node {
+		... ServiceDeploymentBaseFragment
 	}
 }
 `
@@ -1517,12 +1538,20 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
-fragment ServiceDeploymentFragment on ServiceDeployment {
+fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	id
 	name
 	namespace
 	version
-	deletedAt
+	git {
+		... GitRefFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+}
+fragment ServiceDeploymentFragment on ServiceDeployment {
+	... ServiceDeploymentBaseFragment
 	components {
 		id
 		name
@@ -1533,12 +1562,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		synced
 		version
 	}
-	git {
-		... GitRefFragment
-	}
-	repository {
-		... GitRepositoryFragment
-	}
+	deletedAt
 	sha
 	tarball
 	configuration {
@@ -1611,12 +1635,20 @@ fragment NodePoolFragment on NodePool {
 	maxSize
 	instanceType
 }
-fragment ServiceDeploymentFragment on ServiceDeployment {
+fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	id
 	name
 	namespace
 	version
-	deletedAt
+	git {
+		... GitRefFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+}
+fragment ServiceDeploymentFragment on ServiceDeployment {
+	... ServiceDeploymentBaseFragment
 	components {
 		id
 		name
@@ -1627,12 +1659,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		synced
 		version
 	}
-	git {
-		... GitRefFragment
-	}
-	repository {
-		... GitRepositoryFragment
-	}
+	deletedAt
 	sha
 	tarball
 	configuration {
@@ -1671,12 +1698,20 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
-fragment ServiceDeploymentFragment on ServiceDeployment {
+fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	id
 	name
 	namespace
 	version
-	deletedAt
+	git {
+		... GitRefFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+}
+fragment ServiceDeploymentFragment on ServiceDeployment {
+	... ServiceDeploymentBaseFragment
 	components {
 		id
 		name
@@ -1687,12 +1722,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		synced
 		version
 	}
-	git {
-		... GitRefFragment
-	}
-	repository {
-		... GitRepositoryFragment
-	}
+	deletedAt
 	sha
 	tarball
 	configuration {
@@ -1764,12 +1794,20 @@ fragment NodePoolFragment on NodePool {
 	maxSize
 	instanceType
 }
-fragment ServiceDeploymentFragment on ServiceDeployment {
+fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	id
 	name
 	namespace
 	version
-	deletedAt
+	git {
+		... GitRefFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+}
+fragment ServiceDeploymentFragment on ServiceDeployment {
+	... ServiceDeploymentBaseFragment
 	components {
 		id
 		name
@@ -1780,12 +1818,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		synced
 		version
 	}
-	git {
-		... GitRefFragment
-	}
-	repository {
-		... GitRepositoryFragment
-	}
+	deletedAt
 	sha
 	tarball
 	configuration {
@@ -1838,12 +1871,20 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
-fragment ServiceDeploymentFragment on ServiceDeployment {
+fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	id
 	name
 	namespace
 	version
-	deletedAt
+	git {
+		... GitRefFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+}
+fragment ServiceDeploymentFragment on ServiceDeployment {
+	... ServiceDeploymentBaseFragment
 	components {
 		id
 		name
@@ -1854,12 +1895,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		synced
 		version
 	}
-	git {
-		... GitRefFragment
-	}
-	repository {
-		... GitRepositoryFragment
-	}
+	deletedAt
 	sha
 	tarball
 	configuration {
@@ -1985,12 +2021,20 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
-fragment ServiceDeploymentFragment on ServiceDeployment {
+fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	id
 	name
 	namespace
 	version
-	deletedAt
+	git {
+		... GitRefFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+}
+fragment ServiceDeploymentFragment on ServiceDeployment {
+	... ServiceDeploymentBaseFragment
 	components {
 		id
 		name
@@ -2001,12 +2045,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		synced
 		version
 	}
-	git {
-		... GitRefFragment
-	}
-	repository {
-		... GitRepositoryFragment
-	}
+	deletedAt
 	sha
 	tarball
 	configuration {
@@ -2046,12 +2085,20 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
-fragment ServiceDeploymentFragment on ServiceDeployment {
+fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	id
 	name
 	namespace
 	version
-	deletedAt
+	git {
+		... GitRefFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+}
+fragment ServiceDeploymentFragment on ServiceDeployment {
+	... ServiceDeploymentBaseFragment
 	components {
 		id
 		name
@@ -2062,12 +2109,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		synced
 		version
 	}
-	git {
-		... GitRefFragment
-	}
-	repository {
-		... GitRepositoryFragment
-	}
+	deletedAt
 	sha
 	tarball
 	configuration {

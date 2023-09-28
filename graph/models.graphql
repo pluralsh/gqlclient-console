@@ -1,9 +1,14 @@
-fragment ServiceDeploymentFragment on ServiceDeployment {
+fragment ServiceDeploymentBaseFragment on ServiceDeployment {
     id
     name
     namespace
     version
-    deletedAt
+    git { ...GitRefFragment }
+    repository { ... GitRepositoryFragment }
+}
+
+fragment ServiceDeploymentFragment on ServiceDeployment {
+    ...ServiceDeploymentBaseFragment
     components {
         id
         name
@@ -14,8 +19,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
         synced
         version
     }
-    git { ...GitRefFragment }
-    repository { ... GitRepositoryFragment }
+    deletedAt
     sha
     tarball
     configuration { name value }
@@ -143,6 +147,6 @@ fragment ClusterEdgeFragment on ClusterEdge {
 
 fragment ServiceDeploymentEdgeFragment on ServiceDeploymentEdge {
     node {
-        ...ServiceDeploymentFragment
+        ...ServiceDeploymentBaseFragment
     }
 }
