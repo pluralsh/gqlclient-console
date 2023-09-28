@@ -190,6 +190,9 @@ type ServiceDeployment {
   "kubernetes namespace this service will be deployed to"
   namespace: String!
 
+  "A summary status enum for the health of this service"
+  status: ServiceDeploymentStatus!
+
   "semver of this service"
   version: String!
 
@@ -202,8 +205,14 @@ type ServiceDeployment {
   "https url to fetch the latest tarball of kubernetes manifests"
   tarball: String
 
+  "a n / m representation of the number of healthy components of this service"
+  componentStatus: String
+
   "the time this service was scheduled for deletion"
   deletedAt: DateTime
+
+  "fetches the /docs directory within this services git tree.  This is a heavy operation and should NOT be used in list queries"
+  docs: [GitFile]
 
   "the git repo of this service"
   repository: GitRepository
@@ -866,6 +875,21 @@ type Command {
   updatedAt: DateTime
 }
 
+input NodePoolAttributes {
+  name: String!
+  minSize: Int!
+  maxSize: Int!
+  instanceType: String!
+  labels: Map
+  taints: [TaintAttributes]
+  cloudSettings: CloudSettingsAttributes
+}
+
+type GitStatus {
+  cloned: Boolean
+  output: String
+}
+
 type CostAnalysis {
   minutes: Float
   cpuCost: Float
@@ -945,16 +969,6 @@ type JobSpec {
   activeDeadlineSeconds: Int
 }
 
-input NodePoolAttributes {
-  name: String!
-  minSize: Int!
-  maxSize: Int!
-  instanceType: String!
-  labels: Map
-  taints: [TaintAttributes]
-  cloudSettings: CloudSettingsAttributes
-}
-
 type RunbookStatus {
   alerts: [RunbookAlertStatus]
 }
@@ -972,11 +986,6 @@ type PodStatus {
   conditions: [PodCondition]
   containerStatuses: [ContainerStatus]
   initContainerStatuses: [ContainerStatus]
-}
-
-type GitStatus {
-  cloned: Boolean
-  output: String
 }
 
 type CronSpec {
@@ -998,6 +1007,12 @@ type Cluster {
 
   "current k8s version as told to us by the deployment operator"
   currentVersion: String
+
+  "a short, unique human readable name used to identify this cluster and does not necessarily map to the cloud resource name"
+  handle: String
+
+  "a auth token to be used by the deploy operator, only readable on create"
+  deployToken: String
 
   "when this cluster was scheduled for deletion"
   deletedAt: DateTime
@@ -1173,19 +1188,64 @@ type RootMutationType {
 
   updateClusterProvider(id: ID!, attributes: ClusterProviderUpdateAttributes!): ClusterProvider
 
-  createServiceDeployment(clusterId: ID!, attributes: ServiceDeploymentAttributes!): ServiceDeployment
+  createServiceDeployment(
+    clusterId: ID
 
-  updateServiceDeployment(id: ID!, attributes: ServiceUpdateAttributes!): ServiceDeployment
+    "the handle of the cluster for this service"
+    cluster: String
+
+    attributes: ServiceDeploymentAttributes!
+  ): ServiceDeployment
+
+  updateServiceDeployment(
+    id: ID
+
+    "the handle of the cluster for this service"
+    cluster: String
+
+    name: String
+
+    attributes: ServiceUpdateAttributes!
+  ): ServiceDeployment
 
   deleteServiceDeployment(id: ID!): ServiceDeployment
 
   "rewires this service to use the given revision id"
-  rollbackService(id: ID!, revisionId: ID!): ServiceDeployment
+  rollbackService(
+    id: ID
+
+    "the handle of the cluster for this service"
+    cluster: String
+
+    name: String
+
+    revisionId: ID!
+  ): ServiceDeployment
 
   "clones the spec of the given service to be deployed either into a new namespace or new cluster"
-  cloneService(serviceId: ID!, clusterId: ID!, attributes: ServiceCloneAttributes!): ServiceDeployment
+  cloneService(
+    serviceId: ID
 
-  createGlobalService(serviceId: ID!, attributes: GlobalServiceAttributes!): GlobalService
+    "the handle of the cluster for this service"
+    cluster: String
+
+    name: String
+
+    clusterId: ID!
+
+    attributes: ServiceCloneAttributes!
+  ): ServiceDeployment
+
+  createGlobalService(
+    serviceId: ID
+
+    "the handle of the cluster for this service"
+    cluster: String
+
+    name: String
+
+    attributes: GlobalServiceAttributes!
+  ): GlobalService
 
   deleteGlobalService(id: ID!): GlobalService
 
@@ -1199,6 +1259,8 @@ type RootMutationType {
   updateRbac(rbac: RbacAttributes!, serviceId: ID, clusterId: ID, providerId: ID): Boolean
 
   updateDeploymentSettings(attributes: DeploymentSettingsAttributes!): DeploymentSettings
+
+  enableDeployments: DeploymentSettings
 }
 
 type PodConnection {
@@ -1462,18 +1524,38 @@ type RootQueryType {
   clusterProviders(after: String, first: Int, before: String, last: Int): ClusterProviderConnection
 
   "fetches an individual cluster"
-  cluster(id: ID): Cluster
+  cluster(id: ID, handle: String): Cluster
 
   "fetches an individual cluster provider"
   clusterProvider(id: ID!): ClusterProvider
 
-  serviceDeployments(after: String, first: Int, before: String, last: Int, clusterId: ID): ServiceDeploymentConnection
+  serviceDeployments(
+    after: String
+
+    first: Int
+
+    before: String
+
+    last: Int
+
+    clusterId: ID
+
+    "the handle of the cluster for this service"
+    cluster: String
+  ): ServiceDeploymentConnection
 
   "the services deployed in the current cluster, to be polled by the deploy operator"
   clusterServices: [ServiceDeployment]
 
   "fetches details of this service deployment, and can be called by the deploy operator"
-  serviceDeployment(id: ID!): ServiceDeployment
+  serviceDeployment(
+    id: ID
+
+    "the handle of the cluster for this service"
+    cluster: String
+
+    name: String
+  ): ServiceDeployment
 
   deploymentSettings: DeploymentSettings
 }
@@ -1731,6 +1813,9 @@ type ApplicationStatus {
 type DeploymentSettings {
   id: ID!
 
+  "whether you've yet to enable CD for this instance"
+  enabled: Boolean!
+
   name: String!
 
   "the repo to fetch CAPI manifests from, for both providers and clusters"
@@ -1758,11 +1843,22 @@ type DeploymentSettings {
 
 input ClusterAttributes {
   name: String!
+
+  "a short, unique human readable name used to identify this cluster and does not necessarily map to the cloud resource name"
+  handle: String
+
   providerId: ID
+
   version: String!
+
+  kubeconfig: KubeconfigAttributes
+
   nodePools: [NodePoolAttributes]
+
   readBindings: [PolicyBindingAttributes]
+
   writeBindings: [PolicyBindingAttributes]
+
   tags: [TagAttributes]
 }
 
@@ -1799,6 +1895,13 @@ type Ingress {
 
 input UserRoleAttributes {
   admin: Boolean
+}
+
+enum ServiceDeploymentStatus {
+  STALE
+  SYNCED
+  HEALTHY
+  FAILED
 }
 
 input AwsCloudAttributes {
@@ -2102,6 +2205,12 @@ type AccessTokenEdge {
   cursor: String
 }
 
+"a file fetched from a git repository, eg a docs .md file"
+type GitFile {
+  path: String!
+  content: String!
+}
+
 type RollingUpdate {
   maxSurge: Int
   maxUnavailable: Int
@@ -2190,6 +2299,10 @@ input GlobalServiceAttributes {
   name: String!
   tags: [TagAttributes]
   providerId: ID
+}
+
+input KubeconfigAttributes {
+  raw: String
 }
 
 type PostgresqlStatus {

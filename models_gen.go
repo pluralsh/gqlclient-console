@@ -288,6 +288,10 @@ type Cluster struct {
 	Version *string `json:"version"`
 	// current k8s version as told to us by the deployment operator
 	CurrentVersion *string `json:"currentVersion"`
+	// a short, unique human readable name used to identify this cluster and does not necessarily map to the cloud resource name
+	Handle *string `json:"handle"`
+	// a auth token to be used by the deploy operator, only readable on create
+	DeployToken *string `json:"deployToken"`
 	// when this cluster was scheduled for deletion
 	DeletedAt *string `json:"deletedAt"`
 	// last time the deploy operator pinged this cluster
@@ -315,9 +319,12 @@ type Cluster struct {
 }
 
 type ClusterAttributes struct {
-	Name          string                     `json:"name"`
+	Name string `json:"name"`
+	// a short, unique human readable name used to identify this cluster and does not necessarily map to the cloud resource name
+	Handle        *string                    `json:"handle,omitempty"`
 	ProviderID    *string                    `json:"providerId,omitempty"`
 	Version       string                     `json:"version"`
+	Kubeconfig    *KubeconfigAttributes      `json:"kubeconfig,omitempty"`
 	NodePools     []*NodePoolAttributes      `json:"nodePools,omitempty"`
 	ReadBindings  []*PolicyBindingAttributes `json:"readBindings,omitempty"`
 	WriteBindings []*PolicyBindingAttributes `json:"writeBindings,omitempty"`
@@ -634,8 +641,10 @@ func (Deployment) IsKubernetesData() {}
 
 // global settings for CD, these specify global read/write policies and also allow for customization of the repos for CAPI resources and the deploy operator
 type DeploymentSettings struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
+	ID string `json:"id"`
+	// whether you've yet to enable CD for this instance
+	Enabled bool   `json:"enabled"`
+	Name    string `json:"name"`
 	// the repo to fetch CAPI manifests from, for both providers and clusters
 	ArtifactRepository *GitRepository `json:"artifactRepository"`
 	// the repo to fetch the deploy operators manifests from
@@ -708,6 +717,12 @@ type GitAttributes struct {
 	Username *string `json:"username,omitempty"`
 	// the http password for http authenticated repos
 	Password *string `json:"password,omitempty"`
+}
+
+// a file fetched from a git repository, eg a docs .md file
+type GitFile struct {
+	Path    string `json:"path"`
+	Content string `json:"content"`
 }
 
 // a representation of where to pull manifests from git
@@ -914,6 +929,10 @@ type JobStatus struct {
 	StartTime      *string `json:"startTime"`
 	Succeeded      *int64  `json:"succeeded"`
 	Failed         *int64  `json:"failed"`
+}
+
+type KubeconfigAttributes struct {
+	Raw *string `json:"raw,omitempty"`
 }
 
 type KubernetesDatasource struct {
@@ -1571,6 +1590,8 @@ type ServiceDeployment struct {
 	Name string `json:"name"`
 	// kubernetes namespace this service will be deployed to
 	Namespace string `json:"namespace"`
+	// A summary status enum for the health of this service
+	Status ServiceDeploymentStatus `json:"status"`
 	// semver of this service
 	Version string `json:"version"`
 	// description on where in git the service's manifests should be fetched
@@ -1579,8 +1600,12 @@ type ServiceDeployment struct {
 	Sha *string `json:"sha"`
 	// https url to fetch the latest tarball of kubernetes manifests
 	Tarball *string `json:"tarball"`
+	// a n / m representation of the number of healthy components of this service
+	ComponentStatus *string `json:"componentStatus"`
 	// the time this service was scheduled for deletion
 	DeletedAt *string `json:"deletedAt"`
+	// fetches the /docs directory within this services git tree.  This is a heavy operation and should NOT be used in list queries
+	Docs []*GitFile `json:"docs"`
 	// the git repo of this service
 	Repository *GitRepository `json:"repository"`
 	// read policy for this service
@@ -2385,6 +2410,51 @@ func (e *ReadType) UnmarshalGQL(v interface{}) error {
 }
 
 func (e ReadType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type ServiceDeploymentStatus string
+
+const (
+	ServiceDeploymentStatusStale   ServiceDeploymentStatus = "STALE"
+	ServiceDeploymentStatusSynced  ServiceDeploymentStatus = "SYNCED"
+	ServiceDeploymentStatusHealthy ServiceDeploymentStatus = "HEALTHY"
+	ServiceDeploymentStatusFailed  ServiceDeploymentStatus = "FAILED"
+)
+
+var AllServiceDeploymentStatus = []ServiceDeploymentStatus{
+	ServiceDeploymentStatusStale,
+	ServiceDeploymentStatusSynced,
+	ServiceDeploymentStatusHealthy,
+	ServiceDeploymentStatusFailed,
+}
+
+func (e ServiceDeploymentStatus) IsValid() bool {
+	switch e {
+	case ServiceDeploymentStatusStale, ServiceDeploymentStatusSynced, ServiceDeploymentStatusHealthy, ServiceDeploymentStatusFailed:
+		return true
+	}
+	return false
+}
+
+func (e ServiceDeploymentStatus) String() string {
+	return string(e)
+}
+
+func (e *ServiceDeploymentStatus) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ServiceDeploymentStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ServiceDeploymentStatus", str)
+	}
+	return nil
+}
+
+func (e ServiceDeploymentStatus) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

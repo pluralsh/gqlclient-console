@@ -154,6 +154,7 @@ type RootMutationType struct {
 	UpdateServiceComponents  *ServiceDeployment     "json:\"updateServiceComponents\" graphql:\"updateServiceComponents\""
 	UpdateRbac               *bool                  "json:\"updateRbac\" graphql:\"updateRbac\""
 	UpdateDeploymentSettings *DeploymentSettings    "json:\"updateDeploymentSettings\" graphql:\"updateDeploymentSettings\""
+	EnableDeployments        *DeploymentSettings    "json:\"enableDeployments\" graphql:\"enableDeployments\""
 }
 type AccessTokenEdgeFragment struct {
 	Node *AccessTokenFragment "json:\"node\" graphql:\"node\""
