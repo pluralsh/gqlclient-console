@@ -201,7 +201,7 @@ type GitRepositoryEdgeFragment struct {
 }
 type GitRepositoryFragment struct {
 	ID         string      "json:\"id\" graphql:\"id\""
-	Editable   *bool       "json:\"editable\" graphql:\"editable\""
+	Error      *string     "json:\"error\" graphql:\"error\""
 	Health     *GitHealth  "json:\"health\" graphql:\"health\""
 	AuthMethod *AuthMethod "json:\"authMethod\" graphql:\"authMethod\""
 	URL        string      "json:\"url\" graphql:\"url\""
@@ -241,7 +241,6 @@ type ServiceDeploymentExtended struct {
 	Name       string            "json:\"name\" graphql:\"name\""
 	Namespace  string            "json:\"namespace\" graphql:\"namespace\""
 	Version    string            "json:\"version\" graphql:\"version\""
-	Editable   *bool             "json:\"editable\" graphql:\"editable\""
 	DeletedAt  *string           "json:\"deletedAt\" graphql:\"deletedAt\""
 	Components []*struct {
 		ID        string          "json:\"id\" graphql:\"id\""
@@ -267,7 +266,6 @@ type ServiceDeploymentFragment struct {
 	Name       string  "json:\"name\" graphql:\"name\""
 	Namespace  string  "json:\"namespace\" graphql:\"namespace\""
 	Version    string  "json:\"version\" graphql:\"version\""
-	Editable   *bool   "json:\"editable\" graphql:\"editable\""
 	DeletedAt  *string "json:\"deletedAt\" graphql:\"deletedAt\""
 	Components []*struct {
 		ID        string          "json:\"id\" graphql:\"id\""
@@ -445,7 +443,7 @@ fragment GitRefFragment on GitRef {
 }
 fragment GitRepositoryFragment on GitRepository {
 	id
-	editable
+	error
 	health
 	authMethod
 	url
@@ -462,7 +460,6 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	name
 	namespace
 	version
-	editable
 	deletedAt
 	components {
 		id
@@ -526,7 +523,7 @@ fragment GitRefFragment on GitRef {
 }
 fragment GitRepositoryFragment on GitRepository {
 	id
-	editable
+	error
 	health
 	authMethod
 	url
@@ -536,7 +533,6 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	name
 	namespace
 	version
-	editable
 	deletedAt
 	components {
 		id
@@ -583,7 +579,7 @@ const CreateGitRepositoryDocument = `mutation CreateGitRepository ($attributes: 
 }
 fragment GitRepositoryFragment on GitRepository {
 	id
-	editable
+	error
 	health
 	authMethod
 	url
@@ -614,7 +610,7 @@ fragment GitRefFragment on GitRef {
 }
 fragment GitRepositoryFragment on GitRepository {
 	id
-	editable
+	error
 	health
 	authMethod
 	url
@@ -624,7 +620,6 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	name
 	namespace
 	version
-	editable
 	deletedAt
 	components {
 		id
@@ -725,7 +720,7 @@ fragment GitRefFragment on GitRef {
 }
 fragment GitRepositoryFragment on GitRepository {
 	id
-	editable
+	error
 	health
 	authMethod
 	url
@@ -742,7 +737,6 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	name
 	namespace
 	version
-	editable
 	deletedAt
 	components {
 		id
@@ -793,7 +787,7 @@ fragment GitRefFragment on GitRef {
 }
 fragment GitRepositoryFragment on GitRepository {
 	id
-	editable
+	error
 	health
 	authMethod
 	url
@@ -803,7 +797,6 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	name
 	namespace
 	version
-	editable
 	deletedAt
 	components {
 		id
@@ -903,7 +896,7 @@ fragment GitRefFragment on GitRef {
 }
 fragment GitRepositoryFragment on GitRepository {
 	id
-	editable
+	error
 	health
 	authMethod
 	url
@@ -920,7 +913,6 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	name
 	namespace
 	version
-	editable
 	deletedAt
 	components {
 		id
@@ -984,7 +976,7 @@ fragment GitRefFragment on GitRef {
 }
 fragment GitRepositoryFragment on GitRepository {
 	id
-	editable
+	error
 	health
 	authMethod
 	url
@@ -994,7 +986,6 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	name
 	namespace
 	version
-	editable
 	deletedAt
 	components {
 		id
@@ -1070,7 +1061,7 @@ fragment GitRefFragment on GitRef {
 }
 fragment GitRepositoryFragment on GitRepository {
 	id
-	editable
+	error
 	health
 	authMethod
 	url
@@ -1104,7 +1095,6 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	name
 	namespace
 	version
-	editable
 	deletedAt
 	components {
 		id
@@ -1188,7 +1178,7 @@ fragment GitRefFragment on GitRef {
 }
 fragment GitRepositoryFragment on GitRepository {
 	id
-	editable
+	error
 	health
 	authMethod
 	url
@@ -1198,7 +1188,6 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	name
 	namespace
 	version
-	editable
 	deletedAt
 	components {
 		id
@@ -1279,7 +1268,7 @@ fragment GitRefFragment on GitRef {
 }
 fragment GitRepositoryFragment on GitRepository {
 	id
-	editable
+	error
 	health
 	authMethod
 	url
@@ -1296,7 +1285,6 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	name
 	namespace
 	version
-	editable
 	deletedAt
 	components {
 		id
@@ -1364,7 +1352,7 @@ fragment DeploymentSettingsFragment on DeploymentSettings {
 }
 fragment GitRepositoryFragment on GitRepository {
 	id
-	editable
+	error
 	health
 	authMethod
 	url
@@ -1416,7 +1404,7 @@ fragment GitRepositoryEdgeFragment on GitRepositoryEdge {
 }
 fragment GitRepositoryFragment on GitRepository {
 	id
-	editable
+	error
 	health
 	authMethod
 	url
@@ -1451,7 +1439,7 @@ fragment GitRefFragment on GitRef {
 }
 fragment GitRepositoryFragment on GitRepository {
 	id
-	editable
+	error
 	health
 	authMethod
 	url
@@ -1466,7 +1454,6 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	name
 	namespace
 	version
-	editable
 	deletedAt
 	components {
 		id
@@ -1524,7 +1511,7 @@ fragment GitRefFragment on GitRef {
 }
 fragment GitRepositoryFragment on GitRepository {
 	id
-	editable
+	error
 	health
 	authMethod
 	url
@@ -1534,7 +1521,6 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	name
 	namespace
 	version
-	editable
 	deletedAt
 	components {
 		id
@@ -1612,7 +1598,7 @@ fragment GitRefFragment on GitRef {
 }
 fragment GitRepositoryFragment on GitRepository {
 	id
-	editable
+	error
 	health
 	authMethod
 	url
@@ -1629,7 +1615,6 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	name
 	namespace
 	version
-	editable
 	deletedAt
 	components {
 		id
@@ -1680,7 +1665,7 @@ fragment GitRefFragment on GitRef {
 }
 fragment GitRepositoryFragment on GitRepository {
 	id
-	editable
+	error
 	health
 	authMethod
 	url
@@ -1690,7 +1675,6 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	name
 	namespace
 	version
-	editable
 	deletedAt
 	components {
 		id
@@ -1767,7 +1751,7 @@ fragment GitRefFragment on GitRef {
 }
 fragment GitRepositoryFragment on GitRepository {
 	id
-	editable
+	error
 	health
 	authMethod
 	url
@@ -1784,7 +1768,6 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	name
 	namespace
 	version
-	editable
 	deletedAt
 	components {
 		id
@@ -1849,7 +1832,7 @@ fragment GitRefFragment on GitRef {
 }
 fragment GitRepositoryFragment on GitRepository {
 	id
-	editable
+	error
 	health
 	authMethod
 	url
@@ -1859,7 +1842,6 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	name
 	namespace
 	version
-	editable
 	deletedAt
 	components {
 		id
@@ -1926,7 +1908,7 @@ fragment DeploymentSettingsFragment on DeploymentSettings {
 }
 fragment GitRepositoryFragment on GitRepository {
 	id
-	editable
+	error
 	health
 	authMethod
 	url
@@ -1997,7 +1979,7 @@ fragment GitRefFragment on GitRef {
 }
 fragment GitRepositoryFragment on GitRepository {
 	id
-	editable
+	error
 	health
 	authMethod
 	url
@@ -2007,7 +1989,6 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	name
 	namespace
 	version
-	editable
 	deletedAt
 	components {
 		id
@@ -2059,7 +2040,7 @@ fragment GitRefFragment on GitRef {
 }
 fragment GitRepositoryFragment on GitRepository {
 	id
-	editable
+	error
 	health
 	authMethod
 	url
@@ -2069,7 +2050,6 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	name
 	namespace
 	version
-	editable
 	deletedAt
 	components {
 		id

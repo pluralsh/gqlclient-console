@@ -735,6 +735,8 @@ type GitRepository struct {
 	Health *GitHealth `json:"health"`
 	// the last successsful git pull timestamp
 	PulledAt *string `json:"pulledAt"`
+	// the error message if there were any pull errors
+	Error *string `json:"error"`
 	// whether the current user can edit this repo
 	Editable   *bool   `json:"editable"`
 	InsertedAt *string `json:"insertedAt"`
