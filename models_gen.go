@@ -282,6 +282,8 @@ type CloudSettingsAttributes struct {
 type Cluster struct {
 	// internal id of this cluster
 	ID string `json:"id"`
+	// whether this is the management cluster itself
+	Self *bool `json:"self"`
 	// human readable name of this cluster, will also translate to cloud k8s name
 	Name string `json:"name"`
 	// desired k8s version for the cluster

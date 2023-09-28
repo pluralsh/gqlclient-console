@@ -27,8 +27,14 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 
 fragment ServiceDeploymentExtended on ServiceDeployment {
     cluster { ...ClusterFragment }
+    errors { ...ErrorFragment }
     revision { ...RevisionFragment }
     ...ServiceDeploymentFragment
+}
+
+fragment ErrorFragment on ServiceError {
+    source
+    message
 }
 
 fragment RevisionFragment on Revision {
@@ -75,7 +81,9 @@ fragment GitRefFragment on GitRef {
 fragment ClusterFragment on Cluster {
     id
     name
+    self
     version
+    pingedAt
     currentVersion
     provider { ...ClusterProviderFragment }
     nodePools { ...NodePoolFragment }
