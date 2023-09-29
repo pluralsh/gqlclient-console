@@ -169,7 +169,9 @@ type ClusterEdgeFragment struct {
 type ClusterFragment struct {
 	ID             string                   "json:\"id\" graphql:\"id\""
 	Name           string                   "json:\"name\" graphql:\"name\""
+	Self           *bool                    "json:\"self\" graphql:\"self\""
 	Version        *string                  "json:\"version\" graphql:\"version\""
+	PingedAt       *string                  "json:\"pingedAt\" graphql:\"pingedAt\""
 	CurrentVersion *string                  "json:\"currentVersion\" graphql:\"currentVersion\""
 	Provider       *ClusterProviderFragment "json:\"provider\" graphql:\"provider\""
 	NodePools      []*NodePoolFragment      "json:\"nodePools\" graphql:\"nodePools\""
@@ -191,6 +193,10 @@ type DeploymentSettingsFragment struct {
 	CreateBindings     []*PolicyBindingFragment "json:\"createBindings\" graphql:\"createBindings\""
 	ArtifactRepository *GitRepositoryFragment   "json:\"artifactRepository\" graphql:\"artifactRepository\""
 	DeployerRepository *GitRepositoryFragment   "json:\"deployerRepository\" graphql:\"deployerRepository\""
+}
+type ErrorFragment struct {
+	Source  string "json:\"source\" graphql:\"source\""
+	Message string "json:\"message\" graphql:\"message\""
 }
 type GitRefFragment struct {
 	Folder string "json:\"folder\" graphql:\"folder\""
@@ -245,6 +251,7 @@ type ServiceDeploymentEdgeFragment struct {
 }
 type ServiceDeploymentExtended struct {
 	Cluster    *ClusterFragment       "json:\"cluster\" graphql:\"cluster\""
+	Errors     []*ErrorFragment       "json:\"errors\" graphql:\"errors\""
 	Revision   *RevisionFragment      "json:\"revision\" graphql:\"revision\""
 	ID         string                 "json:\"id\" graphql:\"id\""
 	Name       string                 "json:\"name\" graphql:\"name\""
@@ -424,7 +431,9 @@ const CreateClusterDocument = `mutation CreateCluster ($attributes: ClusterAttri
 fragment ClusterFragment on Cluster {
 	id
 	name
+	self
 	version
+	pingedAt
 	currentVersion
 	provider {
 		... ClusterProviderFragment
@@ -710,7 +719,9 @@ const DeleteClusterDocument = `mutation DeleteCluster ($id: ID!) {
 fragment ClusterFragment on Cluster {
 	id
 	name
+	self
 	version
+	pingedAt
 	currentVersion
 	provider {
 		... ClusterProviderFragment
@@ -892,7 +903,9 @@ const GetClusterDocument = `query GetCluster ($id: ID) {
 fragment ClusterFragment on Cluster {
 	id
 	name
+	self
 	version
+	pingedAt
 	currentVersion
 	provider {
 		... ClusterProviderFragment
@@ -1063,7 +1076,9 @@ const GetServiceDeploymentDocument = `query GetServiceDeployment ($id: ID!) {
 fragment ClusterFragment on Cluster {
 	id
 	name
+	self
 	version
+	pingedAt
 	currentVersion
 	provider {
 		... ClusterProviderFragment
@@ -1084,6 +1099,10 @@ fragment ClusterProviderFragment on ClusterProvider {
 	service {
 		... ServiceDeploymentFragment
 	}
+}
+fragment ErrorFragment on ServiceError {
+	source
+	message
 }
 fragment GitRefFragment on GitRef {
 	folder
@@ -1126,6 +1145,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 fragment ServiceDeploymentExtended on ServiceDeployment {
 	cluster {
 		... ClusterFragment
+	}
+	errors {
+		... ErrorFragment
 	}
 	revision {
 		... RevisionFragment
@@ -1276,7 +1298,9 @@ fragment ClusterEdgeFragment on ClusterEdge {
 fragment ClusterFragment on Cluster {
 	id
 	name
+	self
 	version
+	pingedAt
 	currentVersion
 	provider {
 		... ClusterProviderFragment
@@ -1595,7 +1619,9 @@ const PingClusterDocument = `mutation PingCluster ($attributes: ClusterPing!) {
 fragment ClusterFragment on Cluster {
 	id
 	name
+	self
 	version
+	pingedAt
 	currentVersion
 	provider {
 		... ClusterProviderFragment
@@ -1754,7 +1780,9 @@ const UpdateClusterDocument = `mutation UpdateCluster ($id: ID!, $attributes: Cl
 fragment ClusterFragment on Cluster {
 	id
 	name
+	self
 	version
+	pingedAt
 	currentVersion
 	provider {
 		... ClusterProviderFragment
