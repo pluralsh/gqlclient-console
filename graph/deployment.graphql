@@ -45,8 +45,22 @@ query GetServiceDeployment($id: ID!) {
     }
 }
 
+query GetServiceDeploymentByHandle($cluster: String!, $name: String!) {
+    serviceDeployment(cluster: $cluster, name: $name) {
+        ...ServiceDeploymentExtended
+    }
+}
+
 query ListServiceDeployment($after: String, $before: String, $last: Int, $clusterId: ID){
     serviceDeployments(after: $after, first: 100, before: $before, last: $last, clusterId: $clusterId) {
+        edges {
+            ...ServiceDeploymentEdgeFragment
+        }
+    }
+}
+
+query ListServiceDeploymentByHandle($after: String, $before: String, $last: Int, $cluster: String){
+    serviceDeployments(after: $after, first: 100, before: $before, last: $last, cluster: $cluster) {
         edges {
             ...ServiceDeploymentEdgeFragment
         }

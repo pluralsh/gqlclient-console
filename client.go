@@ -92,6 +92,7 @@ type RootQueryType struct {
 	Cluster               *Cluster                     "json:\"cluster\" graphql:\"cluster\""
 	ClusterProvider       *ClusterProvider             "json:\"clusterProvider\" graphql:\"clusterProvider\""
 	ServiceDeployments    *ServiceDeploymentConnection "json:\"serviceDeployments\" graphql:\"serviceDeployments\""
+	ServiceStatuses       []*ServiceStatusCount        "json:\"serviceStatuses\" graphql:\"serviceStatuses\""
 	ClusterServices       []*ServiceDeployment         "json:\"clusterServices\" graphql:\"clusterServices\""
 	ServiceDeployment     *ServiceDeployment           "json:\"serviceDeployment\" graphql:\"serviceDeployment\""
 	DeploymentSettings    *DeploymentSettings          "json:\"deploymentSettings\" graphql:\"deploymentSettings\""
@@ -138,6 +139,8 @@ type RootMutationType struct {
 	DeleteWebhook            *Webhook               "json:\"deleteWebhook\" graphql:\"deleteWebhook\""
 	RestorePostgres          *Postgresql            "json:\"restorePostgres\" graphql:\"restorePostgres\""
 	CreateGitRepository      *GitRepository         "json:\"createGitRepository\" graphql:\"createGitRepository\""
+	UpdateGitRepository      *GitRepository         "json:\"updateGitRepository\" graphql:\"updateGitRepository\""
+	DeleteGitRepository      *GitRepository         "json:\"deleteGitRepository\" graphql:\"deleteGitRepository\""
 	CreateCluster            *Cluster               "json:\"createCluster\" graphql:\"createCluster\""
 	UpdateCluster            *Cluster               "json:\"updateCluster\" graphql:\"updateCluster\""
 	DeleteCluster            *Cluster               "json:\"deleteCluster\" graphql:\"deleteCluster\""
@@ -169,6 +172,7 @@ type ClusterEdgeFragment struct {
 type ClusterFragment struct {
 	ID             string                   "json:\"id\" graphql:\"id\""
 	Name           string                   "json:\"name\" graphql:\"name\""
+	Handle         *string                  "json:\"handle\" graphql:\"handle\""
 	Self           *bool                    "json:\"self\" graphql:\"self\""
 	Version        *string                  "json:\"version\" graphql:\"version\""
 	PingedAt       *string                  "json:\"pingedAt\" graphql:\"pingedAt\""
@@ -343,6 +347,9 @@ type GetClusterProvider struct {
 type GetServiceDeployment struct {
 	ServiceDeployment *ServiceDeploymentExtended "json:\"serviceDeployment\" graphql:\"serviceDeployment\""
 }
+type GetServiceDeploymentByHandle struct {
+	ServiceDeployment *ServiceDeploymentExtended "json:\"serviceDeployment\" graphql:\"serviceDeployment\""
+}
 type ListAccessTokens struct {
 	AccessTokens *struct {
 		Edges []*AccessTokenEdgeFragment "json:\"edges\" graphql:\"edges\""
@@ -369,6 +376,11 @@ type ListServiceDeployment struct {
 		Edges []*ServiceDeploymentEdgeFragment "json:\"edges\" graphql:\"edges\""
 	} "json:\"serviceDeployments\" graphql:\"serviceDeployments\""
 }
+type ListServiceDeploymentByHandle struct {
+	ServiceDeployments *struct {
+		Edges []*ServiceDeploymentEdgeFragment "json:\"edges\" graphql:\"edges\""
+	} "json:\"serviceDeployments\" graphql:\"serviceDeployments\""
+}
 type ListServiceDeployments struct {
 	ServiceDeployments *struct {
 		Edges []*struct {
@@ -390,6 +402,9 @@ type UpdateClusterProvider struct {
 }
 type UpdateDeploymentSettings struct {
 	UpdateDeploymentSettings *DeploymentSettingsFragment "json:\"updateDeploymentSettings\" graphql:\"updateDeploymentSettings\""
+}
+type UpdateGitRepository struct {
+	UpdateGitRepository *GitRepositoryFragment "json:\"updateGitRepository\" graphql:\"updateGitRepository\""
 }
 type UpdateRbac struct {
 	UpdateRbac *bool "json:\"updateRbac\" graphql:\"updateRbac\""
@@ -431,6 +446,7 @@ const CreateClusterDocument = `mutation CreateCluster ($attributes: ClusterAttri
 fragment ClusterFragment on Cluster {
 	id
 	name
+	handle
 	self
 	version
 	pingedAt
@@ -719,6 +735,7 @@ const DeleteClusterDocument = `mutation DeleteCluster ($id: ID!) {
 fragment ClusterFragment on Cluster {
 	id
 	name
+	handle
 	self
 	version
 	pingedAt
@@ -903,6 +920,7 @@ const GetClusterDocument = `query GetCluster ($id: ID) {
 fragment ClusterFragment on Cluster {
 	id
 	name
+	handle
 	self
 	version
 	pingedAt
@@ -1076,6 +1094,7 @@ const GetServiceDeploymentDocument = `query GetServiceDeployment ($id: ID!) {
 fragment ClusterFragment on Cluster {
 	id
 	name
+	handle
 	self
 	version
 	pingedAt
@@ -1183,6 +1202,129 @@ func (c *Client) GetServiceDeployment(ctx context.Context, id string, httpReques
 
 	var res GetServiceDeployment
 	if err := c.Client.Post(ctx, "GetServiceDeployment", GetServiceDeploymentDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const GetServiceDeploymentByHandleDocument = `query GetServiceDeploymentByHandle ($cluster: String!, $name: String!) {
+	serviceDeployment(cluster: $cluster, name: $name) {
+		... ServiceDeploymentExtended
+	}
+}
+fragment ClusterFragment on Cluster {
+	id
+	name
+	handle
+	self
+	version
+	pingedAt
+	currentVersion
+	provider {
+		... ClusterProviderFragment
+	}
+	nodePools {
+		... NodePoolFragment
+	}
+}
+fragment ClusterProviderFragment on ClusterProvider {
+	id
+	name
+	namespace
+	cloud
+	editable
+	repository {
+		... GitRepositoryFragment
+	}
+	service {
+		... ServiceDeploymentFragment
+	}
+}
+fragment ErrorFragment on ServiceError {
+	source
+	message
+}
+fragment GitRefFragment on GitRef {
+	folder
+	ref
+}
+fragment GitRepositoryFragment on GitRepository {
+	id
+	error
+	health
+	authMethod
+	url
+}
+fragment NodePoolFragment on NodePool {
+	id
+	name
+	minSize
+	maxSize
+	instanceType
+}
+fragment RevisionFragment on Revision {
+	id
+	sha
+	git {
+		ref
+		folder
+	}
+}
+fragment ServiceDeploymentBaseFragment on ServiceDeployment {
+	id
+	name
+	namespace
+	version
+	git {
+		... GitRefFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+}
+fragment ServiceDeploymentExtended on ServiceDeployment {
+	cluster {
+		... ClusterFragment
+	}
+	errors {
+		... ErrorFragment
+	}
+	revision {
+		... RevisionFragment
+	}
+	... ServiceDeploymentFragment
+}
+fragment ServiceDeploymentFragment on ServiceDeployment {
+	... ServiceDeploymentBaseFragment
+	components {
+		id
+		name
+		group
+		kind
+		namespace
+		state
+		synced
+		version
+	}
+	deletedAt
+	sha
+	tarball
+	configuration {
+		name
+		value
+	}
+}
+`
+
+func (c *Client) GetServiceDeploymentByHandle(ctx context.Context, cluster string, name string, httpRequestOptions ...client.HTTPRequestOption) (*GetServiceDeploymentByHandle, error) {
+	vars := map[string]interface{}{
+		"cluster": cluster,
+		"name":    name,
+	}
+
+	var res GetServiceDeploymentByHandle
+	if err := c.Client.Post(ctx, "GetServiceDeploymentByHandle", GetServiceDeploymentByHandleDocument, &res, vars, httpRequestOptions...); err != nil {
 		return nil, err
 	}
 
@@ -1298,6 +1440,7 @@ fragment ClusterEdgeFragment on ClusterEdge {
 fragment ClusterFragment on Cluster {
 	id
 	name
+	handle
 	self
 	version
 	pingedAt
@@ -1542,6 +1685,59 @@ func (c *Client) ListServiceDeployment(ctx context.Context, after *string, befor
 	return &res, nil
 }
 
+const ListServiceDeploymentByHandleDocument = `query ListServiceDeploymentByHandle ($after: String, $before: String, $last: Int, $cluster: String) {
+	serviceDeployments(after: $after, first: 100, before: $before, last: $last, cluster: $cluster) {
+		edges {
+			... ServiceDeploymentEdgeFragment
+		}
+	}
+}
+fragment GitRefFragment on GitRef {
+	folder
+	ref
+}
+fragment GitRepositoryFragment on GitRepository {
+	id
+	error
+	health
+	authMethod
+	url
+}
+fragment ServiceDeploymentBaseFragment on ServiceDeployment {
+	id
+	name
+	namespace
+	version
+	git {
+		... GitRefFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+}
+fragment ServiceDeploymentEdgeFragment on ServiceDeploymentEdge {
+	node {
+		... ServiceDeploymentBaseFragment
+	}
+}
+`
+
+func (c *Client) ListServiceDeploymentByHandle(ctx context.Context, after *string, before *string, last *int64, cluster *string, httpRequestOptions ...client.HTTPRequestOption) (*ListServiceDeploymentByHandle, error) {
+	vars := map[string]interface{}{
+		"after":   after,
+		"before":  before,
+		"last":    last,
+		"cluster": cluster,
+	}
+
+	var res ListServiceDeploymentByHandle
+	if err := c.Client.Post(ctx, "ListServiceDeploymentByHandle", ListServiceDeploymentByHandleDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
 const ListServiceDeploymentsDocument = `query ListServiceDeployments ($cursor: String, $before: String, $last: Int) {
 	serviceDeployments(after: $cursor, first: 100, before: $before, last: $last) {
 		edges {
@@ -1619,6 +1815,7 @@ const PingClusterDocument = `mutation PingCluster ($attributes: ClusterPing!) {
 fragment ClusterFragment on Cluster {
 	id
 	name
+	handle
 	self
 	version
 	pingedAt
@@ -1780,6 +1977,7 @@ const UpdateClusterDocument = `mutation UpdateCluster ($id: ID!, $attributes: Cl
 fragment ClusterFragment on Cluster {
 	id
 	name
+	handle
 	self
 	version
 	pingedAt
@@ -2006,6 +2204,34 @@ func (c *Client) UpdateDeploymentSettings(ctx context.Context, attributes Deploy
 
 	var res UpdateDeploymentSettings
 	if err := c.Client.Post(ctx, "UpdateDeploymentSettings", UpdateDeploymentSettingsDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const UpdateGitRepositoryDocument = `mutation UpdateGitRepository ($id: ID!, $attributes: GitAttributes!) {
+	updateGitRepository(id: $id, attributes: $attributes) {
+		... GitRepositoryFragment
+	}
+}
+fragment GitRepositoryFragment on GitRepository {
+	id
+	error
+	health
+	authMethod
+	url
+}
+`
+
+func (c *Client) UpdateGitRepository(ctx context.Context, id string, attributes GitAttributes, httpRequestOptions ...client.HTTPRequestOption) (*UpdateGitRepository, error) {
+	vars := map[string]interface{}{
+		"id":         id,
+		"attributes": attributes,
+	}
+
+	var res UpdateGitRepository
+	if err := c.Client.Post(ctx, "UpdateGitRepository", UpdateGitRepositoryDocument, &res, vars, httpRequestOptions...); err != nil {
 		return nil, err
 	}
 

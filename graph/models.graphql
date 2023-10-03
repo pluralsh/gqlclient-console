@@ -81,6 +81,7 @@ fragment GitRefFragment on GitRef {
 fragment ClusterFragment on Cluster {
     id
     name
+    handle
     self
     version
     pingedAt

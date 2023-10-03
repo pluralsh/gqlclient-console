@@ -398,7 +398,9 @@ type ClusterProviderUpdateAttributes struct {
 }
 
 type ClusterUpdateAttributes struct {
-	Version       string                     `json:"version"`
+	Version string `json:"version"`
+	// a short, unique human readable name used to identify this cluster and does not necessarily map to the cloud resource name
+	Handle        *string                    `json:"handle,omitempty"`
 	NodePools     []*NodePoolAttributes      `json:"nodePools,omitempty"`
 	ReadBindings  []*PolicyBindingAttributes `json:"readBindings,omitempty"`
 	WriteBindings []*PolicyBindingAttributes `json:"writeBindings,omitempty"`
@@ -687,6 +689,23 @@ type DeploymentStatus struct {
 type DeploymentStrategy struct {
 	Type          *string        `json:"type"`
 	RollingUpdate *RollingUpdate `json:"rollingUpdate"`
+}
+
+// specification for ignoring diffs for subfields of manifests, to avoid admission controllers and other mutations
+type DiffNormalizer struct {
+	Group       string   `json:"group"`
+	Kind        string   `json:"kind"`
+	Name        string   `json:"name"`
+	Namespace   string   `json:"namespace"`
+	JSONPatches []string `json:"jsonPatches"`
+}
+
+type DiffNormalizerAttributes struct {
+	Group       string   `json:"group"`
+	Kind        string   `json:"kind"`
+	Name        string   `json:"name"`
+	Namespace   string   `json:"namespace"`
+	JSONPatches []string `json:"jsonPatches,omitempty"`
 }
 
 type Event struct {
@@ -1023,6 +1042,11 @@ type Metadata struct {
 	CreationTimestamp *string      `json:"creationTimestamp"`
 }
 
+type MetadataAttributes struct {
+	Labels      map[string]interface{} `json:"labels,omitempty"`
+	Annotations map[string]interface{} `json:"annotations,omitempty"`
+}
+
 type MetricResponse struct {
 	Metric map[string]interface{} `json:"metric"`
 	Values []*MetricResult        `json:"values"`
@@ -1039,6 +1063,12 @@ type Namespace struct {
 	Metadata Metadata        `json:"metadata"`
 	Raw      string          `json:"raw"`
 	Events   []*Event        `json:"events"`
+}
+
+// metadata fields for created namespaces
+type NamespaceMetadata struct {
+	Labels      map[string]interface{} `json:"labels"`
+	Annotations map[string]interface{} `json:"annotations"`
 }
 
 type NamespaceSpec struct {
@@ -1554,7 +1584,7 @@ type ServiceCloneAttributes struct {
 	Configuration []*ConfigAttributes `json:"configuration,omitempty"`
 }
 
-// representation of a kubernets component deployed by a service
+// representation of a kubernetes component deployed by a service
 type ServiceComponent struct {
 	// internal id
 	ID string `json:"id"`
@@ -1604,6 +1634,8 @@ type ServiceDeployment struct {
 	Tarball *string `json:"tarball"`
 	// a n / m representation of the number of healthy components of this service
 	ComponentStatus *string `json:"componentStatus"`
+	// settings for advanced tuning of the sync process
+	SyncConfig *SyncConfig `json:"syncConfig"`
 	// the time this service was scheduled for deletion
 	DeletedAt *string `json:"deletedAt"`
 	// fetches the /docs directory within this services git tree.  This is a heavy operation and should NOT be used in list queries
@@ -1640,6 +1672,8 @@ type ServiceDeploymentAttributes struct {
 	Name          string                     `json:"name"`
 	Namespace     string                     `json:"namespace"`
 	Version       *string                    `json:"version,omitempty"`
+	DocsPath      *string                    `json:"docsPath,omitempty"`
+	SyncConfig    *SyncConfigAttributes      `json:"syncConfig,omitempty"`
 	RepositoryID  string                     `json:"repositoryId"`
 	Git           GitRefAttributes           `json:"git"`
 	Configuration []*ConfigAttributes        `json:"configuration,omitempty"`
@@ -1684,6 +1718,12 @@ type ServiceSpec struct {
 
 type ServiceStatus struct {
 	LoadBalancer *LoadBalancerStatus `json:"loadBalancer"`
+}
+
+// a rollup count of the statuses of services in a query
+type ServiceStatusCount struct {
+	Status ServiceDeploymentStatus `json:"status"`
+	Count  int64                   `json:"count"`
 }
 
 type ServiceUpdateAttributes struct {
@@ -1752,6 +1792,17 @@ type StatusCondition struct {
 	Reason  string `json:"reason"`
 	Status  string `json:"status"`
 	Type    string `json:"type"`
+}
+
+// Advanced configuration of how to sync resources
+type SyncConfig struct {
+	NamespaceMetadata *NamespaceMetadata `json:"namespaceMetadata"`
+	DiffNormalizers   []*DiffNormalizer  `json:"diffNormalizers"`
+}
+
+type SyncConfigAttributes struct {
+	NamespaceMetadata *MetadataAttributes       `json:"namespaceMetadata,omitempty"`
+	DiffNormalizer    *DiffNormalizerAttributes `json:"diffNormalizer,omitempty"`
 }
 
 type Tag struct {

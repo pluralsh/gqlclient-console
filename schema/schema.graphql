@@ -208,6 +208,9 @@ type ServiceDeployment {
   "a n / m representation of the number of healthy components of this service"
   componentStatus: String
 
+  "settings for advanced tuning of the sync process"
+  syncConfig: SyncConfig
+
   "the time this service was scheduled for deletion"
   deletedAt: DateTime
 
@@ -255,7 +258,7 @@ type ServiceDeployment {
   updatedAt: DateTime
 }
 
-"representation of a kubernets component deployed by a service"
+"representation of a kubernetes component deployed by a service"
 type ServiceComponent {
   "internal id"
   id: ID!
@@ -353,6 +356,11 @@ input RbacAttributes {
   writeBindings: [PolicyBindingAttributes]
 }
 
+input SyncConfigAttributes {
+  namespaceMetadata: MetadataAttributes
+  diffNormalizer: DiffNormalizerAttributes
+}
+
 input GitRefAttributes {
   ref: String!
   folder: String!
@@ -389,11 +397,21 @@ input ServiceDeploymentAttributes {
   name: String!
   namespace: String!
   version: String
+  docsPath: String
+  syncConfig: SyncConfigAttributes
   repositoryId: ID!
   git: GitRefAttributes!
   configuration: [ConfigAttributes]
   readBindings: [PolicyBindingAttributes]
   writeBindings: [PolicyBindingAttributes]
+}
+
+input DiffNormalizerAttributes {
+  group: String!
+  kind: String!
+  name: String!
+  namespace: String!
+  jsonPatches: [String!]
 }
 
 input ConfigAttributes {
@@ -520,6 +538,12 @@ type PodDelta {
 
 "supported kubernetes objects fetchable in runbooks"
 union KubernetesData = Deployment | StatefulSet
+
+"metadata fields for created namespaces"
+type NamespaceMetadata {
+  labels: Map
+  annotations: Map
+}
 
 type Smtp {
   server: String
@@ -702,6 +726,23 @@ type PolicyBinding {
   group: Group
 }
 
+"Advanced configuration of how to sync resources"
+type SyncConfig {
+  namespaceMetadata: NamespaceMetadata
+  diffNormalizers: [DiffNormalizer]
+}
+
+type PrometheusDatasource {
+  query: String!
+  format: String
+  legend: String
+}
+
+type AuditEdge {
+  node: Audit
+  cursor: String
+}
+
 type LicenseFeature {
   name: String!
   description: String
@@ -751,12 +792,6 @@ type PodEdge {
   cursor: String
 }
 
-type PrometheusDatasource {
-  query: String!
-  format: String
-  legend: String
-}
-
 type Recipe {
   id: ID!
   name: String!
@@ -775,11 +810,6 @@ enum BuildType {
   DESTROY
   DEDICATED
   CONFIG
-}
-
-type AuditEdge {
-  node: Audit
-  cursor: String
 }
 
 type KubernetesDatasource {
@@ -1147,9 +1177,9 @@ type RootMutationType {
 
   deleteCertificate(name: String!, namespace: String!): Boolean
 
-  deletePod(namespace: String!, name: String!): Pod
+  deletePod(namespace: String!, name: String!, serviceId: ID): Pod
 
-  deleteJob(namespace: String!, name: String!): Job
+  deleteJob(namespace: String!, name: String!, serviceId: ID): Job
 
   deleteNode(name: String!): Node
 
@@ -1180,6 +1210,10 @@ type RootMutationType {
   restorePostgres(namespace: String!, name: String!, timestamp: DateTime!, clone: CloneAttributes): Postgresql
 
   createGitRepository(attributes: GitAttributes!): GitRepository
+
+  updateGitRepository(id: ID!, attributes: GitAttributes!): GitRepository
+
+  deleteGitRepository(id: ID!): GitRepository
 
   createCluster(attributes: ClusterAttributes!): Cluster
 
@@ -1426,35 +1460,35 @@ type RootQueryType {
 
   scalingRecommendation(kind: AutoscalingTarget!, namespace: String!, name: String!): VerticalPodAutoscaler
 
-  configMap(namespace: String!, name: String!): ConfigMap
+  configMap(serviceId: ID, namespace: String!, name: String!): ConfigMap
 
-  secret(namespace: String!, name: String!): Secret
+  secret(serviceId: ID, namespace: String!, name: String!): Secret
 
   configMaps(namespace: String!): [ConfigMap]
 
   secrets(namespace: String!): [Secret]
 
-  service(namespace: String!, name: String!): Service
+  service(namespace: String!, name: String!, serviceId: ID): Service
 
   clusterInfo: ClusterInfo
 
-  deployment(namespace: String!, name: String!): Deployment
+  deployment(namespace: String!, name: String!, serviceId: ID): Deployment
 
-  statefulSet(namespace: String!, name: String!): StatefulSet
+  statefulSet(namespace: String!, name: String!, serviceId: ID): StatefulSet
 
-  ingress(namespace: String!, name: String!): Ingress
+  ingress(namespace: String!, name: String!, serviceId: ID): Ingress
 
   nodes: [Node]
 
   node(name: String!): Node
 
-  cronJob(namespace: String!, name: String!): CronJob
+  cronJob(namespace: String!, name: String!, serviceId: ID): CronJob
 
-  job(namespace: String!, name: String!): Job
+  job(namespace: String!, name: String!, serviceId: ID): Job
 
-  certificate(namespace: String!, name: String!): Certificate
+  certificate(namespace: String!, name: String!, serviceId: ID): Certificate
 
-  pod(namespace: String!, name: String!): Pod
+  pod(namespace: String!, name: String!, serviceId: ID): Pod
 
   pods(after: String, first: Int, before: String, last: Int, namespaces: [String]): PodConnection
 
@@ -1546,6 +1580,8 @@ type RootQueryType {
     "the handle of the cluster for this service"
     cluster: String
   ): ServiceDeploymentConnection
+
+  serviceStatuses(clusterId: ID): [ServiceStatusCount]
 
   "the services deployed in the current cluster, to be polled by the deploy operator"
   clusterServices: [ServiceDeployment]
@@ -1731,6 +1767,12 @@ type Pod {
   events: [Event]
 }
 
+"a rollup count of the statuses of services in a query"
+type ServiceStatusCount {
+  status: ServiceDeploymentStatus!
+  count: Int!
+}
+
 type PluralContext {
   buckets: [String]
   domains: [String]
@@ -1778,8 +1820,14 @@ input ComponentAttributes {
 
 input ClusterUpdateAttributes {
   version: String!
+
+  "a short, unique human readable name used to identify this cluster and does not necessarily map to the cloud resource name"
+  handle: String
+
   nodePools: [NodePoolAttributes]
+
   readBindings: [PolicyBindingAttributes]
+
   writeBindings: [PolicyBindingAttributes]
 }
 
@@ -2363,6 +2411,11 @@ enum Status {
   PENDING
 }
 
+input MetadataAttributes {
+  labels: Map
+  annotations: Map
+}
+
 input ClusterProviderAttributes {
   name: String!
   namespace: String
@@ -2479,6 +2532,15 @@ type ServiceError {
 type LabelPair {
   name: String
   value: String
+}
+
+"specification for ignoring diffs for subfields of manifests, to avoid admission controllers and other mutations"
+type DiffNormalizer {
+  group: String!
+  kind: String!
+  name: String!
+  namespace: String!
+  jsonPatches: [String!]
 }
 
 type RunbookData {

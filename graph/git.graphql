@@ -4,11 +4,16 @@ mutation CreateGitRepository($attributes: GitAttributes!) {
     }
 }
 
-query ListGitRepositories($cursor: String, $before: String, $last: Int) {
-    gitRepositories(after: $cursor, first: 100, before: $before, last: $last) {
-        edges {
-            ...GitRepositoryEdgeFragment
-        }
+mutation UpdateGitRepository($id: ID!, $attributes: GitAttributes!) {
+    updateGitRepository(id: $id, attributes: $attributes) {
+        ...GitRepositoryFragment
     }
 }
 
+query ListGitRepositories($cursor: String, $before: String, $last: Int) {
+    gitRepositories(after: $cursor, first: 100, before: $before, last: $last) {
+        edges {
+                ...GitRepositoryEdgeFragment
+        }
+    }
+}
