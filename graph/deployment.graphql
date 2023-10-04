@@ -21,6 +21,13 @@ mutation UpdateServiceDeployment($id: ID!, $attributes: ServiceUpdateAttributes!
         ...ServiceDeploymentFragment
     }
 }
+
+mutation UpdateServiceDeploymentWithHandle($cluster: String!,$name: String!, $attributes: ServiceUpdateAttributes!) {
+    updateServiceDeployment(cluster: $cluster,name: $name, attributes: $attributes) {
+        ...ServiceDeploymentFragment
+    }
+}
+
 mutation RollbackService($id: ID!, $revisionId: ID!) {
     rollbackService(id: $id, revisionId: $revisionId) {
         ...ServiceDeploymentFragment

@@ -415,6 +415,9 @@ type UpdateRbac struct {
 type UpdateServiceDeployment struct {
 	UpdateServiceDeployment *ServiceDeploymentFragment "json:\"updateServiceDeployment\" graphql:\"updateServiceDeployment\""
 }
+type UpdateServiceDeploymentWithHandle struct {
+	UpdateServiceDeployment *ServiceDeploymentFragment "json:\"updateServiceDeployment\" graphql:\"updateServiceDeployment\""
+}
 type UpdateServiceComponents struct {
 	UpdateServiceComponents *ServiceDeploymentFragment "json:\"updateServiceComponents\" graphql:\"updateServiceComponents\""
 }
@@ -2384,6 +2387,71 @@ func (c *Client) UpdateServiceDeployment(ctx context.Context, id string, attribu
 
 	var res UpdateServiceDeployment
 	if err := c.Client.Post(ctx, "UpdateServiceDeployment", UpdateServiceDeploymentDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const UpdateServiceDeploymentWithHandleDocument = `mutation UpdateServiceDeploymentWithHandle ($cluster: String!, $name: String!, $attributes: ServiceUpdateAttributes!) {
+	updateServiceDeployment(cluster: $cluster, name: $name, attributes: $attributes) {
+		... ServiceDeploymentFragment
+	}
+}
+fragment GitRefFragment on GitRef {
+	folder
+	ref
+}
+fragment GitRepositoryFragment on GitRepository {
+	id
+	error
+	health
+	authMethod
+	url
+}
+fragment ServiceDeploymentBaseFragment on ServiceDeployment {
+	id
+	name
+	namespace
+	version
+	git {
+		... GitRefFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+}
+fragment ServiceDeploymentFragment on ServiceDeployment {
+	... ServiceDeploymentBaseFragment
+	components {
+		id
+		name
+		group
+		kind
+		namespace
+		state
+		synced
+		version
+	}
+	deletedAt
+	sha
+	tarball
+	configuration {
+		name
+		value
+	}
+}
+`
+
+func (c *Client) UpdateServiceDeploymentWithHandle(ctx context.Context, cluster string, name string, attributes ServiceUpdateAttributes, httpRequestOptions ...client.HTTPRequestOption) (*UpdateServiceDeploymentWithHandle, error) {
+	vars := map[string]interface{}{
+		"cluster":    cluster,
+		"name":       name,
+		"attributes": attributes,
+	}
+
+	var res UpdateServiceDeploymentWithHandle
+	if err := c.Client.Post(ctx, "UpdateServiceDeploymentWithHandle", UpdateServiceDeploymentWithHandleDocument, &res, vars, httpRequestOptions...); err != nil {
 		return nil, err
 	}
 
