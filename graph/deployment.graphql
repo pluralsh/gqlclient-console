@@ -4,6 +4,12 @@ mutation CreateServiceDeployment($clusterId: ID!, $attributes: ServiceDeployment
     }
 }
 
+mutation CreateServiceDeploymentWithHandle($cluster: String!, $attributes: ServiceDeploymentAttributes!) {
+    createServiceDeployment(cluster: $cluster, attributes: $attributes) {
+        ...ServiceDeploymentFragment
+    }
+}
+
 mutation DeleteServiceDeployment($id: ID!) {
     deleteServiceDeployment(id: $id) {
         ...ServiceDeploymentFragment

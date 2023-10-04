@@ -326,6 +326,9 @@ type CreateGitRepository struct {
 type CreateServiceDeployment struct {
 	CreateServiceDeployment *ServiceDeploymentFragment "json:\"createServiceDeployment\" graphql:\"createServiceDeployment\""
 }
+type CreateServiceDeploymentWithHandle struct {
+	CreateServiceDeployment *ServiceDeploymentFragment "json:\"createServiceDeployment\" graphql:\"createServiceDeployment\""
+}
 type DeleteAccessToken struct {
 	DeleteAccessToken *AccessTokenFragment "json:\"deleteAccessToken\" graphql:\"deleteAccessToken\""
 }
@@ -697,6 +700,70 @@ func (c *Client) CreateServiceDeployment(ctx context.Context, clusterID string, 
 
 	var res CreateServiceDeployment
 	if err := c.Client.Post(ctx, "CreateServiceDeployment", CreateServiceDeploymentDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const CreateServiceDeploymentWithHandleDocument = `mutation CreateServiceDeploymentWithHandle ($cluster: String!, $attributes: ServiceDeploymentAttributes!) {
+	createServiceDeployment(cluster: $cluster, attributes: $attributes) {
+		... ServiceDeploymentFragment
+	}
+}
+fragment GitRefFragment on GitRef {
+	folder
+	ref
+}
+fragment GitRepositoryFragment on GitRepository {
+	id
+	error
+	health
+	authMethod
+	url
+}
+fragment ServiceDeploymentBaseFragment on ServiceDeployment {
+	id
+	name
+	namespace
+	version
+	git {
+		... GitRefFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+}
+fragment ServiceDeploymentFragment on ServiceDeployment {
+	... ServiceDeploymentBaseFragment
+	components {
+		id
+		name
+		group
+		kind
+		namespace
+		state
+		synced
+		version
+	}
+	deletedAt
+	sha
+	tarball
+	configuration {
+		name
+		value
+	}
+}
+`
+
+func (c *Client) CreateServiceDeploymentWithHandle(ctx context.Context, cluster string, attributes ServiceDeploymentAttributes, httpRequestOptions ...client.HTTPRequestOption) (*CreateServiceDeploymentWithHandle, error) {
+	vars := map[string]interface{}{
+		"cluster":    cluster,
+		"attributes": attributes,
+	}
+
+	var res CreateServiceDeploymentWithHandle
+	if err := c.Client.Post(ctx, "CreateServiceDeploymentWithHandle", CreateServiceDeploymentWithHandleDocument, &res, vars, httpRequestOptions...); err != nil {
 		return nil, err
 	}
 
