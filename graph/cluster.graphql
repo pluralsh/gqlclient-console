@@ -48,6 +48,12 @@ query GetCluster($id: ID) {
     }
 }
 
+query GetClusterByHandle($handle: String) {
+    cluster(handle: $handle) {
+        ...ClusterFragment
+    }
+}
+
 query GetClusterProvider($id: ID!) {
     clusterProvider(id: $id) {
         ...ClusterProviderFragment

@@ -312,6 +312,10 @@ type Cluster struct {
 	Tags []*Tag `json:"tags"`
 	// all api deprecations for all services in this cluster
 	APIDeprecations []*APIDeprecation `json:"apiDeprecations"`
+	// any errors which might have occurred during the bootstrap process
+	ServicErrors []*ServiceError `json:"servicErrors"`
+	// the status of the cluster as seen from the CAPI operator, since some clusters can be provisioned without CAPI, this can be null
+	Status *ClusterStatus `json:"status"`
 	// a relay connection of all revisions of this service, these are periodically pruned up to a history limit
 	Revisions *RevisionConnection `json:"revisions"`
 	// whether the current user can edit this cluster
@@ -323,14 +327,26 @@ type Cluster struct {
 type ClusterAttributes struct {
 	Name string `json:"name"`
 	// a short, unique human readable name used to identify this cluster and does not necessarily map to the cloud resource name
-	Handle        *string                    `json:"handle,omitempty"`
-	ProviderID    *string                    `json:"providerId,omitempty"`
+	Handle     *string `json:"handle,omitempty"`
+	ProviderID *string `json:"providerId,omitempty"`
+	// a cloud credential to use when provisioning this cluster
+	CredentialID  *string                    `json:"credentialId,omitempty"`
 	Version       string                     `json:"version"`
 	Kubeconfig    *KubeconfigAttributes      `json:"kubeconfig,omitempty"`
 	NodePools     []*NodePoolAttributes      `json:"nodePools,omitempty"`
 	ReadBindings  []*PolicyBindingAttributes `json:"readBindings,omitempty"`
 	WriteBindings []*PolicyBindingAttributes `json:"writeBindings,omitempty"`
 	Tags          []*TagAttributes           `json:"tags,omitempty"`
+}
+
+// a single condition struct for various phases of the cluster provisionining process
+type ClusterCondition struct {
+	LastTransitionTime *string `json:"lastTransitionTime"`
+	Status             *string `json:"status"`
+	Type               *string `json:"type"`
+	Message            *string `json:"message"`
+	Reason             *string `json:"reason"`
+	Severity           *string `json:"severity"`
 }
 
 type ClusterConnection struct {
@@ -370,6 +386,8 @@ type ClusterProvider struct {
 	Repository *GitRepository `json:"repository"`
 	// the service of the CAPI controller itself
 	Service *ServiceDeployment `json:"service"`
+	// a list of credentials eligible for this provider
+	Credentials []*ProviderCredential `json:"credentials"`
 	// whether the current user can edit this resource
 	Editable   *bool   `json:"editable"`
 	InsertedAt *string `json:"insertedAt"`
@@ -397,10 +415,26 @@ type ClusterProviderUpdateAttributes struct {
 	CloudSettings *CloudProviderSettingsAttributes `json:"cloudSettings,omitempty"`
 }
 
+type ClusterServiceAttributes struct {
+	ID  string           `json:"id"`
+	Git GitRefAttributes `json:"git"`
+}
+
+// the crd status of the cluster as seen by the CAPI operator
+type ClusterStatus struct {
+	Phase             *string             `json:"phase"`
+	ControlPlaneReady *bool               `json:"controlPlaneReady"`
+	FailureMessage    *string             `json:"failureMessage"`
+	FailureReason     *string             `json:"failureReason"`
+	Conditions        []*ClusterCondition `json:"conditions"`
+}
+
 type ClusterUpdateAttributes struct {
 	Version string `json:"version"`
 	// a short, unique human readable name used to identify this cluster and does not necessarily map to the cloud resource name
-	Handle        *string                    `json:"handle,omitempty"`
+	Handle *string `json:"handle,omitempty"`
+	// if you optionally want to reconfigure the git repository for the cluster service
+	Service       *ClusterServiceAttributes  `json:"service,omitempty"`
 	NodePools     []*NodePoolAttributes      `json:"nodePools,omitempty"`
 	ReadBindings  []*PolicyBindingAttributes `json:"readBindings,omitempty"`
 	WriteBindings []*PolicyBindingAttributes `json:"writeBindings,omitempty"`
@@ -461,6 +495,7 @@ type ConfigMap struct {
 type Configuration struct {
 	Terraform *string `json:"terraform"`
 	Helm      *string `json:"helm"`
+	Readme    *string `json:"readme"`
 }
 
 type ConfigurationAction struct {
@@ -738,6 +773,10 @@ type GitAttributes struct {
 	Username *string `json:"username,omitempty"`
 	// the http password for http authenticated repos
 	Password *string `json:"password,omitempty"`
+	// a manually supplied https path for non standard git setups.  This is auto-inferred in many cases
+	HTTPSPath *string `json:"httpsPath,omitempty"`
+	// similar to https_path, a manually supplied url format for custom git.  Should be something like {url}/tree/{ref}/{folder}
+	URLFormat *string `json:"urlFormat,omitempty"`
 }
 
 // a file fetched from a git repository, eg a docs .md file
@@ -773,6 +812,10 @@ type GitRepository struct {
 	PulledAt *string `json:"pulledAt"`
 	// the error message if there were any pull errors
 	Error *string `json:"error"`
+	// the https url for this git repo
+	HTTPSPath *string `json:"httpsPath"`
+	// a format string to get the http url for a subfolder in a git repo
+	URLFormat *string `json:"urlFormat"`
 	// whether the current user can edit this repo
 	Editable   *bool   `json:"editable"`
 	InsertedAt *string `json:"insertedAt"`
@@ -961,6 +1004,11 @@ type KubernetesDatasource struct {
 	Name     string `json:"name"`
 }
 
+type KubernetesRaw struct {
+	Raw    map[string]interface{} `json:"raw"`
+	Events []*Event               `json:"events"`
+}
+
 type LabelInput struct {
 	Name  *string `json:"name,omitempty"`
 	Value *string `json:"value,omitempty"`
@@ -1053,7 +1101,7 @@ type MetricResponse struct {
 }
 
 type MetricResult struct {
-	Timestamp *int64  `json:"timestamp"`
+	Timestamp *string `json:"timestamp"`
 	Value     *string `json:"value"`
 }
 
@@ -1329,6 +1377,22 @@ type PrometheusDatasource struct {
 	Legend *string `json:"legend"`
 }
 
+// a cloud credential that can be used while creating new clusters
+type ProviderCredential struct {
+	ID         string  `json:"id"`
+	Name       string  `json:"name"`
+	Namespace  string  `json:"namespace"`
+	Kind       string  `json:"kind"`
+	InsertedAt *string `json:"insertedAt"`
+	UpdatedAt  *string `json:"updatedAt"`
+}
+
+type ProviderCredentialAttributes struct {
+	Namespace *string `json:"namespace,omitempty"`
+	Name      string  `json:"name"`
+	Kind      *string `json:"kind,omitempty"`
+}
+
 type RbacAttributes struct {
 	ReadBindings  []*PolicyBindingAttributes `json:"readBindings,omitempty"`
 	WriteBindings []*PolicyBindingAttributes `json:"writeBindings,omitempty"`
@@ -1414,7 +1478,9 @@ type Revision struct {
 	// git spec of the prior revision
 	Git GitRef `json:"git"`
 	// the sha this service was pulled from
-	Sha        *string `json:"sha"`
+	Sha *string `json:"sha"`
+	// the commit message for this revision
+	Message    *string `json:"message"`
 	InsertedAt *string `json:"insertedAt"`
 	UpdatedAt  *string `json:"updatedAt"`
 }
@@ -1636,6 +1702,8 @@ type ServiceDeployment struct {
 	ComponentStatus *string `json:"componentStatus"`
 	// settings for advanced tuning of the sync process
 	SyncConfig *SyncConfig `json:"syncConfig"`
+	// the commit message currently in use
+	Message *string `json:"message"`
 	// the time this service was scheduled for deletion
 	DeletedAt *string `json:"deletedAt"`
 	// fetches the /docs directory within this services git tree.  This is a heavy operation and should NOT be used in list queries
@@ -2031,6 +2099,7 @@ const (
 	AuditTypeClusterProvider    AuditType = "CLUSTER_PROVIDER"
 	AuditTypeGitRepository      AuditType = "GIT_REPOSITORY"
 	AuditTypeDeploymentSettings AuditType = "DEPLOYMENT_SETTINGS"
+	AuditTypeProviderCredential AuditType = "PROVIDER_CREDENTIAL"
 )
 
 var AllAuditType = []AuditType{
@@ -2048,11 +2117,12 @@ var AllAuditType = []AuditType{
 	AuditTypeClusterProvider,
 	AuditTypeGitRepository,
 	AuditTypeDeploymentSettings,
+	AuditTypeProviderCredential,
 }
 
 func (e AuditType) IsValid() bool {
 	switch e {
-	case AuditTypeBuild, AuditTypePod, AuditTypeConfiguration, AuditTypeUser, AuditTypeGroup, AuditTypeRole, AuditTypeGroupMember, AuditTypePolicy, AuditTypeTempToken, AuditTypeService, AuditTypeCluster, AuditTypeClusterProvider, AuditTypeGitRepository, AuditTypeDeploymentSettings:
+	case AuditTypeBuild, AuditTypePod, AuditTypeConfiguration, AuditTypeUser, AuditTypeGroup, AuditTypeRole, AuditTypeGroupMember, AuditTypePolicy, AuditTypeTempToken, AuditTypeService, AuditTypeCluster, AuditTypeClusterProvider, AuditTypeGitRepository, AuditTypeDeploymentSettings, AuditTypeProviderCredential:
 		return true
 	}
 	return false

@@ -44,6 +44,7 @@ type RootQueryType struct {
 	Secret                *Secret                      "json:\"secret\" graphql:\"secret\""
 	ConfigMaps            []*ConfigMap                 "json:\"configMaps\" graphql:\"configMaps\""
 	Secrets               []*Secret                    "json:\"secrets\" graphql:\"secrets\""
+	KubernetesRaw         *KubernetesRaw               "json:\"kubernetesRaw\" graphql:\"kubernetesRaw\""
 	Service               *Service                     "json:\"service\" graphql:\"service\""
 	ClusterInfo           *ClusterInfo                 "json:\"clusterInfo\" graphql:\"clusterInfo\""
 	Deployment            *Deployment                  "json:\"deployment\" graphql:\"deployment\""
@@ -146,6 +147,8 @@ type RootMutationType struct {
 	DeleteCluster            *Cluster               "json:\"deleteCluster\" graphql:\"deleteCluster\""
 	CreateClusterProvider    *ClusterProvider       "json:\"createClusterProvider\" graphql:\"createClusterProvider\""
 	UpdateClusterProvider    *ClusterProvider       "json:\"updateClusterProvider\" graphql:\"updateClusterProvider\""
+	CreateProviderCredential *ProviderCredential    "json:\"createProviderCredential\" graphql:\"createProviderCredential\""
+	DeleteProviderCredential *ProviderCredential    "json:\"deleteProviderCredential\" graphql:\"deleteProviderCredential\""
 	CreateServiceDeployment  *ServiceDeployment     "json:\"createServiceDeployment\" graphql:\"createServiceDeployment\""
 	UpdateServiceDeployment  *ServiceDeployment     "json:\"updateServiceDeployment\" graphql:\"updateServiceDeployment\""
 	DeleteServiceDeployment  *ServiceDeployment     "json:\"deleteServiceDeployment\" graphql:\"deleteServiceDeployment\""
@@ -342,6 +345,9 @@ type GetAccessToken struct {
 	AccessToken *AccessTokenFragment "json:\"accessToken\" graphql:\"accessToken\""
 }
 type GetCluster struct {
+	Cluster *ClusterFragment "json:\"cluster\" graphql:\"cluster\""
+}
+type GetClusterByHandle struct {
 	Cluster *ClusterFragment "json:\"cluster\" graphql:\"cluster\""
 }
 type GetClusterProvider struct {
@@ -1074,6 +1080,104 @@ func (c *Client) GetCluster(ctx context.Context, id *string, httpRequestOptions 
 
 	var res GetCluster
 	if err := c.Client.Post(ctx, "GetCluster", GetClusterDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const GetClusterByHandleDocument = `query GetClusterByHandle ($handle: String) {
+	cluster(handle: $handle) {
+		... ClusterFragment
+	}
+}
+fragment ClusterFragment on Cluster {
+	id
+	name
+	handle
+	self
+	version
+	pingedAt
+	currentVersion
+	provider {
+		... ClusterProviderFragment
+	}
+	nodePools {
+		... NodePoolFragment
+	}
+}
+fragment ClusterProviderFragment on ClusterProvider {
+	id
+	name
+	namespace
+	cloud
+	editable
+	repository {
+		... GitRepositoryFragment
+	}
+	service {
+		... ServiceDeploymentFragment
+	}
+}
+fragment GitRefFragment on GitRef {
+	folder
+	ref
+}
+fragment GitRepositoryFragment on GitRepository {
+	id
+	error
+	health
+	authMethod
+	url
+}
+fragment NodePoolFragment on NodePool {
+	id
+	name
+	minSize
+	maxSize
+	instanceType
+}
+fragment ServiceDeploymentBaseFragment on ServiceDeployment {
+	id
+	name
+	namespace
+	version
+	git {
+		... GitRefFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+}
+fragment ServiceDeploymentFragment on ServiceDeployment {
+	... ServiceDeploymentBaseFragment
+	components {
+		id
+		name
+		group
+		kind
+		namespace
+		state
+		synced
+		version
+	}
+	deletedAt
+	sha
+	tarball
+	configuration {
+		name
+		value
+	}
+}
+`
+
+func (c *Client) GetClusterByHandle(ctx context.Context, handle *string, httpRequestOptions ...client.HTTPRequestOption) (*GetClusterByHandle, error) {
+	vars := map[string]interface{}{
+		"handle": handle,
+	}
+
+	var res GetClusterByHandle
+	if err := c.Client.Post(ctx, "GetClusterByHandle", GetClusterByHandleDocument, &res, vars, httpRequestOptions...); err != nil {
 		return nil, err
 	}
 
