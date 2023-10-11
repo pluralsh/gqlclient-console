@@ -62,7 +62,7 @@ query GetClusterProvider($id: ID!) {
 
 query ListClusterServices {
     clusterServices {
-        ...ServiceDeploymentFragment
+        ...ServiceDeploymentBaseFragment
     }
 }
 
