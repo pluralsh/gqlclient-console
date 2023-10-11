@@ -44,7 +44,7 @@ type RootQueryType struct {
 	Secret                *Secret                      "json:\"secret\" graphql:\"secret\""
 	ConfigMaps            []*ConfigMap                 "json:\"configMaps\" graphql:\"configMaps\""
 	Secrets               []*Secret                    "json:\"secrets\" graphql:\"secrets\""
-	KubernetesRaw         *KubernetesRaw               "json:\"kubernetesRaw\" graphql:\"kubernetesRaw\""
+	UnstructuredResource  *KubernetesUnstructured      "json:\"unstructuredResource\" graphql:\"unstructuredResource\""
 	Service               *Service                     "json:\"service\" graphql:\"service\""
 	ClusterInfo           *ClusterInfo                 "json:\"clusterInfo\" graphql:\"clusterInfo\""
 	Deployment            *Deployment                  "json:\"deployment\" graphql:\"deployment\""
@@ -152,6 +152,7 @@ type RootMutationType struct {
 	CreateServiceDeployment  *ServiceDeployment     "json:\"createServiceDeployment\" graphql:\"createServiceDeployment\""
 	UpdateServiceDeployment  *ServiceDeployment     "json:\"updateServiceDeployment\" graphql:\"updateServiceDeployment\""
 	DeleteServiceDeployment  *ServiceDeployment     "json:\"deleteServiceDeployment\" graphql:\"deleteServiceDeployment\""
+	MergeService             *ServiceDeployment     "json:\"mergeService\" graphql:\"mergeService\""
 	RollbackService          *ServiceDeployment     "json:\"rollbackService\" graphql:\"rollbackService\""
 	CloneService             *ServiceDeployment     "json:\"cloneService\" graphql:\"cloneService\""
 	CreateGlobalService      *GlobalService         "json:\"createGlobalService\" graphql:\"createGlobalService\""
@@ -268,9 +269,9 @@ type ServiceDeploymentExtended struct {
 	Repository *GitRepositoryFragment "json:\"repository\" graphql:\"repository\""
 	Components []*struct {
 		ID        string          "json:\"id\" graphql:\"id\""
-		Name      string          "json:\"name\" graphql:\"name\""
+		Name      *string         "json:\"name\" graphql:\"name\""
 		Group     *string         "json:\"group\" graphql:\"group\""
-		Kind      string          "json:\"kind\" graphql:\"kind\""
+		Kind      *string         "json:\"kind\" graphql:\"kind\""
 		Namespace *string         "json:\"namespace\" graphql:\"namespace\""
 		State     *ComponentState "json:\"state\" graphql:\"state\""
 		Synced    bool            "json:\"synced\" graphql:\"synced\""
@@ -293,9 +294,9 @@ type ServiceDeploymentFragment struct {
 	Repository *GitRepositoryFragment "json:\"repository\" graphql:\"repository\""
 	Components []*struct {
 		ID        string          "json:\"id\" graphql:\"id\""
-		Name      string          "json:\"name\" graphql:\"name\""
+		Name      *string         "json:\"name\" graphql:\"name\""
 		Group     *string         "json:\"group\" graphql:\"group\""
-		Kind      string          "json:\"kind\" graphql:\"kind\""
+		Kind      *string         "json:\"kind\" graphql:\"kind\""
 		Namespace *string         "json:\"namespace\" graphql:\"namespace\""
 		State     *ComponentState "json:\"state\" graphql:\"state\""
 		Synced    bool            "json:\"synced\" graphql:\"synced\""
@@ -365,7 +366,7 @@ type ListAccessTokens struct {
 	} "json:\"accessTokens\" graphql:\"accessTokens\""
 }
 type ListClusterServices struct {
-	ClusterServices []*ServiceDeploymentFragment "json:\"clusterServices\" graphql:\"clusterServices\""
+	ClusterServices []*ServiceDeploymentBaseFragment "json:\"clusterServices\" graphql:\"clusterServices\""
 }
 type ListClusters struct {
 	Clusters *struct {
@@ -1540,7 +1541,7 @@ func (c *Client) ListAccessTokens(ctx context.Context, cursor *string, before *s
 
 const ListClusterServicesDocument = `query ListClusterServices {
 	clusterServices {
-		... ServiceDeploymentFragment
+		... ServiceDeploymentBaseFragment
 	}
 }
 fragment GitRefFragment on GitRef {
@@ -1564,26 +1565,6 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	}
 	repository {
 		... GitRepositoryFragment
-	}
-}
-fragment ServiceDeploymentFragment on ServiceDeployment {
-	... ServiceDeploymentBaseFragment
-	components {
-		id
-		name
-		group
-		kind
-		namespace
-		state
-		synced
-		version
-	}
-	deletedAt
-	sha
-	tarball
-	configuration {
-		name
-		value
 	}
 }
 `

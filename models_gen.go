@@ -314,6 +314,10 @@ type Cluster struct {
 	APIDeprecations []*APIDeprecation `json:"apiDeprecations"`
 	// any errors which might have occurred during the bootstrap process
 	ServicErrors []*ServiceError `json:"servicErrors"`
+	// list cached nodes for a cluster, this can be stale up to 5m
+	Nodes []*Node `json:"nodes"`
+	// list the cached node metrics for a cluster, can also be stale up to 5m
+	NodeMetrics []*NodeMetric `json:"nodeMetrics"`
 	// the status of the cluster as seen from the CAPI operator, since some clusters can be provisioned without CAPI, this can be null
 	Status *ClusterStatus `json:"status"`
 	// a relay connection of all revisions of this service, these are periodically pruned up to a history limit
@@ -435,6 +439,7 @@ type ClusterUpdateAttributes struct {
 	Handle *string `json:"handle,omitempty"`
 	// if you optionally want to reconfigure the git repository for the cluster service
 	Service       *ClusterServiceAttributes  `json:"service,omitempty"`
+	Kubeconfig    *KubeconfigAttributes      `json:"kubeconfig,omitempty"`
 	NodePools     []*NodePoolAttributes      `json:"nodePools,omitempty"`
 	ReadBindings  []*PolicyBindingAttributes `json:"readBindings,omitempty"`
 	WriteBindings []*PolicyBindingAttributes `json:"writeBindings,omitempty"`
@@ -482,8 +487,8 @@ type ComponentAttributes struct {
 }
 
 type ConfigAttributes struct {
-	Name  string `json:"name"`
-	Value string `json:"value"`
+	Name  string  `json:"name"`
+	Value *string `json:"value,omitempty"`
 }
 
 type ConfigMap struct {
@@ -1004,7 +1009,7 @@ type KubernetesDatasource struct {
 	Name     string `json:"name"`
 }
 
-type KubernetesRaw struct {
+type KubernetesUnstructured struct {
 	Raw    map[string]interface{} `json:"raw"`
 	Events []*Event               `json:"events"`
 }
@@ -1663,11 +1668,11 @@ type ServiceComponent struct {
 	// api version of this resource
 	Version *string `json:"version"`
 	// api kind of this resource
-	Kind string `json:"kind"`
+	Kind *string `json:"kind"`
 	// kubernetes namespace of this resource
 	Namespace *string `json:"namespace"`
 	// kubernetes name of this resource
-	Name string `json:"name"`
+	Name *string `json:"name"`
 	// the service this component belongs to
 	Service *ServiceDeployment `json:"service"`
 	// any api deprecations discovered from this component
@@ -1796,7 +1801,7 @@ type ServiceStatusCount struct {
 
 type ServiceUpdateAttributes struct {
 	Version       *string             `json:"version,omitempty"`
-	Git           GitRefAttributes    `json:"git"`
+	Git           *GitRefAttributes   `json:"git,omitempty"`
 	Configuration []*ConfigAttributes `json:"configuration,omitempty"`
 }
 
