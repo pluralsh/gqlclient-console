@@ -1668,11 +1668,11 @@ type ServiceComponent struct {
 	// api version of this resource
 	Version *string `json:"version"`
 	// api kind of this resource
-	Kind *string `json:"kind"`
+	Kind string `json:"kind"`
 	// kubernetes namespace of this resource
 	Namespace *string `json:"namespace"`
 	// kubernetes name of this resource
-	Name *string `json:"name"`
+	Name string `json:"name"`
 	// the service this component belongs to
 	Service *ServiceDeployment `json:"service"`
 	// any api deprecations discovered from this component

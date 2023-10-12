@@ -1,0 +1,18 @@
+mutation CreateProviderCredential($attributes: ProviderCredentialAttributes!, $name: String!) {
+    createProviderCredential(attributes: $attributes, name: $name){
+       ...ProviderCredentialFragment
+    }
+}
+
+mutation DeleteProviderCredential($id: ID!) {
+    deleteProviderCredential(id: $id){
+        ...ProviderCredentialFragment
+    }
+}
+
+query ListProviders {
+    clusterProviders(first: 100){
+        ...ClusterProviderConnectionFragment
+    }
+}
+

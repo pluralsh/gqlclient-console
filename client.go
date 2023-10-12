@@ -184,6 +184,12 @@ type ClusterFragment struct {
 	Provider       *ClusterProviderFragment "json:\"provider\" graphql:\"provider\""
 	NodePools      []*NodePoolFragment      "json:\"nodePools\" graphql:\"nodePools\""
 }
+type ClusterProviderConnectionFragment struct {
+	Edges []*ClusterProviderEdgeFragment "json:\"edges\" graphql:\"edges\""
+}
+type ClusterProviderEdgeFragment struct {
+	Node *ClusterProviderFragment "json:\"node\" graphql:\"node\""
+}
 type ClusterProviderFragment struct {
 	ID         string                     "json:\"id\" graphql:\"id\""
 	Name       string                     "json:\"name\" graphql:\"name\""
@@ -238,6 +244,12 @@ type PolicyBindingFragment struct {
 	Group *GroupFragment "json:\"group\" graphql:\"group\""
 	User  *UserFragment  "json:\"user\" graphql:\"user\""
 }
+type ProviderCredentialFragment struct {
+	ID        string "json:\"id\" graphql:\"id\""
+	Name      string "json:\"name\" graphql:\"name\""
+	Namespace string "json:\"namespace\" graphql:\"namespace\""
+	Kind      string "json:\"kind\" graphql:\"kind\""
+}
 type RevisionFragment struct {
 	ID  string  "json:\"id\" graphql:\"id\""
 	Sha *string "json:\"sha\" graphql:\"sha\""
@@ -269,9 +281,9 @@ type ServiceDeploymentExtended struct {
 	Repository *GitRepositoryFragment "json:\"repository\" graphql:\"repository\""
 	Components []*struct {
 		ID        string          "json:\"id\" graphql:\"id\""
-		Name      *string         "json:\"name\" graphql:\"name\""
+		Name      string          "json:\"name\" graphql:\"name\""
 		Group     *string         "json:\"group\" graphql:\"group\""
-		Kind      *string         "json:\"kind\" graphql:\"kind\""
+		Kind      string          "json:\"kind\" graphql:\"kind\""
 		Namespace *string         "json:\"namespace\" graphql:\"namespace\""
 		State     *ComponentState "json:\"state\" graphql:\"state\""
 		Synced    bool            "json:\"synced\" graphql:\"synced\""
@@ -294,9 +306,9 @@ type ServiceDeploymentFragment struct {
 	Repository *GitRepositoryFragment "json:\"repository\" graphql:\"repository\""
 	Components []*struct {
 		ID        string          "json:\"id\" graphql:\"id\""
-		Name      *string         "json:\"name\" graphql:\"name\""
+		Name      string          "json:\"name\" graphql:\"name\""
 		Group     *string         "json:\"group\" graphql:\"group\""
-		Kind      *string         "json:\"kind\" graphql:\"kind\""
+		Kind      string          "json:\"kind\" graphql:\"kind\""
 		Namespace *string         "json:\"namespace\" graphql:\"namespace\""
 		State     *ComponentState "json:\"state\" graphql:\"state\""
 		Synced    bool            "json:\"synced\" graphql:\"synced\""
@@ -327,6 +339,9 @@ type CreateClusterProvider struct {
 type CreateGitRepository struct {
 	CreateGitRepository *GitRepositoryFragment "json:\"createGitRepository\" graphql:\"createGitRepository\""
 }
+type CreateProviderCredential struct {
+	CreateProviderCredential *ProviderCredentialFragment "json:\"createProviderCredential\" graphql:\"createProviderCredential\""
+}
 type CreateServiceDeployment struct {
 	CreateServiceDeployment *ServiceDeploymentFragment "json:\"createServiceDeployment\" graphql:\"createServiceDeployment\""
 }
@@ -338,6 +353,9 @@ type DeleteAccessToken struct {
 }
 type DeleteCluster struct {
 	DeleteCluster *ClusterFragment "json:\"deleteCluster\" graphql:\"deleteCluster\""
+}
+type DeleteProviderCredential struct {
+	DeleteProviderCredential *ProviderCredentialFragment "json:\"deleteProviderCredential\" graphql:\"deleteProviderCredential\""
 }
 type DeleteServiceDeployment struct {
 	DeleteServiceDeployment *ServiceDeploymentFragment "json:\"deleteServiceDeployment\" graphql:\"deleteServiceDeployment\""
@@ -380,6 +398,9 @@ type ListGitRepositories struct {
 	GitRepositories *struct {
 		Edges []*GitRepositoryEdgeFragment "json:\"edges\" graphql:\"edges\""
 	} "json:\"gitRepositories\" graphql:\"gitRepositories\""
+}
+type ListProviders struct {
+	ClusterProviders *ClusterProviderConnectionFragment "json:\"clusterProviders\" graphql:\"clusterProviders\""
 }
 type ListServiceDeployment struct {
 	ServiceDeployments *struct {
@@ -652,6 +673,33 @@ func (c *Client) CreateGitRepository(ctx context.Context, attributes GitAttribut
 	return &res, nil
 }
 
+const CreateProviderCredentialDocument = `mutation CreateProviderCredential ($attributes: ProviderCredentialAttributes!, $name: String!) {
+	createProviderCredential(attributes: $attributes, name: $name) {
+		... ProviderCredentialFragment
+	}
+}
+fragment ProviderCredentialFragment on ProviderCredential {
+	id
+	name
+	namespace
+	kind
+}
+`
+
+func (c *Client) CreateProviderCredential(ctx context.Context, attributes ProviderCredentialAttributes, name string, httpRequestOptions ...client.HTTPRequestOption) (*CreateProviderCredential, error) {
+	vars := map[string]interface{}{
+		"attributes": attributes,
+		"name":       name,
+	}
+
+	var res CreateProviderCredential
+	if err := c.Client.Post(ctx, "CreateProviderCredential", CreateProviderCredentialDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
 const CreateServiceDeploymentDocument = `mutation CreateServiceDeployment ($clusterId: ID!, $attributes: ServiceDeploymentAttributes!) {
 	createServiceDeployment(clusterId: $clusterId, attributes: $attributes) {
 		... ServiceDeploymentFragment
@@ -896,6 +944,32 @@ func (c *Client) DeleteCluster(ctx context.Context, id string, httpRequestOption
 
 	var res DeleteCluster
 	if err := c.Client.Post(ctx, "DeleteCluster", DeleteClusterDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const DeleteProviderCredentialDocument = `mutation DeleteProviderCredential ($id: ID!) {
+	deleteProviderCredential(id: $id) {
+		... ProviderCredentialFragment
+	}
+}
+fragment ProviderCredentialFragment on ProviderCredential {
+	id
+	name
+	namespace
+	kind
+}
+`
+
+func (c *Client) DeleteProviderCredential(ctx context.Context, id string, httpRequestOptions ...client.HTTPRequestOption) (*DeleteProviderCredential, error) {
+	vars := map[string]interface{}{
+		"id": id,
+	}
+
+	var res DeleteProviderCredential
+	if err := c.Client.Post(ctx, "DeleteProviderCredential", DeleteProviderCredentialDocument, &res, vars, httpRequestOptions...); err != nil {
 		return nil, err
 	}
 
@@ -1781,6 +1855,90 @@ func (c *Client) ListGitRepositories(ctx context.Context, cursor *string, before
 
 	var res ListGitRepositories
 	if err := c.Client.Post(ctx, "ListGitRepositories", ListGitRepositoriesDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const ListProvidersDocument = `query ListProviders {
+	clusterProviders(first: 100) {
+		... ClusterProviderConnectionFragment
+	}
+}
+fragment ClusterProviderConnectionFragment on ClusterProviderConnection {
+	edges {
+		... ClusterProviderEdgeFragment
+	}
+}
+fragment ClusterProviderEdgeFragment on ClusterProviderEdge {
+	node {
+		... ClusterProviderFragment
+	}
+}
+fragment ClusterProviderFragment on ClusterProvider {
+	id
+	name
+	namespace
+	cloud
+	editable
+	repository {
+		... GitRepositoryFragment
+	}
+	service {
+		... ServiceDeploymentFragment
+	}
+}
+fragment GitRefFragment on GitRef {
+	folder
+	ref
+}
+fragment GitRepositoryFragment on GitRepository {
+	id
+	error
+	health
+	authMethod
+	url
+}
+fragment ServiceDeploymentBaseFragment on ServiceDeployment {
+	id
+	name
+	namespace
+	version
+	git {
+		... GitRefFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+}
+fragment ServiceDeploymentFragment on ServiceDeployment {
+	... ServiceDeploymentBaseFragment
+	components {
+		id
+		name
+		group
+		kind
+		namespace
+		state
+		synced
+		version
+	}
+	deletedAt
+	sha
+	tarball
+	configuration {
+		name
+		value
+	}
+}
+`
+
+func (c *Client) ListProviders(ctx context.Context, httpRequestOptions ...client.HTTPRequestOption) (*ListProviders, error) {
+	vars := map[string]interface{}{}
+
+	var res ListProviders
+	if err := c.Client.Post(ctx, "ListProviders", ListProvidersDocument, &res, vars, httpRequestOptions...); err != nil {
 		return nil, err
 	}
 
