@@ -458,14 +458,16 @@ type ListServiceDeployments struct {
 		} "json:\"edges\" graphql:\"edges\""
 	} "json:\"serviceDeployments\" graphql:\"serviceDeployments\""
 }
+type MyCluster struct {
+	MyCluster *ClusterFragment "json:\"myCluster\" graphql:\"myCluster\""
+}
 type PingCluster struct {
 	PingCluster *ClusterFragment "json:\"pingCluster\" graphql:\"pingCluster\""
 }
 type RollbackService struct {
 	RollbackService *ServiceDeploymentFragment "json:\"rollbackService\" graphql:\"rollbackService\""
 }
-type SavePipeline struct {
-	SavePipeline *PipelineFragment "json:\"savePipeline\" graphql:\"savePipeline\""
+
 }
 type UpdateCluster struct {
 	UpdateCluster *ClusterFragment "json:\"updateCluster\" graphql:\"updateCluster\""
@@ -2323,6 +2325,102 @@ func (c *Client) ListServiceDeployments(ctx context.Context, cursor *string, bef
 	return &res, nil
 }
 
+const MyClusterDocument = `query MyCluster {
+	myCluster {
+		... ClusterFragment
+	}
+}
+fragment ClusterFragment on Cluster {
+	id
+	name
+	handle
+	self
+	version
+	pingedAt
+	currentVersion
+	provider {
+		... ClusterProviderFragment
+	}
+	nodePools {
+		... NodePoolFragment
+	}
+}
+fragment ClusterProviderFragment on ClusterProvider {
+	id
+	name
+	namespace
+	cloud
+	editable
+	repository {
+		... GitRepositoryFragment
+	}
+	service {
+		... ServiceDeploymentFragment
+	}
+}
+fragment GitRefFragment on GitRef {
+	folder
+	ref
+}
+fragment GitRepositoryFragment on GitRepository {
+	id
+	error
+	health
+	authMethod
+	url
+}
+fragment NodePoolFragment on NodePool {
+	id
+	name
+	minSize
+	maxSize
+	instanceType
+}
+fragment ServiceDeploymentBaseFragment on ServiceDeployment {
+	id
+	name
+	namespace
+	version
+	git {
+		... GitRefFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+}
+fragment ServiceDeploymentFragment on ServiceDeployment {
+	... ServiceDeploymentBaseFragment
+	components {
+		id
+		name
+		group
+		kind
+		namespace
+		state
+		synced
+		version
+	}
+	deletedAt
+	sha
+	tarball
+	configuration {
+		name
+		value
+	}
+}
+`
+
+func (c *Client) MyCluster(ctx context.Context, httpRequestOptions ...client.HTTPRequestOption) (*MyCluster, error) {
+	vars := map[string]interface{}{}
+
+	var res MyCluster
+	if err := c.Client.Post(ctx, "MyCluster", MyClusterDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
 const PingClusterDocument = `mutation PingCluster ($attributes: ClusterPing!) {
 	pingCluster(attributes: $attributes) {
 		... ClusterFragment
@@ -2479,84 +2577,6 @@ func (c *Client) RollbackService(ctx context.Context, id string, revisionID stri
 
 	var res RollbackService
 	if err := c.Client.Post(ctx, "RollbackService", RollbackServiceDocument, &res, vars, httpRequestOptions...); err != nil {
-		return nil, err
-	}
-
-	return &res, nil
-}
-
-const SavePipelineDocument = `mutation SavePipeline ($name: String!, $attributes: PipelineAttributes!) {
-	savePipeline(name: $name, attributes: $attributes) {
-		... PipelineFragment
-	}
-}
-fragment GitRefFragment on GitRef {
-	folder
-	ref
-}
-fragment GitRepositoryFragment on GitRepository {
-	id
-	error
-	health
-	authMethod
-	url
-}
-fragment PipelineFragment on Pipeline {
-	id
-	name
-	stages {
-		... PipelineStageFragment
-	}
-	edges {
-		... PipelineStageEdgeFragment
-	}
-}
-fragment PipelineStageEdgeFragment on PipelineStageEdge {
-	id
-	from {
-		... PipelineStageFragment
-	}
-	to {
-		... PipelineStageFragment
-	}
-}
-fragment PipelineStageFragment on PipelineStage {
-	id
-	name
-	services {
-		service {
-			... ServiceDeploymentBaseFragment
-		}
-		criteria {
-			source {
-				... ServiceDeploymentBaseFragment
-			}
-			secrets
-		}
-	}
-}
-fragment ServiceDeploymentBaseFragment on ServiceDeployment {
-	id
-	name
-	namespace
-	version
-	git {
-		... GitRefFragment
-	}
-	repository {
-		... GitRepositoryFragment
-	}
-}
-`
-
-func (c *Client) SavePipeline(ctx context.Context, name string, attributes PipelineAttributes, httpRequestOptions ...client.HTTPRequestOption) (*SavePipeline, error) {
-	vars := map[string]interface{}{
-		"name":       name,
-		"attributes": attributes,
-	}
-
-	var res SavePipeline
-	if err := c.Client.Post(ctx, "SavePipeline", SavePipelineDocument, &res, vars, httpRequestOptions...); err != nil {
 		return nil, err
 	}
 

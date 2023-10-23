@@ -71,3 +71,15 @@ query ListServiceDeployments($cursor: String, $before: String, $last: Int)  {
         edges { node { ...ServiceDeploymentFragment } }
     }
 }
+
+query MyCluster {
+    myCluster {
+        ...ClusterFragment
+    }
+}
+
+query TokenExchange($token: String!) {
+    tokenExchange(token: $token) {
+        ...UserFragment
+    }
+}

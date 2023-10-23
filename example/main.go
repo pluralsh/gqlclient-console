@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/pluralsh/gqlclient"
+	gqlclient "github.com/pluralsh/console-client-go"
 )
 
 type authedTransport struct {
@@ -37,11 +37,10 @@ func main() {
 		},
 	}
 	graphqlClient := gqlclient.NewClient(&httpClient, "https://app.plural.sh/gql")
-
-	meResp, err := graphqlClient.Me(context.Background())
+	meResp, err := graphqlClient.MyCluster(context.Background())
 	if err != nil {
 		return
 	}
-	fmt.Println("you are", meResp.Me)
+	fmt.Println("my cluster", meResp.MyCluster.Name)
 
 }
