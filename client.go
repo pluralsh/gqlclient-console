@@ -459,7 +459,10 @@ type ListServiceDeployments struct {
 	} "json:\"serviceDeployments\" graphql:\"serviceDeployments\""
 }
 type MyCluster struct {
-	MyCluster *ClusterFragment "json:\"myCluster\" graphql:\"myCluster\""
+	MyCluster *struct {
+		ID   string "json:\"id\" graphql:\"id\""
+		Name string "json:\"name\" graphql:\"name\""
+	} "json:\"myCluster\" graphql:\"myCluster\""
 }
 type PingCluster struct {
 	PingCluster *ClusterFragment "json:\"pingCluster\" graphql:\"pingCluster\""
@@ -2331,85 +2334,10 @@ func (c *Client) ListServiceDeployments(ctx context.Context, cursor *string, bef
 
 const MyClusterDocument = `query MyCluster {
 	myCluster {
-		... ClusterFragment
-	}
-}
-fragment ClusterFragment on Cluster {
-	id
-	name
-	handle
-	self
-	version
-	pingedAt
-	currentVersion
-	provider {
-		... ClusterProviderFragment
-	}
-	nodePools {
-		... NodePoolFragment
-	}
-}
-fragment ClusterProviderFragment on ClusterProvider {
-	id
-	name
-	namespace
-	cloud
-	editable
-	repository {
-		... GitRepositoryFragment
-	}
-	service {
-		... ServiceDeploymentFragment
-	}
-}
-fragment GitRefFragment on GitRef {
-	folder
-	ref
-}
-fragment GitRepositoryFragment on GitRepository {
-	id
-	error
-	health
-	authMethod
-	url
-}
-fragment NodePoolFragment on NodePool {
-	id
-	name
-	minSize
-	maxSize
-	instanceType
-}
-fragment ServiceDeploymentBaseFragment on ServiceDeployment {
-	id
-	name
-	namespace
-	version
-	git {
-		... GitRefFragment
-	}
-	repository {
-		... GitRepositoryFragment
-	}
-}
-fragment ServiceDeploymentFragment on ServiceDeployment {
-	... ServiceDeploymentBaseFragment
-	components {
-		id
-		name
-		group
-		kind
-		namespace
-		state
-		synced
-		version
-	}
-	deletedAt
-	sha
-	tarball
-	configuration {
-		name
-		value
+		... {
+			id
+			name
+		}
 	}
 }
 `

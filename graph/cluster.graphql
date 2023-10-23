@@ -74,7 +74,10 @@ query ListServiceDeployments($cursor: String, $before: String, $last: Int)  {
 
 query MyCluster {
     myCluster {
-        ...ClusterFragment
+        ...{
+            id
+            name
+        }
     }
 }
 
