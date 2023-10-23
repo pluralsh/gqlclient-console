@@ -178,3 +178,33 @@ fragment ClusterProviderEdgeFragment on ClusterProviderEdge {
         ...ClusterProviderFragment
     }
 }
+
+fragment PipelineStageFragment on PipelineStage {
+    id
+    name
+    services { 
+        service { ...ServiceDeploymentBaseFragment }
+        criteria { 
+            source { ...ServiceDeploymentBaseFragment }
+            secrets
+        }
+    }
+}
+
+fragment PipelineStageEdgeFragment on PipelineStageEdge {
+    id
+    from { ...PipelineStageFragment }
+    to { ...PipelineStageFragment }
+}
+
+
+fragment PipelineFragment on Pipeline {
+    id
+    name
+    stages { ...PipelineStageFragment }
+    edges { ...PipelineStageEdgeFragment }
+}
+
+fragment PipelineEdgeFragment on PipelineEdge {
+    node { ...PipelineFragment }
+}

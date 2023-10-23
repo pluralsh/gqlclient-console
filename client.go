@@ -88,14 +88,18 @@ type RootQueryType struct {
 	PostgresDatabases     []*Postgresql                "json:\"postgresDatabases\" graphql:\"postgresDatabases\""
 	PostgresDatabase      *Postgresql                  "json:\"postgresDatabase\" graphql:\"postgresDatabase\""
 	GitRepositories       *GitRepositoryConnection     "json:\"gitRepositories\" graphql:\"gitRepositories\""
+	TokenExchange         *User                        "json:\"tokenExchange\" graphql:\"tokenExchange\""
 	Clusters              *ClusterConnection           "json:\"clusters\" graphql:\"clusters\""
 	ClusterProviders      *ClusterProviderConnection   "json:\"clusterProviders\" graphql:\"clusterProviders\""
 	Cluster               *Cluster                     "json:\"cluster\" graphql:\"cluster\""
 	ClusterProvider       *ClusterProvider             "json:\"clusterProvider\" graphql:\"clusterProvider\""
 	ServiceDeployments    *ServiceDeploymentConnection "json:\"serviceDeployments\" graphql:\"serviceDeployments\""
 	ServiceStatuses       []*ServiceStatusCount        "json:\"serviceStatuses\" graphql:\"serviceStatuses\""
+	Pipelines             *PipelineConnection          "json:\"pipelines\" graphql:\"pipelines\""
+	Pipeline              *Pipeline                    "json:\"pipeline\" graphql:\"pipeline\""
 	ClusterServices       []*ServiceDeployment         "json:\"clusterServices\" graphql:\"clusterServices\""
 	ServiceDeployment     *ServiceDeployment           "json:\"serviceDeployment\" graphql:\"serviceDeployment\""
+	MyCluster             *Cluster                     "json:\"myCluster\" graphql:\"myCluster\""
 	DeploymentSettings    *DeploymentSettings          "json:\"deploymentSettings\" graphql:\"deploymentSettings\""
 }
 type RootMutationType struct {
@@ -147,6 +151,7 @@ type RootMutationType struct {
 	DeleteCluster            *Cluster               "json:\"deleteCluster\" graphql:\"deleteCluster\""
 	CreateClusterProvider    *ClusterProvider       "json:\"createClusterProvider\" graphql:\"createClusterProvider\""
 	UpdateClusterProvider    *ClusterProvider       "json:\"updateClusterProvider\" graphql:\"updateClusterProvider\""
+	DeleteClusterProvider    *ClusterProvider       "json:\"deleteClusterProvider\" graphql:\"deleteClusterProvider\""
 	CreateProviderCredential *ProviderCredential    "json:\"createProviderCredential\" graphql:\"createProviderCredential\""
 	DeleteProviderCredential *ProviderCredential    "json:\"deleteProviderCredential\" graphql:\"deleteProviderCredential\""
 	CreateServiceDeployment  *ServiceDeployment     "json:\"createServiceDeployment\" graphql:\"createServiceDeployment\""
@@ -157,6 +162,7 @@ type RootMutationType struct {
 	CloneService             *ServiceDeployment     "json:\"cloneService\" graphql:\"cloneService\""
 	CreateGlobalService      *GlobalService         "json:\"createGlobalService\" graphql:\"createGlobalService\""
 	DeleteGlobalService      *GlobalService         "json:\"deleteGlobalService\" graphql:\"deleteGlobalService\""
+	SavePipeline             *Pipeline              "json:\"savePipeline\" graphql:\"savePipeline\""
 	PingCluster              *Cluster               "json:\"pingCluster\" graphql:\"pingCluster\""
 	UpdateServiceComponents  *ServiceDeployment     "json:\"updateServiceComponents\" graphql:\"updateServiceComponents\""
 	UpdateRbac               *bool                  "json:\"updateRbac\" graphql:\"updateRbac\""
@@ -238,6 +244,31 @@ type NodePoolFragment struct {
 	MinSize      int64  "json:\"minSize\" graphql:\"minSize\""
 	MaxSize      int64  "json:\"maxSize\" graphql:\"maxSize\""
 	InstanceType string "json:\"instanceType\" graphql:\"instanceType\""
+}
+type PipelineEdgeFragment struct {
+	Node *PipelineFragment "json:\"node\" graphql:\"node\""
+}
+type PipelineFragment struct {
+	ID     string                       "json:\"id\" graphql:\"id\""
+	Name   string                       "json:\"name\" graphql:\"name\""
+	Stages []*PipelineStageFragment     "json:\"stages\" graphql:\"stages\""
+	Edges  []*PipelineStageEdgeFragment "json:\"edges\" graphql:\"edges\""
+}
+type PipelineStageEdgeFragment struct {
+	ID   string                "json:\"id\" graphql:\"id\""
+	From PipelineStageFragment "json:\"from\" graphql:\"from\""
+	To   PipelineStageFragment "json:\"to\" graphql:\"to\""
+}
+type PipelineStageFragment struct {
+	ID       string "json:\"id\" graphql:\"id\""
+	Name     string "json:\"name\" graphql:\"name\""
+	Services []*struct {
+		Service  *ServiceDeploymentBaseFragment "json:\"service\" graphql:\"service\""
+		Criteria *struct {
+			Source  *ServiceDeploymentBaseFragment "json:\"source\" graphql:\"source\""
+			Secrets []*string                      "json:\"secrets\" graphql:\"secrets\""
+		} "json:\"criteria\" graphql:\"criteria\""
+	} "json:\"services\" graphql:\"services\""
 }
 type PolicyBindingFragment struct {
 	ID    *string        "json:\"id\" graphql:\"id\""
@@ -372,6 +403,14 @@ type GetClusterByHandle struct {
 type GetClusterProvider struct {
 	ClusterProvider *ClusterProviderFragment "json:\"clusterProvider\" graphql:\"clusterProvider\""
 }
+type GetPipeline struct {
+	Pipeline *PipelineFragment "json:\"pipeline\" graphql:\"pipeline\""
+}
+type GetPipelines struct {
+	Pipelines *struct {
+		Edges []*PipelineEdgeFragment "json:\"edges\" graphql:\"edges\""
+	} "json:\"pipelines\" graphql:\"pipelines\""
+}
 type GetServiceDeployment struct {
 	ServiceDeployment *ServiceDeploymentExtended "json:\"serviceDeployment\" graphql:\"serviceDeployment\""
 }
@@ -424,6 +463,9 @@ type PingCluster struct {
 }
 type RollbackService struct {
 	RollbackService *ServiceDeploymentFragment "json:\"rollbackService\" graphql:\"rollbackService\""
+}
+type SavePipeline struct {
+	SavePipeline *PipelineFragment "json:\"savePipeline\" graphql:\"savePipeline\""
 }
 type UpdateCluster struct {
 	UpdateCluster *ClusterFragment "json:\"updateCluster\" graphql:\"updateCluster\""
@@ -1329,6 +1371,167 @@ func (c *Client) GetClusterProvider(ctx context.Context, id string, httpRequestO
 
 	var res GetClusterProvider
 	if err := c.Client.Post(ctx, "GetClusterProvider", GetClusterProviderDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const GetPipelineDocument = `query GetPipeline ($id: ID!) {
+	pipeline(id: $id) {
+		... PipelineFragment
+	}
+}
+fragment GitRefFragment on GitRef {
+	folder
+	ref
+}
+fragment GitRepositoryFragment on GitRepository {
+	id
+	error
+	health
+	authMethod
+	url
+}
+fragment PipelineFragment on Pipeline {
+	id
+	name
+	stages {
+		... PipelineStageFragment
+	}
+	edges {
+		... PipelineStageEdgeFragment
+	}
+}
+fragment PipelineStageEdgeFragment on PipelineStageEdge {
+	id
+	from {
+		... PipelineStageFragment
+	}
+	to {
+		... PipelineStageFragment
+	}
+}
+fragment PipelineStageFragment on PipelineStage {
+	id
+	name
+	services {
+		service {
+			... ServiceDeploymentBaseFragment
+		}
+		criteria {
+			source {
+				... ServiceDeploymentBaseFragment
+			}
+			secrets
+		}
+	}
+}
+fragment ServiceDeploymentBaseFragment on ServiceDeployment {
+	id
+	name
+	namespace
+	version
+	git {
+		... GitRefFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+}
+`
+
+func (c *Client) GetPipeline(ctx context.Context, id string, httpRequestOptions ...client.HTTPRequestOption) (*GetPipeline, error) {
+	vars := map[string]interface{}{
+		"id": id,
+	}
+
+	var res GetPipeline
+	if err := c.Client.Post(ctx, "GetPipeline", GetPipelineDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const GetPipelinesDocument = `query GetPipelines ($after: String) {
+	pipelines(first: 100, after: $after) {
+		edges {
+			... PipelineEdgeFragment
+		}
+	}
+}
+fragment GitRefFragment on GitRef {
+	folder
+	ref
+}
+fragment GitRepositoryFragment on GitRepository {
+	id
+	error
+	health
+	authMethod
+	url
+}
+fragment PipelineEdgeFragment on PipelineEdge {
+	node {
+		... PipelineFragment
+	}
+}
+fragment PipelineFragment on Pipeline {
+	id
+	name
+	stages {
+		... PipelineStageFragment
+	}
+	edges {
+		... PipelineStageEdgeFragment
+	}
+}
+fragment PipelineStageEdgeFragment on PipelineStageEdge {
+	id
+	from {
+		... PipelineStageFragment
+	}
+	to {
+		... PipelineStageFragment
+	}
+}
+fragment PipelineStageFragment on PipelineStage {
+	id
+	name
+	services {
+		service {
+			... ServiceDeploymentBaseFragment
+		}
+		criteria {
+			source {
+				... ServiceDeploymentBaseFragment
+			}
+			secrets
+		}
+	}
+}
+fragment ServiceDeploymentBaseFragment on ServiceDeployment {
+	id
+	name
+	namespace
+	version
+	git {
+		... GitRefFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+}
+`
+
+func (c *Client) GetPipelines(ctx context.Context, after *string, httpRequestOptions ...client.HTTPRequestOption) (*GetPipelines, error) {
+	vars := map[string]interface{}{
+		"after": after,
+	}
+
+	var res GetPipelines
+	if err := c.Client.Post(ctx, "GetPipelines", GetPipelinesDocument, &res, vars, httpRequestOptions...); err != nil {
 		return nil, err
 	}
 
@@ -2276,6 +2479,84 @@ func (c *Client) RollbackService(ctx context.Context, id string, revisionID stri
 
 	var res RollbackService
 	if err := c.Client.Post(ctx, "RollbackService", RollbackServiceDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const SavePipelineDocument = `mutation SavePipeline ($name: String!, $attributes: PipelineAttributes!) {
+	savePipeline(name: $name, attributes: $attributes) {
+		... PipelineFragment
+	}
+}
+fragment GitRefFragment on GitRef {
+	folder
+	ref
+}
+fragment GitRepositoryFragment on GitRepository {
+	id
+	error
+	health
+	authMethod
+	url
+}
+fragment PipelineFragment on Pipeline {
+	id
+	name
+	stages {
+		... PipelineStageFragment
+	}
+	edges {
+		... PipelineStageEdgeFragment
+	}
+}
+fragment PipelineStageEdgeFragment on PipelineStageEdge {
+	id
+	from {
+		... PipelineStageFragment
+	}
+	to {
+		... PipelineStageFragment
+	}
+}
+fragment PipelineStageFragment on PipelineStage {
+	id
+	name
+	services {
+		service {
+			... ServiceDeploymentBaseFragment
+		}
+		criteria {
+			source {
+				... ServiceDeploymentBaseFragment
+			}
+			secrets
+		}
+	}
+}
+fragment ServiceDeploymentBaseFragment on ServiceDeployment {
+	id
+	name
+	namespace
+	version
+	git {
+		... GitRefFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+}
+`
+
+func (c *Client) SavePipeline(ctx context.Context, name string, attributes PipelineAttributes, httpRequestOptions ...client.HTTPRequestOption) (*SavePipeline, error) {
+	vars := map[string]interface{}{
+		"name":       name,
+		"attributes": attributes,
+	}
+
+	var res SavePipeline
+	if err := c.Client.Post(ctx, "SavePipeline", SavePipelineDocument, &res, vars, httpRequestOptions...); err != nil {
 		return nil, err
 	}
 

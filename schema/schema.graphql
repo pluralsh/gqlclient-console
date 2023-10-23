@@ -71,7 +71,7 @@ type RootQueryType {
 
   nodes: [Node]
 
-  node(name: String!): Node
+  node(name: String!, clusterId: ID): Node
 
   cronJob(namespace: String!, name: String!, serviceId: ID): CronJob
 
@@ -79,9 +79,9 @@ type RootQueryType {
 
   certificate(namespace: String!, name: String!, serviceId: ID): Certificate
 
-  pod(namespace: String!, name: String!, serviceId: ID): Pod
+  pod(namespace: String!, name: String!, serviceId: ID, clusterId: ID): Pod
 
-  pods(after: String, first: Int, before: String, last: Int, namespaces: [String]): PodConnection
+  pods(after: String, first: Int, before: String, last: Int, namespace: String, namespaces: [String], clusterId: ID): PodConnection
 
   wireguardPeers: [WireguardPeer]
 
@@ -91,13 +91,13 @@ type RootQueryType {
 
   cachedPods(namespaces: [String]): [Pod]
 
-  namespaces: [Namespace]
+  namespaces(clusterId: ID): [Namespace]
 
   logFilters(namespace: String!): [LogFilter]
 
-  nodeMetrics: [NodeMetric]
+  nodeMetrics(clusterId: ID): [NodeMetric]
 
-  nodeMetric(name: String!): NodeMetric
+  nodeMetric(name: String!, clusterId: ID): NodeMetric
 
   configurationOverlays(namespace: String!): [ConfigurationOverlay]
 
@@ -145,8 +145,11 @@ type RootQueryType {
 
   gitRepositories(after: String, first: Int, before: String, last: Int): GitRepositoryConnection
 
+  "exchanges a kubeconfig token for user info"
+  tokenExchange(token: String!): User
+
   "a relay connection of all clusters visible to the current user"
-  clusters(after: String, first: Int, before: String, last: Int): ClusterConnection
+  clusters(after: String, first: Int, before: String, last: Int, q: String): ClusterConnection
 
   "a relay connection of all providers visible to the current user"
   clusterProviders(after: String, first: Int, before: String, last: Int): ClusterProviderConnection
@@ -168,11 +171,17 @@ type RootQueryType {
 
     clusterId: ID
 
+    q: String
+
     "the handle of the cluster for this service"
     cluster: String
   ): ServiceDeploymentConnection
 
   serviceStatuses(clusterId: ID): [ServiceStatusCount]
+
+  pipelines(after: String, first: Int, before: String, last: Int): PipelineConnection
+
+  pipeline(id: ID!): Pipeline
 
   "the services deployed in the current cluster, to be polled by the deploy operator"
   clusterServices: [ServiceDeployment]
@@ -186,6 +195,9 @@ type RootQueryType {
 
     name: String
   ): ServiceDeployment
+
+  "tells you what cluster a deploy token points to"
+  myCluster: Cluster
 
   deploymentSettings: DeploymentSettings
 }
@@ -287,6 +299,8 @@ type RootMutationType {
 
   updateClusterProvider(id: ID!, attributes: ClusterProviderUpdateAttributes!): ClusterProvider
 
+  deleteClusterProvider(id: ID!): ClusterProvider
+
   createProviderCredential(attributes: ProviderCredentialAttributes!, name: String!): ProviderCredential
 
   deleteProviderCredential(id: ID!): ProviderCredential
@@ -354,6 +368,9 @@ type RootMutationType {
   ): GlobalService
 
   deleteGlobalService(id: ID!): GlobalService
+
+  "upserts a pipeline with a given name"
+  savePipeline(name: String!, attributes: PipelineAttributes!): Pipeline
 
   "a regular status ping to be sent by the deploy operator"
   pingCluster(attributes: ClusterPing!): Cluster
@@ -433,6 +450,174 @@ input DeploymentSettingsAttributes {
 input RbacAttributes {
   readBindings: [PolicyBindingAttributes]
   writeBindings: [PolicyBindingAttributes]
+}
+
+"the top level input object for creating\/deleting pipelines"
+input PipelineAttributes {
+  stages: [PipelineStageAttributes]
+  edges: [PipelineEdgeAttributes]
+}
+
+"specification of a stage of a pipeline"
+input PipelineStageAttributes {
+  name: String!
+  services: [StageServiceAttributes]
+}
+
+"specification of an edge between two pipeline stages"
+input PipelineEdgeAttributes {
+  "stage id the edge is from, can also be specified by name"
+  fromId: ID
+
+  "stage id the edge is to, can also be specified by name"
+  toId: ID
+
+  "the name of the pipeline stage this edge emits from"
+  from: String
+
+  "the name of the pipeline stage this edge points to"
+  to: String
+}
+
+"the attributes of a service w\/in a specific stage"
+input StageServiceAttributes {
+  "the cluster handle of this service"
+  handle: String
+
+  "the name of this service"
+  name: String
+
+  "the name of this service"
+  serviceId: ID
+
+  criteria: PromotionCriteriaAttributes
+}
+
+"actions to perform if this stage service were promoted"
+input PromotionCriteriaAttributes {
+  "the handle of the cluster for the source service"
+  handle: String
+
+  "the name of the source service"
+  name: String
+
+  "the id of the service to promote from"
+  sourceId: String
+
+  "the secrets to copy over in a promotion"
+  secrets: [String]
+}
+
+"a release pipeline, composed of multiple stages each with potentially multiple services"
+type Pipeline {
+  id: ID!
+
+  "the name of the pipeline"
+  name: String!
+
+  "the stages of this pipeline"
+  stages: [PipelineStage]
+
+  "edges linking two stages w\/in the pipeline in a full DAG"
+  edges: [PipelineStageEdge]
+
+  insertedAt: DateTime
+
+  updatedAt: DateTime
+}
+
+"a pipeline stage, has a list of services and potentially a promotion which might be pending"
+type PipelineStage {
+  id: ID!
+
+  "the name of this stage (eg dev, prod, staging)"
+  name: String!
+
+  "the services within this stage"
+  services: [StageService]
+
+  "a promotion which might be outstanding for this stage"
+  promotion: PipelinePromotion
+
+  insertedAt: DateTime
+
+  updatedAt: DateTime
+}
+
+type PipelineStageEdge {
+  id: ID!
+  from: PipelineStage!
+  to: PipelineStage!
+  insertedAt: DateTime
+  updatedAt: DateTime
+}
+
+"the configuration of a service within a pipeline stage, including optional promotion criteria"
+type StageService {
+  id: ID!
+
+  "a pointer to a service"
+  service: ServiceDeployment
+
+  "criteria for how a promotion of this service shall be performed"
+  criteria: PromotionCriteria
+
+  insertedAt: DateTime
+
+  updatedAt: DateTime
+}
+
+"how a promotion for a service will be performed"
+type PromotionCriteria {
+  id: ID!
+
+  "the source service in a prior stage to promote settings from"
+  source: ServiceDeployment
+
+  "whether you want to copy any configuration values from the source service"
+  secrets: [String]
+
+  insertedAt: DateTime
+
+  updatedAt: DateTime
+}
+
+"a representation of an individual pipeline promotion, which is a list of services\/revisions and timestamps to determine promotion status"
+type PipelinePromotion {
+  id: ID!
+
+  "the last time this promotion was updated"
+  revisedAt: DateTime
+
+  "the last time this promotion was fully promoted, it's no longer pending if promoted_at > revised_at"
+  promotedAt: DateTime
+
+  "the services included in this promotion"
+  services: [PromotionService]
+
+  insertedAt: DateTime
+
+  updatedAt: DateTime
+}
+
+"a service to be potentially promoted"
+type PromotionService {
+  id: ID!
+
+  "a service to promote"
+  service: ServiceDeployment
+
+  "the revision of the service to promote"
+  revision: Revision
+
+  insertedAt: DateTime
+
+  updatedAt: DateTime
+}
+
+type PipelineConnection {
+  pageInfo: PageInfo!
+  edges: [PipelineEdge]
 }
 
 enum ComponentState {
@@ -781,6 +966,8 @@ input ClusterAttributes {
 
   kubeconfig: KubeconfigAttributes
 
+  cloudSettings: CloudSettingsAttributes
+
   nodePools: [NodePoolAttributes]
 
   readBindings: [PolicyBindingAttributes]
@@ -844,10 +1031,17 @@ input TaintAttributes {
 
 input CloudSettingsAttributes {
   aws: AwsCloudAttributes
+  gcp: GcpCloudAttributes
 }
 
 input AwsCloudAttributes {
-  launchTemplateId: String
+  region: String
+}
+
+input GcpCloudAttributes {
+  project: String
+  network: String
+  region: String
 }
 
 input ClusterProviderAttributes {
@@ -864,6 +1058,7 @@ input ClusterProviderUpdateAttributes {
 input CloudProviderSettingsAttributes {
   aws: AwsSettingsAttributes
   gcp: GcpSettingsAttributes
+  azure: AzureSettingsAttributes
 }
 
 input ProviderCredentialAttributes {
@@ -879,6 +1074,12 @@ input AwsSettingsAttributes {
 
 input GcpSettingsAttributes {
   applicationCredentials: String!
+}
+
+input AzureSettingsAttributes {
+  tenantId: String!
+  clientId: ID!
+  clientSecret: String!
 }
 
 "a CAPI provider for a cluster, cloud is inferred from name if not provided manually"
@@ -907,6 +1108,15 @@ type ClusterProvider {
   "a list of credentials eligible for this provider"
   credentials: [ProviderCredential]
 
+  "when the cluster provider was deleted"
+  deletedAt: DateTime
+
+  "the kubernetes versions this provider currently supports"
+  supportedVersions: [String]
+
+  "the region names this provider can deploy to"
+  regions: [String]
+
   "whether the current user can edit this resource"
   editable: Boolean
 
@@ -934,6 +1144,9 @@ type Cluster {
 
   "a short, unique human readable name used to identify this cluster and does not necessarily map to the cloud resource name"
   handle: String
+
+  "whether the deploy operator has been registered for this cluster"
+  installed: Boolean
 
   "a auth token to be used by the deploy operator, only readable on create"
   deployToken: String
@@ -1004,6 +1217,9 @@ type NodePool {
 
   "the type of node to use (usually cloud-specific)"
   instanceType: String!
+
+  "whether this is a spot pool or not"
+  spot: Boolean
 
   "kubernetes labels to apply to the nodes in this pool, useful for node selectors"
   labels: Map
@@ -1630,6 +1846,7 @@ type ResourceSpec {
 
 type KubernetesUnstructured {
   raw: Map
+  metadata: Metadata!
   events: [Event]
 }
 
@@ -2271,6 +2488,7 @@ type User {
   roles: UserRoles
   readTimestamp: DateTime
   buildTimestamp: DateTime
+  groups: [Group]
   boundRoles: [Role]
   jwt: String
   unreadNotifications: Int
@@ -2676,5 +2894,10 @@ type RevisionEdge {
 
 type ServiceDeploymentEdge {
   node: ServiceDeployment
+  cursor: String
+}
+
+type PipelineEdge {
+  node: Pipeline
   cursor: String
 }

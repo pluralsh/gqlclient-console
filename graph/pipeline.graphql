@@ -1,0 +1,15 @@
+mutation SavePipeline($name: String!, $attributes: PipelineAttributes!) {
+    savePipeline(name: $name, attributes: $attributes) {
+        ...PipelineFragment
+    }
+}
+
+query GetPipeline($id: ID!) {
+    pipeline(id: $id) { ...PipelineFragment }
+}
+
+query GetPipelines($after: String) {
+    pipelines(first: 100, after: $after) {
+        edges { ...PipelineEdgeFragment }
+    }
+}
