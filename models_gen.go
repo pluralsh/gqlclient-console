@@ -167,12 +167,18 @@ type AwsCloud struct {
 }
 
 type AwsCloudAttributes struct {
-	LaunchTemplateID *string `json:"launchTemplateId,omitempty"`
+	Region *string `json:"region,omitempty"`
 }
 
 type AwsSettingsAttributes struct {
 	AccessKeyID     string `json:"accessKeyId"`
 	SecretAccessKey string `json:"secretAccessKey"`
+}
+
+type AzureSettingsAttributes struct {
+	TenantID     string `json:"tenantId"`
+	ClientID     string `json:"clientId"`
+	ClientSecret string `json:"clientSecret"`
 }
 
 type BindingAttributes struct {
@@ -265,8 +271,9 @@ type CloneAttributes struct {
 }
 
 type CloudProviderSettingsAttributes struct {
-	Aws *AwsSettingsAttributes `json:"aws,omitempty"`
-	Gcp *GcpSettingsAttributes `json:"gcp,omitempty"`
+	Aws   *AwsSettingsAttributes   `json:"aws,omitempty"`
+	Gcp   *GcpSettingsAttributes   `json:"gcp,omitempty"`
+	Azure *AzureSettingsAttributes `json:"azure,omitempty"`
 }
 
 // cloud specific settings for a node pool
@@ -276,6 +283,7 @@ type CloudSettings struct {
 
 type CloudSettingsAttributes struct {
 	Aws *AwsCloudAttributes `json:"aws,omitempty"`
+	Gcp *GcpCloudAttributes `json:"gcp,omitempty"`
 }
 
 // a representation of a cluster you can deploy to
@@ -292,6 +300,8 @@ type Cluster struct {
 	CurrentVersion *string `json:"currentVersion"`
 	// a short, unique human readable name used to identify this cluster and does not necessarily map to the cloud resource name
 	Handle *string `json:"handle"`
+	// whether the deploy operator has been registered for this cluster
+	Installed *bool `json:"installed"`
 	// a auth token to be used by the deploy operator, only readable on create
 	DeployToken *string `json:"deployToken"`
 	// when this cluster was scheduled for deletion
@@ -337,6 +347,7 @@ type ClusterAttributes struct {
 	CredentialID  *string                    `json:"credentialId,omitempty"`
 	Version       string                     `json:"version"`
 	Kubeconfig    *KubeconfigAttributes      `json:"kubeconfig,omitempty"`
+	CloudSettings *CloudSettingsAttributes   `json:"cloudSettings,omitempty"`
 	NodePools     []*NodePoolAttributes      `json:"nodePools,omitempty"`
 	ReadBindings  []*PolicyBindingAttributes `json:"readBindings,omitempty"`
 	WriteBindings []*PolicyBindingAttributes `json:"writeBindings,omitempty"`
@@ -392,6 +403,12 @@ type ClusterProvider struct {
 	Service *ServiceDeployment `json:"service"`
 	// a list of credentials eligible for this provider
 	Credentials []*ProviderCredential `json:"credentials"`
+	// when the cluster provider was deleted
+	DeletedAt *string `json:"deletedAt"`
+	// the kubernetes versions this provider currently supports
+	SupportedVersions []*string `json:"supportedVersions"`
+	// the region names this provider can deploy to
+	Regions []*string `json:"regions"`
 	// whether the current user can edit this resource
 	Editable   *bool   `json:"editable"`
 	InsertedAt *string `json:"insertedAt"`
@@ -763,6 +780,12 @@ type FileContent struct {
 	Content *string `json:"content"`
 }
 
+type GcpCloudAttributes struct {
+	Project *string `json:"project,omitempty"`
+	Network *string `json:"network,omitempty"`
+	Region  *string `json:"region,omitempty"`
+}
+
 type GcpSettingsAttributes struct {
 	ApplicationCredentials string `json:"applicationCredentials"`
 }
@@ -1010,8 +1033,9 @@ type KubernetesDatasource struct {
 }
 
 type KubernetesUnstructured struct {
-	Raw    map[string]interface{} `json:"raw"`
-	Events []*Event               `json:"events"`
+	Raw      map[string]interface{} `json:"raw"`
+	Metadata Metadata               `json:"metadata"`
+	Events   []*Event               `json:"events"`
 }
 
 type LabelInput struct {
@@ -1167,6 +1191,8 @@ type NodePool struct {
 	MaxSize int64 `json:"maxSize"`
 	// the type of node to use (usually cloud-specific)
 	InstanceType string `json:"instanceType"`
+	// whether this is a spot pool or not
+	Spot *bool `json:"spot"`
 	// kubernetes labels to apply to the nodes in this pool, useful for node selectors
 	Labels map[string]interface{} `json:"labels"`
 	// any taints you'd want to apply to a node, for eg preventing scheduling on spot instances
@@ -1253,6 +1279,87 @@ type PageInfo struct {
 type PathUpdate struct {
 	Path      []*string `json:"path"`
 	ValueFrom string    `json:"valueFrom"`
+}
+
+// a release pipeline, composed of multiple stages each with potentially multiple services
+type Pipeline struct {
+	ID string `json:"id"`
+	// the name of the pipeline
+	Name string `json:"name"`
+	// the stages of this pipeline
+	Stages []*PipelineStage `json:"stages"`
+	// edges linking two stages w/in the pipeline in a full DAG
+	Edges      []*PipelineStageEdge `json:"edges"`
+	InsertedAt *string              `json:"insertedAt"`
+	UpdatedAt  *string              `json:"updatedAt"`
+}
+
+// the top level input object for creating/deleting pipelines
+type PipelineAttributes struct {
+	Stages []*PipelineStageAttributes `json:"stages,omitempty"`
+	Edges  []*PipelineEdgeAttributes  `json:"edges,omitempty"`
+}
+
+type PipelineConnection struct {
+	PageInfo PageInfo        `json:"pageInfo"`
+	Edges    []*PipelineEdge `json:"edges"`
+}
+
+type PipelineEdge struct {
+	Node   *Pipeline `json:"node"`
+	Cursor *string   `json:"cursor"`
+}
+
+// specification of an edge between two pipeline stages
+type PipelineEdgeAttributes struct {
+	// stage id the edge is from, can also be specified by name
+	FromID *string `json:"fromId,omitempty"`
+	// stage id the edge is to, can also be specified by name
+	ToID *string `json:"toId,omitempty"`
+	// the name of the pipeline stage this edge emits from
+	From *string `json:"from,omitempty"`
+	// the name of the pipeline stage this edge points to
+	To *string `json:"to,omitempty"`
+}
+
+// a representation of an individual pipeline promotion, which is a list of services/revisions and timestamps to determine promotion status
+type PipelinePromotion struct {
+	ID string `json:"id"`
+	// the last time this promotion was updated
+	RevisedAt *string `json:"revisedAt"`
+	// the last time this promotion was fully promoted, it's no longer pending if promoted_at > revised_at
+	PromotedAt *string `json:"promotedAt"`
+	// the services included in this promotion
+	Services   []*PromotionService `json:"services"`
+	InsertedAt *string             `json:"insertedAt"`
+	UpdatedAt  *string             `json:"updatedAt"`
+}
+
+// a pipeline stage, has a list of services and potentially a promotion which might be pending
+type PipelineStage struct {
+	ID string `json:"id"`
+	// the name of this stage (eg dev, prod, staging)
+	Name string `json:"name"`
+	// the services within this stage
+	Services []*StageService `json:"services"`
+	// a promotion which might be outstanding for this stage
+	Promotion  *PipelinePromotion `json:"promotion"`
+	InsertedAt *string            `json:"insertedAt"`
+	UpdatedAt  *string            `json:"updatedAt"`
+}
+
+// specification of a stage of a pipeline
+type PipelineStageAttributes struct {
+	Name     string                    `json:"name"`
+	Services []*StageServiceAttributes `json:"services,omitempty"`
+}
+
+type PipelineStageEdge struct {
+	ID         string        `json:"id"`
+	From       PipelineStage `json:"from"`
+	To         PipelineStage `json:"to"`
+	InsertedAt *string       `json:"insertedAt"`
+	UpdatedAt  *string       `json:"updatedAt"`
 }
 
 type Plan struct {
@@ -1380,6 +1487,40 @@ type PrometheusDatasource struct {
 	Query  string  `json:"query"`
 	Format *string `json:"format"`
 	Legend *string `json:"legend"`
+}
+
+// how a promotion for a service will be performed
+type PromotionCriteria struct {
+	ID string `json:"id"`
+	// the source service in a prior stage to promote settings from
+	Source *ServiceDeployment `json:"source"`
+	// whether you want to copy any configuration values from the source service
+	Secrets    []*string `json:"secrets"`
+	InsertedAt *string   `json:"insertedAt"`
+	UpdatedAt  *string   `json:"updatedAt"`
+}
+
+// actions to perform if this stage service were promoted
+type PromotionCriteriaAttributes struct {
+	// the handle of the cluster for the source service
+	Handle *string `json:"handle,omitempty"`
+	// the name of the source service
+	Name *string `json:"name,omitempty"`
+	// the id of the service to promote from
+	SourceID *string `json:"sourceId,omitempty"`
+	// the secrets to copy over in a promotion
+	Secrets []*string `json:"secrets,omitempty"`
+}
+
+// a service to be potentially promoted
+type PromotionService struct {
+	ID string `json:"id"`
+	// a service to promote
+	Service *ServiceDeployment `json:"service"`
+	// the revision of the service to promote
+	Revision   *Revision `json:"revision"`
+	InsertedAt *string   `json:"insertedAt"`
+	UpdatedAt  *string   `json:"updatedAt"`
 }
 
 // a cloud credential that can be used while creating new clusters
@@ -1830,6 +1971,28 @@ type Stack struct {
 	UpdatedAt  *string          `json:"updatedAt"`
 }
 
+// the configuration of a service within a pipeline stage, including optional promotion criteria
+type StageService struct {
+	ID string `json:"id"`
+	// a pointer to a service
+	Service *ServiceDeployment `json:"service"`
+	// criteria for how a promotion of this service shall be performed
+	Criteria   *PromotionCriteria `json:"criteria"`
+	InsertedAt *string            `json:"insertedAt"`
+	UpdatedAt  *string            `json:"updatedAt"`
+}
+
+// the attributes of a service w/in a specific stage
+type StageServiceAttributes struct {
+	// the cluster handle of this service
+	Handle *string `json:"handle,omitempty"`
+	// the name of this service
+	Name *string `json:"name,omitempty"`
+	// the name of this service
+	ServiceID *string                      `json:"serviceId,omitempty"`
+	Criteria  *PromotionCriteriaAttributes `json:"criteria,omitempty"`
+}
+
 type StatefulSet struct {
 	Metadata Metadata          `json:"metadata"`
 	Status   StatefulSetStatus `json:"status"`
@@ -1940,6 +2103,7 @@ type User struct {
 	Roles               *UserRoles `json:"roles"`
 	ReadTimestamp       *string    `json:"readTimestamp"`
 	BuildTimestamp      *string    `json:"buildTimestamp"`
+	Groups              []*Group   `json:"groups"`
 	BoundRoles          []*Role    `json:"boundRoles"`
 	Jwt                 *string    `json:"jwt"`
 	UnreadNotifications *int64     `json:"unreadNotifications"`

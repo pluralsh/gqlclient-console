@@ -88,14 +88,18 @@ type RootQueryType struct {
 	PostgresDatabases     []*Postgresql                "json:\"postgresDatabases\" graphql:\"postgresDatabases\""
 	PostgresDatabase      *Postgresql                  "json:\"postgresDatabase\" graphql:\"postgresDatabase\""
 	GitRepositories       *GitRepositoryConnection     "json:\"gitRepositories\" graphql:\"gitRepositories\""
+	TokenExchange         *User                        "json:\"tokenExchange\" graphql:\"tokenExchange\""
 	Clusters              *ClusterConnection           "json:\"clusters\" graphql:\"clusters\""
 	ClusterProviders      *ClusterProviderConnection   "json:\"clusterProviders\" graphql:\"clusterProviders\""
 	Cluster               *Cluster                     "json:\"cluster\" graphql:\"cluster\""
 	ClusterProvider       *ClusterProvider             "json:\"clusterProvider\" graphql:\"clusterProvider\""
 	ServiceDeployments    *ServiceDeploymentConnection "json:\"serviceDeployments\" graphql:\"serviceDeployments\""
 	ServiceStatuses       []*ServiceStatusCount        "json:\"serviceStatuses\" graphql:\"serviceStatuses\""
+	Pipelines             *PipelineConnection          "json:\"pipelines\" graphql:\"pipelines\""
+	Pipeline              *Pipeline                    "json:\"pipeline\" graphql:\"pipeline\""
 	ClusterServices       []*ServiceDeployment         "json:\"clusterServices\" graphql:\"clusterServices\""
 	ServiceDeployment     *ServiceDeployment           "json:\"serviceDeployment\" graphql:\"serviceDeployment\""
+	MyCluster             *Cluster                     "json:\"myCluster\" graphql:\"myCluster\""
 	DeploymentSettings    *DeploymentSettings          "json:\"deploymentSettings\" graphql:\"deploymentSettings\""
 }
 type RootMutationType struct {
@@ -147,6 +151,7 @@ type RootMutationType struct {
 	DeleteCluster            *Cluster               "json:\"deleteCluster\" graphql:\"deleteCluster\""
 	CreateClusterProvider    *ClusterProvider       "json:\"createClusterProvider\" graphql:\"createClusterProvider\""
 	UpdateClusterProvider    *ClusterProvider       "json:\"updateClusterProvider\" graphql:\"updateClusterProvider\""
+	DeleteClusterProvider    *ClusterProvider       "json:\"deleteClusterProvider\" graphql:\"deleteClusterProvider\""
 	CreateProviderCredential *ProviderCredential    "json:\"createProviderCredential\" graphql:\"createProviderCredential\""
 	DeleteProviderCredential *ProviderCredential    "json:\"deleteProviderCredential\" graphql:\"deleteProviderCredential\""
 	CreateServiceDeployment  *ServiceDeployment     "json:\"createServiceDeployment\" graphql:\"createServiceDeployment\""
@@ -157,6 +162,7 @@ type RootMutationType struct {
 	CloneService             *ServiceDeployment     "json:\"cloneService\" graphql:\"cloneService\""
 	CreateGlobalService      *GlobalService         "json:\"createGlobalService\" graphql:\"createGlobalService\""
 	DeleteGlobalService      *GlobalService         "json:\"deleteGlobalService\" graphql:\"deleteGlobalService\""
+	SavePipeline             *Pipeline              "json:\"savePipeline\" graphql:\"savePipeline\""
 	PingCluster              *Cluster               "json:\"pingCluster\" graphql:\"pingCluster\""
 	UpdateServiceComponents  *ServiceDeployment     "json:\"updateServiceComponents\" graphql:\"updateServiceComponents\""
 	UpdateRbac               *bool                  "json:\"updateRbac\" graphql:\"updateRbac\""
@@ -419,11 +425,17 @@ type ListServiceDeployments struct {
 		} "json:\"edges\" graphql:\"edges\""
 	} "json:\"serviceDeployments\" graphql:\"serviceDeployments\""
 }
+type MyCluster struct {
+	MyCluster *ClusterFragment "json:\"myCluster\" graphql:\"myCluster\""
+}
 type PingCluster struct {
 	PingCluster *ClusterFragment "json:\"pingCluster\" graphql:\"pingCluster\""
 }
 type RollbackService struct {
 	RollbackService *ServiceDeploymentFragment "json:\"rollbackService\" graphql:\"rollbackService\""
+}
+type TokenExchange struct {
+	TokenExchange *UserFragment "json:\"tokenExchange\" graphql:\"tokenExchange\""
 }
 type UpdateCluster struct {
 	UpdateCluster *ClusterFragment "json:\"updateCluster\" graphql:\"updateCluster\""
@@ -2120,6 +2132,102 @@ func (c *Client) ListServiceDeployments(ctx context.Context, cursor *string, bef
 	return &res, nil
 }
 
+const MyClusterDocument = `query MyCluster {
+	myCluster {
+		... ClusterFragment
+	}
+}
+fragment ClusterFragment on Cluster {
+	id
+	name
+	handle
+	self
+	version
+	pingedAt
+	currentVersion
+	provider {
+		... ClusterProviderFragment
+	}
+	nodePools {
+		... NodePoolFragment
+	}
+}
+fragment ClusterProviderFragment on ClusterProvider {
+	id
+	name
+	namespace
+	cloud
+	editable
+	repository {
+		... GitRepositoryFragment
+	}
+	service {
+		... ServiceDeploymentFragment
+	}
+}
+fragment GitRefFragment on GitRef {
+	folder
+	ref
+}
+fragment GitRepositoryFragment on GitRepository {
+	id
+	error
+	health
+	authMethod
+	url
+}
+fragment NodePoolFragment on NodePool {
+	id
+	name
+	minSize
+	maxSize
+	instanceType
+}
+fragment ServiceDeploymentBaseFragment on ServiceDeployment {
+	id
+	name
+	namespace
+	version
+	git {
+		... GitRefFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+}
+fragment ServiceDeploymentFragment on ServiceDeployment {
+	... ServiceDeploymentBaseFragment
+	components {
+		id
+		name
+		group
+		kind
+		namespace
+		state
+		synced
+		version
+	}
+	deletedAt
+	sha
+	tarball
+	configuration {
+		name
+		value
+	}
+}
+`
+
+func (c *Client) MyCluster(ctx context.Context, httpRequestOptions ...client.HTTPRequestOption) (*MyCluster, error) {
+	vars := map[string]interface{}{}
+
+	var res MyCluster
+	if err := c.Client.Post(ctx, "MyCluster", MyClusterDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
 const PingClusterDocument = `mutation PingCluster ($attributes: ClusterPing!) {
 	pingCluster(attributes: $attributes) {
 		... ClusterFragment
@@ -2276,6 +2384,31 @@ func (c *Client) RollbackService(ctx context.Context, id string, revisionID stri
 
 	var res RollbackService
 	if err := c.Client.Post(ctx, "RollbackService", RollbackServiceDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const TokenExchangeDocument = `query TokenExchange ($token: String!) {
+	tokenExchange(token: $token) {
+		... UserFragment
+	}
+}
+fragment UserFragment on User {
+	name
+	id
+	email
+}
+`
+
+func (c *Client) TokenExchange(ctx context.Context, token string, httpRequestOptions ...client.HTTPRequestOption) (*TokenExchange, error) {
+	vars := map[string]interface{}{
+		"token": token,
+	}
+
+	var res TokenExchange
+	if err := c.Client.Post(ctx, "TokenExchange", TokenExchangeDocument, &res, vars, httpRequestOptions...); err != nil {
 		return nil, err
 	}
 
