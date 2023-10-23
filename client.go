@@ -245,6 +245,31 @@ type NodePoolFragment struct {
 	MaxSize      int64  "json:\"maxSize\" graphql:\"maxSize\""
 	InstanceType string "json:\"instanceType\" graphql:\"instanceType\""
 }
+type PipelineEdgeFragment struct {
+	Node *PipelineFragment "json:\"node\" graphql:\"node\""
+}
+type PipelineFragment struct {
+	ID     string                       "json:\"id\" graphql:\"id\""
+	Name   string                       "json:\"name\" graphql:\"name\""
+	Stages []*PipelineStageFragment     "json:\"stages\" graphql:\"stages\""
+	Edges  []*PipelineStageEdgeFragment "json:\"edges\" graphql:\"edges\""
+}
+type PipelineStageEdgeFragment struct {
+	ID   string                "json:\"id\" graphql:\"id\""
+	From PipelineStageFragment "json:\"from\" graphql:\"from\""
+	To   PipelineStageFragment "json:\"to\" graphql:\"to\""
+}
+type PipelineStageFragment struct {
+	ID       string "json:\"id\" graphql:\"id\""
+	Name     string "json:\"name\" graphql:\"name\""
+	Services []*struct {
+		Service  *ServiceDeploymentBaseFragment "json:\"service\" graphql:\"service\""
+		Criteria *struct {
+			Source  *ServiceDeploymentBaseFragment "json:\"source\" graphql:\"source\""
+			Secrets []*string                      "json:\"secrets\" graphql:\"secrets\""
+		} "json:\"criteria\" graphql:\"criteria\""
+	} "json:\"services\" graphql:\"services\""
+}
 type PolicyBindingFragment struct {
 	ID    *string        "json:\"id\" graphql:\"id\""
 	Group *GroupFragment "json:\"group\" graphql:\"group\""
@@ -378,6 +403,14 @@ type GetClusterByHandle struct {
 type GetClusterProvider struct {
 	ClusterProvider *ClusterProviderFragment "json:\"clusterProvider\" graphql:\"clusterProvider\""
 }
+type GetPipeline struct {
+	Pipeline *PipelineFragment "json:\"pipeline\" graphql:\"pipeline\""
+}
+type GetPipelines struct {
+	Pipelines *struct {
+		Edges []*PipelineEdgeFragment "json:\"edges\" graphql:\"edges\""
+	} "json:\"pipelines\" graphql:\"pipelines\""
+}
 type GetServiceDeployment struct {
 	ServiceDeployment *ServiceDeploymentExtended "json:\"serviceDeployment\" graphql:\"serviceDeployment\""
 }
@@ -434,8 +467,7 @@ type PingCluster struct {
 type RollbackService struct {
 	RollbackService *ServiceDeploymentFragment "json:\"rollbackService\" graphql:\"rollbackService\""
 }
-type TokenExchange struct {
-	TokenExchange *UserFragment "json:\"tokenExchange\" graphql:\"tokenExchange\""
+
 }
 type UpdateCluster struct {
 	UpdateCluster *ClusterFragment "json:\"updateCluster\" graphql:\"updateCluster\""
@@ -1341,6 +1373,167 @@ func (c *Client) GetClusterProvider(ctx context.Context, id string, httpRequestO
 
 	var res GetClusterProvider
 	if err := c.Client.Post(ctx, "GetClusterProvider", GetClusterProviderDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const GetPipelineDocument = `query GetPipeline ($id: ID!) {
+	pipeline(id: $id) {
+		... PipelineFragment
+	}
+}
+fragment GitRefFragment on GitRef {
+	folder
+	ref
+}
+fragment GitRepositoryFragment on GitRepository {
+	id
+	error
+	health
+	authMethod
+	url
+}
+fragment PipelineFragment on Pipeline {
+	id
+	name
+	stages {
+		... PipelineStageFragment
+	}
+	edges {
+		... PipelineStageEdgeFragment
+	}
+}
+fragment PipelineStageEdgeFragment on PipelineStageEdge {
+	id
+	from {
+		... PipelineStageFragment
+	}
+	to {
+		... PipelineStageFragment
+	}
+}
+fragment PipelineStageFragment on PipelineStage {
+	id
+	name
+	services {
+		service {
+			... ServiceDeploymentBaseFragment
+		}
+		criteria {
+			source {
+				... ServiceDeploymentBaseFragment
+			}
+			secrets
+		}
+	}
+}
+fragment ServiceDeploymentBaseFragment on ServiceDeployment {
+	id
+	name
+	namespace
+	version
+	git {
+		... GitRefFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+}
+`
+
+func (c *Client) GetPipeline(ctx context.Context, id string, httpRequestOptions ...client.HTTPRequestOption) (*GetPipeline, error) {
+	vars := map[string]interface{}{
+		"id": id,
+	}
+
+	var res GetPipeline
+	if err := c.Client.Post(ctx, "GetPipeline", GetPipelineDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const GetPipelinesDocument = `query GetPipelines ($after: String) {
+	pipelines(first: 100, after: $after) {
+		edges {
+			... PipelineEdgeFragment
+		}
+	}
+}
+fragment GitRefFragment on GitRef {
+	folder
+	ref
+}
+fragment GitRepositoryFragment on GitRepository {
+	id
+	error
+	health
+	authMethod
+	url
+}
+fragment PipelineEdgeFragment on PipelineEdge {
+	node {
+		... PipelineFragment
+	}
+}
+fragment PipelineFragment on Pipeline {
+	id
+	name
+	stages {
+		... PipelineStageFragment
+	}
+	edges {
+		... PipelineStageEdgeFragment
+	}
+}
+fragment PipelineStageEdgeFragment on PipelineStageEdge {
+	id
+	from {
+		... PipelineStageFragment
+	}
+	to {
+		... PipelineStageFragment
+	}
+}
+fragment PipelineStageFragment on PipelineStage {
+	id
+	name
+	services {
+		service {
+			... ServiceDeploymentBaseFragment
+		}
+		criteria {
+			source {
+				... ServiceDeploymentBaseFragment
+			}
+			secrets
+		}
+	}
+}
+fragment ServiceDeploymentBaseFragment on ServiceDeployment {
+	id
+	name
+	namespace
+	version
+	git {
+		... GitRefFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+}
+`
+
+func (c *Client) GetPipelines(ctx context.Context, after *string, httpRequestOptions ...client.HTTPRequestOption) (*GetPipelines, error) {
+	vars := map[string]interface{}{
+		"after": after,
+	}
+
+	var res GetPipelines
+	if err := c.Client.Post(ctx, "GetPipelines", GetPipelinesDocument, &res, vars, httpRequestOptions...); err != nil {
 		return nil, err
 	}
 
@@ -2384,31 +2577,6 @@ func (c *Client) RollbackService(ctx context.Context, id string, revisionID stri
 
 	var res RollbackService
 	if err := c.Client.Post(ctx, "RollbackService", RollbackServiceDocument, &res, vars, httpRequestOptions...); err != nil {
-		return nil, err
-	}
-
-	return &res, nil
-}
-
-const TokenExchangeDocument = `query TokenExchange ($token: String!) {
-	tokenExchange(token: $token) {
-		... UserFragment
-	}
-}
-fragment UserFragment on User {
-	name
-	id
-	email
-}
-`
-
-func (c *Client) TokenExchange(ctx context.Context, token string, httpRequestOptions ...client.HTTPRequestOption) (*TokenExchange, error) {
-	vars := map[string]interface{}{
-		"token": token,
-	}
-
-	var res TokenExchange
-	if err := c.Client.Post(ctx, "TokenExchange", TokenExchangeDocument, &res, vars, httpRequestOptions...); err != nil {
 		return nil, err
 	}
 
