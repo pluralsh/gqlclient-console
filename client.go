@@ -467,7 +467,11 @@ type PingCluster struct {
 type RollbackService struct {
 	RollbackService *ServiceDeploymentFragment "json:\"rollbackService\" graphql:\"rollbackService\""
 }
-
+type SavePipeline struct {
+	SavePipeline *PipelineFragment "json:\"savePipeline\" graphql:\"savePipeline\""
+}
+type TokenExchange struct {
+	TokenExchange *UserFragment "json:\"tokenExchange\" graphql:\"tokenExchange\""
 }
 type UpdateCluster struct {
 	UpdateCluster *ClusterFragment "json:\"updateCluster\" graphql:\"updateCluster\""
@@ -2577,6 +2581,109 @@ func (c *Client) RollbackService(ctx context.Context, id string, revisionID stri
 
 	var res RollbackService
 	if err := c.Client.Post(ctx, "RollbackService", RollbackServiceDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const SavePipelineDocument = `mutation SavePipeline ($name: String!, $attributes: PipelineAttributes!) {
+	savePipeline(name: $name, attributes: $attributes) {
+		... PipelineFragment
+	}
+}
+fragment GitRefFragment on GitRef {
+	folder
+	ref
+}
+fragment GitRepositoryFragment on GitRepository {
+	id
+	error
+	health
+	authMethod
+	url
+}
+fragment PipelineFragment on Pipeline {
+	id
+	name
+	stages {
+		... PipelineStageFragment
+	}
+	edges {
+		... PipelineStageEdgeFragment
+	}
+}
+fragment PipelineStageEdgeFragment on PipelineStageEdge {
+	id
+	from {
+		... PipelineStageFragment
+	}
+	to {
+		... PipelineStageFragment
+	}
+}
+fragment PipelineStageFragment on PipelineStage {
+	id
+	name
+	services {
+		service {
+			... ServiceDeploymentBaseFragment
+		}
+		criteria {
+			source {
+				... ServiceDeploymentBaseFragment
+			}
+			secrets
+		}
+	}
+}
+fragment ServiceDeploymentBaseFragment on ServiceDeployment {
+	id
+	name
+	namespace
+	version
+	git {
+		... GitRefFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+}
+`
+
+func (c *Client) SavePipeline(ctx context.Context, name string, attributes PipelineAttributes, httpRequestOptions ...client.HTTPRequestOption) (*SavePipeline, error) {
+	vars := map[string]interface{}{
+		"name":       name,
+		"attributes": attributes,
+	}
+
+	var res SavePipeline
+	if err := c.Client.Post(ctx, "SavePipeline", SavePipelineDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const TokenExchangeDocument = `query TokenExchange ($token: String!) {
+	tokenExchange(token: $token) {
+		... UserFragment
+	}
+}
+fragment UserFragment on User {
+	name
+	id
+	email
+}
+`
+
+func (c *Client) TokenExchange(ctx context.Context, token string, httpRequestOptions ...client.HTTPRequestOption) (*TokenExchange, error) {
+	vars := map[string]interface{}{
+		"token": token,
+	}
+
+	var res TokenExchange
+	if err := c.Client.Post(ctx, "TokenExchange", TokenExchangeDocument, &res, vars, httpRequestOptions...); err != nil {
 		return nil, err
 	}
 
