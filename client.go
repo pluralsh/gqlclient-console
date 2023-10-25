@@ -474,7 +474,19 @@ type SavePipeline struct {
 	SavePipeline *PipelineFragment "json:\"savePipeline\" graphql:\"savePipeline\""
 }
 type TokenExchange struct {
-	TokenExchange *UserFragment "json:\"tokenExchange\" graphql:\"tokenExchange\""
+	TokenExchange *struct {
+		Name   string "json:\"name\" graphql:\"name\""
+		ID     string "json:\"id\" graphql:\"id\""
+		Email  string "json:\"email\" graphql:\"email\""
+		Groups []*struct {
+			ID   string "json:\"id\" graphql:\"id\""
+			Name string "json:\"name\" graphql:\"name\""
+		} "json:\"groups\" graphql:\"groups\""
+		BoundRoles []*struct {
+			ID   string "json:\"id\" graphql:\"id\""
+			Name string "json:\"name\" graphql:\"name\""
+		} "json:\"boundRoles\" graphql:\"boundRoles\""
+	} "json:\"tokenExchange\" graphql:\"tokenExchange\""
 }
 type UpdateCluster struct {
 	UpdateCluster *ClusterFragment "json:\"updateCluster\" graphql:\"updateCluster\""
@@ -2596,6 +2608,14 @@ func (c *Client) SavePipeline(ctx context.Context, name string, attributes Pipel
 const TokenExchangeDocument = `query TokenExchange ($token: String!) {
 	tokenExchange(token: $token) {
 		... UserFragment
+		groups {
+			id
+			name
+		}
+		boundRoles {
+			id
+			name
+		}
 	}
 }
 fragment UserFragment on User {

@@ -323,7 +323,9 @@ type Cluster struct {
 	// all api deprecations for all services in this cluster
 	APIDeprecations []*APIDeprecation `json:"apiDeprecations"`
 	// any errors which might have occurred during the bootstrap process
-	ServicErrors []*ServiceError `json:"servicErrors"`
+	ServiceErrors []*ServiceError `json:"serviceErrors"`
+	// a custom git repository if you want to define your own CAPI manifests
+	Repository *GitRepository `json:"repository"`
 	// list cached nodes for a cluster, this can be stale up to 5m
 	Nodes []*Node `json:"nodes"`
 	// list the cached node metrics for a cluster, can also be stale up to 5m
@@ -399,6 +401,8 @@ type ClusterProvider struct {
 	Git GitRef `json:"git"`
 	// the repository used to serve cluster manifests
 	Repository *GitRepository `json:"repository"`
+	// the repository for the CAPI service itself if customized
+	ProviderRepository *GitRepository `json:"providerRepository"`
 	// the service of the CAPI controller itself
 	Service *ServiceDeployment `json:"service"`
 	// a list of credentials eligible for this provider
@@ -433,12 +437,15 @@ type ClusterProviderEdge struct {
 }
 
 type ClusterProviderUpdateAttributes struct {
+	// if you optionally want to reconfigure the git repository for the cluster provider
+	Service       *ClusterServiceAttributes        `json:"service,omitempty"`
 	CloudSettings *CloudProviderSettingsAttributes `json:"cloudSettings,omitempty"`
 }
 
 type ClusterServiceAttributes struct {
-	ID  string           `json:"id"`
-	Git GitRefAttributes `json:"git"`
+	ID           string           `json:"id"`
+	RepositoryID *string          `json:"repositoryId,omitempty"`
+	Git          GitRefAttributes `json:"git"`
 }
 
 // the crd status of the cluster as seen by the CAPI operator
@@ -455,11 +462,9 @@ type ClusterUpdateAttributes struct {
 	// a short, unique human readable name used to identify this cluster and does not necessarily map to the cloud resource name
 	Handle *string `json:"handle,omitempty"`
 	// if you optionally want to reconfigure the git repository for the cluster service
-	Service       *ClusterServiceAttributes  `json:"service,omitempty"`
-	Kubeconfig    *KubeconfigAttributes      `json:"kubeconfig,omitempty"`
-	NodePools     []*NodePoolAttributes      `json:"nodePools,omitempty"`
-	ReadBindings  []*PolicyBindingAttributes `json:"readBindings,omitempty"`
-	WriteBindings []*PolicyBindingAttributes `json:"writeBindings,omitempty"`
+	Service    *ClusterServiceAttributes `json:"service,omitempty"`
+	Kubeconfig *KubeconfigAttributes     `json:"kubeconfig,omitempty"`
+	NodePools  []*NodePoolAttributes     `json:"nodePools,omitempty"`
 }
 
 type Command struct {

@@ -80,9 +80,3 @@ query MyCluster {
         }
     }
 }
-
-query TokenExchange($token: String!) {
-    tokenExchange(token: $token) {
-        ...UserFragment
-    }
-}

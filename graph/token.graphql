@@ -21,3 +21,17 @@ query GetAccessToken($id: ID!){
         ...AccessTokenFragment
     }
 }
+
+query TokenExchange($token: String!) {
+    tokenExchange(token: $token) {
+        ...UserFragment
+        groups {
+            id
+            name
+        }
+        boundRoles {
+            id
+            name
+        }
+    }
+}
