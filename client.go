@@ -189,6 +189,7 @@ type ClusterFragment struct {
 	Version        *string                  "json:\"version\" graphql:\"version\""
 	PingedAt       *string                  "json:\"pingedAt\" graphql:\"pingedAt\""
 	CurrentVersion *string                  "json:\"currentVersion\" graphql:\"currentVersion\""
+	KasURL         *string                  "json:\"kasUrl\" graphql:\"kasUrl\""
 	Provider       *ClusterProviderFragment "json:\"provider\" graphql:\"provider\""
 	NodePools      []*NodePoolFragment      "json:\"nodePools\" graphql:\"nodePools\""
 }
@@ -551,6 +552,7 @@ fragment ClusterFragment on Cluster {
 	version
 	pingedAt
 	currentVersion
+	kasUrl
 	provider {
 		... ClusterProviderFragment
 	}
@@ -949,6 +951,7 @@ fragment ClusterFragment on Cluster {
 	version
 	pingedAt
 	currentVersion
+	kasUrl
 	provider {
 		... ClusterProviderFragment
 	}
@@ -1169,6 +1172,7 @@ fragment ClusterFragment on Cluster {
 	version
 	pingedAt
 	currentVersion
+	kasUrl
 	provider {
 		... ClusterProviderFragment
 	}
@@ -1276,6 +1280,7 @@ fragment ClusterFragment on Cluster {
 	version
 	pingedAt
 	currentVersion
+	kasUrl
 	provider {
 		... ClusterProviderFragment
 	}
@@ -1629,6 +1634,7 @@ fragment ClusterFragment on Cluster {
 	version
 	pingedAt
 	currentVersion
+	kasUrl
 	provider {
 		... ClusterProviderFragment
 	}
@@ -1760,6 +1766,7 @@ fragment ClusterFragment on Cluster {
 	version
 	pingedAt
 	currentVersion
+	kasUrl
 	provider {
 		... ClusterProviderFragment
 	}
@@ -1973,6 +1980,7 @@ fragment ClusterFragment on Cluster {
 	version
 	pingedAt
 	currentVersion
+	kasUrl
 	provider {
 		... ClusterProviderFragment
 	}
@@ -2471,6 +2479,7 @@ fragment ClusterFragment on Cluster {
 	version
 	pingedAt
 	currentVersion
+	kasUrl
 	provider {
 		... ClusterProviderFragment
 	}
@@ -2753,6 +2762,7 @@ fragment ClusterFragment on Cluster {
 	version
 	pingedAt
 	currentVersion
+	kasUrl
 	provider {
 		... ClusterProviderFragment
 	}
