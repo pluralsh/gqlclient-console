@@ -110,6 +110,9 @@ fragment ClusterProviderFragment on ClusterProvider {
     service {
         ...ServiceDeploymentFragment
     }
+    credentials {
+        ...ProviderCredentialFragment
+    }
 }
 
 fragment AccessTokenFragment on AccessToken {

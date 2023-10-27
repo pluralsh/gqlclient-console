@@ -163,6 +163,8 @@ type RootMutationType struct {
 	CreateGlobalService      *GlobalService         "json:\"createGlobalService\" graphql:\"createGlobalService\""
 	DeleteGlobalService      *GlobalService         "json:\"deleteGlobalService\" graphql:\"deleteGlobalService\""
 	SavePipeline             *Pipeline              "json:\"savePipeline\" graphql:\"savePipeline\""
+	ApproveGate              *PipelineGate          "json:\"approveGate\" graphql:\"approveGate\""
+	ForceGate                *PipelineGate          "json:\"forceGate\" graphql:\"forceGate\""
 	PingCluster              *Cluster               "json:\"pingCluster\" graphql:\"pingCluster\""
 	UpdateServiceComponents  *ServiceDeployment     "json:\"updateServiceComponents\" graphql:\"updateServiceComponents\""
 	UpdateRbac               *bool                  "json:\"updateRbac\" graphql:\"updateRbac\""
@@ -197,13 +199,14 @@ type ClusterProviderEdgeFragment struct {
 	Node *ClusterProviderFragment "json:\"node\" graphql:\"node\""
 }
 type ClusterProviderFragment struct {
-	ID         string                     "json:\"id\" graphql:\"id\""
-	Name       string                     "json:\"name\" graphql:\"name\""
-	Namespace  string                     "json:\"namespace\" graphql:\"namespace\""
-	Cloud      string                     "json:\"cloud\" graphql:\"cloud\""
-	Editable   *bool                      "json:\"editable\" graphql:\"editable\""
-	Repository *GitRepositoryFragment     "json:\"repository\" graphql:\"repository\""
-	Service    *ServiceDeploymentFragment "json:\"service\" graphql:\"service\""
+	ID          string                        "json:\"id\" graphql:\"id\""
+	Name        string                        "json:\"name\" graphql:\"name\""
+	Namespace   string                        "json:\"namespace\" graphql:\"namespace\""
+	Cloud       string                        "json:\"cloud\" graphql:\"cloud\""
+	Editable    *bool                         "json:\"editable\" graphql:\"editable\""
+	Repository  *GitRepositoryFragment        "json:\"repository\" graphql:\"repository\""
+	Service     *ServiceDeploymentFragment    "json:\"service\" graphql:\"service\""
+	Credentials []*ProviderCredentialFragment "json:\"credentials\" graphql:\"credentials\""
 }
 type DeploymentSettingsFragment struct {
 	ID                 string                   "json:\"id\" graphql:\"id\""
@@ -567,6 +570,9 @@ fragment ClusterProviderFragment on ClusterProvider {
 	service {
 		... ServiceDeploymentFragment
 	}
+	credentials {
+		... ProviderCredentialFragment
+	}
 }
 fragment GitRefFragment on GitRef {
 	folder
@@ -585,6 +591,12 @@ fragment NodePoolFragment on NodePool {
 	minSize
 	maxSize
 	instanceType
+}
+fragment ProviderCredentialFragment on ProviderCredential {
+	id
+	name
+	namespace
+	kind
 }
 fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	id
@@ -650,6 +662,9 @@ fragment ClusterProviderFragment on ClusterProvider {
 	service {
 		... ServiceDeploymentFragment
 	}
+	credentials {
+		... ProviderCredentialFragment
+	}
 }
 fragment GitRefFragment on GitRef {
 	folder
@@ -661,6 +676,12 @@ fragment GitRepositoryFragment on GitRepository {
 	health
 	authMethod
 	url
+}
+fragment ProviderCredentialFragment on ProviderCredential {
+	id
+	name
+	namespace
+	kind
 }
 fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	id
@@ -947,6 +968,9 @@ fragment ClusterProviderFragment on ClusterProvider {
 	service {
 		... ServiceDeploymentFragment
 	}
+	credentials {
+		... ProviderCredentialFragment
+	}
 }
 fragment GitRefFragment on GitRef {
 	folder
@@ -965,6 +989,12 @@ fragment NodePoolFragment on NodePool {
 	minSize
 	maxSize
 	instanceType
+}
+fragment ProviderCredentialFragment on ProviderCredential {
+	id
+	name
+	namespace
+	kind
 }
 fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	id
@@ -1158,6 +1188,9 @@ fragment ClusterProviderFragment on ClusterProvider {
 	service {
 		... ServiceDeploymentFragment
 	}
+	credentials {
+		... ProviderCredentialFragment
+	}
 }
 fragment GitRefFragment on GitRef {
 	folder
@@ -1176,6 +1209,12 @@ fragment NodePoolFragment on NodePool {
 	minSize
 	maxSize
 	instanceType
+}
+fragment ProviderCredentialFragment on ProviderCredential {
+	id
+	name
+	namespace
+	kind
 }
 fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	id
@@ -1256,6 +1295,9 @@ fragment ClusterProviderFragment on ClusterProvider {
 	service {
 		... ServiceDeploymentFragment
 	}
+	credentials {
+		... ProviderCredentialFragment
+	}
 }
 fragment GitRefFragment on GitRef {
 	folder
@@ -1274,6 +1316,12 @@ fragment NodePoolFragment on NodePool {
 	minSize
 	maxSize
 	instanceType
+}
+fragment ProviderCredentialFragment on ProviderCredential {
+	id
+	name
+	namespace
+	kind
 }
 fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	id
@@ -1339,6 +1387,9 @@ fragment ClusterProviderFragment on ClusterProvider {
 	service {
 		... ServiceDeploymentFragment
 	}
+	credentials {
+		... ProviderCredentialFragment
+	}
 }
 fragment GitRefFragment on GitRef {
 	folder
@@ -1350,6 +1401,12 @@ fragment GitRepositoryFragment on GitRepository {
 	health
 	authMethod
 	url
+}
+fragment ProviderCredentialFragment on ProviderCredential {
+	id
+	name
+	namespace
+	kind
 }
 fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	id
@@ -1591,6 +1648,9 @@ fragment ClusterProviderFragment on ClusterProvider {
 	service {
 		... ServiceDeploymentFragment
 	}
+	credentials {
+		... ProviderCredentialFragment
+	}
 }
 fragment ErrorFragment on ServiceError {
 	source
@@ -1613,6 +1673,12 @@ fragment NodePoolFragment on NodePool {
 	minSize
 	maxSize
 	instanceType
+}
+fragment ProviderCredentialFragment on ProviderCredential {
+	id
+	name
+	namespace
+	kind
 }
 fragment RevisionFragment on Revision {
 	id
@@ -1713,6 +1779,9 @@ fragment ClusterProviderFragment on ClusterProvider {
 	service {
 		... ServiceDeploymentFragment
 	}
+	credentials {
+		... ProviderCredentialFragment
+	}
 }
 fragment ErrorFragment on ServiceError {
 	source
@@ -1735,6 +1804,12 @@ fragment NodePoolFragment on NodePool {
 	minSize
 	maxSize
 	instanceType
+}
+fragment ProviderCredentialFragment on ProviderCredential {
+	id
+	name
+	namespace
+	kind
 }
 fragment RevisionFragment on Revision {
 	id
@@ -1917,6 +1992,9 @@ fragment ClusterProviderFragment on ClusterProvider {
 	service {
 		... ServiceDeploymentFragment
 	}
+	credentials {
+		... ProviderCredentialFragment
+	}
 }
 fragment GitRefFragment on GitRef {
 	folder
@@ -1935,6 +2013,12 @@ fragment NodePoolFragment on NodePool {
 	minSize
 	maxSize
 	instanceType
+}
+fragment ProviderCredentialFragment on ProviderCredential {
+	id
+	name
+	namespace
+	kind
 }
 fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	id
@@ -2112,6 +2196,9 @@ fragment ClusterProviderFragment on ClusterProvider {
 	service {
 		... ServiceDeploymentFragment
 	}
+	credentials {
+		... ProviderCredentialFragment
+	}
 }
 fragment GitRefFragment on GitRef {
 	folder
@@ -2123,6 +2210,12 @@ fragment GitRepositoryFragment on GitRepository {
 	health
 	authMethod
 	url
+}
+fragment ProviderCredentialFragment on ProviderCredential {
+	id
+	name
+	namespace
+	kind
 }
 fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	id
@@ -2397,6 +2490,9 @@ fragment ClusterProviderFragment on ClusterProvider {
 	service {
 		... ServiceDeploymentFragment
 	}
+	credentials {
+		... ProviderCredentialFragment
+	}
 }
 fragment GitRefFragment on GitRef {
 	folder
@@ -2415,6 +2511,12 @@ fragment NodePoolFragment on NodePool {
 	minSize
 	maxSize
 	instanceType
+}
+fragment ProviderCredentialFragment on ProviderCredential {
+	id
+	name
+	namespace
+	kind
 }
 fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	id
@@ -2670,6 +2772,9 @@ fragment ClusterProviderFragment on ClusterProvider {
 	service {
 		... ServiceDeploymentFragment
 	}
+	credentials {
+		... ProviderCredentialFragment
+	}
 }
 fragment GitRefFragment on GitRef {
 	folder
@@ -2688,6 +2793,12 @@ fragment NodePoolFragment on NodePool {
 	minSize
 	maxSize
 	instanceType
+}
+fragment ProviderCredentialFragment on ProviderCredential {
+	id
+	name
+	namespace
+	kind
 }
 fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	id
@@ -2754,6 +2865,9 @@ fragment ClusterProviderFragment on ClusterProvider {
 	service {
 		... ServiceDeploymentFragment
 	}
+	credentials {
+		... ProviderCredentialFragment
+	}
 }
 fragment GitRefFragment on GitRef {
 	folder
@@ -2765,6 +2879,12 @@ fragment GitRepositoryFragment on GitRepository {
 	health
 	authMethod
 	url
+}
+fragment ProviderCredentialFragment on ProviderCredential {
+	id
+	name
+	namespace
+	kind
 }
 fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	id
