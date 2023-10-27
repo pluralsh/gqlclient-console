@@ -163,6 +163,8 @@ type RootMutationType struct {
 	CreateGlobalService      *GlobalService         "json:\"createGlobalService\" graphql:\"createGlobalService\""
 	DeleteGlobalService      *GlobalService         "json:\"deleteGlobalService\" graphql:\"deleteGlobalService\""
 	SavePipeline             *Pipeline              "json:\"savePipeline\" graphql:\"savePipeline\""
+	ApproveGate              *PipelineGate          "json:\"approveGate\" graphql:\"approveGate\""
+	ForceGate                *PipelineGate          "json:\"forceGate\" graphql:\"forceGate\""
 	PingCluster              *Cluster               "json:\"pingCluster\" graphql:\"pingCluster\""
 	UpdateServiceComponents  *ServiceDeployment     "json:\"updateServiceComponents\" graphql:\"updateServiceComponents\""
 	UpdateRbac               *bool                  "json:\"updateRbac\" graphql:\"updateRbac\""
@@ -187,6 +189,7 @@ type ClusterFragment struct {
 	Version        *string                  "json:\"version\" graphql:\"version\""
 	PingedAt       *string                  "json:\"pingedAt\" graphql:\"pingedAt\""
 	CurrentVersion *string                  "json:\"currentVersion\" graphql:\"currentVersion\""
+	KasURL         *string                  "json:\"kasUrl\" graphql:\"kasUrl\""
 	Provider       *ClusterProviderFragment "json:\"provider\" graphql:\"provider\""
 	NodePools      []*NodePoolFragment      "json:\"nodePools\" graphql:\"nodePools\""
 }
@@ -548,6 +551,7 @@ fragment ClusterFragment on Cluster {
 	version
 	pingedAt
 	currentVersion
+	kasUrl
 	provider {
 		... ClusterProviderFragment
 	}
@@ -928,6 +932,7 @@ fragment ClusterFragment on Cluster {
 	version
 	pingedAt
 	currentVersion
+	kasUrl
 	provider {
 		... ClusterProviderFragment
 	}
@@ -1139,6 +1144,7 @@ fragment ClusterFragment on Cluster {
 	version
 	pingedAt
 	currentVersion
+	kasUrl
 	provider {
 		... ClusterProviderFragment
 	}
@@ -1237,6 +1243,7 @@ fragment ClusterFragment on Cluster {
 	version
 	pingedAt
 	currentVersion
+	kasUrl
 	provider {
 		... ClusterProviderFragment
 	}
@@ -1572,6 +1579,7 @@ fragment ClusterFragment on Cluster {
 	version
 	pingedAt
 	currentVersion
+	kasUrl
 	provider {
 		... ClusterProviderFragment
 	}
@@ -1694,6 +1702,7 @@ fragment ClusterFragment on Cluster {
 	version
 	pingedAt
 	currentVersion
+	kasUrl
 	provider {
 		... ClusterProviderFragment
 	}
@@ -1898,6 +1907,7 @@ fragment ClusterFragment on Cluster {
 	version
 	pingedAt
 	currentVersion
+	kasUrl
 	provider {
 		... ClusterProviderFragment
 	}
@@ -2378,6 +2388,7 @@ fragment ClusterFragment on Cluster {
 	version
 	pingedAt
 	currentVersion
+	kasUrl
 	provider {
 		... ClusterProviderFragment
 	}
@@ -2651,6 +2662,7 @@ fragment ClusterFragment on Cluster {
 	version
 	pingedAt
 	currentVersion
+	kasUrl
 	provider {
 		... ClusterProviderFragment
 	}

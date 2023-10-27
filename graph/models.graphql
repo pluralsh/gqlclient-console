@@ -86,6 +86,7 @@ fragment ClusterFragment on Cluster {
     version
     pingedAt
     currentVersion
+    kasUrl
     provider { ...ClusterProviderFragment }
     nodePools { ...NodePoolFragment }
 }

@@ -302,6 +302,8 @@ type Cluster struct {
 	Handle *string `json:"handle"`
 	// whether the deploy operator has been registered for this cluster
 	Installed *bool `json:"installed"`
+	// the url of the kas server you can access this cluster from
+	KasURL *string `json:"kasUrl"`
 	// a auth token to be used by the deploy operator, only readable on create
 	DeployToken *string `json:"deployToken"`
 	// when this cluster was scheduled for deletion
@@ -1325,6 +1327,35 @@ type PipelineEdgeAttributes struct {
 	From *string `json:"from,omitempty"`
 	// the name of the pipeline stage this edge points to
 	To *string `json:"to,omitempty"`
+	// any optional promotion gates you wish to configure
+	Gates []*PipelineGateAttributes `json:"gates,omitempty"`
+}
+
+// A gate blocking promotion along a release pipeline
+type PipelineGate struct {
+	ID string `json:"id"`
+	// the name of this gate as seen in the UI
+	Name string `json:"name"`
+	// the type of gate this is
+	Type GateType `json:"type"`
+	// the current state of this gate
+	State GateState `json:"state"`
+	// the last user to approve this gate
+	Approver   *User   `json:"approver"`
+	InsertedAt *string `json:"insertedAt"`
+	UpdatedAt  *string `json:"updatedAt"`
+}
+
+// will configure a promotion gate for a pipeline
+type PipelineGateAttributes struct {
+	// the name of this gate
+	Name string `json:"name"`
+	// the type of gate this is
+	Type GateType `json:"type"`
+	// the handle of a cluster this gate will execute on
+	Cluster *string `json:"cluster,omitempty"`
+	// the id of the cluster this gate will execute on
+	ClusterID *string `json:"clusterId,omitempty"`
 }
 
 // a representation of an individual pipeline promotion, which is a list of services/revisions and timestamps to determine promotion status
@@ -1359,12 +1390,16 @@ type PipelineStageAttributes struct {
 	Services []*StageServiceAttributes `json:"services,omitempty"`
 }
 
+// an edge in the pipeline DAG
 type PipelineStageEdge struct {
-	ID         string        `json:"id"`
-	From       PipelineStage `json:"from"`
-	To         PipelineStage `json:"to"`
-	InsertedAt *string       `json:"insertedAt"`
-	UpdatedAt  *string       `json:"updatedAt"`
+	ID string `json:"id"`
+	// when the edge was last promoted, if greater than the promotion objects revised at, was successfully promoted
+	PromotedAt *string         `json:"promotedAt"`
+	From       PipelineStage   `json:"from"`
+	To         PipelineStage   `json:"to"`
+	Gates      []*PipelineGate `json:"gates"`
+	InsertedAt *string         `json:"insertedAt"`
+	UpdatedAt  *string         `json:"updatedAt"`
 }
 
 type Plan struct {
@@ -2274,6 +2309,7 @@ const (
 	AuditTypeGitRepository      AuditType = "GIT_REPOSITORY"
 	AuditTypeDeploymentSettings AuditType = "DEPLOYMENT_SETTINGS"
 	AuditTypeProviderCredential AuditType = "PROVIDER_CREDENTIAL"
+	AuditTypePipeline           AuditType = "PIPELINE"
 )
 
 var AllAuditType = []AuditType{
@@ -2292,11 +2328,12 @@ var AllAuditType = []AuditType{
 	AuditTypeGitRepository,
 	AuditTypeDeploymentSettings,
 	AuditTypeProviderCredential,
+	AuditTypePipeline,
 }
 
 func (e AuditType) IsValid() bool {
 	switch e {
-	case AuditTypeBuild, AuditTypePod, AuditTypeConfiguration, AuditTypeUser, AuditTypeGroup, AuditTypeRole, AuditTypeGroupMember, AuditTypePolicy, AuditTypeTempToken, AuditTypeService, AuditTypeCluster, AuditTypeClusterProvider, AuditTypeGitRepository, AuditTypeDeploymentSettings, AuditTypeProviderCredential:
+	case AuditTypeBuild, AuditTypePod, AuditTypeConfiguration, AuditTypeUser, AuditTypeGroup, AuditTypeRole, AuditTypeGroupMember, AuditTypePolicy, AuditTypeTempToken, AuditTypeService, AuditTypeCluster, AuditTypeClusterProvider, AuditTypeGitRepository, AuditTypeDeploymentSettings, AuditTypeProviderCredential, AuditTypePipeline:
 		return true
 	}
 	return false
@@ -2539,6 +2576,90 @@ func (e *Delta) UnmarshalGQL(v interface{}) error {
 }
 
 func (e Delta) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type GateState string
+
+const (
+	GateStatePending GateState = "PENDING"
+	GateStateOpen    GateState = "OPEN"
+	GateStateClosed  GateState = "CLOSED"
+)
+
+var AllGateState = []GateState{
+	GateStatePending,
+	GateStateOpen,
+	GateStateClosed,
+}
+
+func (e GateState) IsValid() bool {
+	switch e {
+	case GateStatePending, GateStateOpen, GateStateClosed:
+		return true
+	}
+	return false
+}
+
+func (e GateState) String() string {
+	return string(e)
+}
+
+func (e *GateState) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = GateState(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid GateState", str)
+	}
+	return nil
+}
+
+func (e GateState) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type GateType string
+
+const (
+	GateTypeApproval GateType = "APPROVAL"
+	GateTypeWindow   GateType = "WINDOW"
+)
+
+var AllGateType = []GateType{
+	GateTypeApproval,
+	GateTypeWindow,
+}
+
+func (e GateType) IsValid() bool {
+	switch e {
+	case GateTypeApproval, GateTypeWindow:
+		return true
+	}
+	return false
+}
+
+func (e GateType) String() string {
+	return string(e)
+}
+
+func (e *GateType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = GateType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid GateType", str)
+	}
+	return nil
+}
+
+func (e GateType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
