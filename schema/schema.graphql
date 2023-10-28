@@ -160,6 +160,9 @@ type RootQueryType {
   "fetches an individual cluster provider"
   clusterProvider(id: ID!): ClusterProvider
 
+  "list all addons currently resident in the artifacts repo"
+  clusterAddOns: [ClusterAddOn]
+
   serviceDeployments(
     after: String
 
@@ -295,6 +298,9 @@ type RootMutationType {
 
   deleteCluster(id: ID!): Cluster
 
+  "soft deletes a cluster, by deregistering it in our system but not disturbing any kubernetes objects"
+  detachCluster(id: ID!): Cluster
+
   createClusterProvider(attributes: ClusterProviderAttributes!): ClusterProvider
 
   updateClusterProvider(id: ID!, attributes: ClusterProviderUpdateAttributes!): ClusterProvider
@@ -304,6 +310,8 @@ type RootMutationType {
   createProviderCredential(attributes: ProviderCredentialAttributes!, name: String!): ProviderCredential
 
   deleteProviderCredential(id: ID!): ProviderCredential
+
+  installAddOn(name: String!, configuration: [ConfigAttributes], clusterId: ID!, global: GlobalServiceAttributes): ServiceDeployment
 
   createServiceDeployment(
     clusterId: ID
@@ -467,6 +475,7 @@ enum GateState {
 enum GateType {
   APPROVAL
   WINDOW
+  JOB
 }
 
 "the top level input object for creating\/deleting pipelines"
@@ -792,6 +801,9 @@ type ServiceDeployment {
 
   "description on where in git the service's manifests should be fetched"
   git: GitRef!
+
+  "if true, deletion of this service is not allowed"
+  protect: Boolean
 
   "latest git sha we pulled from"
   sha: String
@@ -1241,6 +1253,9 @@ type Cluster {
   "the provider we use to create this cluster (null if BYOK)"
   provider: ClusterProvider
 
+  "a custom credential to use when provisioning this cluster"
+  credential: ProviderCredential
+
   "the service used to deploy the CAPI resources of this cluster"
   service: ServiceDeployment
 
@@ -1355,6 +1370,22 @@ type ClusterCondition {
   message: String
   reason: String
   severity: String
+}
+
+"A common kubernetes cluster add-on like cert-manager, istio, etc"
+type ClusterAddOn {
+  name: String
+  version: String
+  icon: String
+  global: Boolean
+  configuration: [AddOnConfiguration]
+}
+
+"Input configuration for an add-on you can install"
+type AddOnConfiguration {
+  name: String
+  documentation: String
+  type: String
 }
 
 type Tag {
@@ -2299,6 +2330,7 @@ type Pod {
   spec: PodSpec!
   metadata: Metadata!
   raw: String!
+  logs(container: String!, sinceSeconds: Int!): [String]
   events: [Event]
 }
 

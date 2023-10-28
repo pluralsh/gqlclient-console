@@ -61,6 +61,13 @@ type Account struct {
 	Subscription       *PluralSubscription `json:"subscription"`
 }
 
+// Input configuration for an add-on you can install
+type AddOnConfiguration struct {
+	Name          *string `json:"name"`
+	Documentation *string `json:"documentation"`
+	Type          *string `json:"type"`
+}
+
 // a representation of a kubernetes api deprecation
 type APIDeprecation struct {
 	// the kubernetes version the deprecation was posted
@@ -318,6 +325,8 @@ type Cluster struct {
 	NodePools []*NodePool `json:"nodePools"`
 	// the provider we use to create this cluster (null if BYOK)
 	Provider *ClusterProvider `json:"provider"`
+	// a custom credential to use when provisioning this cluster
+	Credential *ProviderCredential `json:"credential"`
 	// the service used to deploy the CAPI resources of this cluster
 	Service *ServiceDeployment `json:"service"`
 	// key/value tags to filter clusters
@@ -340,6 +349,15 @@ type Cluster struct {
 	Editable   *bool   `json:"editable"`
 	InsertedAt *string `json:"insertedAt"`
 	UpdatedAt  *string `json:"updatedAt"`
+}
+
+// A common kubernetes cluster add-on like cert-manager, istio, etc
+type ClusterAddOn struct {
+	Name          *string               `json:"name"`
+	Version       *string               `json:"version"`
+	Icon          *string               `json:"icon"`
+	Global        *bool                 `json:"global"`
+	Configuration []*AddOnConfiguration `json:"configuration"`
 }
 
 type ClusterAttributes struct {
@@ -1430,6 +1448,7 @@ type Pod struct {
 	Spec     PodSpec   `json:"spec"`
 	Metadata Metadata  `json:"metadata"`
 	Raw      string    `json:"raw"`
+	Logs     []*string `json:"logs"`
 	Events   []*Event  `json:"events"`
 }
 
@@ -1880,6 +1899,8 @@ type ServiceDeployment struct {
 	Version string `json:"version"`
 	// description on where in git the service's manifests should be fetched
 	Git GitRef `json:"git"`
+	// if true, deletion of this service is not allowed
+	Protect *bool `json:"protect"`
 	// latest git sha we pulled from
 	Sha *string `json:"sha"`
 	// https url to fetch the latest tarball of kubernetes manifests
@@ -2627,16 +2648,18 @@ type GateType string
 const (
 	GateTypeApproval GateType = "APPROVAL"
 	GateTypeWindow   GateType = "WINDOW"
+	GateTypeJob      GateType = "JOB"
 )
 
 var AllGateType = []GateType{
 	GateTypeApproval,
 	GateTypeWindow,
+	GateTypeJob,
 }
 
 func (e GateType) IsValid() bool {
 	switch e {
-	case GateTypeApproval, GateTypeWindow:
+	case GateTypeApproval, GateTypeWindow, GateTypeJob:
 		return true
 	}
 	return false

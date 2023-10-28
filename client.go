@@ -93,6 +93,7 @@ type RootQueryType struct {
 	ClusterProviders      *ClusterProviderConnection   "json:\"clusterProviders\" graphql:\"clusterProviders\""
 	Cluster               *Cluster                     "json:\"cluster\" graphql:\"cluster\""
 	ClusterProvider       *ClusterProvider             "json:\"clusterProvider\" graphql:\"clusterProvider\""
+	ClusterAddOns         []*ClusterAddOn              "json:\"clusterAddOns\" graphql:\"clusterAddOns\""
 	ServiceDeployments    *ServiceDeploymentConnection "json:\"serviceDeployments\" graphql:\"serviceDeployments\""
 	ServiceStatuses       []*ServiceStatusCount        "json:\"serviceStatuses\" graphql:\"serviceStatuses\""
 	Pipelines             *PipelineConnection          "json:\"pipelines\" graphql:\"pipelines\""
@@ -149,11 +150,13 @@ type RootMutationType struct {
 	CreateCluster            *Cluster               "json:\"createCluster\" graphql:\"createCluster\""
 	UpdateCluster            *Cluster               "json:\"updateCluster\" graphql:\"updateCluster\""
 	DeleteCluster            *Cluster               "json:\"deleteCluster\" graphql:\"deleteCluster\""
+	DetachCluster            *Cluster               "json:\"detachCluster\" graphql:\"detachCluster\""
 	CreateClusterProvider    *ClusterProvider       "json:\"createClusterProvider\" graphql:\"createClusterProvider\""
 	UpdateClusterProvider    *ClusterProvider       "json:\"updateClusterProvider\" graphql:\"updateClusterProvider\""
 	DeleteClusterProvider    *ClusterProvider       "json:\"deleteClusterProvider\" graphql:\"deleteClusterProvider\""
 	CreateProviderCredential *ProviderCredential    "json:\"createProviderCredential\" graphql:\"createProviderCredential\""
 	DeleteProviderCredential *ProviderCredential    "json:\"deleteProviderCredential\" graphql:\"deleteProviderCredential\""
+	InstallAddOn             *ServiceDeployment     "json:\"installAddOn\" graphql:\"installAddOn\""
 	CreateServiceDeployment  *ServiceDeployment     "json:\"createServiceDeployment\" graphql:\"createServiceDeployment\""
 	UpdateServiceDeployment  *ServiceDeployment     "json:\"updateServiceDeployment\" graphql:\"updateServiceDeployment\""
 	DeleteServiceDeployment  *ServiceDeployment     "json:\"deleteServiceDeployment\" graphql:\"deleteServiceDeployment\""
@@ -394,6 +397,9 @@ type DeleteProviderCredential struct {
 }
 type DeleteServiceDeployment struct {
 	DeleteServiceDeployment *ServiceDeploymentFragment "json:\"deleteServiceDeployment\" graphql:\"deleteServiceDeployment\""
+}
+type DetachCluster struct {
+	DetachCluster *ClusterFragment "json:\"detachCluster\" graphql:\"detachCluster\""
 }
 type GetAccessToken struct {
 	AccessToken *AccessTokenFragment "json:\"accessToken\" graphql:\"accessToken\""
@@ -1129,6 +1135,114 @@ func (c *Client) DeleteServiceDeployment(ctx context.Context, id string, httpReq
 
 	var res DeleteServiceDeployment
 	if err := c.Client.Post(ctx, "DeleteServiceDeployment", DeleteServiceDeploymentDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const DetachClusterDocument = `mutation DetachCluster ($id: ID!) {
+	detachCluster(id: $id) {
+		... ClusterFragment
+	}
+}
+fragment ClusterFragment on Cluster {
+	id
+	name
+	handle
+	self
+	version
+	pingedAt
+	currentVersion
+	kasUrl
+	provider {
+		... ClusterProviderFragment
+	}
+	nodePools {
+		... NodePoolFragment
+	}
+}
+fragment ClusterProviderFragment on ClusterProvider {
+	id
+	name
+	namespace
+	cloud
+	editable
+	repository {
+		... GitRepositoryFragment
+	}
+	service {
+		... ServiceDeploymentFragment
+	}
+	credentials {
+		... ProviderCredentialFragment
+	}
+}
+fragment GitRefFragment on GitRef {
+	folder
+	ref
+}
+fragment GitRepositoryFragment on GitRepository {
+	id
+	error
+	health
+	authMethod
+	url
+}
+fragment NodePoolFragment on NodePool {
+	id
+	name
+	minSize
+	maxSize
+	instanceType
+}
+fragment ProviderCredentialFragment on ProviderCredential {
+	id
+	name
+	namespace
+	kind
+}
+fragment ServiceDeploymentBaseFragment on ServiceDeployment {
+	id
+	name
+	namespace
+	version
+	git {
+		... GitRefFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+}
+fragment ServiceDeploymentFragment on ServiceDeployment {
+	... ServiceDeploymentBaseFragment
+	components {
+		id
+		name
+		group
+		kind
+		namespace
+		state
+		synced
+		version
+	}
+	deletedAt
+	sha
+	tarball
+	configuration {
+		name
+		value
+	}
+}
+`
+
+func (c *Client) DetachCluster(ctx context.Context, id string, httpRequestOptions ...client.HTTPRequestOption) (*DetachCluster, error) {
+	vars := map[string]interface{}{
+		"id": id,
+	}
+
+	var res DetachCluster
+	if err := c.Client.Post(ctx, "DetachCluster", DetachClusterDocument, &res, vars, httpRequestOptions...); err != nil {
 		return nil, err
 	}
 

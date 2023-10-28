@@ -16,6 +16,12 @@ mutation DeleteCluster($id: ID!) {
     }
 }
 
+mutation DetachCluster($id: ID!) {
+    detachCluster(id: $id) {
+        ...ClusterFragment
+    }
+}
+
 mutation CreateClusterProvider($attributes: ClusterProviderAttributes!) {
     createClusterProvider(attributes: $attributes) {
         ...ClusterProviderFragment
