@@ -391,7 +391,20 @@ type CreateAccessToken struct {
 	CreateAccessToken *AccessTokenFragment "json:\"createAccessToken\" graphql:\"createAccessToken\""
 }
 type CreateCluster struct {
-	CreateCluster *ClusterFragment "json:\"createCluster\" graphql:\"createCluster\""
+	CreateCluster *struct {
+		DeployToken    *string                     "json:\"deployToken\" graphql:\"deployToken\""
+		ID             string                      "json:\"id\" graphql:\"id\""
+		Name           string                      "json:\"name\" graphql:\"name\""
+		Handle         *string                     "json:\"handle\" graphql:\"handle\""
+		Self           *bool                       "json:\"self\" graphql:\"self\""
+		Version        *string                     "json:\"version\" graphql:\"version\""
+		PingedAt       *string                     "json:\"pingedAt\" graphql:\"pingedAt\""
+		CurrentVersion *string                     "json:\"currentVersion\" graphql:\"currentVersion\""
+		KasURL         *string                     "json:\"kasUrl\" graphql:\"kasUrl\""
+		Credential     *ProviderCredentialFragment "json:\"credential\" graphql:\"credential\""
+		Provider       *ClusterProviderFragment    "json:\"provider\" graphql:\"provider\""
+		NodePools      []*NodePoolFragment         "json:\"nodePools\" graphql:\"nodePools\""
+	} "json:\"createCluster\" graphql:\"createCluster\""
 }
 type CreateClusterProvider struct {
 	CreateClusterProvider *ClusterProviderFragment "json:\"createClusterProvider\" graphql:\"createClusterProvider\""
@@ -572,6 +585,7 @@ func (c *Client) CreateAccessToken(ctx context.Context, httpRequestOptions ...cl
 
 const CreateClusterDocument = `mutation CreateCluster ($attributes: ClusterAttributes!) {
 	createCluster(attributes: $attributes) {
+		deployToken
 		... ClusterFragment
 	}
 }
@@ -1186,6 +1200,9 @@ fragment ClusterFragment on Cluster {
 	pingedAt
 	currentVersion
 	kasUrl
+	credential {
+		... ProviderCredentialFragment
+	}
 	provider {
 		... ClusterProviderFragment
 	}
