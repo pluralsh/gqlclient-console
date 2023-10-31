@@ -181,6 +181,27 @@ type AccessTokenFragment struct {
 	ID    *string "json:\"id\" graphql:\"id\""
 	Token *string "json:\"token\" graphql:\"token\""
 }
+type BaseClusterFragment struct {
+	ID             string                       "json:\"id\" graphql:\"id\""
+	Name           string                       "json:\"name\" graphql:\"name\""
+	Handle         *string                      "json:\"handle\" graphql:\"handle\""
+	Self           *bool                        "json:\"self\" graphql:\"self\""
+	Version        *string                      "json:\"version\" graphql:\"version\""
+	PingedAt       *string                      "json:\"pingedAt\" graphql:\"pingedAt\""
+	CurrentVersion *string                      "json:\"currentVersion\" graphql:\"currentVersion\""
+	KasURL         *string                      "json:\"kasUrl\" graphql:\"kasUrl\""
+	Provider       *BaseClusterProviderFragment "json:\"provider\" graphql:\"provider\""
+	NodePools      []*NodePoolFragment          "json:\"nodePools\" graphql:\"nodePools\""
+}
+type BaseClusterProviderFragment struct {
+	ID          string                        "json:\"id\" graphql:\"id\""
+	Name        string                        "json:\"name\" graphql:\"name\""
+	Namespace   string                        "json:\"namespace\" graphql:\"namespace\""
+	Cloud       string                        "json:\"cloud\" graphql:\"cloud\""
+	Editable    *bool                         "json:\"editable\" graphql:\"editable\""
+	Repository  *GitRepositoryFragment        "json:\"repository\" graphql:\"repository\""
+	Credentials []*ProviderCredentialFragment "json:\"credentials\" graphql:\"credentials\""
+}
 type ClusterEdgeFragment struct {
 	Node *ClusterFragment "json:\"node\" graphql:\"node\""
 }
@@ -308,7 +329,7 @@ type ServiceDeploymentEdgeFragment struct {
 	Node *ServiceDeploymentBaseFragment "json:\"node\" graphql:\"node\""
 }
 type ServiceDeploymentExtended struct {
-	Cluster    *ClusterFragment       "json:\"cluster\" graphql:\"cluster\""
+	Cluster    *BaseClusterFragment   "json:\"cluster\" graphql:\"cluster\""
 	Errors     []*ErrorFragment       "json:\"errors\" graphql:\"errors\""
 	Revision   *RevisionFragment      "json:\"revision\" graphql:\"revision\""
 	ID         string                 "json:\"id\" graphql:\"id\""
@@ -1629,7 +1650,7 @@ const GetServiceDeploymentDocument = `query GetServiceDeployment ($id: ID!) {
 		... ServiceDeploymentExtended
 	}
 }
-fragment ClusterFragment on Cluster {
+fragment BaseClusterFragment on Cluster {
 	id
 	name
 	handle
@@ -1639,13 +1660,13 @@ fragment ClusterFragment on Cluster {
 	currentVersion
 	kasUrl
 	provider {
-		... ClusterProviderFragment
+		... BaseClusterProviderFragment
 	}
 	nodePools {
 		... NodePoolFragment
 	}
 }
-fragment ClusterProviderFragment on ClusterProvider {
+fragment BaseClusterProviderFragment on ClusterProvider {
 	id
 	name
 	namespace
@@ -1653,9 +1674,6 @@ fragment ClusterProviderFragment on ClusterProvider {
 	editable
 	repository {
 		... GitRepositoryFragment
-	}
-	service {
-		... ServiceDeploymentFragment
 	}
 	credentials {
 		... ProviderCredentialFragment
@@ -1711,7 +1729,7 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 }
 fragment ServiceDeploymentExtended on ServiceDeployment {
 	cluster {
-		... ClusterFragment
+		... BaseClusterFragment
 	}
 	errors {
 		... ErrorFragment
@@ -1761,7 +1779,7 @@ const GetServiceDeploymentByHandleDocument = `query GetServiceDeploymentByHandle
 		... ServiceDeploymentExtended
 	}
 }
-fragment ClusterFragment on Cluster {
+fragment BaseClusterFragment on Cluster {
 	id
 	name
 	handle
@@ -1771,13 +1789,13 @@ fragment ClusterFragment on Cluster {
 	currentVersion
 	kasUrl
 	provider {
-		... ClusterProviderFragment
+		... BaseClusterProviderFragment
 	}
 	nodePools {
 		... NodePoolFragment
 	}
 }
-fragment ClusterProviderFragment on ClusterProvider {
+fragment BaseClusterProviderFragment on ClusterProvider {
 	id
 	name
 	namespace
@@ -1785,9 +1803,6 @@ fragment ClusterProviderFragment on ClusterProvider {
 	editable
 	repository {
 		... GitRepositoryFragment
-	}
-	service {
-		... ServiceDeploymentFragment
 	}
 	credentials {
 		... ProviderCredentialFragment
@@ -1843,7 +1858,7 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 }
 fragment ServiceDeploymentExtended on ServiceDeployment {
 	cluster {
-		... ClusterFragment
+		... BaseClusterFragment
 	}
 	errors {
 		... ErrorFragment
