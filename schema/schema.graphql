@@ -160,6 +160,9 @@ type RootQueryType {
   "fetches an individual cluster provider"
   clusterProvider(id: ID!): ClusterProvider
 
+  "list all addons currently resident in the artifacts repo"
+  clusterAddOns: [ClusterAddOn]
+
   serviceDeployments(
     after: String
 
@@ -295,6 +298,9 @@ type RootMutationType {
 
   deleteCluster(id: ID!): Cluster
 
+  "soft deletes a cluster, by deregistering it in our system but not disturbing any kubernetes objects"
+  detachCluster(id: ID!): Cluster
+
   createClusterProvider(attributes: ClusterProviderAttributes!): ClusterProvider
 
   updateClusterProvider(id: ID!, attributes: ClusterProviderUpdateAttributes!): ClusterProvider
@@ -304,6 +310,8 @@ type RootMutationType {
   createProviderCredential(attributes: ProviderCredentialAttributes!, name: String!): ProviderCredential
 
   deleteProviderCredential(id: ID!): ProviderCredential
+
+  installAddOn(name: String!, configuration: [ConfigAttributes], clusterId: ID!, global: GlobalServiceAttributes): ServiceDeployment
 
   createServiceDeployment(
     clusterId: ID
@@ -467,6 +475,7 @@ enum GateState {
 enum GateType {
   APPROVAL
   WINDOW
+  JOB
 }
 
 "the top level input object for creating\/deleting pipelines"
@@ -705,6 +714,7 @@ input ServiceDeploymentAttributes {
   version: String
   docsPath: String
   syncConfig: SyncConfigAttributes
+  protect: Boolean
   repositoryId: ID!
   git: GitRefAttributes!
   configuration: [ConfigAttributes]
@@ -732,6 +742,7 @@ input DiffNormalizerAttributes {
 
 input ServiceUpdateAttributes {
   version: String
+  protect: Boolean
   git: GitRefAttributes
   configuration: [ConfigAttributes]
 }
@@ -792,6 +803,9 @@ type ServiceDeployment {
 
   "description on where in git the service's manifests should be fetched"
   git: GitRef!
+
+  "if true, deletion of this service is not allowed"
+  protect: Boolean
 
   "latest git sha we pulled from"
   sha: String
@@ -1028,7 +1042,9 @@ input ClusterAttributes {
   "a cloud credential to use when provisioning this cluster"
   credentialId: ID
 
-  version: String!
+  version: String
+
+  protect: Boolean
 
   kubeconfig: KubeconfigAttributes
 
@@ -1057,7 +1073,7 @@ input ClusterPing {
 }
 
 input ClusterUpdateAttributes {
-  version: String!
+  version: String
 
   "a short, unique human readable name used to identify this cluster and does not necessarily map to the cloud resource name"
   handle: String
@@ -1066,6 +1082,8 @@ input ClusterUpdateAttributes {
   service: ClusterServiceAttributes
 
   kubeconfig: KubeconfigAttributes
+
+  protect: Boolean
 
   nodePools: [NodePoolAttributes]
 }
@@ -1095,6 +1113,7 @@ input TaintAttributes {
 input CloudSettingsAttributes {
   aws: AwsCloudAttributes
   gcp: GcpCloudAttributes
+  azure: AzureCloudAttributes
 }
 
 input AwsCloudAttributes {
@@ -1105,6 +1124,13 @@ input GcpCloudAttributes {
   project: String
   network: String
   region: String
+}
+
+input AzureCloudAttributes {
+  location: String
+  subscriptionId: String
+  resourceGroup: String
+  network: String
 }
 
 input ClusterProviderAttributes {
@@ -1144,6 +1170,7 @@ input GcpSettingsAttributes {
 
 input AzureSettingsAttributes {
   tenantId: String!
+  subscriptionId: String!
   clientId: ID!
   clientSecret: String!
 }
@@ -1205,6 +1232,9 @@ type Cluster {
   "human readable name of this cluster, will also translate to cloud k8s name"
   name: String!
 
+  "if true, this cluster cannot be deleted"
+  protect: Boolean
+
   "desired k8s version for the cluster"
   version: String
 
@@ -1240,6 +1270,9 @@ type Cluster {
 
   "the provider we use to create this cluster (null if BYOK)"
   provider: ClusterProvider
+
+  "a custom credential to use when provisioning this cluster"
+  credential: ProviderCredential
 
   "the service used to deploy the CAPI resources of this cluster"
   service: ServiceDeployment
@@ -1355,6 +1388,22 @@ type ClusterCondition {
   message: String
   reason: String
   severity: String
+}
+
+"A common kubernetes cluster add-on like cert-manager, istio, etc"
+type ClusterAddOn {
+  name: String
+  version: String
+  icon: String
+  global: Boolean
+  configuration: [AddOnConfiguration]
+}
+
+"Input configuration for an add-on you can install"
+type AddOnConfiguration {
+  name: String
+  documentation: String
+  type: String
 }
 
 type Tag {
@@ -1800,6 +1849,7 @@ enum AuditType {
   DEPLOYMENT_SETTINGS
   PROVIDER_CREDENTIAL
   PIPELINE
+  GLOBAL
 }
 
 enum AuditAction {
@@ -2299,6 +2349,7 @@ type Pod {
   spec: PodSpec!
   metadata: Metadata!
   raw: String!
+  logs(container: String!, sinceSeconds: Int!): [String]
   events: [Event]
 }
 
@@ -2737,6 +2788,7 @@ type ConsoleConfiguration {
   isSandbox: Boolean
   pluralLogin: Boolean
   vpnEnabled: Boolean
+  byok: Boolean
   features: AvailableFeatures
   manifest: PluralManifest
   gitStatus: GitStatus

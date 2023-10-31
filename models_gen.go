@@ -61,6 +61,13 @@ type Account struct {
 	Subscription       *PluralSubscription `json:"subscription"`
 }
 
+// Input configuration for an add-on you can install
+type AddOnConfiguration struct {
+	Name          *string `json:"name"`
+	Documentation *string `json:"documentation"`
+	Type          *string `json:"type"`
+}
+
 // a representation of a kubernetes api deprecation
 type APIDeprecation struct {
 	// the kubernetes version the deprecation was posted
@@ -175,10 +182,18 @@ type AwsSettingsAttributes struct {
 	SecretAccessKey string `json:"secretAccessKey"`
 }
 
+type AzureCloudAttributes struct {
+	Location       *string `json:"location,omitempty"`
+	SubscriptionID *string `json:"subscriptionId,omitempty"`
+	ResourceGroup  *string `json:"resourceGroup,omitempty"`
+	Network        *string `json:"network,omitempty"`
+}
+
 type AzureSettingsAttributes struct {
-	TenantID     string `json:"tenantId"`
-	ClientID     string `json:"clientId"`
-	ClientSecret string `json:"clientSecret"`
+	TenantID       string `json:"tenantId"`
+	SubscriptionID string `json:"subscriptionId"`
+	ClientID       string `json:"clientId"`
+	ClientSecret   string `json:"clientSecret"`
 }
 
 type BindingAttributes struct {
@@ -282,8 +297,9 @@ type CloudSettings struct {
 }
 
 type CloudSettingsAttributes struct {
-	Aws *AwsCloudAttributes `json:"aws,omitempty"`
-	Gcp *GcpCloudAttributes `json:"gcp,omitempty"`
+	Aws   *AwsCloudAttributes   `json:"aws,omitempty"`
+	Gcp   *GcpCloudAttributes   `json:"gcp,omitempty"`
+	Azure *AzureCloudAttributes `json:"azure,omitempty"`
 }
 
 // a representation of a cluster you can deploy to
@@ -294,6 +310,8 @@ type Cluster struct {
 	Self *bool `json:"self"`
 	// human readable name of this cluster, will also translate to cloud k8s name
 	Name string `json:"name"`
+	// if true, this cluster cannot be deleted
+	Protect *bool `json:"protect"`
 	// desired k8s version for the cluster
 	Version *string `json:"version"`
 	// current k8s version as told to us by the deployment operator
@@ -318,6 +336,8 @@ type Cluster struct {
 	NodePools []*NodePool `json:"nodePools"`
 	// the provider we use to create this cluster (null if BYOK)
 	Provider *ClusterProvider `json:"provider"`
+	// a custom credential to use when provisioning this cluster
+	Credential *ProviderCredential `json:"credential"`
 	// the service used to deploy the CAPI resources of this cluster
 	Service *ServiceDeployment `json:"service"`
 	// key/value tags to filter clusters
@@ -342,6 +362,15 @@ type Cluster struct {
 	UpdatedAt  *string `json:"updatedAt"`
 }
 
+// A common kubernetes cluster add-on like cert-manager, istio, etc
+type ClusterAddOn struct {
+	Name          *string               `json:"name"`
+	Version       *string               `json:"version"`
+	Icon          *string               `json:"icon"`
+	Global        *bool                 `json:"global"`
+	Configuration []*AddOnConfiguration `json:"configuration"`
+}
+
 type ClusterAttributes struct {
 	Name string `json:"name"`
 	// a short, unique human readable name used to identify this cluster and does not necessarily map to the cloud resource name
@@ -349,7 +378,8 @@ type ClusterAttributes struct {
 	ProviderID *string `json:"providerId,omitempty"`
 	// a cloud credential to use when provisioning this cluster
 	CredentialID  *string                    `json:"credentialId,omitempty"`
-	Version       string                     `json:"version"`
+	Version       *string                    `json:"version,omitempty"`
+	Protect       *bool                      `json:"protect,omitempty"`
 	Kubeconfig    *KubeconfigAttributes      `json:"kubeconfig,omitempty"`
 	CloudSettings *CloudSettingsAttributes   `json:"cloudSettings,omitempty"`
 	NodePools     []*NodePoolAttributes      `json:"nodePools,omitempty"`
@@ -460,12 +490,13 @@ type ClusterStatus struct {
 }
 
 type ClusterUpdateAttributes struct {
-	Version string `json:"version"`
+	Version *string `json:"version,omitempty"`
 	// a short, unique human readable name used to identify this cluster and does not necessarily map to the cloud resource name
 	Handle *string `json:"handle,omitempty"`
 	// if you optionally want to reconfigure the git repository for the cluster service
 	Service    *ClusterServiceAttributes `json:"service,omitempty"`
 	Kubeconfig *KubeconfigAttributes     `json:"kubeconfig,omitempty"`
+	Protect    *bool                     `json:"protect,omitempty"`
 	NodePools  []*NodePoolAttributes     `json:"nodePools,omitempty"`
 }
 
@@ -575,6 +606,7 @@ type ConsoleConfiguration struct {
 	IsSandbox     *bool              `json:"isSandbox"`
 	PluralLogin   *bool              `json:"pluralLogin"`
 	VpnEnabled    *bool              `json:"vpnEnabled"`
+	Byok          *bool              `json:"byok"`
 	Features      *AvailableFeatures `json:"features"`
 	Manifest      *PluralManifest    `json:"manifest"`
 	GitStatus     *GitStatus         `json:"gitStatus"`
@@ -1430,6 +1462,7 @@ type Pod struct {
 	Spec     PodSpec   `json:"spec"`
 	Metadata Metadata  `json:"metadata"`
 	Raw      string    `json:"raw"`
+	Logs     []*string `json:"logs"`
 	Events   []*Event  `json:"events"`
 }
 
@@ -1880,6 +1913,8 @@ type ServiceDeployment struct {
 	Version string `json:"version"`
 	// description on where in git the service's manifests should be fetched
 	Git GitRef `json:"git"`
+	// if true, deletion of this service is not allowed
+	Protect *bool `json:"protect"`
 	// latest git sha we pulled from
 	Sha *string `json:"sha"`
 	// https url to fetch the latest tarball of kubernetes manifests
@@ -1928,6 +1963,7 @@ type ServiceDeploymentAttributes struct {
 	Version       *string                    `json:"version,omitempty"`
 	DocsPath      *string                    `json:"docsPath,omitempty"`
 	SyncConfig    *SyncConfigAttributes      `json:"syncConfig,omitempty"`
+	Protect       *bool                      `json:"protect,omitempty"`
 	RepositoryID  string                     `json:"repositoryId"`
 	Git           GitRefAttributes           `json:"git"`
 	Configuration []*ConfigAttributes        `json:"configuration,omitempty"`
@@ -1982,6 +2018,7 @@ type ServiceStatusCount struct {
 
 type ServiceUpdateAttributes struct {
 	Version       *string             `json:"version,omitempty"`
+	Protect       *bool               `json:"protect,omitempty"`
 	Git           *GitRefAttributes   `json:"git,omitempty"`
 	Configuration []*ConfigAttributes `json:"configuration,omitempty"`
 }
@@ -2310,6 +2347,7 @@ const (
 	AuditTypeDeploymentSettings AuditType = "DEPLOYMENT_SETTINGS"
 	AuditTypeProviderCredential AuditType = "PROVIDER_CREDENTIAL"
 	AuditTypePipeline           AuditType = "PIPELINE"
+	AuditTypeGlobal             AuditType = "GLOBAL"
 )
 
 var AllAuditType = []AuditType{
@@ -2329,11 +2367,12 @@ var AllAuditType = []AuditType{
 	AuditTypeDeploymentSettings,
 	AuditTypeProviderCredential,
 	AuditTypePipeline,
+	AuditTypeGlobal,
 }
 
 func (e AuditType) IsValid() bool {
 	switch e {
-	case AuditTypeBuild, AuditTypePod, AuditTypeConfiguration, AuditTypeUser, AuditTypeGroup, AuditTypeRole, AuditTypeGroupMember, AuditTypePolicy, AuditTypeTempToken, AuditTypeService, AuditTypeCluster, AuditTypeClusterProvider, AuditTypeGitRepository, AuditTypeDeploymentSettings, AuditTypeProviderCredential, AuditTypePipeline:
+	case AuditTypeBuild, AuditTypePod, AuditTypeConfiguration, AuditTypeUser, AuditTypeGroup, AuditTypeRole, AuditTypeGroupMember, AuditTypePolicy, AuditTypeTempToken, AuditTypeService, AuditTypeCluster, AuditTypeClusterProvider, AuditTypeGitRepository, AuditTypeDeploymentSettings, AuditTypeProviderCredential, AuditTypePipeline, AuditTypeGlobal:
 		return true
 	}
 	return false
@@ -2627,16 +2666,18 @@ type GateType string
 const (
 	GateTypeApproval GateType = "APPROVAL"
 	GateTypeWindow   GateType = "WINDOW"
+	GateTypeJob      GateType = "JOB"
 )
 
 var AllGateType = []GateType{
 	GateTypeApproval,
 	GateTypeWindow,
+	GateTypeJob,
 }
 
 func (e GateType) IsValid() bool {
 	switch e {
-	case GateTypeApproval, GateTypeWindow:
+	case GateTypeApproval, GateTypeWindow, GateTypeJob:
 		return true
 	}
 	return false
