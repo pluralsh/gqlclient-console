@@ -190,32 +190,33 @@ type BaseClusterFragment struct {
 	PingedAt       *string                      "json:\"pingedAt\" graphql:\"pingedAt\""
 	CurrentVersion *string                      "json:\"currentVersion\" graphql:\"currentVersion\""
 	KasURL         *string                      "json:\"kasUrl\" graphql:\"kasUrl\""
+	Credential     *ProviderCredentialFragment  "json:\"credential\" graphql:\"credential\""
 	Provider       *BaseClusterProviderFragment "json:\"provider\" graphql:\"provider\""
 	NodePools      []*NodePoolFragment          "json:\"nodePools\" graphql:\"nodePools\""
 }
 type BaseClusterProviderFragment struct {
-	ID          string                        "json:\"id\" graphql:\"id\""
-	Name        string                        "json:\"name\" graphql:\"name\""
-	Namespace   string                        "json:\"namespace\" graphql:\"namespace\""
-	Cloud       string                        "json:\"cloud\" graphql:\"cloud\""
-	Editable    *bool                         "json:\"editable\" graphql:\"editable\""
-	Repository  *GitRepositoryFragment        "json:\"repository\" graphql:\"repository\""
-	Credentials []*ProviderCredentialFragment "json:\"credentials\" graphql:\"credentials\""
+	ID         string                 "json:\"id\" graphql:\"id\""
+	Name       string                 "json:\"name\" graphql:\"name\""
+	Namespace  string                 "json:\"namespace\" graphql:\"namespace\""
+	Cloud      string                 "json:\"cloud\" graphql:\"cloud\""
+	Editable   *bool                  "json:\"editable\" graphql:\"editable\""
+	Repository *GitRepositoryFragment "json:\"repository\" graphql:\"repository\""
 }
 type ClusterEdgeFragment struct {
 	Node *ClusterFragment "json:\"node\" graphql:\"node\""
 }
 type ClusterFragment struct {
-	ID             string                   "json:\"id\" graphql:\"id\""
-	Name           string                   "json:\"name\" graphql:\"name\""
-	Handle         *string                  "json:\"handle\" graphql:\"handle\""
-	Self           *bool                    "json:\"self\" graphql:\"self\""
-	Version        *string                  "json:\"version\" graphql:\"version\""
-	PingedAt       *string                  "json:\"pingedAt\" graphql:\"pingedAt\""
-	CurrentVersion *string                  "json:\"currentVersion\" graphql:\"currentVersion\""
-	KasURL         *string                  "json:\"kasUrl\" graphql:\"kasUrl\""
-	Provider       *ClusterProviderFragment "json:\"provider\" graphql:\"provider\""
-	NodePools      []*NodePoolFragment      "json:\"nodePools\" graphql:\"nodePools\""
+	ID             string                      "json:\"id\" graphql:\"id\""
+	Name           string                      "json:\"name\" graphql:\"name\""
+	Handle         *string                     "json:\"handle\" graphql:\"handle\""
+	Self           *bool                       "json:\"self\" graphql:\"self\""
+	Version        *string                     "json:\"version\" graphql:\"version\""
+	PingedAt       *string                     "json:\"pingedAt\" graphql:\"pingedAt\""
+	CurrentVersion *string                     "json:\"currentVersion\" graphql:\"currentVersion\""
+	KasURL         *string                     "json:\"kasUrl\" graphql:\"kasUrl\""
+	Credential     *ProviderCredentialFragment "json:\"credential\" graphql:\"credential\""
+	Provider       *ClusterProviderFragment    "json:\"provider\" graphql:\"provider\""
+	NodePools      []*NodePoolFragment         "json:\"nodePools\" graphql:\"nodePools\""
 }
 type ClusterProviderConnectionFragment struct {
 	Edges []*ClusterProviderEdgeFragment "json:\"edges\" graphql:\"edges\""
@@ -577,6 +578,9 @@ fragment ClusterFragment on Cluster {
 	pingedAt
 	currentVersion
 	kasUrl
+	credential {
+		... ProviderCredentialFragment
+	}
 	provider {
 		... ClusterProviderFragment
 	}
@@ -976,6 +980,9 @@ fragment ClusterFragment on Cluster {
 	pingedAt
 	currentVersion
 	kasUrl
+	credential {
+		... ProviderCredentialFragment
+	}
 	provider {
 		... ClusterProviderFragment
 	}
@@ -1197,6 +1204,9 @@ fragment ClusterFragment on Cluster {
 	pingedAt
 	currentVersion
 	kasUrl
+	credential {
+		... ProviderCredentialFragment
+	}
 	provider {
 		... ClusterProviderFragment
 	}
@@ -1305,6 +1315,9 @@ fragment ClusterFragment on Cluster {
 	pingedAt
 	currentVersion
 	kasUrl
+	credential {
+		... ProviderCredentialFragment
+	}
 	provider {
 		... ClusterProviderFragment
 	}
@@ -1659,6 +1672,9 @@ fragment BaseClusterFragment on Cluster {
 	pingedAt
 	currentVersion
 	kasUrl
+	credential {
+		... ProviderCredentialFragment
+	}
 	provider {
 		... BaseClusterProviderFragment
 	}
@@ -1674,9 +1690,6 @@ fragment BaseClusterProviderFragment on ClusterProvider {
 	editable
 	repository {
 		... GitRepositoryFragment
-	}
-	credentials {
-		... ProviderCredentialFragment
 	}
 }
 fragment ErrorFragment on ServiceError {
@@ -1788,6 +1801,9 @@ fragment BaseClusterFragment on Cluster {
 	pingedAt
 	currentVersion
 	kasUrl
+	credential {
+		... ProviderCredentialFragment
+	}
 	provider {
 		... BaseClusterProviderFragment
 	}
@@ -1803,9 +1819,6 @@ fragment BaseClusterProviderFragment on ClusterProvider {
 	editable
 	repository {
 		... GitRepositoryFragment
-	}
-	credentials {
-		... ProviderCredentialFragment
 	}
 }
 fragment ErrorFragment on ServiceError {
@@ -1999,6 +2012,9 @@ fragment ClusterFragment on Cluster {
 	pingedAt
 	currentVersion
 	kasUrl
+	credential {
+		... ProviderCredentialFragment
+	}
 	provider {
 		... ClusterProviderFragment
 	}
@@ -2498,6 +2514,9 @@ fragment ClusterFragment on Cluster {
 	pingedAt
 	currentVersion
 	kasUrl
+	credential {
+		... ProviderCredentialFragment
+	}
 	provider {
 		... ClusterProviderFragment
 	}
@@ -2781,6 +2800,9 @@ fragment ClusterFragment on Cluster {
 	pingedAt
 	currentVersion
 	kasUrl
+	credential {
+		... ProviderCredentialFragment
+	}
 	provider {
 		... ClusterProviderFragment
 	}
