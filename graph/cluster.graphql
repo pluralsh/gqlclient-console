@@ -32,7 +32,8 @@ mutation UpdateClusterProvider($id: ID!, $attributes: ClusterProviderUpdateAttri
 
 mutation PingCluster($attributes: ClusterPing!) {
     pingCluster(attributes: $attributes) {
-        ...ClusterFragment
+        id
+        name
     }
 }
 

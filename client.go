@@ -494,7 +494,10 @@ type MyCluster struct {
 	} "json:\"myCluster\" graphql:\"myCluster\""
 }
 type PingCluster struct {
-	PingCluster *ClusterFragment "json:\"pingCluster\" graphql:\"pingCluster\""
+	PingCluster *struct {
+		ID   string "json:\"id\" graphql:\"id\""
+		Name string "json:\"name\" graphql:\"name\""
+	} "json:\"pingCluster\" graphql:\"pingCluster\""
 }
 type RollbackService struct {
 	RollbackService *ServiceDeploymentFragment "json:\"rollbackService\" graphql:\"rollbackService\""
@@ -2502,98 +2505,8 @@ func (c *Client) MyCluster(ctx context.Context, httpRequestOptions ...client.HTT
 
 const PingClusterDocument = `mutation PingCluster ($attributes: ClusterPing!) {
 	pingCluster(attributes: $attributes) {
-		... ClusterFragment
-	}
-}
-fragment ClusterFragment on Cluster {
-	id
-	name
-	handle
-	self
-	version
-	pingedAt
-	currentVersion
-	kasUrl
-	credential {
-		... ProviderCredentialFragment
-	}
-	provider {
-		... ClusterProviderFragment
-	}
-	nodePools {
-		... NodePoolFragment
-	}
-}
-fragment ClusterProviderFragment on ClusterProvider {
-	id
-	name
-	namespace
-	cloud
-	editable
-	repository {
-		... GitRepositoryFragment
-	}
-	service {
-		... ServiceDeploymentFragment
-	}
-	credentials {
-		... ProviderCredentialFragment
-	}
-}
-fragment GitRefFragment on GitRef {
-	folder
-	ref
-}
-fragment GitRepositoryFragment on GitRepository {
-	id
-	error
-	health
-	authMethod
-	url
-}
-fragment NodePoolFragment on NodePool {
-	id
-	name
-	minSize
-	maxSize
-	instanceType
-}
-fragment ProviderCredentialFragment on ProviderCredential {
-	id
-	name
-	namespace
-	kind
-}
-fragment ServiceDeploymentBaseFragment on ServiceDeployment {
-	id
-	name
-	namespace
-	version
-	git {
-		... GitRefFragment
-	}
-	repository {
-		... GitRepositoryFragment
-	}
-}
-fragment ServiceDeploymentFragment on ServiceDeployment {
-	... ServiceDeploymentBaseFragment
-	components {
 		id
 		name
-		group
-		kind
-		namespace
-		state
-		synced
-		version
-	}
-	deletedAt
-	sha
-	tarball
-	configuration {
-		name
-		value
 	}
 }
 `
