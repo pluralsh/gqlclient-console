@@ -420,6 +420,9 @@ type DeleteProviderCredential struct {
 type DeleteServiceDeployment struct {
 	DeleteServiceDeployment *ServiceDeploymentFragment "json:\"deleteServiceDeployment\" graphql:\"deleteServiceDeployment\""
 }
+type DetachCluster struct {
+	DetachCluster *ClusterFragment "json:\"detachCluster\" graphql:\"detachCluster\""
+}
 type GetAccessToken struct {
 	AccessToken *AccessTokenFragment "json:\"accessToken\" graphql:\"accessToken\""
 }
@@ -1163,6 +1166,114 @@ func (c *Client) DeleteServiceDeployment(ctx context.Context, id string, httpReq
 
 	var res DeleteServiceDeployment
 	if err := c.Client.Post(ctx, "DeleteServiceDeployment", DeleteServiceDeploymentDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const DetachClusterDocument = `mutation DetachCluster ($id: ID!) {
+	detachCluster(id: $id) {
+		... ClusterFragment
+	}
+}
+fragment ClusterFragment on Cluster {
+	id
+	name
+	handle
+	self
+	version
+	pingedAt
+	currentVersion
+	kasUrl
+	provider {
+		... ClusterProviderFragment
+	}
+	nodePools {
+		... NodePoolFragment
+	}
+}
+fragment ClusterProviderFragment on ClusterProvider {
+	id
+	name
+	namespace
+	cloud
+	editable
+	repository {
+		... GitRepositoryFragment
+	}
+	service {
+		... ServiceDeploymentFragment
+	}
+	credentials {
+		... ProviderCredentialFragment
+	}
+}
+fragment GitRefFragment on GitRef {
+	folder
+	ref
+}
+fragment GitRepositoryFragment on GitRepository {
+	id
+	error
+	health
+	authMethod
+	url
+}
+fragment NodePoolFragment on NodePool {
+	id
+	name
+	minSize
+	maxSize
+	instanceType
+}
+fragment ProviderCredentialFragment on ProviderCredential {
+	id
+	name
+	namespace
+	kind
+}
+fragment ServiceDeploymentBaseFragment on ServiceDeployment {
+	id
+	name
+	namespace
+	version
+	git {
+		... GitRefFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+}
+fragment ServiceDeploymentFragment on ServiceDeployment {
+	... ServiceDeploymentBaseFragment
+	components {
+		id
+		name
+		group
+		kind
+		namespace
+		state
+		synced
+		version
+	}
+	deletedAt
+	sha
+	tarball
+	configuration {
+		name
+		value
+	}
+}
+`
+
+func (c *Client) DetachCluster(ctx context.Context, id string, httpRequestOptions ...client.HTTPRequestOption) (*DetachCluster, error) {
+	vars := map[string]interface{}{
+		"id": id,
+	}
+
+	var res DetachCluster
+	if err := c.Client.Post(ctx, "DetachCluster", DetachClusterDocument, &res, vars, httpRequestOptions...); err != nil {
 		return nil, err
 	}
 
