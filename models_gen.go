@@ -1077,6 +1077,16 @@ type KubernetesUnstructured struct {
 	Events   []*Event               `json:"events"`
 }
 
+// metadata needed for configuring kustomize
+type Kustomize struct {
+	Path string `json:"path"`
+}
+
+type KustomizeAttributes struct {
+	// the path to the kustomization file to use
+	Path string `json:"path"`
+}
+
 type LabelInput struct {
 	Name  *string `json:"name,omitempty"`
 	Value *string `json:"value,omitempty"`
@@ -1923,6 +1933,8 @@ type ServiceDeployment struct {
 	ComponentStatus *string `json:"componentStatus"`
 	// settings for advanced tuning of the sync process
 	SyncConfig *SyncConfig `json:"syncConfig"`
+	// kustomize related service metadata
+	Kustomize *Kustomize `json:"kustomize"`
 	// the commit message currently in use
 	Message *string `json:"message"`
 	// the time this service was scheduled for deletion
@@ -1966,6 +1978,7 @@ type ServiceDeploymentAttributes struct {
 	Protect       *bool                      `json:"protect,omitempty"`
 	RepositoryID  string                     `json:"repositoryId"`
 	Git           GitRefAttributes           `json:"git"`
+	Kustomize     *KustomizeAttributes       `json:"kustomize,omitempty"`
 	Configuration []*ConfigAttributes        `json:"configuration,omitempty"`
 	ReadBindings  []*PolicyBindingAttributes `json:"readBindings,omitempty"`
 	WriteBindings []*PolicyBindingAttributes `json:"writeBindings,omitempty"`
@@ -2017,10 +2030,11 @@ type ServiceStatusCount struct {
 }
 
 type ServiceUpdateAttributes struct {
-	Version       *string             `json:"version,omitempty"`
-	Protect       *bool               `json:"protect,omitempty"`
-	Git           *GitRefAttributes   `json:"git,omitempty"`
-	Configuration []*ConfigAttributes `json:"configuration,omitempty"`
+	Version       *string              `json:"version,omitempty"`
+	Protect       *bool                `json:"protect,omitempty"`
+	Git           *GitRefAttributes    `json:"git,omitempty"`
+	Configuration []*ConfigAttributes  `json:"configuration,omitempty"`
+	Kustomize     *KustomizeAttributes `json:"kustomize,omitempty"`
 }
 
 type SMTP struct {
