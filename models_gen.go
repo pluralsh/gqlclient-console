@@ -61,11 +61,27 @@ type Account struct {
 	Subscription       *PluralSubscription `json:"subscription"`
 }
 
+// a condition that determines whether its configuration is viewable
+type AddOnConfigCondition struct {
+	// the operation for this condition, eg EQ, LT, GT
+	Operation *string `json:"operation"`
+	// the field this condition applies to
+	Field *string `json:"field"`
+	// the value to apply the codition with, for binary operators like LT/GT
+	Value *string `json:"value"`
+}
+
 // Input configuration for an add-on you can install
 type AddOnConfiguration struct {
-	Name          *string `json:"name"`
+	// name for this configuration
+	Name *string `json:"name"`
+	// a docstring explaining this configuration
 	Documentation *string `json:"documentation"`
-	Type          *string `json:"type"`
+	// a type for the configuration (should eventually be coerced back to string)
+	Type *string `json:"type"`
+	// the values for ENUM type conditions
+	Values    []*string             `json:"values"`
+	Condition *AddOnConfigCondition `json:"condition"`
 }
 
 // a representation of a kubernetes api deprecation
@@ -163,6 +179,7 @@ type AuditMetric struct {
 type AvailableFeatures struct {
 	Vpn                *bool `json:"vpn"`
 	Audits             *bool `json:"audits"`
+	Cd                 *bool `json:"cd"`
 	UserManagement     *bool `json:"userManagement"`
 	DatabaseManagement *bool `json:"databaseManagement"`
 }
@@ -1077,6 +1094,16 @@ type KubernetesUnstructured struct {
 	Events   []*Event               `json:"events"`
 }
 
+// metadata needed for configuring kustomize
+type Kustomize struct {
+	Path string `json:"path"`
+}
+
+type KustomizeAttributes struct {
+	// the path to the kustomization file to use
+	Path string `json:"path"`
+}
+
 type LabelInput struct {
 	Name  *string `json:"name,omitempty"`
 	Value *string `json:"value,omitempty"`
@@ -1923,6 +1950,8 @@ type ServiceDeployment struct {
 	ComponentStatus *string `json:"componentStatus"`
 	// settings for advanced tuning of the sync process
 	SyncConfig *SyncConfig `json:"syncConfig"`
+	// kustomize related service metadata
+	Kustomize *Kustomize `json:"kustomize"`
 	// the commit message currently in use
 	Message *string `json:"message"`
 	// the time this service was scheduled for deletion
@@ -1966,6 +1995,7 @@ type ServiceDeploymentAttributes struct {
 	Protect       *bool                      `json:"protect,omitempty"`
 	RepositoryID  string                     `json:"repositoryId"`
 	Git           GitRefAttributes           `json:"git"`
+	Kustomize     *KustomizeAttributes       `json:"kustomize,omitempty"`
 	Configuration []*ConfigAttributes        `json:"configuration,omitempty"`
 	ReadBindings  []*PolicyBindingAttributes `json:"readBindings,omitempty"`
 	WriteBindings []*PolicyBindingAttributes `json:"writeBindings,omitempty"`
@@ -2017,10 +2047,11 @@ type ServiceStatusCount struct {
 }
 
 type ServiceUpdateAttributes struct {
-	Version       *string             `json:"version,omitempty"`
-	Protect       *bool               `json:"protect,omitempty"`
-	Git           *GitRefAttributes   `json:"git,omitempty"`
-	Configuration []*ConfigAttributes `json:"configuration,omitempty"`
+	Version       *string              `json:"version,omitempty"`
+	Protect       *bool                `json:"protect,omitempty"`
+	Git           *GitRefAttributes    `json:"git,omitempty"`
+	Configuration []*ConfigAttributes  `json:"configuration,omitempty"`
+	Kustomize     *KustomizeAttributes `json:"kustomize,omitempty"`
 }
 
 type SMTP struct {

@@ -387,6 +387,12 @@ type UserFragment struct {
 	ID    string "json:\"id\" graphql:\"id\""
 	Email string "json:\"email\" graphql:\"email\""
 }
+type CloneServiceDeployment struct {
+	CloneService *ServiceDeploymentFragment "json:\"cloneService\" graphql:\"cloneService\""
+}
+type CloneServiceDeploymentWithHandle struct {
+	CloneService *ServiceDeploymentFragment "json:\"cloneService\" graphql:\"cloneService\""
+}
 type CreateAccessToken struct {
 	CreateAccessToken *AccessTokenFragment "json:\"createAccessToken\" graphql:\"createAccessToken\""
 }
@@ -559,6 +565,137 @@ type UpdateServiceDeploymentWithHandle struct {
 }
 type UpdateServiceComponents struct {
 	UpdateServiceComponents *ServiceDeploymentFragment "json:\"updateServiceComponents\" graphql:\"updateServiceComponents\""
+}
+
+const CloneServiceDeploymentDocument = `mutation CloneServiceDeployment ($clusterId: ID!, $id: ID!, $attributes: ServiceCloneAttributes!) {
+	cloneService(clusterId: $clusterId, serviceId: $id, attributes: $attributes) {
+		... ServiceDeploymentFragment
+	}
+}
+fragment GitRefFragment on GitRef {
+	folder
+	ref
+}
+fragment GitRepositoryFragment on GitRepository {
+	id
+	error
+	health
+	authMethod
+	url
+}
+fragment ServiceDeploymentBaseFragment on ServiceDeployment {
+	id
+	name
+	namespace
+	version
+	git {
+		... GitRefFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+}
+fragment ServiceDeploymentFragment on ServiceDeployment {
+	... ServiceDeploymentBaseFragment
+	components {
+		id
+		name
+		group
+		kind
+		namespace
+		state
+		synced
+		version
+	}
+	deletedAt
+	sha
+	tarball
+	configuration {
+		name
+		value
+	}
+}
+`
+
+func (c *Client) CloneServiceDeployment(ctx context.Context, clusterID string, id string, attributes ServiceCloneAttributes, httpRequestOptions ...client.HTTPRequestOption) (*CloneServiceDeployment, error) {
+	vars := map[string]interface{}{
+		"clusterId":  clusterID,
+		"id":         id,
+		"attributes": attributes,
+	}
+
+	var res CloneServiceDeployment
+	if err := c.Client.Post(ctx, "CloneServiceDeployment", CloneServiceDeploymentDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const CloneServiceDeploymentWithHandleDocument = `mutation CloneServiceDeploymentWithHandle ($clusterId: ID!, $cluster: String!, $name: String!, $attributes: ServiceCloneAttributes!) {
+	cloneService(clusterId: $clusterId, cluster: $cluster, name: $name, attributes: $attributes) {
+		... ServiceDeploymentFragment
+	}
+}
+fragment GitRefFragment on GitRef {
+	folder
+	ref
+}
+fragment GitRepositoryFragment on GitRepository {
+	id
+	error
+	health
+	authMethod
+	url
+}
+fragment ServiceDeploymentBaseFragment on ServiceDeployment {
+	id
+	name
+	namespace
+	version
+	git {
+		... GitRefFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+}
+fragment ServiceDeploymentFragment on ServiceDeployment {
+	... ServiceDeploymentBaseFragment
+	components {
+		id
+		name
+		group
+		kind
+		namespace
+		state
+		synced
+		version
+	}
+	deletedAt
+	sha
+	tarball
+	configuration {
+		name
+		value
+	}
+}
+`
+
+func (c *Client) CloneServiceDeploymentWithHandle(ctx context.Context, clusterID string, cluster string, name string, attributes ServiceCloneAttributes, httpRequestOptions ...client.HTTPRequestOption) (*CloneServiceDeploymentWithHandle, error) {
+	vars := map[string]interface{}{
+		"clusterId":  clusterID,
+		"cluster":    cluster,
+		"name":       name,
+		"attributes": attributes,
+	}
+
+	var res CloneServiceDeploymentWithHandle
+	if err := c.Client.Post(ctx, "CloneServiceDeploymentWithHandle", CloneServiceDeploymentWithHandleDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
 }
 
 const CreateAccessTokenDocument = `mutation CreateAccessToken {
