@@ -61,11 +61,27 @@ type Account struct {
 	Subscription       *PluralSubscription `json:"subscription"`
 }
 
+// a condition that determines whether its configuration is viewable
+type AddOnConfigCondition struct {
+	// the operation for this condition, eg EQ, LT, GT
+	Operation *string `json:"operation"`
+	// the field this condition applies to
+	Field *string `json:"field"`
+	// the value to apply the codition with, for binary operators like LT/GT
+	Value *string `json:"value"`
+}
+
 // Input configuration for an add-on you can install
 type AddOnConfiguration struct {
-	Name          *string `json:"name"`
+	// name for this configuration
+	Name *string `json:"name"`
+	// a docstring explaining this configuration
 	Documentation *string `json:"documentation"`
-	Type          *string `json:"type"`
+	// a type for the configuration (should eventually be coerced back to string)
+	Type *string `json:"type"`
+	// the values for ENUM type conditions
+	Values    []*string             `json:"values"`
+	Condition *AddOnConfigCondition `json:"condition"`
 }
 
 // a representation of a kubernetes api deprecation
@@ -163,6 +179,7 @@ type AuditMetric struct {
 type AvailableFeatures struct {
 	Vpn                *bool `json:"vpn"`
 	Audits             *bool `json:"audits"`
+	Cd                 *bool `json:"cd"`
 	UserManagement     *bool `json:"userManagement"`
 	DatabaseManagement *bool `json:"databaseManagement"`
 }

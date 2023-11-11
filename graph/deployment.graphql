@@ -22,8 +22,20 @@ mutation UpdateServiceDeployment($id: ID!, $attributes: ServiceUpdateAttributes!
     }
 }
 
-mutation UpdateServiceDeploymentWithHandle($cluster: String!,$name: String!, $attributes: ServiceUpdateAttributes!) {
+mutation UpdateServiceDeploymentWithHandle($cluster: String!, $name: String!, $attributes: ServiceUpdateAttributes!) {
     updateServiceDeployment(cluster: $cluster,name: $name, attributes: $attributes) {
+        ...ServiceDeploymentFragment
+    }
+}
+
+mutation CloneServiceDeployment($clusterId: ID!, $id: ID!, $attributes: ServiceCloneAttributes!) {
+    cloneService(clusterId: $clusterId, serviceId: $id, attributes: $attributes) {
+        ...ServiceDeploymentFragment
+    }
+}
+
+mutation CloneServiceDeploymentWithHandle($clusterId: ID!, $cluster: String!, $name: String!, $attributes: ServiceCloneAttributes!) {
+    cloneService(clusterId: $clusterId, cluster: $cluster, name: $name, attributes: $attributes) {
         ...ServiceDeploymentFragment
     }
 }
