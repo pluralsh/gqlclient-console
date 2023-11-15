@@ -211,7 +211,9 @@ type ClusterFragment struct {
 	Handle         *string                     "json:\"handle\" graphql:\"handle\""
 	Self           *bool                       "json:\"self\" graphql:\"self\""
 	Version        *string                     "json:\"version\" graphql:\"version\""
+	InsertedAt     *string                     "json:\"insertedAt\" graphql:\"insertedAt\""
 	PingedAt       *string                     "json:\"pingedAt\" graphql:\"pingedAt\""
+	Protect        *bool                       "json:\"protect\" graphql:\"protect\""
 	CurrentVersion *string                     "json:\"currentVersion\" graphql:\"currentVersion\""
 	KasURL         *string                     "json:\"kasUrl\" graphql:\"kasUrl\""
 	Credential     *ProviderCredentialFragment "json:\"credential\" graphql:\"credential\""
@@ -410,7 +412,9 @@ type CreateCluster struct {
 		Handle         *string                     "json:\"handle\" graphql:\"handle\""
 		Self           *bool                       "json:\"self\" graphql:\"self\""
 		Version        *string                     "json:\"version\" graphql:\"version\""
+		InsertedAt     *string                     "json:\"insertedAt\" graphql:\"insertedAt\""
 		PingedAt       *string                     "json:\"pingedAt\" graphql:\"pingedAt\""
+		Protect        *bool                       "json:\"protect\" graphql:\"protect\""
 		CurrentVersion *string                     "json:\"currentVersion\" graphql:\"currentVersion\""
 		KasURL         *string                     "json:\"kasUrl\" graphql:\"kasUrl\""
 		Credential     *ProviderCredentialFragment "json:\"credential\" graphql:\"credential\""
@@ -589,11 +593,17 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment KustomizeFragment on Kustomize {
+	path
+}
 fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	id
 	name
 	namespace
 	version
+	kustomize {
+		... KustomizeFragment
+	}
 	git {
 		... GitRefFragment
 	}
@@ -654,11 +664,17 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment KustomizeFragment on Kustomize {
+	path
+}
 fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	id
 	name
 	namespace
 	version
+	kustomize {
+		... KustomizeFragment
+	}
 	git {
 		... GitRefFragment
 	}
@@ -738,7 +754,9 @@ fragment ClusterFragment on Cluster {
 	handle
 	self
 	version
+	insertedAt
 	pingedAt
+	protect
 	currentVersion
 	kasUrl
 	credential {
@@ -1164,7 +1182,9 @@ fragment ClusterFragment on Cluster {
 	handle
 	self
 	version
+	insertedAt
 	pingedAt
+	protect
 	currentVersion
 	kasUrl
 	credential {
@@ -1376,7 +1396,9 @@ fragment ClusterFragment on Cluster {
 	handle
 	self
 	version
+	insertedAt
 	pingedAt
+	protect
 	currentVersion
 	kasUrl
 	credential {
@@ -1517,7 +1539,9 @@ fragment ClusterFragment on Cluster {
 	handle
 	self
 	version
+	insertedAt
 	pingedAt
+	protect
 	currentVersion
 	kasUrl
 	credential {
@@ -1634,7 +1658,9 @@ fragment ClusterFragment on Cluster {
 	handle
 	self
 	version
+	insertedAt
 	pingedAt
+	protect
 	currentVersion
 	kasUrl
 	credential {
@@ -2373,7 +2399,9 @@ fragment ClusterFragment on Cluster {
 	handle
 	self
 	version
+	insertedAt
 	pingedAt
+	protect
 	currentVersion
 	kasUrl
 	credential {
@@ -3113,7 +3141,9 @@ fragment ClusterFragment on Cluster {
 	handle
 	self
 	version
+	insertedAt
 	pingedAt
+	protect
 	currentVersion
 	kasUrl
 	credential {

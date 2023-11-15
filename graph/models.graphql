@@ -103,7 +103,9 @@ fragment ClusterFragment on Cluster {
     handle
     self
     version
+    insertedAt
     pingedAt
+    protect
     currentVersion
     kasUrl
     credential { ...ProviderCredentialFragment }
