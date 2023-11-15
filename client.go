@@ -592,11 +592,17 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment KustomizeFragment on Kustomize {
+	path
+}
 fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	id
 	name
 	namespace
 	version
+	kustomize {
+		... KustomizeFragment
+	}
 	git {
 		... GitRefFragment
 	}
@@ -657,11 +663,17 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment KustomizeFragment on Kustomize {
+	path
+}
 fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	id
 	name
 	namespace
 	version
+	kustomize {
+		... KustomizeFragment
+	}
 	git {
 		... GitRefFragment
 	}
