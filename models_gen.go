@@ -804,15 +804,6 @@ type DeploymentStrategy struct {
 	RollingUpdate *RollingUpdate `json:"rollingUpdate"`
 }
 
-// specification for ignoring diffs for subfields of manifests, to avoid admission controllers and other mutations
-type DiffNormalizer struct {
-	Group       string   `json:"group"`
-	Kind        string   `json:"kind"`
-	Name        string   `json:"name"`
-	Namespace   string   `json:"namespace"`
-	JSONPatches []string `json:"jsonPatches"`
-}
-
 type DiffNormalizerAttributes struct {
 	Group       string   `json:"group"`
 	Kind        string   `json:"kind"`
@@ -2141,7 +2132,6 @@ type StatusCondition struct {
 // Advanced configuration of how to sync resources
 type SyncConfig struct {
 	NamespaceMetadata *NamespaceMetadata `json:"namespaceMetadata"`
-	DiffNormalizers   []*DiffNormalizer  `json:"diffNormalizers"`
 }
 
 type SyncConfigAttributes struct {
