@@ -61,11 +61,27 @@ type Account struct {
 	Subscription       *PluralSubscription `json:"subscription"`
 }
 
+// a condition that determines whether its configuration is viewable
+type AddOnConfigCondition struct {
+	// the operation for this condition, eg EQ, LT, GT
+	Operation *string `json:"operation"`
+	// the field this condition applies to
+	Field *string `json:"field"`
+	// the value to apply the codition with, for binary operators like LT/GT
+	Value *string `json:"value"`
+}
+
 // Input configuration for an add-on you can install
 type AddOnConfiguration struct {
-	Name          *string `json:"name"`
+	// name for this configuration
+	Name *string `json:"name"`
+	// a docstring explaining this configuration
 	Documentation *string `json:"documentation"`
-	Type          *string `json:"type"`
+	// a type for the configuration (should eventually be coerced back to string)
+	Type *string `json:"type"`
+	// the values for ENUM type conditions
+	Values    []*string             `json:"values"`
+	Condition *AddOnConfigCondition `json:"condition"`
 }
 
 // a representation of a kubernetes api deprecation
@@ -163,6 +179,7 @@ type AuditMetric struct {
 type AvailableFeatures struct {
 	Vpn                *bool `json:"vpn"`
 	Audits             *bool `json:"audits"`
+	Cd                 *bool `json:"cd"`
 	UserManagement     *bool `json:"userManagement"`
 	DatabaseManagement *bool `json:"databaseManagement"`
 }
@@ -787,15 +804,6 @@ type DeploymentStrategy struct {
 	RollingUpdate *RollingUpdate `json:"rollingUpdate"`
 }
 
-// specification for ignoring diffs for subfields of manifests, to avoid admission controllers and other mutations
-type DiffNormalizer struct {
-	Group       string   `json:"group"`
-	Kind        string   `json:"kind"`
-	Name        string   `json:"name"`
-	Namespace   string   `json:"namespace"`
-	JSONPatches []string `json:"jsonPatches"`
-}
-
 type DiffNormalizerAttributes struct {
 	Group       string   `json:"group"`
 	Kind        string   `json:"kind"`
@@ -1075,6 +1083,16 @@ type KubernetesUnstructured struct {
 	Raw      map[string]interface{} `json:"raw"`
 	Metadata Metadata               `json:"metadata"`
 	Events   []*Event               `json:"events"`
+}
+
+// metadata needed for configuring kustomize
+type Kustomize struct {
+	Path string `json:"path"`
+}
+
+type KustomizeAttributes struct {
+	// the path to the kustomization file to use
+	Path string `json:"path"`
 }
 
 type LabelInput struct {
@@ -1923,6 +1941,8 @@ type ServiceDeployment struct {
 	ComponentStatus *string `json:"componentStatus"`
 	// settings for advanced tuning of the sync process
 	SyncConfig *SyncConfig `json:"syncConfig"`
+	// kustomize related service metadata
+	Kustomize *Kustomize `json:"kustomize"`
 	// the commit message currently in use
 	Message *string `json:"message"`
 	// the time this service was scheduled for deletion
@@ -1966,6 +1986,7 @@ type ServiceDeploymentAttributes struct {
 	Protect       *bool                      `json:"protect,omitempty"`
 	RepositoryID  string                     `json:"repositoryId"`
 	Git           GitRefAttributes           `json:"git"`
+	Kustomize     *KustomizeAttributes       `json:"kustomize,omitempty"`
 	Configuration []*ConfigAttributes        `json:"configuration,omitempty"`
 	ReadBindings  []*PolicyBindingAttributes `json:"readBindings,omitempty"`
 	WriteBindings []*PolicyBindingAttributes `json:"writeBindings,omitempty"`
@@ -2017,10 +2038,11 @@ type ServiceStatusCount struct {
 }
 
 type ServiceUpdateAttributes struct {
-	Version       *string             `json:"version,omitempty"`
-	Protect       *bool               `json:"protect,omitempty"`
-	Git           *GitRefAttributes   `json:"git,omitempty"`
-	Configuration []*ConfigAttributes `json:"configuration,omitempty"`
+	Version       *string              `json:"version,omitempty"`
+	Protect       *bool                `json:"protect,omitempty"`
+	Git           *GitRefAttributes    `json:"git,omitempty"`
+	Configuration []*ConfigAttributes  `json:"configuration,omitempty"`
+	Kustomize     *KustomizeAttributes `json:"kustomize,omitempty"`
 }
 
 type SMTP struct {
@@ -2110,7 +2132,6 @@ type StatusCondition struct {
 // Advanced configuration of how to sync resources
 type SyncConfig struct {
 	NamespaceMetadata *NamespaceMetadata `json:"namespaceMetadata"`
-	DiffNormalizers   []*DiffNormalizer  `json:"diffNormalizers"`
 }
 
 type SyncConfigAttributes struct {
