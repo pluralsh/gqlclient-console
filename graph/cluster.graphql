@@ -1,5 +1,6 @@
 mutation CreateCluster($attributes: ClusterAttributes!) {
     createCluster(attributes: $attributes) {
+        deployToken
         ... ClusterFragment
     }
 }
@@ -12,6 +13,12 @@ mutation UpdateCluster($id: ID!, $attributes: ClusterUpdateAttributes!) {
 
 mutation DeleteCluster($id: ID!) {
     deleteCluster(id: $id) {
+        ...ClusterFragment
+    }
+}
+
+mutation DetachCluster($id: ID!) {
+    detachCluster(id: $id) {
         ...ClusterFragment
     }
 }

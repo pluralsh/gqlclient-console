@@ -267,6 +267,9 @@ type GroupFragment struct {
 	Name        string  "json:\"name\" graphql:\"name\""
 	Description *string "json:\"description\" graphql:\"description\""
 }
+type KustomizeFragment struct {
+	Path string "json:\"path\" graphql:\"path\""
+}
 type NodePoolFragment struct {
 	ID           string "json:\"id\" graphql:\"id\""
 	Name         string "json:\"name\" graphql:\"name\""
@@ -323,6 +326,7 @@ type ServiceDeploymentBaseFragment struct {
 	Name       string                 "json:\"name\" graphql:\"name\""
 	Namespace  string                 "json:\"namespace\" graphql:\"namespace\""
 	Version    string                 "json:\"version\" graphql:\"version\""
+	Kustomize  *KustomizeFragment     "json:\"kustomize\" graphql:\"kustomize\""
 	Git        GitRefFragment         "json:\"git\" graphql:\"git\""
 	Repository *GitRepositoryFragment "json:\"repository\" graphql:\"repository\""
 }
@@ -337,6 +341,7 @@ type ServiceDeploymentExtended struct {
 	Name       string                 "json:\"name\" graphql:\"name\""
 	Namespace  string                 "json:\"namespace\" graphql:\"namespace\""
 	Version    string                 "json:\"version\" graphql:\"version\""
+	Kustomize  *KustomizeFragment     "json:\"kustomize\" graphql:\"kustomize\""
 	Git        GitRefFragment         "json:\"git\" graphql:\"git\""
 	Repository *GitRepositoryFragment "json:\"repository\" graphql:\"repository\""
 	Components []*struct {
@@ -362,6 +367,7 @@ type ServiceDeploymentFragment struct {
 	Name       string                 "json:\"name\" graphql:\"name\""
 	Namespace  string                 "json:\"namespace\" graphql:\"namespace\""
 	Version    string                 "json:\"version\" graphql:\"version\""
+	Kustomize  *KustomizeFragment     "json:\"kustomize\" graphql:\"kustomize\""
 	Git        GitRefFragment         "json:\"git\" graphql:\"git\""
 	Repository *GitRepositoryFragment "json:\"repository\" graphql:\"repository\""
 	Components []*struct {
@@ -387,11 +393,30 @@ type UserFragment struct {
 	ID    string "json:\"id\" graphql:\"id\""
 	Email string "json:\"email\" graphql:\"email\""
 }
+type CloneServiceDeployment struct {
+	CloneService *ServiceDeploymentFragment "json:\"cloneService\" graphql:\"cloneService\""
+}
+type CloneServiceDeploymentWithHandle struct {
+	CloneService *ServiceDeploymentFragment "json:\"cloneService\" graphql:\"cloneService\""
+}
 type CreateAccessToken struct {
 	CreateAccessToken *AccessTokenFragment "json:\"createAccessToken\" graphql:\"createAccessToken\""
 }
 type CreateCluster struct {
-	CreateCluster *ClusterFragment "json:\"createCluster\" graphql:\"createCluster\""
+	CreateCluster *struct {
+		DeployToken    *string                     "json:\"deployToken\" graphql:\"deployToken\""
+		ID             string                      "json:\"id\" graphql:\"id\""
+		Name           string                      "json:\"name\" graphql:\"name\""
+		Handle         *string                     "json:\"handle\" graphql:\"handle\""
+		Self           *bool                       "json:\"self\" graphql:\"self\""
+		Version        *string                     "json:\"version\" graphql:\"version\""
+		PingedAt       *string                     "json:\"pingedAt\" graphql:\"pingedAt\""
+		CurrentVersion *string                     "json:\"currentVersion\" graphql:\"currentVersion\""
+		KasURL         *string                     "json:\"kasUrl\" graphql:\"kasUrl\""
+		Credential     *ProviderCredentialFragment "json:\"credential\" graphql:\"credential\""
+		Provider       *ClusterProviderFragment    "json:\"provider\" graphql:\"provider\""
+		NodePools      []*NodePoolFragment         "json:\"nodePools\" graphql:\"nodePools\""
+	} "json:\"createCluster\" graphql:\"createCluster\""
 }
 type CreateClusterProvider struct {
 	CreateClusterProvider *ClusterProviderFragment "json:\"createClusterProvider\" graphql:\"createClusterProvider\""
@@ -422,6 +447,9 @@ type DeleteProviderCredential struct {
 }
 type DeleteServiceDeployment struct {
 	DeleteServiceDeployment *ServiceDeploymentFragment "json:\"deleteServiceDeployment\" graphql:\"deleteServiceDeployment\""
+}
+type DetachCluster struct {
+	DetachCluster *ClusterFragment "json:\"detachCluster\" graphql:\"detachCluster\""
 }
 type GetAccessToken struct {
 	AccessToken *AccessTokenFragment "json:\"accessToken\" graphql:\"accessToken\""
@@ -548,6 +576,137 @@ type UpdateServiceComponents struct {
 	UpdateServiceComponents *ServiceDeploymentFragment "json:\"updateServiceComponents\" graphql:\"updateServiceComponents\""
 }
 
+const CloneServiceDeploymentDocument = `mutation CloneServiceDeployment ($clusterId: ID!, $id: ID!, $attributes: ServiceCloneAttributes!) {
+	cloneService(clusterId: $clusterId, serviceId: $id, attributes: $attributes) {
+		... ServiceDeploymentFragment
+	}
+}
+fragment GitRefFragment on GitRef {
+	folder
+	ref
+}
+fragment GitRepositoryFragment on GitRepository {
+	id
+	error
+	health
+	authMethod
+	url
+}
+fragment ServiceDeploymentBaseFragment on ServiceDeployment {
+	id
+	name
+	namespace
+	version
+	git {
+		... GitRefFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+}
+fragment ServiceDeploymentFragment on ServiceDeployment {
+	... ServiceDeploymentBaseFragment
+	components {
+		id
+		name
+		group
+		kind
+		namespace
+		state
+		synced
+		version
+	}
+	deletedAt
+	sha
+	tarball
+	configuration {
+		name
+		value
+	}
+}
+`
+
+func (c *Client) CloneServiceDeployment(ctx context.Context, clusterID string, id string, attributes ServiceCloneAttributes, httpRequestOptions ...client.HTTPRequestOption) (*CloneServiceDeployment, error) {
+	vars := map[string]interface{}{
+		"clusterId":  clusterID,
+		"id":         id,
+		"attributes": attributes,
+	}
+
+	var res CloneServiceDeployment
+	if err := c.Client.Post(ctx, "CloneServiceDeployment", CloneServiceDeploymentDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const CloneServiceDeploymentWithHandleDocument = `mutation CloneServiceDeploymentWithHandle ($clusterId: ID!, $cluster: String!, $name: String!, $attributes: ServiceCloneAttributes!) {
+	cloneService(clusterId: $clusterId, cluster: $cluster, name: $name, attributes: $attributes) {
+		... ServiceDeploymentFragment
+	}
+}
+fragment GitRefFragment on GitRef {
+	folder
+	ref
+}
+fragment GitRepositoryFragment on GitRepository {
+	id
+	error
+	health
+	authMethod
+	url
+}
+fragment ServiceDeploymentBaseFragment on ServiceDeployment {
+	id
+	name
+	namespace
+	version
+	git {
+		... GitRefFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+}
+fragment ServiceDeploymentFragment on ServiceDeployment {
+	... ServiceDeploymentBaseFragment
+	components {
+		id
+		name
+		group
+		kind
+		namespace
+		state
+		synced
+		version
+	}
+	deletedAt
+	sha
+	tarball
+	configuration {
+		name
+		value
+	}
+}
+`
+
+func (c *Client) CloneServiceDeploymentWithHandle(ctx context.Context, clusterID string, cluster string, name string, attributes ServiceCloneAttributes, httpRequestOptions ...client.HTTPRequestOption) (*CloneServiceDeploymentWithHandle, error) {
+	vars := map[string]interface{}{
+		"clusterId":  clusterID,
+		"cluster":    cluster,
+		"name":       name,
+		"attributes": attributes,
+	}
+
+	var res CloneServiceDeploymentWithHandle
+	if err := c.Client.Post(ctx, "CloneServiceDeploymentWithHandle", CloneServiceDeploymentWithHandleDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
 const CreateAccessTokenDocument = `mutation CreateAccessToken {
 	createAccessToken {
 		... AccessTokenFragment
@@ -572,6 +731,7 @@ func (c *Client) CreateAccessToken(ctx context.Context, httpRequestOptions ...cl
 
 const CreateClusterDocument = `mutation CreateCluster ($attributes: ClusterAttributes!) {
 	createCluster(attributes: $attributes) {
+		deployToken
 		... ClusterFragment
 	}
 }
@@ -621,6 +781,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment KustomizeFragment on Kustomize {
+	path
+}
 fragment NodePoolFragment on NodePool {
 	id
 	name
@@ -639,6 +802,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	name
 	namespace
 	version
+	kustomize {
+		... KustomizeFragment
+	}
 	git {
 		... GitRefFragment
 	}
@@ -713,6 +879,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment KustomizeFragment on Kustomize {
+	path
+}
 fragment ProviderCredentialFragment on ProviderCredential {
 	id
 	name
@@ -724,6 +893,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	name
 	namespace
 	version
+	kustomize {
+		... KustomizeFragment
+	}
 	git {
 		... GitRefFragment
 	}
@@ -836,11 +1008,17 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment KustomizeFragment on Kustomize {
+	path
+}
 fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	id
 	name
 	namespace
 	version
+	kustomize {
+		... KustomizeFragment
+	}
 	git {
 		... GitRefFragment
 	}
@@ -900,11 +1078,17 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment KustomizeFragment on Kustomize {
+	path
+}
 fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	id
 	name
 	namespace
 	version
+	kustomize {
+		... KustomizeFragment
+	}
 	git {
 		... GitRefFragment
 	}
@@ -1023,6 +1207,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment KustomizeFragment on Kustomize {
+	path
+}
 fragment NodePoolFragment on NodePool {
 	id
 	name
@@ -1041,6 +1228,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	name
 	namespace
 	version
+	kustomize {
+		... KustomizeFragment
+	}
 	git {
 		... GitRefFragment
 	}
@@ -1152,11 +1342,17 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment KustomizeFragment on Kustomize {
+	path
+}
 fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	id
 	name
 	namespace
 	version
+	kustomize {
+		... KustomizeFragment
+	}
 	git {
 		... GitRefFragment
 	}
@@ -1193,6 +1389,123 @@ func (c *Client) DeleteServiceDeployment(ctx context.Context, id string, httpReq
 
 	var res DeleteServiceDeployment
 	if err := c.Client.Post(ctx, "DeleteServiceDeployment", DeleteServiceDeploymentDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const DetachClusterDocument = `mutation DetachCluster ($id: ID!) {
+	detachCluster(id: $id) {
+		... ClusterFragment
+	}
+}
+fragment ClusterFragment on Cluster {
+	id
+	name
+	handle
+	self
+	version
+	pingedAt
+	currentVersion
+	kasUrl
+	credential {
+		... ProviderCredentialFragment
+	}
+	provider {
+		... ClusterProviderFragment
+	}
+	nodePools {
+		... NodePoolFragment
+	}
+}
+fragment ClusterProviderFragment on ClusterProvider {
+	id
+	name
+	namespace
+	cloud
+	editable
+	repository {
+		... GitRepositoryFragment
+	}
+	service {
+		... ServiceDeploymentFragment
+	}
+	credentials {
+		... ProviderCredentialFragment
+	}
+}
+fragment GitRefFragment on GitRef {
+	folder
+	ref
+}
+fragment GitRepositoryFragment on GitRepository {
+	id
+	error
+	health
+	authMethod
+	url
+}
+fragment KustomizeFragment on Kustomize {
+	path
+}
+fragment NodePoolFragment on NodePool {
+	id
+	name
+	minSize
+	maxSize
+	instanceType
+}
+fragment ProviderCredentialFragment on ProviderCredential {
+	id
+	name
+	namespace
+	kind
+}
+fragment ServiceDeploymentBaseFragment on ServiceDeployment {
+	id
+	name
+	namespace
+	version
+	kustomize {
+		... KustomizeFragment
+	}
+	git {
+		... GitRefFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+}
+fragment ServiceDeploymentFragment on ServiceDeployment {
+	... ServiceDeploymentBaseFragment
+	components {
+		id
+		name
+		group
+		kind
+		namespace
+		state
+		synced
+		version
+	}
+	deletedAt
+	sha
+	tarball
+	configuration {
+		name
+		value
+	}
+}
+`
+
+func (c *Client) DetachCluster(ctx context.Context, id string, httpRequestOptions ...client.HTTPRequestOption) (*DetachCluster, error) {
+	vars := map[string]interface{}{
+		"id": id,
+	}
+
+	var res DetachCluster
+	if err := c.Client.Post(ctx, "DetachCluster", DetachClusterDocument, &res, vars, httpRequestOptions...); err != nil {
 		return nil, err
 	}
 
@@ -1274,6 +1587,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment KustomizeFragment on Kustomize {
+	path
+}
 fragment NodePoolFragment on NodePool {
 	id
 	name
@@ -1292,6 +1608,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	name
 	namespace
 	version
+	kustomize {
+		... KustomizeFragment
+	}
 	git {
 		... GitRefFragment
 	}
@@ -1385,6 +1704,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment KustomizeFragment on Kustomize {
+	path
+}
 fragment NodePoolFragment on NodePool {
 	id
 	name
@@ -1403,6 +1725,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	name
 	namespace
 	version
+	kustomize {
+		... KustomizeFragment
+	}
 	git {
 		... GitRefFragment
 	}
@@ -1477,6 +1802,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment KustomizeFragment on Kustomize {
+	path
+}
 fragment ProviderCredentialFragment on ProviderCredential {
 	id
 	name
@@ -1488,6 +1816,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	name
 	namespace
 	version
+	kustomize {
+		... KustomizeFragment
+	}
 	git {
 		... GitRefFragment
 	}
@@ -1546,6 +1877,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment KustomizeFragment on Kustomize {
+	path
+}
 fragment PipelineFragment on Pipeline {
 	id
 	name
@@ -1585,6 +1919,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	name
 	namespace
 	version
+	kustomize {
+		... KustomizeFragment
+	}
 	git {
 		... GitRefFragment
 	}
@@ -1624,6 +1961,9 @@ fragment GitRepositoryFragment on GitRepository {
 	health
 	authMethod
 	url
+}
+fragment KustomizeFragment on Kustomize {
+	path
 }
 fragment PipelineEdgeFragment on PipelineEdge {
 	node {
@@ -1669,6 +2009,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	name
 	namespace
 	version
+	kustomize {
+		... KustomizeFragment
+	}
 	git {
 		... GitRefFragment
 	}
@@ -1740,6 +2083,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment KustomizeFragment on Kustomize {
+	path
+}
 fragment NodePoolFragment on NodePool {
 	id
 	name
@@ -1766,6 +2112,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	name
 	namespace
 	version
+	kustomize {
+		... KustomizeFragment
+	}
 	git {
 		... GitRefFragment
 	}
@@ -1869,6 +2218,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment KustomizeFragment on Kustomize {
+	path
+}
 fragment NodePoolFragment on NodePool {
 	id
 	name
@@ -1895,6 +2247,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	name
 	namespace
 	version
+	kustomize {
+		... KustomizeFragment
+	}
 	git {
 		... GitRefFragment
 	}
@@ -1999,11 +2354,17 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment KustomizeFragment on Kustomize {
+	path
+}
 fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	id
 	name
 	namespace
 	version
+	kustomize {
+		... KustomizeFragment
+	}
 	git {
 		... GitRefFragment
 	}
@@ -2082,6 +2443,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment KustomizeFragment on Kustomize {
+	path
+}
 fragment NodePoolFragment on NodePool {
 	id
 	name
@@ -2100,6 +2464,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	name
 	namespace
 	version
+	kustomize {
+		... KustomizeFragment
+	}
 	git {
 		... GitRefFragment
 	}
@@ -2286,6 +2653,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment KustomizeFragment on Kustomize {
+	path
+}
 fragment ProviderCredentialFragment on ProviderCredential {
 	id
 	name
@@ -2297,6 +2667,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	name
 	namespace
 	version
+	kustomize {
+		... KustomizeFragment
+	}
 	git {
 		... GitRefFragment
 	}
@@ -2355,11 +2728,17 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment KustomizeFragment on Kustomize {
+	path
+}
 fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	id
 	name
 	namespace
 	version
+	kustomize {
+		... KustomizeFragment
+	}
 	git {
 		... GitRefFragment
 	}
@@ -2408,11 +2787,17 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment KustomizeFragment on Kustomize {
+	path
+}
 fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	id
 	name
 	namespace
 	version
+	kustomize {
+		... KustomizeFragment
+	}
 	git {
 		... GitRefFragment
 	}
@@ -2463,11 +2848,17 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment KustomizeFragment on Kustomize {
+	path
+}
 fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	id
 	name
 	namespace
 	version
+	kustomize {
+		... KustomizeFragment
+	}
 	git {
 		... GitRefFragment
 	}
@@ -2570,11 +2961,17 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment KustomizeFragment on Kustomize {
+	path
+}
 fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	id
 	name
 	namespace
 	version
+	kustomize {
+		... KustomizeFragment
+	}
 	git {
 		... GitRefFragment
 	}
@@ -2634,6 +3031,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment KustomizeFragment on Kustomize {
+	path
+}
 fragment PipelineFragment on Pipeline {
 	id
 	name
@@ -2673,6 +3073,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	name
 	namespace
 	version
+	kustomize {
+		... KustomizeFragment
+	}
 	git {
 		... GitRefFragment
 	}
@@ -2780,6 +3183,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment KustomizeFragment on Kustomize {
+	path
+}
 fragment NodePoolFragment on NodePool {
 	id
 	name
@@ -2798,6 +3204,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	name
 	namespace
 	version
+	kustomize {
+		... KustomizeFragment
+	}
 	git {
 		... GitRefFragment
 	}
@@ -2873,6 +3282,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment KustomizeFragment on Kustomize {
+	path
+}
 fragment ProviderCredentialFragment on ProviderCredential {
 	id
 	name
@@ -2884,6 +3296,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	name
 	namespace
 	version
+	kustomize {
+		... KustomizeFragment
+	}
 	git {
 		... GitRefFragment
 	}
@@ -3057,11 +3472,17 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment KustomizeFragment on Kustomize {
+	path
+}
 fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	id
 	name
 	namespace
 	version
+	kustomize {
+		... KustomizeFragment
+	}
 	git {
 		... GitRefFragment
 	}
@@ -3121,11 +3542,17 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment KustomizeFragment on Kustomize {
+	path
+}
 fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	id
 	name
 	namespace
 	version
+	kustomize {
+		... KustomizeFragment
+	}
 	git {
 		... GitRefFragment
 	}
@@ -3186,11 +3613,17 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment KustomizeFragment on Kustomize {
+	path
+}
 fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	id
 	name
 	namespace
 	version
+	kustomize {
+		... KustomizeFragment
+	}
 	git {
 		... GitRefFragment
 	}
