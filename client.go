@@ -87,6 +87,7 @@ type RootQueryType struct {
 	Webhooks              *WebhookConnection           "json:\"webhooks\" graphql:\"webhooks\""
 	PostgresDatabases     []*Postgresql                "json:\"postgresDatabases\" graphql:\"postgresDatabases\""
 	PostgresDatabase      *Postgresql                  "json:\"postgresDatabase\" graphql:\"postgresDatabase\""
+	GitRepository         *GitRepository               "json:\"gitRepository\" graphql:\"gitRepository\""
 	GitRepositories       *GitRepositoryConnection     "json:\"gitRepositories\" graphql:\"gitRepositories\""
 	TokenExchange         *User                        "json:\"tokenExchange\" graphql:\"tokenExchange\""
 	Clusters              *ClusterConnection           "json:\"clusters\" graphql:\"clusters\""
@@ -466,6 +467,9 @@ type GetClusterByHandle struct {
 }
 type GetClusterProvider struct {
 	ClusterProvider *ClusterProviderFragment "json:\"clusterProvider\" graphql:\"clusterProvider\""
+}
+type GetGitRepository struct {
+	GitRepository *GitRepositoryFragment "json:\"gitRepository\" graphql:\"gitRepository\""
 }
 type GetPipeline struct {
 	Pipeline *PipelineFragment "json:\"pipeline\" graphql:\"pipeline\""
@@ -1881,6 +1885,34 @@ func (c *Client) GetClusterProvider(ctx context.Context, id string, httpRequestO
 
 	var res GetClusterProvider
 	if err := c.Client.Post(ctx, "GetClusterProvider", GetClusterProviderDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const GetGitRepositoryDocument = `query GetGitRepository ($id: ID, $url: String) {
+	gitRepository(id: $id, url: $url) {
+		... GitRepositoryFragment
+	}
+}
+fragment GitRepositoryFragment on GitRepository {
+	id
+	error
+	health
+	authMethod
+	url
+}
+`
+
+func (c *Client) GetGitRepository(ctx context.Context, id *string, url *string, httpRequestOptions ...client.HTTPRequestOption) (*GetGitRepository, error) {
+	vars := map[string]interface{}{
+		"id":  id,
+		"url": url,
+	}
+
+	var res GetGitRepository
+	if err := c.Client.Post(ctx, "GetGitRepository", GetGitRepositoryDocument, &res, vars, httpRequestOptions...); err != nil {
 		return nil, err
 	}
 

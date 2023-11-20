@@ -23,3 +23,9 @@ query ListGitRepositories($cursor: String, $before: String, $last: Int) {
         }
     }
 }
+
+query GetGitRepository($id: ID, $url: String) {
+    gitRepository(id: $id, url: $url) {
+        ...GitRepositoryFragment
+    }
+}
