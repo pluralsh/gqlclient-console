@@ -102,6 +102,7 @@ type RootQueryType struct {
 	ClusterServices       []*ServiceDeployment         "json:\"clusterServices\" graphql:\"clusterServices\""
 	ServiceDeployment     *ServiceDeployment           "json:\"serviceDeployment\" graphql:\"serviceDeployment\""
 	MyCluster             *Cluster                     "json:\"myCluster\" graphql:\"myCluster\""
+	ClusterGates          []*PipelineGate              "json:\"clusterGates\" graphql:\"clusterGates\""
 	DeploymentSettings    *DeploymentSettings          "json:\"deploymentSettings\" graphql:\"deploymentSettings\""
 }
 type RootMutationType struct {
@@ -170,7 +171,9 @@ type RootMutationType struct {
 	ApproveGate              *PipelineGate          "json:\"approveGate\" graphql:\"approveGate\""
 	ForceGate                *PipelineGate          "json:\"forceGate\" graphql:\"forceGate\""
 	PingCluster              *Cluster               "json:\"pingCluster\" graphql:\"pingCluster\""
+	RegisterRuntimeServices  *int64                 "json:\"registerRuntimeServices\" graphql:\"registerRuntimeServices\""
 	UpdateServiceComponents  *ServiceDeployment     "json:\"updateServiceComponents\" graphql:\"updateServiceComponents\""
+	UpdateGate               *PipelineGate          "json:\"updateGate\" graphql:\"updateGate\""
 	UpdateRbac               *bool                  "json:\"updateRbac\" graphql:\"updateRbac\""
 	UpdateDeploymentSettings *DeploymentSettings    "json:\"updateDeploymentSettings\" graphql:\"updateDeploymentSettings\""
 	EnableDeployments        *DeploymentSettings    "json:\"enableDeployments\" graphql:\"enableDeployments\""
@@ -537,6 +540,9 @@ type PingCluster struct {
 		ID   string "json:\"id\" graphql:\"id\""
 		Name string "json:\"name\" graphql:\"name\""
 	} "json:\"pingCluster\" graphql:\"pingCluster\""
+}
+type RegisterRuntimeServices struct {
+	RegisterRuntimeServices *int64 "json:\"registerRuntimeServices\" graphql:\"registerRuntimeServices\""
 }
 type RollbackService struct {
 	RollbackService *ServiceDeploymentFragment "json:\"rollbackService\" graphql:\"rollbackService\""
@@ -2999,6 +3005,25 @@ func (c *Client) PingCluster(ctx context.Context, attributes ClusterPing, httpRe
 
 	var res PingCluster
 	if err := c.Client.Post(ctx, "PingCluster", PingClusterDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const RegisterRuntimeServicesDocument = `mutation RegisterRuntimeServices ($services: [RuntimeServiceAttributes], $serviceId: ID) {
+	registerRuntimeServices(services: $services, serviceId: $serviceId)
+}
+`
+
+func (c *Client) RegisterRuntimeServices(ctx context.Context, services []*RuntimeServiceAttributes, serviceID *string, httpRequestOptions ...client.HTTPRequestOption) (*RegisterRuntimeServices, error) {
+	vars := map[string]interface{}{
+		"services":  services,
+		"serviceId": serviceID,
+	}
+
+	var res RegisterRuntimeServices
+	if err := c.Client.Post(ctx, "RegisterRuntimeServices", RegisterRuntimeServicesDocument, &res, vars, httpRequestOptions...); err != nil {
 		return nil, err
 	}
 

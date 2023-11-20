@@ -204,6 +204,8 @@ type RootQueryType {
   "tells you what cluster a deploy token points to"
   myCluster: Cluster
 
+  clusterGates: [PipelineGate]
+
   deploymentSettings: DeploymentSettings
 }
 
@@ -391,8 +393,13 @@ type RootMutationType {
   "a regular status ping to be sent by the deploy operator"
   pingCluster(attributes: ClusterPing!): Cluster
 
+  "registers a list of runtime services discovered for the current cluster"
+  registerRuntimeServices(services: [RuntimeServiceAttributes], serviceId: ID): Int
+
   "updates only the components of a given service, to be sent after deploy operator syncs"
   updateServiceComponents(id: ID!, components: [ComponentAttributes], errors: [ServiceErrorAttributes]): ServiceDeployment
+
+  updateGate(id: ID!, attributes: GateUpdateAttributes!): PipelineGate
 
   "a reusable mutation for updating rbac settings on core services"
   updateRbac(rbac: RbacAttributes!, serviceId: ID, clusterId: ID, providerId: ID): Boolean
@@ -523,6 +530,63 @@ input PipelineGateAttributes {
 
   "the id of the cluster this gate will execute on"
   clusterId: String
+
+  "a specification for more complex gate types"
+  spec: GateSpecAttributes
+}
+
+"the allowed inputs for a deployment agent gate update"
+input GateUpdateAttributes {
+  state: GateState
+  status: GateStatusAttributes
+}
+
+input GateStatusAttributes {
+  jobRef: NamespacedName
+}
+
+input NamespacedName {
+  name: String!
+  namespace: String!
+}
+
+"a more refined spec for parameters needed for complex gates"
+input GateSpecAttributes {
+  job: GateJobAttributes
+}
+
+"spec for a job gate"
+input GateJobAttributes {
+  namespace: String!
+
+  "if you'd rather define the job spec via straight k8s yaml"
+  raw: String
+
+  containers: [ContainerAttributes]
+
+  labels: Map
+
+  annotations: Map
+
+  serviceAccount: String
+}
+
+"the attributes for a container"
+input ContainerAttributes {
+  image: String!
+  args: [String]
+  env: [EnvAttributes]
+  envFrom: [EnvFromAttributes]
+}
+
+input EnvAttributes {
+  name: String!
+  value: String!
+}
+
+input EnvFromAttributes {
+  secret: String!
+  configMap: String!
 }
 
 "the attributes of a service w\/in a specific stage"
@@ -621,12 +685,61 @@ type PipelineGate {
   "the current state of this gate"
   state: GateState!
 
+  "more detailed specification for complex gates"
+  spec: GateSpec
+
   "the last user to approve this gate"
   approver: User
 
   insertedAt: DateTime
 
   updatedAt: DateTime
+}
+
+"detailed gate specifications"
+type GateSpec {
+  job: JobGateSpec
+}
+
+"the full specification of a job gate"
+type JobGateSpec {
+  "the namespace the job will run in"
+  namespace: String!
+
+  "a raw kubernetes job resource, overrides any other configuration"
+  raw: String
+
+  "list of containers to run in this job"
+  containers: [ContainerSpec]
+
+  "any pod labels to apply"
+  labels: Map
+
+  "any pod annotations to apply"
+  annotations: Map
+
+  "the service account the pod will use"
+  serviceAccount: String
+}
+
+"a shortform spec for job containers, designed for ease-of-use"
+type ContainerSpec {
+  image: String!
+  args: [String]
+  env: [ContainerEnv]
+  envFrom: [ContainerEnvFrom]
+}
+
+"container env variable"
+type ContainerEnv {
+  name: String!
+  value: String!
+}
+
+"env from declarations for containers"
+type ContainerEnvFrom {
+  configMap: String!
+  secret: String!
 }
 
 "the configuration of a service within a pipeline stage, including optional promotion criteria"
@@ -1182,6 +1295,11 @@ input AzureSettingsAttributes {
   clientSecret: String!
 }
 
+input RuntimeServiceAttributes {
+  name: String!
+  version: String!
+}
+
 "a CAPI provider for a cluster, cloud is inferred from name if not provided manually"
 type ClusterProvider {
   "the id of this provider"
@@ -1213,6 +1331,11 @@ type ClusterProvider {
 
   "when the cluster provider was deleted"
   deletedAt: DateTime
+
+  runtimeServices(
+    "the kubernetes version you want to check is upgradeable"
+    kubeVersion: String
+  ): [RuntimeService]
 
   "the kubernetes versions this provider currently supports"
   supportedVersions: [String]
@@ -1307,6 +1430,9 @@ type Cluster {
 
   "a relay connection of all revisions of this service, these are periodically pruned up to a history limit"
   revisions(after: String, first: Int, before: String, last: Int): RevisionConnection
+
+  "fetches a list of runtime services found in this cluster, this is an expensive operation that should not be done in list queries"
+  runtimeServices: [RuntimeService]
 
   "whether the current user can edit this cluster"
   editable: Boolean
@@ -1431,8 +1557,61 @@ type AddOnConfigCondition {
   "the field this condition applies to"
   field: String
 
-  "the value to apply the codition with, for binary operators like LT\/GT"
+  "the value to apply the condition with, for binary operators like LT\/GT"
   value: String
+}
+
+"a service encapsulating a controller like istio\/ingress-nginx\/etc that is meant to extend the kubernetes api"
+type RuntimeService {
+  id: ID!
+
+  "add-on name"
+  name: String!
+
+  "add-on version, should be semver formatted"
+  version: String!
+
+  "the full specification of this kubernetes add-on"
+  addon: RuntimeAddon
+
+  "the version of the add-on you've currently deployed"
+  addonVersion: AddonVersion
+
+  "the plural service it came from"
+  service: ServiceDeployment
+
+  insertedAt: DateTime
+
+  updatedAt: DateTime
+}
+
+"a full specification of a kubernetes runtime component's requirements"
+type RuntimeAddon {
+  versions: [AddonVersion]
+}
+
+"the specification of a runtime service at a specific version"
+type AddonVersion {
+  "add-on version, semver formatted"
+  version: String
+
+  "kubernetes versions this add-on works with"
+  kube: [String]
+
+  "any other add-ons this might require"
+  requirements: [VersionReference]
+
+  "any add-ons this might break"
+  incompatibilities: [VersionReference]
+
+  "checks if this is blocking a specific kubernetes upgrade"
+  blocking(kubeVersion: String!): Boolean
+}
+
+"a shortform reference to an addon by version"
+type VersionReference {
+  name: String!
+  version: String!
 }
 
 type Tag {
