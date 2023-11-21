@@ -24,6 +24,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
         synced
         version
     }
+    protect
     deletedAt
     sha
     tarball

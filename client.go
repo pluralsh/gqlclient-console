@@ -102,6 +102,7 @@ type RootQueryType struct {
 	ClusterServices       []*ServiceDeployment         "json:\"clusterServices\" graphql:\"clusterServices\""
 	ServiceDeployment     *ServiceDeployment           "json:\"serviceDeployment\" graphql:\"serviceDeployment\""
 	MyCluster             *Cluster                     "json:\"myCluster\" graphql:\"myCluster\""
+	ClusterGates          []*PipelineGate              "json:\"clusterGates\" graphql:\"clusterGates\""
 	DeploymentSettings    *DeploymentSettings          "json:\"deploymentSettings\" graphql:\"deploymentSettings\""
 }
 type RootMutationType struct {
@@ -171,6 +172,7 @@ type RootMutationType struct {
 	ForceGate                *PipelineGate          "json:\"forceGate\" graphql:\"forceGate\""
 	PingCluster              *Cluster               "json:\"pingCluster\" graphql:\"pingCluster\""
 	UpdateServiceComponents  *ServiceDeployment     "json:\"updateServiceComponents\" graphql:\"updateServiceComponents\""
+	UpdateGate               *PipelineGate          "json:\"updateGate\" graphql:\"updateGate\""
 	UpdateRbac               *bool                  "json:\"updateRbac\" graphql:\"updateRbac\""
 	UpdateDeploymentSettings *DeploymentSettings    "json:\"updateDeploymentSettings\" graphql:\"updateDeploymentSettings\""
 	EnableDeployments        *DeploymentSettings    "json:\"enableDeployments\" graphql:\"enableDeployments\""
@@ -357,6 +359,7 @@ type ServiceDeploymentExtended struct {
 		Synced    bool            "json:\"synced\" graphql:\"synced\""
 		Version   *string         "json:\"version\" graphql:\"version\""
 	} "json:\"components\" graphql:\"components\""
+	Protect       *bool   "json:\"protect\" graphql:\"protect\""
 	DeletedAt     *string "json:\"deletedAt\" graphql:\"deletedAt\""
 	Sha           *string "json:\"sha\" graphql:\"sha\""
 	Tarball       *string "json:\"tarball\" graphql:\"tarball\""
@@ -383,6 +386,7 @@ type ServiceDeploymentFragment struct {
 		Synced    bool            "json:\"synced\" graphql:\"synced\""
 		Version   *string         "json:\"version\" graphql:\"version\""
 	} "json:\"components\" graphql:\"components\""
+	Protect       *bool   "json:\"protect\" graphql:\"protect\""
 	DeletedAt     *string "json:\"deletedAt\" graphql:\"deletedAt\""
 	Sha           *string "json:\"sha\" graphql:\"sha\""
 	Tarball       *string "json:\"tarball\" graphql:\"tarball\""
@@ -630,6 +634,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		synced
 		version
 	}
+	protect
 	deletedAt
 	sha
 	tarball
@@ -701,6 +706,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		synced
 		version
 	}
+	protect
 	deletedAt
 	sha
 	tarball
@@ -846,6 +852,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		synced
 		version
 	}
+	protect
 	deletedAt
 	sha
 	tarball
@@ -937,6 +944,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		synced
 		version
 	}
+	protect
 	deletedAt
 	sha
 	tarball
@@ -1060,6 +1068,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		synced
 		version
 	}
+	protect
 	deletedAt
 	sha
 	tarball
@@ -1130,6 +1139,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		synced
 		version
 	}
+	protect
 	deletedAt
 	sha
 	tarball
@@ -1274,6 +1284,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		synced
 		version
 	}
+	protect
 	deletedAt
 	sha
 	tarball
@@ -1396,6 +1407,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		synced
 		version
 	}
+	protect
 	deletedAt
 	sha
 	tarball
@@ -1515,6 +1527,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		synced
 		version
 	}
+	protect
 	deletedAt
 	sha
 	tarball
@@ -1658,6 +1671,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		synced
 		version
 	}
+	protect
 	deletedAt
 	sha
 	tarball
@@ -1777,6 +1791,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		synced
 		version
 	}
+	protect
 	deletedAt
 	sha
 	tarball
@@ -1868,6 +1883,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		synced
 		version
 	}
+	protect
 	deletedAt
 	sha
 	tarball
@@ -2204,6 +2220,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		synced
 		version
 	}
+	protect
 	deletedAt
 	sha
 	tarball
@@ -2339,6 +2356,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		synced
 		version
 	}
+	protect
 	deletedAt
 	sha
 	tarball
@@ -2546,6 +2564,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		synced
 		version
 	}
+	protect
 	deletedAt
 	sha
 	tarball
@@ -2749,6 +2768,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		synced
 		version
 	}
+	protect
 	deletedAt
 	sha
 	tarball
@@ -2938,6 +2958,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		synced
 		version
 	}
+	protect
 	deletedAt
 	sha
 	tarball
@@ -3051,6 +3072,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		synced
 		version
 	}
+	protect
 	deletedAt
 	sha
 	tarball
@@ -3288,6 +3310,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		synced
 		version
 	}
+	protect
 	deletedAt
 	sha
 	tarball
@@ -3380,6 +3403,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		synced
 		version
 	}
+	protect
 	deletedAt
 	sha
 	tarball
@@ -3564,6 +3588,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		synced
 		version
 	}
+	protect
 	deletedAt
 	sha
 	tarball
@@ -3634,6 +3659,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		synced
 		version
 	}
+	protect
 	deletedAt
 	sha
 	tarball
@@ -3705,6 +3731,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		synced
 		version
 	}
+	protect
 	deletedAt
 	sha
 	tarball

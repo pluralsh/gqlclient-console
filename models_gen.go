@@ -636,6 +636,26 @@ type Container struct {
 	Resources *Resources `json:"resources"`
 }
 
+// the attributes for a container
+type ContainerAttributes struct {
+	Image   string               `json:"image"`
+	Args    []*string            `json:"args,omitempty"`
+	Env     []*EnvAttributes     `json:"env,omitempty"`
+	EnvFrom []*EnvFromAttributes `json:"envFrom,omitempty"`
+}
+
+// container env variable
+type ContainerEnv struct {
+	Name  string `json:"name"`
+	Value string `json:"value"`
+}
+
+// env from declarations for containers
+type ContainerEnvFrom struct {
+	ConfigMap string `json:"configMap"`
+	Secret    string `json:"secret"`
+}
+
 type ContainerRecommendation struct {
 	Name           *string             `json:"name"`
 	ContainerName  *string             `json:"containerName"`
@@ -648,6 +668,14 @@ type ContainerRecommendation struct {
 type ContainerResources struct {
 	CPU    *string `json:"cpu"`
 	Memory *string `json:"memory"`
+}
+
+// a shortform spec for job containers, designed for ease-of-use
+type ContainerSpec struct {
+	Image   string              `json:"image"`
+	Args    []*string           `json:"args"`
+	Env     []*ContainerEnv     `json:"env"`
+	EnvFrom []*ContainerEnvFrom `json:"envFrom"`
 }
 
 type ContainerState struct {
@@ -812,6 +840,16 @@ type DiffNormalizerAttributes struct {
 	JSONPatches []string `json:"jsonPatches,omitempty"`
 }
 
+type EnvAttributes struct {
+	Name  string `json:"name"`
+	Value string `json:"value"`
+}
+
+type EnvFromAttributes struct {
+	Secret    string `json:"secret"`
+	ConfigMap string `json:"configMap"`
+}
+
 type Event struct {
 	Action        *string `json:"action"`
 	Count         *int64  `json:"count"`
@@ -825,6 +863,37 @@ type Event struct {
 type FileContent struct {
 	Path    *string `json:"path"`
 	Content *string `json:"content"`
+}
+
+// spec for a job gate
+type GateJobAttributes struct {
+	Namespace string `json:"namespace"`
+	// if you'd rather define the job spec via straight k8s yaml
+	Raw            *string                `json:"raw,omitempty"`
+	Containers     []*ContainerAttributes `json:"containers,omitempty"`
+	Labels         map[string]interface{} `json:"labels,omitempty"`
+	Annotations    map[string]interface{} `json:"annotations,omitempty"`
+	ServiceAccount *string                `json:"serviceAccount,omitempty"`
+}
+
+// detailed gate specifications
+type GateSpec struct {
+	Job *JobGateSpec `json:"job"`
+}
+
+// a more refined spec for parameters needed for complex gates
+type GateSpecAttributes struct {
+	Job *GateJobAttributes `json:"job,omitempty"`
+}
+
+type GateStatusAttributes struct {
+	JobRef *NamespacedName `json:"jobRef,omitempty"`
+}
+
+// the allowed inputs for a deployment agent gate update
+type GateUpdateAttributes struct {
+	State  *GateState            `json:"state,omitempty"`
+	Status *GateStatusAttributes `json:"status,omitempty"`
 }
 
 type GcpCloudAttributes struct {
@@ -1051,6 +1120,22 @@ type Job struct {
 	Pods     []*Pod    `json:"pods"`
 }
 
+// the full specification of a job gate
+type JobGateSpec struct {
+	// the namespace the job will run in
+	Namespace string `json:"namespace"`
+	// a raw kubernetes job resource, overrides any other configuration
+	Raw *string `json:"raw"`
+	// list of containers to run in this job
+	Containers []*ContainerSpec `json:"containers"`
+	// any pod labels to apply
+	Labels map[string]interface{} `json:"labels"`
+	// any pod annotations to apply
+	Annotations map[string]interface{} `json:"annotations"`
+	// the service account the pod will use
+	ServiceAccount *string `json:"serviceAccount"`
+}
+
 type JobReference struct {
 	Name      string `json:"name"`
 	Namespace string `json:"namespace"`
@@ -1211,6 +1296,11 @@ type NamespaceSpec struct {
 
 type NamespaceStatus struct {
 	Phase *string `json:"phase"`
+}
+
+type NamespacedName struct {
+	Name      string `json:"name"`
+	Namespace string `json:"namespace"`
 }
 
 type Node struct {
@@ -1390,6 +1480,8 @@ type PipelineGate struct {
 	Type GateType `json:"type"`
 	// the current state of this gate
 	State GateState `json:"state"`
+	// more detailed specification for complex gates
+	Spec *GateSpec `json:"spec"`
 	// the last user to approve this gate
 	Approver   *User   `json:"approver"`
 	InsertedAt *string `json:"insertedAt"`
@@ -1406,6 +1498,8 @@ type PipelineGateAttributes struct {
 	Cluster *string `json:"cluster,omitempty"`
 	// the id of the cluster this gate will execute on
 	ClusterID *string `json:"clusterId,omitempty"`
+	// a specification for more complex gate types
+	Spec *GateSpecAttributes `json:"spec,omitempty"`
 }
 
 // a representation of an individual pipeline promotion, which is a list of services/revisions and timestamps to determine promotion status
