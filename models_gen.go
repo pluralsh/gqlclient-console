@@ -67,7 +67,7 @@ type AddOnConfigCondition struct {
 	Operation *string `json:"operation"`
 	// the field this condition applies to
 	Field *string `json:"field"`
-	// the value to apply the codition with, for binary operators like LT/GT
+	// the value to apply the condition with, for binary operators like LT/GT
 	Value *string `json:"value"`
 }
 
@@ -82,6 +82,20 @@ type AddOnConfiguration struct {
 	// the values for ENUM type conditions
 	Values    []*string             `json:"values"`
 	Condition *AddOnConfigCondition `json:"condition"`
+}
+
+// the specification of a runtime service at a specific version
+type AddonVersion struct {
+	// add-on version, semver formatted
+	Version *string `json:"version"`
+	// kubernetes versions this add-on works with
+	Kube []*string `json:"kube"`
+	// any other add-ons this might require
+	Requirements []*VersionReference `json:"requirements"`
+	// any add-ons this might break
+	Incompatibilities []*VersionReference `json:"incompatibilities"`
+	// checks if this is blocking a specific kubernetes upgrade
+	Blocking *bool `json:"blocking"`
 }
 
 // a representation of a kubernetes api deprecation
@@ -373,6 +387,8 @@ type Cluster struct {
 	Status *ClusterStatus `json:"status"`
 	// a relay connection of all revisions of this service, these are periodically pruned up to a history limit
 	Revisions *RevisionConnection `json:"revisions"`
+	// fetches a list of runtime services found in this cluster, this is an expensive operation that should not be done in list queries
+	RuntimeServices []*RuntimeService `json:"runtimeServices"`
 	// whether the current user can edit this cluster
 	Editable   *bool   `json:"editable"`
 	InsertedAt *string `json:"insertedAt"`
@@ -457,7 +473,8 @@ type ClusterProvider struct {
 	// a list of credentials eligible for this provider
 	Credentials []*ProviderCredential `json:"credentials"`
 	// when the cluster provider was deleted
-	DeletedAt *string `json:"deletedAt"`
+	DeletedAt       *string           `json:"deletedAt"`
+	RuntimeServices []*RuntimeService `json:"runtimeServices"`
 	// the kubernetes versions this provider currently supports
 	SupportedVersions []*string `json:"supportedVersions"`
 	// the region names this provider can deploy to
@@ -1955,6 +1972,33 @@ type RunningState struct {
 	StartedAt *string `json:"startedAt"`
 }
 
+// a full specification of a kubernetes runtime component's requirements
+type RuntimeAddon struct {
+	Versions []*AddonVersion `json:"versions"`
+}
+
+// a service encapsulating a controller like istio/ingress-nginx/etc that is meant to extend the kubernetes api
+type RuntimeService struct {
+	ID string `json:"id"`
+	// add-on name
+	Name string `json:"name"`
+	// add-on version, should be semver formatted
+	Version string `json:"version"`
+	// the full specification of this kubernetes add-on
+	Addon *RuntimeAddon `json:"addon"`
+	// the version of the add-on you've currently deployed
+	AddonVersion *AddonVersion `json:"addonVersion"`
+	// the plural service it came from
+	Service    *ServiceDeployment `json:"service"`
+	InsertedAt *string            `json:"insertedAt"`
+	UpdatedAt  *string            `json:"updatedAt"`
+}
+
+type RuntimeServiceAttributes struct {
+	Name    string `json:"name"`
+	Version string `json:"version"`
+}
+
 type Secret struct {
 	Metadata Metadata               `json:"metadata"`
 	Type     *string                `json:"type"`
@@ -2327,6 +2371,12 @@ type UserRoleAttributes struct {
 
 type UserRoles struct {
 	Admin *bool `json:"admin"`
+}
+
+// a shortform reference to an addon by version
+type VersionReference struct {
+	Name    string `json:"name"`
+	Version string `json:"version"`
 }
 
 type VerticalPodAutoscaler struct {
