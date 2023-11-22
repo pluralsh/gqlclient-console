@@ -210,23 +210,20 @@ type ClusterEdgeFragment struct {
 	Node *ClusterFragment "json:\"node\" graphql:\"node\""
 }
 type ClusterFragment struct {
-	ID             string  "json:\"id\" graphql:\"id\""
-	Name           string  "json:\"name\" graphql:\"name\""
-	Handle         *string "json:\"handle\" graphql:\"handle\""
-	Self           *bool   "json:\"self\" graphql:\"self\""
-	Version        *string "json:\"version\" graphql:\"version\""
-	InsertedAt     *string "json:\"insertedAt\" graphql:\"insertedAt\""
-	PingedAt       *string "json:\"pingedAt\" graphql:\"pingedAt\""
-	Protect        *bool   "json:\"protect\" graphql:\"protect\""
-	CurrentVersion *string "json:\"currentVersion\" graphql:\"currentVersion\""
-	KasURL         *string "json:\"kasUrl\" graphql:\"kasUrl\""
-	Tags           []*struct {
-		Name  string "json:\"name\" graphql:\"name\""
-		Value string "json:\"value\" graphql:\"value\""
-	} "json:\"tags\" graphql:\"tags\""
-	Credential *ProviderCredentialFragment "json:\"credential\" graphql:\"credential\""
-	Provider   *ClusterProviderFragment    "json:\"provider\" graphql:\"provider\""
-	NodePools  []*NodePoolFragment         "json:\"nodePools\" graphql:\"nodePools\""
+	ID             string                      "json:\"id\" graphql:\"id\""
+	Name           string                      "json:\"name\" graphql:\"name\""
+	Handle         *string                     "json:\"handle\" graphql:\"handle\""
+	Self           *bool                       "json:\"self\" graphql:\"self\""
+	Version        *string                     "json:\"version\" graphql:\"version\""
+	InsertedAt     *string                     "json:\"insertedAt\" graphql:\"insertedAt\""
+	PingedAt       *string                     "json:\"pingedAt\" graphql:\"pingedAt\""
+	Protect        *bool                       "json:\"protect\" graphql:\"protect\""
+	CurrentVersion *string                     "json:\"currentVersion\" graphql:\"currentVersion\""
+	KasURL         *string                     "json:\"kasUrl\" graphql:\"kasUrl\""
+	Tags           []*ClusterTags              "json:\"tags\" graphql:\"tags\""
+	Credential     *ProviderCredentialFragment "json:\"credential\" graphql:\"credential\""
+	Provider       *ClusterProviderFragment    "json:\"provider\" graphql:\"provider\""
+	NodePools      []*NodePoolFragment         "json:\"nodePools\" graphql:\"nodePools\""
 }
 type ClusterProviderConnectionFragment struct {
 	Edges []*ClusterProviderEdgeFragment "json:\"edges\" graphql:\"edges\""
@@ -243,6 +240,10 @@ type ClusterProviderFragment struct {
 	Repository  *GitRepositoryFragment        "json:\"repository\" graphql:\"repository\""
 	Service     *ServiceDeploymentFragment    "json:\"service\" graphql:\"service\""
 	Credentials []*ProviderCredentialFragment "json:\"credentials\" graphql:\"credentials\""
+}
+type ClusterTags struct {
+	Name  string "json:\"name\" graphql:\"name\""
+	Value string "json:\"value\" graphql:\"value\""
 }
 type DeploymentSettingsFragment struct {
 	ID                 string                   "json:\"id\" graphql:\"id\""
@@ -416,24 +417,21 @@ type CreateAccessToken struct {
 }
 type CreateCluster struct {
 	CreateCluster *struct {
-		DeployToken    *string "json:\"deployToken\" graphql:\"deployToken\""
-		ID             string  "json:\"id\" graphql:\"id\""
-		Name           string  "json:\"name\" graphql:\"name\""
-		Handle         *string "json:\"handle\" graphql:\"handle\""
-		Self           *bool   "json:\"self\" graphql:\"self\""
-		Version        *string "json:\"version\" graphql:\"version\""
-		InsertedAt     *string "json:\"insertedAt\" graphql:\"insertedAt\""
-		PingedAt       *string "json:\"pingedAt\" graphql:\"pingedAt\""
-		Protect        *bool   "json:\"protect\" graphql:\"protect\""
-		CurrentVersion *string "json:\"currentVersion\" graphql:\"currentVersion\""
-		KasURL         *string "json:\"kasUrl\" graphql:\"kasUrl\""
-		Tags           []*struct {
-			Name  string "json:\"name\" graphql:\"name\""
-			Value string "json:\"value\" graphql:\"value\""
-		} "json:\"tags\" graphql:\"tags\""
-		Credential *ProviderCredentialFragment "json:\"credential\" graphql:\"credential\""
-		Provider   *ClusterProviderFragment    "json:\"provider\" graphql:\"provider\""
-		NodePools  []*NodePoolFragment         "json:\"nodePools\" graphql:\"nodePools\""
+		DeployToken    *string                     "json:\"deployToken\" graphql:\"deployToken\""
+		ID             string                      "json:\"id\" graphql:\"id\""
+		Name           string                      "json:\"name\" graphql:\"name\""
+		Handle         *string                     "json:\"handle\" graphql:\"handle\""
+		Self           *bool                       "json:\"self\" graphql:\"self\""
+		Version        *string                     "json:\"version\" graphql:\"version\""
+		InsertedAt     *string                     "json:\"insertedAt\" graphql:\"insertedAt\""
+		PingedAt       *string                     "json:\"pingedAt\" graphql:\"pingedAt\""
+		Protect        *bool                       "json:\"protect\" graphql:\"protect\""
+		CurrentVersion *string                     "json:\"currentVersion\" graphql:\"currentVersion\""
+		KasURL         *string                     "json:\"kasUrl\" graphql:\"kasUrl\""
+		Tags           []*ClusterTags              "json:\"tags\" graphql:\"tags\""
+		Credential     *ProviderCredentialFragment "json:\"credential\" graphql:\"credential\""
+		Provider       *ClusterProviderFragment    "json:\"provider\" graphql:\"provider\""
+		NodePools      []*NodePoolFragment         "json:\"nodePools\" graphql:\"nodePools\""
 	} "json:\"createCluster\" graphql:\"createCluster\""
 }
 type CreateClusterProvider struct {
@@ -785,8 +783,7 @@ fragment ClusterFragment on Cluster {
 	currentVersion
 	kasUrl
 	tags {
-		name
-		value
+		... ClusterTags
 	}
 	credential {
 		... ProviderCredentialFragment
@@ -813,6 +810,10 @@ fragment ClusterProviderFragment on ClusterProvider {
 	credentials {
 		... ProviderCredentialFragment
 	}
+}
+fragment ClusterTags on Tag {
+	name
+	value
 }
 fragment GitRefFragment on GitRef {
 	folder
@@ -1221,8 +1222,7 @@ fragment ClusterFragment on Cluster {
 	currentVersion
 	kasUrl
 	tags {
-		name
-		value
+		... ClusterTags
 	}
 	credential {
 		... ProviderCredentialFragment
@@ -1249,6 +1249,10 @@ fragment ClusterProviderFragment on ClusterProvider {
 	credentials {
 		... ProviderCredentialFragment
 	}
+}
+fragment ClusterTags on Tag {
+	name
+	value
 }
 fragment GitRefFragment on GitRef {
 	folder
@@ -1468,8 +1472,7 @@ fragment ClusterFragment on Cluster {
 	currentVersion
 	kasUrl
 	tags {
-		name
-		value
+		... ClusterTags
 	}
 	credential {
 		... ProviderCredentialFragment
@@ -1496,6 +1499,10 @@ fragment ClusterProviderFragment on ClusterProvider {
 	credentials {
 		... ProviderCredentialFragment
 	}
+}
+fragment ClusterTags on Tag {
+	name
+	value
 }
 fragment GitRefFragment on GitRef {
 	folder
@@ -1616,8 +1623,7 @@ fragment ClusterFragment on Cluster {
 	currentVersion
 	kasUrl
 	tags {
-		name
-		value
+		... ClusterTags
 	}
 	credential {
 		... ProviderCredentialFragment
@@ -1644,6 +1650,10 @@ fragment ClusterProviderFragment on ClusterProvider {
 	credentials {
 		... ProviderCredentialFragment
 	}
+}
+fragment ClusterTags on Tag {
+	name
+	value
 }
 fragment GitRefFragment on GitRef {
 	folder
@@ -1740,8 +1750,7 @@ fragment ClusterFragment on Cluster {
 	currentVersion
 	kasUrl
 	tags {
-		name
-		value
+		... ClusterTags
 	}
 	credential {
 		... ProviderCredentialFragment
@@ -1768,6 +1777,10 @@ fragment ClusterProviderFragment on ClusterProvider {
 	credentials {
 		... ProviderCredentialFragment
 	}
+}
+fragment ClusterTags on Tag {
+	name
+	value
 }
 fragment GitRefFragment on GitRef {
 	folder
@@ -2517,8 +2530,7 @@ fragment ClusterFragment on Cluster {
 	currentVersion
 	kasUrl
 	tags {
-		name
-		value
+		... ClusterTags
 	}
 	credential {
 		... ProviderCredentialFragment
@@ -2545,6 +2557,10 @@ fragment ClusterProviderFragment on ClusterProvider {
 	credentials {
 		... ProviderCredentialFragment
 	}
+}
+fragment ClusterTags on Tag {
+	name
+	value
 }
 fragment GitRefFragment on GitRef {
 	folder
@@ -3286,8 +3302,7 @@ fragment ClusterFragment on Cluster {
 	currentVersion
 	kasUrl
 	tags {
-		name
-		value
+		... ClusterTags
 	}
 	credential {
 		... ProviderCredentialFragment
@@ -3314,6 +3329,10 @@ fragment ClusterProviderFragment on ClusterProvider {
 	credentials {
 		... ProviderCredentialFragment
 	}
+}
+fragment ClusterTags on Tag {
+	name
+	value
 }
 fragment GitRefFragment on GitRef {
 	folder
