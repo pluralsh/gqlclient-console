@@ -1974,6 +1974,8 @@ type RunningState struct {
 
 // a full specification of a kubernetes runtime component's requirements
 type RuntimeAddon struct {
+	// an icon to identify this runtime add-on
+	Icon     *string         `json:"icon"`
 	Versions []*AddonVersion `json:"versions"`
 }
 
