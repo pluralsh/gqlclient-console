@@ -455,6 +455,9 @@ type DeleteAccessToken struct {
 type DeleteCluster struct {
 	DeleteCluster *ClusterFragment "json:\"deleteCluster\" graphql:\"deleteCluster\""
 }
+type DeleteClusterProvider struct {
+	DeleteClusterProvider *ClusterProviderFragment "json:\"deleteClusterProvider\" graphql:\"deleteClusterProvider\""
+}
 type DeleteGitRepository struct {
 	DeleteGitRepository *GitRepositoryFragment "json:\"deleteGitRepository\" graphql:\"deleteGitRepository\""
 }
@@ -1326,6 +1329,98 @@ func (c *Client) DeleteCluster(ctx context.Context, id string, httpRequestOption
 
 	var res DeleteCluster
 	if err := c.Client.Post(ctx, "DeleteCluster", DeleteClusterDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const DeleteClusterProviderDocument = `mutation DeleteClusterProvider ($id: ID!) {
+	deleteClusterProvider(id: $id) {
+		... ClusterProviderFragment
+	}
+}
+fragment ClusterProviderFragment on ClusterProvider {
+	id
+	name
+	namespace
+	cloud
+	editable
+	repository {
+		... GitRepositoryFragment
+	}
+	service {
+		... ServiceDeploymentFragment
+	}
+	credentials {
+		... ProviderCredentialFragment
+	}
+}
+fragment GitRefFragment on GitRef {
+	folder
+	ref
+}
+fragment GitRepositoryFragment on GitRepository {
+	id
+	error
+	health
+	authMethod
+	url
+}
+fragment KustomizeFragment on Kustomize {
+	path
+}
+fragment ProviderCredentialFragment on ProviderCredential {
+	id
+	name
+	namespace
+	kind
+}
+fragment ServiceDeploymentBaseFragment on ServiceDeployment {
+	id
+	name
+	namespace
+	version
+	kustomize {
+		... KustomizeFragment
+	}
+	git {
+		... GitRefFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+}
+fragment ServiceDeploymentFragment on ServiceDeployment {
+	... ServiceDeploymentBaseFragment
+	components {
+		id
+		name
+		group
+		kind
+		namespace
+		state
+		synced
+		version
+	}
+	protect
+	deletedAt
+	sha
+	tarball
+	configuration {
+		name
+		value
+	}
+}
+`
+
+func (c *Client) DeleteClusterProvider(ctx context.Context, id string, httpRequestOptions ...client.HTTPRequestOption) (*DeleteClusterProvider, error) {
+	vars := map[string]interface{}{
+		"id": id,
+	}
+
+	var res DeleteClusterProvider
+	if err := c.Client.Post(ctx, "DeleteClusterProvider", DeleteClusterProviderDocument, &res, vars, httpRequestOptions...); err != nil {
 		return nil, err
 	}
 
