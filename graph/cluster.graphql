@@ -27,14 +27,18 @@ mutation CreateClusterProvider($attributes: ClusterProviderAttributes!) {
     createClusterProvider(attributes: $attributes) {
         ...ClusterProviderFragment
     }
-
 }
 
 mutation UpdateClusterProvider($id: ID!, $attributes: ClusterProviderUpdateAttributes!) {
     updateClusterProvider(id: $id, attributes: $attributes) {
         ...ClusterProviderFragment
     }
+}
 
+mutation DeleteClusterProvider($id: ID!) {
+    deleteClusterProvider(id: $id) {
+        ...ClusterProviderFragment
+    }
 }
 
 mutation PingCluster($attributes: ClusterPing!) {

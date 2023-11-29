@@ -109,9 +109,15 @@ fragment ClusterFragment on Cluster {
     protect
     currentVersion
     kasUrl
+    tags { ...ClusterTags }
     credential { ...ProviderCredentialFragment }
     provider { ...ClusterProviderFragment }
     nodePools { ...NodePoolFragment }
+}
+
+fragment ClusterTags on Tag {
+    name
+    value
 }
 
 fragment NodePoolFragment on NodePool {

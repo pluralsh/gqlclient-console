@@ -223,6 +223,7 @@ type ClusterFragment struct {
 	Protect        *bool                       "json:\"protect\" graphql:\"protect\""
 	CurrentVersion *string                     "json:\"currentVersion\" graphql:\"currentVersion\""
 	KasURL         *string                     "json:\"kasUrl\" graphql:\"kasUrl\""
+	Tags           []*ClusterTags              "json:\"tags\" graphql:\"tags\""
 	Credential     *ProviderCredentialFragment "json:\"credential\" graphql:\"credential\""
 	Provider       *ClusterProviderFragment    "json:\"provider\" graphql:\"provider\""
 	NodePools      []*NodePoolFragment         "json:\"nodePools\" graphql:\"nodePools\""
@@ -242,6 +243,10 @@ type ClusterProviderFragment struct {
 	Repository  *GitRepositoryFragment        "json:\"repository\" graphql:\"repository\""
 	Service     *ServiceDeploymentFragment    "json:\"service\" graphql:\"service\""
 	Credentials []*ProviderCredentialFragment "json:\"credentials\" graphql:\"credentials\""
+}
+type ClusterTags struct {
+	Name  string "json:\"name\" graphql:\"name\""
+	Value string "json:\"value\" graphql:\"value\""
 }
 type DeploymentSettingsFragment struct {
 	ID                 string                   "json:\"id\" graphql:\"id\""
@@ -426,6 +431,7 @@ type CreateCluster struct {
 		Protect        *bool                       "json:\"protect\" graphql:\"protect\""
 		CurrentVersion *string                     "json:\"currentVersion\" graphql:\"currentVersion\""
 		KasURL         *string                     "json:\"kasUrl\" graphql:\"kasUrl\""
+		Tags           []*ClusterTags              "json:\"tags\" graphql:\"tags\""
 		Credential     *ProviderCredentialFragment "json:\"credential\" graphql:\"credential\""
 		Provider       *ClusterProviderFragment    "json:\"provider\" graphql:\"provider\""
 		NodePools      []*NodePoolFragment         "json:\"nodePools\" graphql:\"nodePools\""
@@ -451,6 +457,9 @@ type DeleteAccessToken struct {
 }
 type DeleteCluster struct {
 	DeleteCluster *ClusterFragment "json:\"deleteCluster\" graphql:\"deleteCluster\""
+}
+type DeleteClusterProvider struct {
+	DeleteClusterProvider *ClusterProviderFragment "json:\"deleteClusterProvider\" graphql:\"deleteClusterProvider\""
 }
 type DeleteGitRepository struct {
 	DeleteGitRepository *GitRepositoryFragment "json:\"deleteGitRepository\" graphql:\"deleteGitRepository\""
@@ -779,6 +788,9 @@ fragment ClusterFragment on Cluster {
 	protect
 	currentVersion
 	kasUrl
+	tags {
+		... ClusterTags
+	}
 	credential {
 		... ProviderCredentialFragment
 	}
@@ -804,6 +816,10 @@ fragment ClusterProviderFragment on ClusterProvider {
 	credentials {
 		... ProviderCredentialFragment
 	}
+}
+fragment ClusterTags on Tag {
+	name
+	value
 }
 fragment GitRefFragment on GitRef {
 	folder
@@ -1211,6 +1227,9 @@ fragment ClusterFragment on Cluster {
 	protect
 	currentVersion
 	kasUrl
+	tags {
+		... ClusterTags
+	}
 	credential {
 		... ProviderCredentialFragment
 	}
@@ -1236,6 +1255,10 @@ fragment ClusterProviderFragment on ClusterProvider {
 	credentials {
 		... ProviderCredentialFragment
 	}
+}
+fragment ClusterTags on Tag {
+	name
+	value
 }
 fragment GitRefFragment on GitRef {
 	folder
@@ -1309,6 +1332,98 @@ func (c *Client) DeleteCluster(ctx context.Context, id string, httpRequestOption
 
 	var res DeleteCluster
 	if err := c.Client.Post(ctx, "DeleteCluster", DeleteClusterDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const DeleteClusterProviderDocument = `mutation DeleteClusterProvider ($id: ID!) {
+	deleteClusterProvider(id: $id) {
+		... ClusterProviderFragment
+	}
+}
+fragment ClusterProviderFragment on ClusterProvider {
+	id
+	name
+	namespace
+	cloud
+	editable
+	repository {
+		... GitRepositoryFragment
+	}
+	service {
+		... ServiceDeploymentFragment
+	}
+	credentials {
+		... ProviderCredentialFragment
+	}
+}
+fragment GitRefFragment on GitRef {
+	folder
+	ref
+}
+fragment GitRepositoryFragment on GitRepository {
+	id
+	error
+	health
+	authMethod
+	url
+}
+fragment KustomizeFragment on Kustomize {
+	path
+}
+fragment ProviderCredentialFragment on ProviderCredential {
+	id
+	name
+	namespace
+	kind
+}
+fragment ServiceDeploymentBaseFragment on ServiceDeployment {
+	id
+	name
+	namespace
+	version
+	kustomize {
+		... KustomizeFragment
+	}
+	git {
+		... GitRefFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+}
+fragment ServiceDeploymentFragment on ServiceDeployment {
+	... ServiceDeploymentBaseFragment
+	components {
+		id
+		name
+		group
+		kind
+		namespace
+		state
+		synced
+		version
+	}
+	protect
+	deletedAt
+	sha
+	tarball
+	configuration {
+		name
+		value
+	}
+}
+`
+
+func (c *Client) DeleteClusterProvider(ctx context.Context, id string, httpRequestOptions ...client.HTTPRequestOption) (*DeleteClusterProvider, error) {
+	vars := map[string]interface{}{
+		"id": id,
+	}
+
+	var res DeleteClusterProvider
+	if err := c.Client.Post(ctx, "DeleteClusterProvider", DeleteClusterProviderDocument, &res, vars, httpRequestOptions...); err != nil {
 		return nil, err
 	}
 
@@ -1454,6 +1569,9 @@ fragment ClusterFragment on Cluster {
 	protect
 	currentVersion
 	kasUrl
+	tags {
+		... ClusterTags
+	}
 	credential {
 		... ProviderCredentialFragment
 	}
@@ -1479,6 +1597,10 @@ fragment ClusterProviderFragment on ClusterProvider {
 	credentials {
 		... ProviderCredentialFragment
 	}
+}
+fragment ClusterTags on Tag {
+	name
+	value
 }
 fragment GitRefFragment on GitRef {
 	folder
@@ -1598,6 +1720,9 @@ fragment ClusterFragment on Cluster {
 	protect
 	currentVersion
 	kasUrl
+	tags {
+		... ClusterTags
+	}
 	credential {
 		... ProviderCredentialFragment
 	}
@@ -1623,6 +1748,10 @@ fragment ClusterProviderFragment on ClusterProvider {
 	credentials {
 		... ProviderCredentialFragment
 	}
+}
+fragment ClusterTags on Tag {
+	name
+	value
 }
 fragment GitRefFragment on GitRef {
 	folder
@@ -1718,6 +1847,9 @@ fragment ClusterFragment on Cluster {
 	protect
 	currentVersion
 	kasUrl
+	tags {
+		... ClusterTags
+	}
 	credential {
 		... ProviderCredentialFragment
 	}
@@ -1743,6 +1875,10 @@ fragment ClusterProviderFragment on ClusterProvider {
 	credentials {
 		... ProviderCredentialFragment
 	}
+}
+fragment ClusterTags on Tag {
+	name
+	value
 }
 fragment GitRefFragment on GitRef {
 	folder
@@ -2491,6 +2627,9 @@ fragment ClusterFragment on Cluster {
 	protect
 	currentVersion
 	kasUrl
+	tags {
+		... ClusterTags
+	}
 	credential {
 		... ProviderCredentialFragment
 	}
@@ -2516,6 +2655,10 @@ fragment ClusterProviderFragment on ClusterProvider {
 	credentials {
 		... ProviderCredentialFragment
 	}
+}
+fragment ClusterTags on Tag {
+	name
+	value
 }
 fragment GitRefFragment on GitRef {
 	folder
@@ -3256,6 +3399,9 @@ fragment ClusterFragment on Cluster {
 	protect
 	currentVersion
 	kasUrl
+	tags {
+		... ClusterTags
+	}
 	credential {
 		... ProviderCredentialFragment
 	}
@@ -3281,6 +3427,10 @@ fragment ClusterProviderFragment on ClusterProvider {
 	credentials {
 		... ProviderCredentialFragment
 	}
+}
+fragment ClusterTags on Tag {
+	name
+	value
 }
 fragment GitRefFragment on GitRef {
 	folder
