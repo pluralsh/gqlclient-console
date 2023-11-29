@@ -807,6 +807,8 @@ type DeploymentSettings struct {
 	// whether you've yet to enable CD for this instance
 	Enabled bool   `json:"enabled"`
 	Name    string `json:"name"`
+	// whether the byok cluster has been brought under self-management
+	SelfManaged *bool `json:"selfManaged"`
 	// the repo to fetch CAPI manifests from, for both providers and clusters
 	ArtifactRepository *GitRepository `json:"artifactRepository"`
 	// the repo to fetch the deploy operators manifests from
@@ -1059,6 +1061,71 @@ type GroupMemberConnection struct {
 type GroupMemberEdge struct {
 	Node   *GroupMember `json:"node"`
 	Cursor *string      `json:"cursor"`
+}
+
+// a chart manifest entry, including all versions
+type HelmChartEntry struct {
+	// the name of the chart
+	Name *string `json:"name"`
+	// all found versions of the chart
+	Versions []*HelmChartVersion `json:"versions"`
+}
+
+// a chart version contained within a helm repository manifest
+type HelmChartVersion struct {
+	// the version of the app contained w/in this chart
+	AppVersion *string `json:"appVersion"`
+	// the version of the chart itself
+	Version *string `json:"version"`
+	// the name of the chart
+	Name *string `json:"name"`
+	Type *string `json:"type"`
+	// sha digest of this chart's contents
+	Digest *string `json:"digest"`
+}
+
+type HelmConfigAttributes struct {
+	Values      *string         `json:"values,omitempty"`
+	ValuesFiles []*string       `json:"valuesFiles,omitempty"`
+	Chart       *string         `json:"chart,omitempty"`
+	Version     *string         `json:"version,omitempty"`
+	Repository  *NamespacedName `json:"repository,omitempty"`
+}
+
+// a crd representation of a helm repository
+type HelmRepository struct {
+	Metadata Metadata           `json:"metadata"`
+	Spec     HelmRepositorySpec `json:"spec"`
+	// the charts found in this repository (heavy operation, don't do in list endpoints)
+	Charts []*HelmChartEntry `json:"charts"`
+	// can fetch the status of a given helm repository
+	Status *HelmRepositoryStatus `json:"status"`
+}
+
+// a specification of how a helm repository is fetched
+type HelmRepositorySpec struct {
+	Provider *string `json:"provider"`
+	URL      string  `json:"url"`
+	Type     *string `json:"type"`
+}
+
+// the state of this helm repository
+type HelmRepositoryStatus struct {
+	Ready   *bool   `json:"ready"`
+	Message *string `json:"message"`
+}
+
+type HelmSpec struct {
+	// the name of the chart this service is using
+	Chart *string `json:"chart"`
+	// a helm values file to use with this service, requires auth and so is heavy to query
+	Values *string `json:"values"`
+	// pointer to the flux helm repository resource used for this chart
+	Repository *ObjectReference `json:"repository"`
+	// the chart version in use currently
+	Version *string `json:"version"`
+	// a list of relative paths to values files to use for helm applies
+	ValuesFiles []*string `json:"valuesFiles"`
 }
 
 type HTTPIngressRule struct {
@@ -1423,6 +1490,11 @@ type NotificationDelta struct {
 type NotificationEdge struct {
 	Node   *Notification `json:"node"`
 	Cursor *string       `json:"cursor"`
+}
+
+type ObjectReference struct {
+	Name      *string `json:"name"`
+	Namespace *string `json:"namespace"`
 }
 
 type OverlayUpdate struct {
@@ -1824,7 +1896,9 @@ type Revision struct {
 	// the service's semver
 	Version string `json:"version"`
 	// git spec of the prior revision
-	Git GitRef `json:"git"`
+	Git *GitRef `json:"git"`
+	// description of how helm charts should be applied
+	Helm *HelmSpec `json:"helm"`
 	// the sha this service was pulled from
 	Sha *string `json:"sha"`
 	// the commit message for this revision
@@ -1974,6 +2048,8 @@ type RunningState struct {
 
 // a full specification of a kubernetes runtime component's requirements
 type RuntimeAddon struct {
+	// an icon to identify this runtime add-on
+	Icon     *string         `json:"icon"`
 	Versions []*AddonVersion `json:"versions"`
 }
 
@@ -2068,7 +2144,9 @@ type ServiceDeployment struct {
 	// semver of this service
 	Version string `json:"version"`
 	// description on where in git the service's manifests should be fetched
-	Git GitRef `json:"git"`
+	Git *GitRef `json:"git"`
+	// description of how helm charts should be applied
+	Helm *HelmSpec `json:"helm"`
 	// if true, deletion of this service is not allowed
 	Protect *bool `json:"protect"`
 	// latest git sha we pulled from
@@ -2088,7 +2166,8 @@ type ServiceDeployment struct {
 	// fetches the /docs directory within this services git tree.  This is a heavy operation and should NOT be used in list queries
 	Docs []*GitFile `json:"docs"`
 	// the git repo of this service
-	Repository *GitRepository `json:"repository"`
+	Repository     *GitRepository  `json:"repository"`
+	HelmRepository *HelmRepository `json:"helmRepository"`
 	// read policy for this service
 	ReadBindings []*PolicyBinding `json:"readBindings"`
 	// write policy of this service
@@ -2123,7 +2202,8 @@ type ServiceDeploymentAttributes struct {
 	SyncConfig    *SyncConfigAttributes      `json:"syncConfig,omitempty"`
 	Protect       *bool                      `json:"protect,omitempty"`
 	RepositoryID  string                     `json:"repositoryId"`
-	Git           GitRefAttributes           `json:"git"`
+	Git           *GitRefAttributes          `json:"git,omitempty"`
+	Helm          *HelmConfigAttributes      `json:"helm,omitempty"`
 	Kustomize     *KustomizeAttributes       `json:"kustomize,omitempty"`
 	Configuration []*ConfigAttributes        `json:"configuration,omitempty"`
 	ReadBindings  []*PolicyBindingAttributes `json:"readBindings,omitempty"`
@@ -2176,11 +2256,12 @@ type ServiceStatusCount struct {
 }
 
 type ServiceUpdateAttributes struct {
-	Version       *string              `json:"version,omitempty"`
-	Protect       *bool                `json:"protect,omitempty"`
-	Git           *GitRefAttributes    `json:"git,omitempty"`
-	Configuration []*ConfigAttributes  `json:"configuration,omitempty"`
-	Kustomize     *KustomizeAttributes `json:"kustomize,omitempty"`
+	Version       *string               `json:"version,omitempty"`
+	Protect       *bool                 `json:"protect,omitempty"`
+	Git           *GitRefAttributes     `json:"git,omitempty"`
+	Helm          *HelmConfigAttributes `json:"helm,omitempty"`
+	Configuration []*ConfigAttributes   `json:"configuration,omitempty"`
+	Kustomize     *KustomizeAttributes  `json:"kustomize,omitempty"`
 }
 
 type SMTP struct {

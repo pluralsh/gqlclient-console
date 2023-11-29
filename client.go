@@ -89,6 +89,8 @@ type RootQueryType struct {
 	PostgresDatabase      *Postgresql                  "json:\"postgresDatabase\" graphql:\"postgresDatabase\""
 	GitRepository         *GitRepository               "json:\"gitRepository\" graphql:\"gitRepository\""
 	GitRepositories       *GitRepositoryConnection     "json:\"gitRepositories\" graphql:\"gitRepositories\""
+	HelmRepositories      []*HelmRepository            "json:\"helmRepositories\" graphql:\"helmRepositories\""
+	HelmRepository        *HelmRepository              "json:\"helmRepository\" graphql:\"helmRepository\""
 	TokenExchange         *User                        "json:\"tokenExchange\" graphql:\"tokenExchange\""
 	Clusters              *ClusterConnection           "json:\"clusters\" graphql:\"clusters\""
 	ClusterProviders      *ClusterProviderConnection   "json:\"clusterProviders\" graphql:\"clusterProviders\""
@@ -165,6 +167,7 @@ type RootMutationType struct {
 	MergeService             *ServiceDeployment     "json:\"mergeService\" graphql:\"mergeService\""
 	RollbackService          *ServiceDeployment     "json:\"rollbackService\" graphql:\"rollbackService\""
 	CloneService             *ServiceDeployment     "json:\"cloneService\" graphql:\"cloneService\""
+	SelfManage               *ServiceDeployment     "json:\"selfManage\" graphql:\"selfManage\""
 	CreateGlobalService      *GlobalService         "json:\"createGlobalService\" graphql:\"createGlobalService\""
 	DeleteGlobalService      *GlobalService         "json:\"deleteGlobalService\" graphql:\"deleteGlobalService\""
 	SavePipeline             *Pipeline              "json:\"savePipeline\" graphql:\"savePipeline\""
@@ -322,7 +325,7 @@ type ProviderCredentialFragment struct {
 type RevisionFragment struct {
 	ID  string  "json:\"id\" graphql:\"id\""
 	Sha *string "json:\"sha\" graphql:\"sha\""
-	Git struct {
+	Git *struct {
 		Ref    string "json:\"ref\" graphql:\"ref\""
 		Folder string "json:\"folder\" graphql:\"folder\""
 	} "json:\"git\" graphql:\"git\""
@@ -333,7 +336,7 @@ type ServiceDeploymentBaseFragment struct {
 	Namespace  string                 "json:\"namespace\" graphql:\"namespace\""
 	Version    string                 "json:\"version\" graphql:\"version\""
 	Kustomize  *KustomizeFragment     "json:\"kustomize\" graphql:\"kustomize\""
-	Git        GitRefFragment         "json:\"git\" graphql:\"git\""
+	Git        *GitRefFragment        "json:\"git\" graphql:\"git\""
 	Repository *GitRepositoryFragment "json:\"repository\" graphql:\"repository\""
 }
 type ServiceDeploymentEdgeFragment struct {
@@ -348,7 +351,7 @@ type ServiceDeploymentExtended struct {
 	Namespace  string                 "json:\"namespace\" graphql:\"namespace\""
 	Version    string                 "json:\"version\" graphql:\"version\""
 	Kustomize  *KustomizeFragment     "json:\"kustomize\" graphql:\"kustomize\""
-	Git        GitRefFragment         "json:\"git\" graphql:\"git\""
+	Git        *GitRefFragment        "json:\"git\" graphql:\"git\""
 	Repository *GitRepositoryFragment "json:\"repository\" graphql:\"repository\""
 	Components []*struct {
 		ID        string          "json:\"id\" graphql:\"id\""
@@ -375,7 +378,7 @@ type ServiceDeploymentFragment struct {
 	Namespace  string                 "json:\"namespace\" graphql:\"namespace\""
 	Version    string                 "json:\"version\" graphql:\"version\""
 	Kustomize  *KustomizeFragment     "json:\"kustomize\" graphql:\"kustomize\""
-	Git        GitRefFragment         "json:\"git\" graphql:\"git\""
+	Git        *GitRefFragment        "json:\"git\" graphql:\"git\""
 	Repository *GitRepositoryFragment "json:\"repository\" graphql:\"repository\""
 	Components []*struct {
 		ID        string          "json:\"id\" graphql:\"id\""
