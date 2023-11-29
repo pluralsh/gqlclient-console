@@ -10,7 +10,7 @@ fragment PipelineGateFragment on PipelineGate {
     type
     state
     updatedAt
-    ...GateSpecFragment
+    spec { ...GateSpecFragment }
 }
 
 fragment GateSpecFragment on GateSpec {
