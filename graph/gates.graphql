@@ -1,0 +1,30 @@
+query GetClusterGates {
+    clusterGates {
+        id
+        name
+        type
+        state
+        updatedAt
+        spec {
+            job {
+                namespace
+                raw
+                containers {
+                    image
+                    args
+                    env {
+                        name
+                        value
+                    }
+                    envFrom {
+                        configMap
+                        secret
+                    }
+                }
+                labels
+                annotations
+                serviceAccount
+            }
+        }
+  }
+}
