@@ -1,30 +1,42 @@
 query GetClusterGates {
     clusterGates {
-        id
-        name
-        type
-        state
-        updatedAt
-        spec {
-            job {
-                namespace
-                raw
-                containers {
-                    image
-                    args
-                    env {
-                        name
-                        value
-                    }
-                    envFrom {
-                        configMap
-                        secret
-                    }
-                }
-                labels
-                annotations
-                serviceAccount
+      ...PipelineGateFragment
+  }
+}
+
+fragment PipelineGateFragment on PipelineGate {
+    id
+    name
+    type
+    state
+    updatedAt
+    ...GateSpecFragment
+}
+
+fragment GateSpecFragment on GateSpec {
+    job {
+        namespace
+        raw
+        containers {
+            image
+            args
+            env {
+                name
+                value
+            }
+            envFrom {
+                configMap
+                secret
             }
         }
+        labels
+        annotations
+        serviceAccount
+    }
+}
+
+mutation updateGate($id: ID!, $attributes: GateUpdateAttributes!) {
+  updateGate(id: $id, attributes: $attributes) {
+    ...PipelineGateFragment
   }
 }
