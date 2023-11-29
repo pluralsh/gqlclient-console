@@ -208,6 +208,15 @@ type AwsCloudAttributes struct {
 	Region *string `json:"region,omitempty"`
 }
 
+// aws specific cloud configuration
+type AwsCloudSettings struct {
+	Region *string `json:"region"`
+}
+
+type AwsNodeCloudAttributes struct {
+	LaunchTemplateID *string `json:"launchTemplateId,omitempty"`
+}
+
 type AwsSettingsAttributes struct {
 	AccessKeyID     string `json:"accessKeyId"`
 	SecretAccessKey string `json:"secretAccessKey"`
@@ -218,6 +227,14 @@ type AzureCloudAttributes struct {
 	SubscriptionID *string `json:"subscriptionId,omitempty"`
 	ResourceGroup  *string `json:"resourceGroup,omitempty"`
 	Network        *string `json:"network,omitempty"`
+}
+
+// azure-specific cluster cloud configuration
+type AzureCloudSettings struct {
+	Location       *string `json:"location"`
+	SubscriptionID *string `json:"subscriptionId"`
+	ResourceGroup  *string `json:"resourceGroup"`
+	Network        *string `json:"network"`
 }
 
 type AzureSettingsAttributes struct {
@@ -322,9 +339,11 @@ type CloudProviderSettingsAttributes struct {
 	Azure *AzureSettingsAttributes `json:"azure,omitempty"`
 }
 
-// cloud specific settings for a node pool
+// the cloud configuration for a cluster
 type CloudSettings struct {
-	Aws *AwsCloud `json:"aws"`
+	Aws   *AwsCloudSettings   `json:"aws"`
+	Gcp   *GcpCloudSettings   `json:"gcp"`
+	Azure *AzureCloudSettings `json:"azure"`
 }
 
 type CloudSettingsAttributes struct {
@@ -351,6 +370,8 @@ type Cluster struct {
 	Handle *string `json:"handle"`
 	// whether the deploy operator has been registered for this cluster
 	Installed *bool `json:"installed"`
+	// the cloud settings for this cluster (for instance its aws region)
+	Settings *CloudSettings `json:"settings"`
 	// the url of the kas server you can access this cluster from
 	KasURL *string `json:"kasUrl"`
 	// a auth token to be used by the deploy operator, only readable on create
@@ -921,6 +942,13 @@ type GcpCloudAttributes struct {
 	Region  *string `json:"region,omitempty"`
 }
 
+// gcp specific cluster cloud configuration
+type GcpCloudSettings struct {
+	Project *string `json:"project"`
+	Network *string `json:"network"`
+	Region  *string `json:"region"`
+}
+
 type GcpSettingsAttributes struct {
 	ApplicationCredentials string `json:"applicationCredentials"`
 }
@@ -1396,6 +1424,11 @@ type Node struct {
 	Events   []*Event   `json:"events"`
 }
 
+// cloud specific settings for a node pool
+type NodeCloudSettings struct {
+	Aws *AwsCloud `json:"aws"`
+}
+
 type NodeCondition struct {
 	Message *string `json:"message"`
 	Reason  *string `json:"reason"`
@@ -1429,9 +1462,9 @@ type NodePool struct {
 	// any taints you'd want to apply to a node, for eg preventing scheduling on spot instances
 	Taints []*Taint `json:"taints"`
 	// cloud specific settings for the node groups
-	CloudSettings *CloudSettings `json:"cloudSettings"`
-	InsertedAt    *string        `json:"insertedAt"`
-	UpdatedAt     *string        `json:"updatedAt"`
+	CloudSettings *NodeCloudSettings `json:"cloudSettings"`
+	InsertedAt    *string            `json:"insertedAt"`
+	UpdatedAt     *string            `json:"updatedAt"`
 }
 
 type NodePoolAttributes struct {
@@ -1441,7 +1474,11 @@ type NodePoolAttributes struct {
 	InstanceType  string                   `json:"instanceType"`
 	Labels        map[string]interface{}   `json:"labels,omitempty"`
 	Taints        []*TaintAttributes       `json:"taints,omitempty"`
-	CloudSettings *CloudSettingsAttributes `json:"cloudSettings,omitempty"`
+	CloudSettings *NodePoolCloudAttributes `json:"cloudSettings,omitempty"`
+}
+
+type NodePoolCloudAttributes struct {
+	Aws *AwsNodeCloudAttributes `json:"aws,omitempty"`
 }
 
 type NodeSpec struct {

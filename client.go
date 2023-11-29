@@ -261,6 +261,27 @@ type ErrorFragment struct {
 	Source  string "json:\"source\" graphql:\"source\""
 	Message string "json:\"message\" graphql:\"message\""
 }
+type GateSpecFragment struct {
+	Job *struct {
+		Namespace  string  "json:\"namespace\" graphql:\"namespace\""
+		Raw        *string "json:\"raw\" graphql:\"raw\""
+		Containers []*struct {
+			Image string    "json:\"image\" graphql:\"image\""
+			Args  []*string "json:\"args\" graphql:\"args\""
+			Env   []*struct {
+				Name  string "json:\"name\" graphql:\"name\""
+				Value string "json:\"value\" graphql:\"value\""
+			} "json:\"env\" graphql:\"env\""
+			EnvFrom []*struct {
+				ConfigMap string "json:\"configMap\" graphql:\"configMap\""
+				Secret    string "json:\"secret\" graphql:\"secret\""
+			} "json:\"envFrom\" graphql:\"envFrom\""
+		} "json:\"containers\" graphql:\"containers\""
+		Labels         map[string]interface{} "json:\"labels\" graphql:\"labels\""
+		Annotations    map[string]interface{} "json:\"annotations\" graphql:\"annotations\""
+		ServiceAccount *string                "json:\"serviceAccount\" graphql:\"serviceAccount\""
+	} "json:\"job\" graphql:\"job\""
+}
 type GitRefFragment struct {
 	Folder string "json:\"folder\" graphql:\"folder\""
 	Ref    string "json:\"ref\" graphql:\"ref\""
@@ -299,6 +320,14 @@ type PipelineFragment struct {
 	Name   string                       "json:\"name\" graphql:\"name\""
 	Stages []*PipelineStageFragment     "json:\"stages\" graphql:\"stages\""
 	Edges  []*PipelineStageEdgeFragment "json:\"edges\" graphql:\"edges\""
+}
+type PipelineGateFragment struct {
+	ID        string            "json:\"id\" graphql:\"id\""
+	Name      string            "json:\"name\" graphql:\"name\""
+	Type      GateType          "json:\"type\" graphql:\"type\""
+	State     GateState         "json:\"state\" graphql:\"state\""
+	UpdatedAt *string           "json:\"updatedAt\" graphql:\"updatedAt\""
+	Spec      *GateSpecFragment "json:\"spec\" graphql:\"spec\""
 }
 type PipelineStageEdgeFragment struct {
 	ID   string                "json:\"id\" graphql:\"id\""
@@ -482,6 +511,9 @@ type GetCluster struct {
 type GetClusterByHandle struct {
 	Cluster *ClusterFragment "json:\"cluster\" graphql:\"cluster\""
 }
+type GetClusterGates struct {
+	ClusterGates []*PipelineGateFragment "json:\"clusterGates\" graphql:\"clusterGates\""
+}
 type GetClusterProvider struct {
 	ClusterProvider *ClusterProviderFragment "json:\"clusterProvider\" graphql:\"clusterProvider\""
 }
@@ -599,6 +631,9 @@ type UpdateServiceDeployment struct {
 }
 type UpdateServiceDeploymentWithHandle struct {
 	UpdateServiceDeployment *ServiceDeploymentFragment "json:\"updateServiceDeployment\" graphql:\"updateServiceDeployment\""
+}
+type UpdateGate struct {
+	UpdateGate *PipelineGateFragment "json:\"updateGate\" graphql:\"updateGate\""
 }
 type UpdateServiceComponents struct {
 	UpdateServiceComponents *ServiceDeploymentFragment "json:\"updateServiceComponents\" graphql:\"updateServiceComponents\""
@@ -1952,6 +1987,55 @@ func (c *Client) GetClusterByHandle(ctx context.Context, handle *string, httpReq
 
 	var res GetClusterByHandle
 	if err := c.Client.Post(ctx, "GetClusterByHandle", GetClusterByHandleDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const GetClusterGatesDocument = `query GetClusterGates {
+	clusterGates {
+		... PipelineGateFragment
+	}
+}
+fragment GateSpecFragment on GateSpec {
+	job {
+		namespace
+		raw
+		containers {
+			image
+			args
+			env {
+				name
+				value
+			}
+			envFrom {
+				configMap
+				secret
+			}
+		}
+		labels
+		annotations
+		serviceAccount
+	}
+}
+fragment PipelineGateFragment on PipelineGate {
+	id
+	name
+	type
+	state
+	updatedAt
+	spec {
+		... GateSpecFragment
+	}
+}
+`
+
+func (c *Client) GetClusterGates(ctx context.Context, httpRequestOptions ...client.HTTPRequestOption) (*GetClusterGates, error) {
+	vars := map[string]interface{}{}
+
+	var res GetClusterGates
+	if err := c.Client.Post(ctx, "GetClusterGates", GetClusterGatesDocument, &res, vars, httpRequestOptions...); err != nil {
 		return nil, err
 	}
 
@@ -3855,6 +3939,58 @@ func (c *Client) UpdateServiceDeploymentWithHandle(ctx context.Context, cluster 
 
 	var res UpdateServiceDeploymentWithHandle
 	if err := c.Client.Post(ctx, "UpdateServiceDeploymentWithHandle", UpdateServiceDeploymentWithHandleDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const UpdateGateDocument = `mutation updateGate ($id: ID!, $attributes: GateUpdateAttributes!) {
+	updateGate(id: $id, attributes: $attributes) {
+		... PipelineGateFragment
+	}
+}
+fragment GateSpecFragment on GateSpec {
+	job {
+		namespace
+		raw
+		containers {
+			image
+			args
+			env {
+				name
+				value
+			}
+			envFrom {
+				configMap
+				secret
+			}
+		}
+		labels
+		annotations
+		serviceAccount
+	}
+}
+fragment PipelineGateFragment on PipelineGate {
+	id
+	name
+	type
+	state
+	updatedAt
+	spec {
+		... GateSpecFragment
+	}
+}
+`
+
+func (c *Client) UpdateGate(ctx context.Context, id string, attributes GateUpdateAttributes, httpRequestOptions ...client.HTTPRequestOption) (*UpdateGate, error) {
+	vars := map[string]interface{}{
+		"id":         id,
+		"attributes": attributes,
+	}
+
+	var res UpdateGate
+	if err := c.Client.Post(ctx, "updateGate", UpdateGateDocument, &res, vars, httpRequestOptions...); err != nil {
 		return nil, err
 	}
 
