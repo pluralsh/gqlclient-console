@@ -296,6 +296,9 @@ type GroupFragment struct {
 	Name        string  "json:\"name\" graphql:\"name\""
 	Description *string "json:\"description\" graphql:\"description\""
 }
+type HelmSpecFragment struct {
+	ValuesFiles []*string "json:\"valuesFiles\" graphql:\"valuesFiles\""
+}
 type JobSpecFragment struct {
 	Namespace      string                   "json:\"namespace\" graphql:\"namespace\""
 	Raw            *string                  "json:\"raw\" graphql:\"raw\""
@@ -380,6 +383,7 @@ type ServiceDeploymentBaseFragment struct {
 	Version    string                 "json:\"version\" graphql:\"version\""
 	Kustomize  *KustomizeFragment     "json:\"kustomize\" graphql:\"kustomize\""
 	Git        *GitRefFragment        "json:\"git\" graphql:\"git\""
+	Helm       *HelmSpecFragment      "json:\"helm\" graphql:\"helm\""
 	Repository *GitRepositoryFragment "json:\"repository\" graphql:\"repository\""
 }
 type ServiceDeploymentEdgeFragment struct {
@@ -395,6 +399,7 @@ type ServiceDeploymentExtended struct {
 	Version    string                 "json:\"version\" graphql:\"version\""
 	Kustomize  *KustomizeFragment     "json:\"kustomize\" graphql:\"kustomize\""
 	Git        *GitRefFragment        "json:\"git\" graphql:\"git\""
+	Helm       *HelmSpecFragment      "json:\"helm\" graphql:\"helm\""
 	Repository *GitRepositoryFragment "json:\"repository\" graphql:\"repository\""
 	Components []*struct {
 		ID        string          "json:\"id\" graphql:\"id\""
@@ -422,6 +427,7 @@ type ServiceDeploymentFragment struct {
 	Version    string                 "json:\"version\" graphql:\"version\""
 	Kustomize  *KustomizeFragment     "json:\"kustomize\" graphql:\"kustomize\""
 	Git        *GitRefFragment        "json:\"git\" graphql:\"git\""
+	Helm       *HelmSpecFragment      "json:\"helm\" graphql:\"helm\""
 	Repository *GitRepositoryFragment "json:\"repository\" graphql:\"repository\""
 	Components []*struct {
 		ID        string          "json:\"id\" graphql:\"id\""
@@ -664,6 +670,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
 fragment KustomizeFragment on Kustomize {
 	path
 }
@@ -677,6 +686,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	}
 	git {
 		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
 	}
 	repository {
 		... GitRepositoryFragment
@@ -736,6 +748,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
 fragment KustomizeFragment on Kustomize {
 	path
 }
@@ -749,6 +764,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	}
 	git {
 		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
 	}
 	repository {
 		... GitRepositoryFragment
@@ -876,6 +894,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
 fragment KustomizeFragment on Kustomize {
 	path
 }
@@ -911,6 +932,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	}
 	git {
 		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
 	}
 	repository {
 		... GitRepositoryFragment
@@ -984,6 +1008,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
 fragment KustomizeFragment on Kustomize {
 	path
 }
@@ -1003,6 +1030,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	}
 	git {
 		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
 	}
 	repository {
 		... GitRepositoryFragment
@@ -1114,6 +1144,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
 fragment KustomizeFragment on Kustomize {
 	path
 }
@@ -1127,6 +1160,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	}
 	git {
 		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
 	}
 	repository {
 		... GitRepositoryFragment
@@ -1185,6 +1221,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
 fragment KustomizeFragment on Kustomize {
 	path
 }
@@ -1198,6 +1237,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	}
 	git {
 		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
 	}
 	repository {
 		... GitRepositoryFragment
@@ -1324,6 +1366,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
 fragment KustomizeFragment on Kustomize {
 	path
 }
@@ -1359,6 +1404,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	}
 	git {
 		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
 	}
 	repository {
 		... GitRepositoryFragment
@@ -1432,6 +1480,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
 fragment KustomizeFragment on Kustomize {
 	path
 }
@@ -1451,6 +1502,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	}
 	git {
 		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
 	}
 	repository {
 		... GitRepositoryFragment
@@ -1561,6 +1615,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
 fragment KustomizeFragment on Kustomize {
 	path
 }
@@ -1574,6 +1631,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	}
 	git {
 		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
 	}
 	repository {
 		... GitRepositoryFragment
@@ -1675,6 +1735,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
 fragment KustomizeFragment on Kustomize {
 	path
 }
@@ -1710,6 +1773,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	}
 	git {
 		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
 	}
 	repository {
 		... GitRepositoryFragment
@@ -1835,6 +1901,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
 fragment KustomizeFragment on Kustomize {
 	path
 }
@@ -1870,6 +1939,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	}
 	git {
 		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
 	}
 	repository {
 		... GitRepositoryFragment
@@ -1971,6 +2043,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
 fragment KustomizeFragment on Kustomize {
 	path
 }
@@ -2006,6 +2081,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	}
 	git {
 		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
 	}
 	repository {
 		... GitRepositoryFragment
@@ -2134,6 +2212,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
 fragment KustomizeFragment on Kustomize {
 	path
 }
@@ -2153,6 +2234,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	}
 	git {
 		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
 	}
 	repository {
 		... GitRepositoryFragment
@@ -2238,6 +2322,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
 fragment KustomizeFragment on Kustomize {
 	path
 }
@@ -2286,6 +2373,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	git {
 		... GitRefFragment
 	}
+	helm {
+		... HelmSpecFragment
+	}
 	repository {
 		... GitRepositoryFragment
 	}
@@ -2322,6 +2412,9 @@ fragment GitRepositoryFragment on GitRepository {
 	health
 	authMethod
 	url
+}
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
 }
 fragment KustomizeFragment on Kustomize {
 	path
@@ -2375,6 +2468,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	}
 	git {
 		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
 	}
 	repository {
 		... GitRepositoryFragment
@@ -2444,6 +2540,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
 fragment KustomizeFragment on Kustomize {
 	path
 }
@@ -2487,6 +2586,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	}
 	git {
 		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
 	}
 	repository {
 		... GitRepositoryFragment
@@ -2589,6 +2691,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
 fragment KustomizeFragment on Kustomize {
 	path
 }
@@ -2632,6 +2737,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	}
 	git {
 		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
 	}
 	repository {
 		... GitRepositoryFragment
@@ -2735,6 +2843,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
 fragment KustomizeFragment on Kustomize {
 	path
 }
@@ -2748,6 +2859,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	}
 	git {
 		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
 	}
 	repository {
 		... GitRepositoryFragment
@@ -2833,6 +2947,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
 fragment KustomizeFragment on Kustomize {
 	path
 }
@@ -2868,6 +2985,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	}
 	git {
 		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
 	}
 	repository {
 		... GitRepositoryFragment
@@ -3053,6 +3173,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
 fragment KustomizeFragment on Kustomize {
 	path
 }
@@ -3072,6 +3195,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	}
 	git {
 		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
 	}
 	repository {
 		... GitRepositoryFragment
@@ -3129,6 +3255,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
 fragment KustomizeFragment on Kustomize {
 	path
 }
@@ -3142,6 +3271,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	}
 	git {
 		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
 	}
 	repository {
 		... GitRepositoryFragment
@@ -3188,6 +3320,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
 fragment KustomizeFragment on Kustomize {
 	path
 }
@@ -3201,6 +3336,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	}
 	git {
 		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
 	}
 	repository {
 		... GitRepositoryFragment
@@ -3249,6 +3387,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
 fragment KustomizeFragment on Kustomize {
 	path
 }
@@ -3262,6 +3403,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	}
 	git {
 		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
 	}
 	repository {
 		... GitRepositoryFragment
@@ -3382,6 +3526,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
 fragment KustomizeFragment on Kustomize {
 	path
 }
@@ -3395,6 +3542,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	}
 	git {
 		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
 	}
 	repository {
 		... GitRepositoryFragment
@@ -3453,6 +3603,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
 fragment KustomizeFragment on Kustomize {
 	path
 }
@@ -3500,6 +3653,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	}
 	git {
 		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
 	}
 	repository {
 		... GitRepositoryFragment
@@ -3614,6 +3770,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
 fragment KustomizeFragment on Kustomize {
 	path
 }
@@ -3649,6 +3808,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	}
 	git {
 		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
 	}
 	repository {
 		... GitRepositoryFragment
@@ -3723,6 +3885,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
 fragment KustomizeFragment on Kustomize {
 	path
 }
@@ -3742,6 +3907,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	}
 	git {
 		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
 	}
 	repository {
 		... GitRepositoryFragment
@@ -3914,6 +4082,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
 fragment KustomizeFragment on Kustomize {
 	path
 }
@@ -3927,6 +4098,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	}
 	git {
 		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
 	}
 	repository {
 		... GitRepositoryFragment
@@ -3985,6 +4159,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
 fragment KustomizeFragment on Kustomize {
 	path
 }
@@ -3998,6 +4175,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	}
 	git {
 		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
 	}
 	repository {
 		... GitRepositoryFragment
@@ -4115,6 +4295,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
 fragment KustomizeFragment on Kustomize {
 	path
 }
@@ -4128,6 +4311,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	}
 	git {
 		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
 	}
 	repository {
 		... GitRepositoryFragment

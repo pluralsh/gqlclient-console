@@ -9,6 +9,7 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
     version
     kustomize {...KustomizeFragment}
     git { ...GitRefFragment }
+    helm { ...HelmSpecFragment }
     repository { ... GitRepositoryFragment }
 }
 
@@ -82,6 +83,10 @@ fragment GitRepositoryFragment on GitRepository {
 fragment GitRefFragment on GitRef {
     folder
     ref
+}
+
+fragment HelmSpecFragment on HelmSpec {
+    valuesFiles
 }
 
 fragment BaseClusterFragment on Cluster {
