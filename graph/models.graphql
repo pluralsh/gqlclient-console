@@ -126,6 +126,16 @@ fragment NodePoolFragment on NodePool {
     minSize
     maxSize
     instanceType
+    labels
+    taints {
+        ...NodePoolTaintFragment
+    }
+}
+
+fragment NodePoolTaintFragment on Taint {
+    key
+    value
+    effect
 }
 
 fragment BaseClusterProviderFragment on ClusterProvider {

@@ -306,11 +306,18 @@ type KustomizeFragment struct {
 	Path string "json:\"path\" graphql:\"path\""
 }
 type NodePoolFragment struct {
-	ID           string "json:\"id\" graphql:\"id\""
-	Name         string "json:\"name\" graphql:\"name\""
-	MinSize      int64  "json:\"minSize\" graphql:\"minSize\""
-	MaxSize      int64  "json:\"maxSize\" graphql:\"maxSize\""
-	InstanceType string "json:\"instanceType\" graphql:\"instanceType\""
+	ID           string                   "json:\"id\" graphql:\"id\""
+	Name         string                   "json:\"name\" graphql:\"name\""
+	MinSize      int64                    "json:\"minSize\" graphql:\"minSize\""
+	MaxSize      int64                    "json:\"maxSize\" graphql:\"maxSize\""
+	InstanceType string                   "json:\"instanceType\" graphql:\"instanceType\""
+	Labels       map[string]interface{}   "json:\"labels\" graphql:\"labels\""
+	Taints       []*NodePoolTaintFragment "json:\"taints\" graphql:\"taints\""
+}
+type NodePoolTaintFragment struct {
+	Key    string "json:\"key\" graphql:\"key\""
+	Value  string "json:\"value\" graphql:\"value\""
+	Effect string "json:\"effect\" graphql:\"effect\""
 }
 type PipelineEdgeFragment struct {
 	Node *PipelineFragment "json:\"node\" graphql:\"node\""
@@ -876,6 +883,15 @@ fragment NodePoolFragment on NodePool {
 	minSize
 	maxSize
 	instanceType
+	labels
+	taints {
+		... NodePoolTaintFragment
+	}
+}
+fragment NodePoolTaintFragment on Taint {
+	key
+	value
+	effect
 }
 fragment ProviderCredentialFragment on ProviderCredential {
 	id
@@ -1315,6 +1331,15 @@ fragment NodePoolFragment on NodePool {
 	minSize
 	maxSize
 	instanceType
+	labels
+	taints {
+		... NodePoolTaintFragment
+	}
+}
+fragment NodePoolTaintFragment on Taint {
+	key
+	value
+	effect
 }
 fragment ProviderCredentialFragment on ProviderCredential {
 	id
@@ -1657,6 +1682,15 @@ fragment NodePoolFragment on NodePool {
 	minSize
 	maxSize
 	instanceType
+	labels
+	taints {
+		... NodePoolTaintFragment
+	}
+}
+fragment NodePoolTaintFragment on Taint {
+	key
+	value
+	effect
 }
 fragment ProviderCredentialFragment on ProviderCredential {
 	id
@@ -1808,6 +1842,15 @@ fragment NodePoolFragment on NodePool {
 	minSize
 	maxSize
 	instanceType
+	labels
+	taints {
+		... NodePoolTaintFragment
+	}
+}
+fragment NodePoolTaintFragment on Taint {
+	key
+	value
+	effect
 }
 fragment ProviderCredentialFragment on ProviderCredential {
 	id
@@ -1935,6 +1978,15 @@ fragment NodePoolFragment on NodePool {
 	minSize
 	maxSize
 	instanceType
+	labels
+	taints {
+		... NodePoolTaintFragment
+	}
+}
+fragment NodePoolTaintFragment on Taint {
+	key
+	value
+	effect
 }
 fragment ProviderCredentialFragment on ProviderCredential {
 	id
@@ -2393,6 +2445,15 @@ fragment NodePoolFragment on NodePool {
 	minSize
 	maxSize
 	instanceType
+	labels
+	taints {
+		... NodePoolTaintFragment
+	}
+}
+fragment NodePoolTaintFragment on Taint {
+	key
+	value
+	effect
 }
 fragment ProviderCredentialFragment on ProviderCredential {
 	id
@@ -2529,6 +2590,15 @@ fragment NodePoolFragment on NodePool {
 	minSize
 	maxSize
 	instanceType
+	labels
+	taints {
+		... NodePoolTaintFragment
+	}
+}
+fragment NodePoolTaintFragment on Taint {
+	key
+	value
+	effect
 }
 fragment ProviderCredentialFragment on ProviderCredential {
 	id
@@ -2764,6 +2834,15 @@ fragment NodePoolFragment on NodePool {
 	minSize
 	maxSize
 	instanceType
+	labels
+	taints {
+		... NodePoolTaintFragment
+	}
+}
+fragment NodePoolTaintFragment on Taint {
+	key
+	value
+	effect
 }
 fragment ProviderCredentialFragment on ProviderCredential {
 	id
@@ -3536,6 +3615,15 @@ fragment NodePoolFragment on NodePool {
 	minSize
 	maxSize
 	instanceType
+	labels
+	taints {
+		... NodePoolTaintFragment
+	}
+}
+fragment NodePoolTaintFragment on Taint {
+	key
+	value
+	effect
 }
 fragment ProviderCredentialFragment on ProviderCredential {
 	id
