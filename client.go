@@ -248,6 +248,18 @@ type ClusterTags struct {
 	Name  string "json:\"name\" graphql:\"name\""
 	Value string "json:\"value\" graphql:\"value\""
 }
+type ContainerSpecFragment struct {
+	Image string    "json:\"image\" graphql:\"image\""
+	Args  []*string "json:\"args\" graphql:\"args\""
+	Env   []*struct {
+		Name  string "json:\"name\" graphql:\"name\""
+		Value string "json:\"value\" graphql:\"value\""
+	} "json:\"env\" graphql:\"env\""
+	EnvFrom []*struct {
+		ConfigMap string "json:\"configMap\" graphql:\"configMap\""
+		Secret    string "json:\"secret\" graphql:\"secret\""
+	} "json:\"envFrom\" graphql:\"envFrom\""
+}
 type DeploymentSettingsFragment struct {
 	ID                 string                   "json:\"id\" graphql:\"id\""
 	Name               string                   "json:\"name\" graphql:\"name\""
@@ -262,25 +274,7 @@ type ErrorFragment struct {
 	Message string "json:\"message\" graphql:\"message\""
 }
 type GateSpecFragment struct {
-	Job *struct {
-		Namespace  string  "json:\"namespace\" graphql:\"namespace\""
-		Raw        *string "json:\"raw\" graphql:\"raw\""
-		Containers []*struct {
-			Image string    "json:\"image\" graphql:\"image\""
-			Args  []*string "json:\"args\" graphql:\"args\""
-			Env   []*struct {
-				Name  string "json:\"name\" graphql:\"name\""
-				Value string "json:\"value\" graphql:\"value\""
-			} "json:\"env\" graphql:\"env\""
-			EnvFrom []*struct {
-				ConfigMap string "json:\"configMap\" graphql:\"configMap\""
-				Secret    string "json:\"secret\" graphql:\"secret\""
-			} "json:\"envFrom\" graphql:\"envFrom\""
-		} "json:\"containers\" graphql:\"containers\""
-		Labels         map[string]interface{} "json:\"labels\" graphql:\"labels\""
-		Annotations    map[string]interface{} "json:\"annotations\" graphql:\"annotations\""
-		ServiceAccount *string                "json:\"serviceAccount\" graphql:\"serviceAccount\""
-	} "json:\"job\" graphql:\"job\""
+	Job *JobSpecFragment "json:\"job\" graphql:\"job\""
 }
 type GitRefFragment struct {
 	Folder string "json:\"folder\" graphql:\"folder\""
@@ -301,6 +295,14 @@ type GroupFragment struct {
 	ID          string  "json:\"id\" graphql:\"id\""
 	Name        string  "json:\"name\" graphql:\"name\""
 	Description *string "json:\"description\" graphql:\"description\""
+}
+type JobSpecFragment struct {
+	Namespace      string                   "json:\"namespace\" graphql:\"namespace\""
+	Raw            *string                  "json:\"raw\" graphql:\"raw\""
+	Containers     []*ContainerSpecFragment "json:\"containers\" graphql:\"containers\""
+	Labels         map[string]interface{}   "json:\"labels\" graphql:\"labels\""
+	Annotations    map[string]interface{}   "json:\"annotations\" graphql:\"annotations\""
+	ServiceAccount *string                  "json:\"serviceAccount\" graphql:\"serviceAccount\""
 }
 type KustomizeFragment struct {
 	Path string "json:\"path\" graphql:\"path\""
@@ -2050,26 +2052,32 @@ const GetClusterGatesDocument = `query GetClusterGates {
 		... PipelineGateFragment
 	}
 }
+fragment ContainerSpecFragment on ContainerSpec {
+	image
+	args
+	env {
+		name
+		value
+	}
+	envFrom {
+		configMap
+		secret
+	}
+}
 fragment GateSpecFragment on GateSpec {
 	job {
-		namespace
-		raw
-		containers {
-			image
-			args
-			env {
-				name
-				value
-			}
-			envFrom {
-				configMap
-				secret
-			}
-		}
-		labels
-		annotations
-		serviceAccount
+		... JobSpecFragment
 	}
+}
+fragment JobSpecFragment on JobGateSpec {
+	namespace
+	raw
+	containers {
+		... ContainerSpecFragment
+	}
+	labels
+	annotations
+	serviceAccount
 }
 fragment PipelineGateFragment on PipelineGate {
 	id
@@ -4038,26 +4046,32 @@ const UpdateGateDocument = `mutation updateGate ($id: ID!, $attributes: GateUpda
 		... PipelineGateFragment
 	}
 }
+fragment ContainerSpecFragment on ContainerSpec {
+	image
+	args
+	env {
+		name
+		value
+	}
+	envFrom {
+		configMap
+		secret
+	}
+}
 fragment GateSpecFragment on GateSpec {
 	job {
-		namespace
-		raw
-		containers {
-			image
-			args
-			env {
-				name
-				value
-			}
-			envFrom {
-				configMap
-				secret
-			}
-		}
-		labels
-		annotations
-		serviceAccount
+		... JobSpecFragment
 	}
+}
+fragment JobSpecFragment on JobGateSpec {
+	namespace
+	raw
+	containers {
+		... ContainerSpecFragment
+	}
+	labels
+	annotations
+	serviceAccount
 }
 fragment PipelineGateFragment on PipelineGate {
 	id
