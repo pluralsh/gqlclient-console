@@ -52,6 +52,12 @@ mutation updateServiceComponents($id: ID!, $components: [ComponentAttributes], $
     }
 }
 
+mutation AddServiceError($id: ID!, $errors: [ServiceErrorAttributes]) {
+    updateServiceComponents(id: $id, errors: $errors) {
+        ...ServiceDeploymentFragment
+    }
+}
+
 mutation UpdateDeploymentSettings($attributes: DeploymentSettingsAttributes!) {
     updateDeploymentSettings(attributes: $attributes) {
         ...DeploymentSettingsFragment

@@ -316,7 +316,7 @@ type NodePoolFragment struct {
 	MinSize      int64                    "json:\"minSize\" graphql:\"minSize\""
 	MaxSize      int64                    "json:\"maxSize\" graphql:\"maxSize\""
 	InstanceType string                   "json:\"instanceType\" graphql:\"instanceType\""
-	Labels       map[string]interface{}   "json:\"labels\" graphql:\"labels\""
+	Labels       *string                  "json:\"labels\" graphql:\"labels\""
 	Taints       []*NodePoolTaintFragment "json:\"taints\" graphql:\"taints\""
 }
 type NodePoolTaintFragment struct {
@@ -452,6 +452,9 @@ type UserFragment struct {
 	Name  string "json:\"name\" graphql:\"name\""
 	ID    string "json:\"id\" graphql:\"id\""
 	Email string "json:\"email\" graphql:\"email\""
+}
+type AddServiceError struct {
+	UpdateServiceComponents *ServiceDeploymentFragment "json:\"updateServiceComponents\" graphql:\"updateServiceComponents\""
 }
 type CloneServiceDeployment struct {
 	CloneService *ServiceDeploymentFragment "json:\"cloneService\" graphql:\"cloneService\""
@@ -652,6 +655,83 @@ type UpdateGate struct {
 }
 type UpdateServiceComponents struct {
 	UpdateServiceComponents *ServiceDeploymentFragment "json:\"updateServiceComponents\" graphql:\"updateServiceComponents\""
+}
+
+const AddServiceErrorDocument = `mutation AddServiceError ($id: ID!, $errors: [ServiceErrorAttributes]) {
+	updateServiceComponents(id: $id, errors: $errors) {
+		... ServiceDeploymentFragment
+	}
+}
+fragment GitRefFragment on GitRef {
+	folder
+	ref
+}
+fragment GitRepositoryFragment on GitRepository {
+	id
+	error
+	health
+	authMethod
+	url
+}
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
+fragment KustomizeFragment on Kustomize {
+	path
+}
+fragment ServiceDeploymentBaseFragment on ServiceDeployment {
+	id
+	name
+	namespace
+	version
+	kustomize {
+		... KustomizeFragment
+	}
+	git {
+		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+}
+fragment ServiceDeploymentFragment on ServiceDeployment {
+	... ServiceDeploymentBaseFragment
+	components {
+		id
+		name
+		group
+		kind
+		namespace
+		state
+		synced
+		version
+	}
+	protect
+	deletedAt
+	sha
+	tarball
+	configuration {
+		name
+		value
+	}
+}
+`
+
+func (c *Client) AddServiceError(ctx context.Context, id string, errors []*ServiceErrorAttributes, httpRequestOptions ...client.HTTPRequestOption) (*AddServiceError, error) {
+	vars := map[string]interface{}{
+		"id":     id,
+		"errors": errors,
+	}
+
+	var res AddServiceError
+	if err := c.Client.Post(ctx, "AddServiceError", AddServiceErrorDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
 }
 
 const CloneServiceDeploymentDocument = `mutation CloneServiceDeployment ($clusterId: ID!, $id: ID!, $attributes: ServiceCloneAttributes!) {

@@ -1458,7 +1458,7 @@ type NodePool struct {
 	// whether this is a spot pool or not
 	Spot *bool `json:"spot"`
 	// kubernetes labels to apply to the nodes in this pool, useful for node selectors
-	Labels map[string]interface{} `json:"labels"`
+	Labels *string `json:"labels"`
 	// any taints you'd want to apply to a node, for eg preventing scheduling on spot instances
 	Taints []*Taint `json:"taints"`
 	// cloud specific settings for the node groups
@@ -1472,7 +1472,7 @@ type NodePoolAttributes struct {
 	MinSize       int64                    `json:"minSize"`
 	MaxSize       int64                    `json:"maxSize"`
 	InstanceType  string                   `json:"instanceType"`
-	Labels        map[string]interface{}   `json:"labels,omitempty"`
+	Labels        *string                  `json:"labels,omitempty"`
 	Taints        []*TaintAttributes       `json:"taints,omitempty"`
 	CloudSettings *NodePoolCloudAttributes `json:"cloudSettings,omitempty"`
 }
