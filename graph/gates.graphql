@@ -14,24 +14,28 @@ fragment PipelineGateFragment on PipelineGate {
 }
 
 fragment GateSpecFragment on GateSpec {
-    job {
-        namespace
-        raw
-        containers {
-            image
-            args
-            env {
-                name
-                value
-            }
-            envFrom {
-                configMap
-                secret
-            }
-        }
-        labels
-        annotations
-        serviceAccount
+    job { ...JobSpecFragment }
+}
+
+fragment JobSpecFragment on JobGateSpec {
+    namespace
+    raw
+    containers { ...ContainerSpecFragment }
+    labels
+    annotations
+    serviceAccount
+}
+
+fragment ContainerSpecFragment on ContainerSpec {
+    image
+    args
+    env {
+        name
+        value
+    }
+    envFrom {
+        configMap
+        secret
     }
 }
 

@@ -248,6 +248,18 @@ type ClusterTags struct {
 	Name  string "json:\"name\" graphql:\"name\""
 	Value string "json:\"value\" graphql:\"value\""
 }
+type ContainerSpecFragment struct {
+	Image string    "json:\"image\" graphql:\"image\""
+	Args  []*string "json:\"args\" graphql:\"args\""
+	Env   []*struct {
+		Name  string "json:\"name\" graphql:\"name\""
+		Value string "json:\"value\" graphql:\"value\""
+	} "json:\"env\" graphql:\"env\""
+	EnvFrom []*struct {
+		ConfigMap string "json:\"configMap\" graphql:\"configMap\""
+		Secret    string "json:\"secret\" graphql:\"secret\""
+	} "json:\"envFrom\" graphql:\"envFrom\""
+}
 type DeploymentSettingsFragment struct {
 	ID                 string                   "json:\"id\" graphql:\"id\""
 	Name               string                   "json:\"name\" graphql:\"name\""
@@ -262,25 +274,7 @@ type ErrorFragment struct {
 	Message string "json:\"message\" graphql:\"message\""
 }
 type GateSpecFragment struct {
-	Job *struct {
-		Namespace  string  "json:\"namespace\" graphql:\"namespace\""
-		Raw        *string "json:\"raw\" graphql:\"raw\""
-		Containers []*struct {
-			Image string    "json:\"image\" graphql:\"image\""
-			Args  []*string "json:\"args\" graphql:\"args\""
-			Env   []*struct {
-				Name  string "json:\"name\" graphql:\"name\""
-				Value string "json:\"value\" graphql:\"value\""
-			} "json:\"env\" graphql:\"env\""
-			EnvFrom []*struct {
-				ConfigMap string "json:\"configMap\" graphql:\"configMap\""
-				Secret    string "json:\"secret\" graphql:\"secret\""
-			} "json:\"envFrom\" graphql:\"envFrom\""
-		} "json:\"containers\" graphql:\"containers\""
-		Labels         map[string]interface{} "json:\"labels\" graphql:\"labels\""
-		Annotations    map[string]interface{} "json:\"annotations\" graphql:\"annotations\""
-		ServiceAccount *string                "json:\"serviceAccount\" graphql:\"serviceAccount\""
-	} "json:\"job\" graphql:\"job\""
+	Job *JobSpecFragment "json:\"job\" graphql:\"job\""
 }
 type GitRefFragment struct {
 	Folder string "json:\"folder\" graphql:\"folder\""
@@ -301,6 +295,17 @@ type GroupFragment struct {
 	ID          string  "json:\"id\" graphql:\"id\""
 	Name        string  "json:\"name\" graphql:\"name\""
 	Description *string "json:\"description\" graphql:\"description\""
+}
+type HelmSpecFragment struct {
+	ValuesFiles []*string "json:\"valuesFiles\" graphql:\"valuesFiles\""
+}
+type JobSpecFragment struct {
+	Namespace      string                   "json:\"namespace\" graphql:\"namespace\""
+	Raw            *string                  "json:\"raw\" graphql:\"raw\""
+	Containers     []*ContainerSpecFragment "json:\"containers\" graphql:\"containers\""
+	Labels         map[string]interface{}   "json:\"labels\" graphql:\"labels\""
+	Annotations    map[string]interface{}   "json:\"annotations\" graphql:\"annotations\""
+	ServiceAccount *string                  "json:\"serviceAccount\" graphql:\"serviceAccount\""
 }
 type KustomizeFragment struct {
 	Path string "json:\"path\" graphql:\"path\""
@@ -378,6 +383,7 @@ type ServiceDeploymentBaseFragment struct {
 	Version    string                 "json:\"version\" graphql:\"version\""
 	Kustomize  *KustomizeFragment     "json:\"kustomize\" graphql:\"kustomize\""
 	Git        *GitRefFragment        "json:\"git\" graphql:\"git\""
+	Helm       *HelmSpecFragment      "json:\"helm\" graphql:\"helm\""
 	Repository *GitRepositoryFragment "json:\"repository\" graphql:\"repository\""
 }
 type ServiceDeploymentEdgeFragment struct {
@@ -393,6 +399,7 @@ type ServiceDeploymentExtended struct {
 	Version    string                 "json:\"version\" graphql:\"version\""
 	Kustomize  *KustomizeFragment     "json:\"kustomize\" graphql:\"kustomize\""
 	Git        *GitRefFragment        "json:\"git\" graphql:\"git\""
+	Helm       *HelmSpecFragment      "json:\"helm\" graphql:\"helm\""
 	Repository *GitRepositoryFragment "json:\"repository\" graphql:\"repository\""
 	Components []*struct {
 		ID        string          "json:\"id\" graphql:\"id\""
@@ -420,6 +427,7 @@ type ServiceDeploymentFragment struct {
 	Version    string                 "json:\"version\" graphql:\"version\""
 	Kustomize  *KustomizeFragment     "json:\"kustomize\" graphql:\"kustomize\""
 	Git        *GitRefFragment        "json:\"git\" graphql:\"git\""
+	Helm       *HelmSpecFragment      "json:\"helm\" graphql:\"helm\""
 	Repository *GitRepositoryFragment "json:\"repository\" graphql:\"repository\""
 	Components []*struct {
 		ID        string          "json:\"id\" graphql:\"id\""
@@ -444,6 +452,9 @@ type UserFragment struct {
 	Name  string "json:\"name\" graphql:\"name\""
 	ID    string "json:\"id\" graphql:\"id\""
 	Email string "json:\"email\" graphql:\"email\""
+}
+type AddServiceError struct {
+	UpdateServiceComponents *ServiceDeploymentFragment "json:\"updateServiceComponents\" graphql:\"updateServiceComponents\""
 }
 type CloneServiceDeployment struct {
 	CloneService *ServiceDeploymentFragment "json:\"cloneService\" graphql:\"cloneService\""
@@ -646,6 +657,83 @@ type UpdateServiceComponents struct {
 	UpdateServiceComponents *ServiceDeploymentFragment "json:\"updateServiceComponents\" graphql:\"updateServiceComponents\""
 }
 
+const AddServiceErrorDocument = `mutation AddServiceError ($id: ID!, $errors: [ServiceErrorAttributes]) {
+	updateServiceComponents(id: $id, errors: $errors) {
+		... ServiceDeploymentFragment
+	}
+}
+fragment GitRefFragment on GitRef {
+	folder
+	ref
+}
+fragment GitRepositoryFragment on GitRepository {
+	id
+	error
+	health
+	authMethod
+	url
+}
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
+fragment KustomizeFragment on Kustomize {
+	path
+}
+fragment ServiceDeploymentBaseFragment on ServiceDeployment {
+	id
+	name
+	namespace
+	version
+	kustomize {
+		... KustomizeFragment
+	}
+	git {
+		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+}
+fragment ServiceDeploymentFragment on ServiceDeployment {
+	... ServiceDeploymentBaseFragment
+	components {
+		id
+		name
+		group
+		kind
+		namespace
+		state
+		synced
+		version
+	}
+	protect
+	deletedAt
+	sha
+	tarball
+	configuration {
+		name
+		value
+	}
+}
+`
+
+func (c *Client) AddServiceError(ctx context.Context, id string, errors []*ServiceErrorAttributes, httpRequestOptions ...client.HTTPRequestOption) (*AddServiceError, error) {
+	vars := map[string]interface{}{
+		"id":     id,
+		"errors": errors,
+	}
+
+	var res AddServiceError
+	if err := c.Client.Post(ctx, "AddServiceError", AddServiceErrorDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
 const CloneServiceDeploymentDocument = `mutation CloneServiceDeployment ($clusterId: ID!, $id: ID!, $attributes: ServiceCloneAttributes!) {
 	cloneService(clusterId: $clusterId, serviceId: $id, attributes: $attributes) {
 		... ServiceDeploymentFragment
@@ -662,6 +750,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
 fragment KustomizeFragment on Kustomize {
 	path
 }
@@ -675,6 +766,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	}
 	git {
 		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
 	}
 	repository {
 		... GitRepositoryFragment
@@ -734,6 +828,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
 fragment KustomizeFragment on Kustomize {
 	path
 }
@@ -747,6 +844,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	}
 	git {
 		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
 	}
 	repository {
 		... GitRepositoryFragment
@@ -874,6 +974,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
 fragment KustomizeFragment on Kustomize {
 	path
 }
@@ -909,6 +1012,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	}
 	git {
 		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
 	}
 	repository {
 		... GitRepositoryFragment
@@ -982,6 +1088,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
 fragment KustomizeFragment on Kustomize {
 	path
 }
@@ -1001,6 +1110,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	}
 	git {
 		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
 	}
 	repository {
 		... GitRepositoryFragment
@@ -1112,6 +1224,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
 fragment KustomizeFragment on Kustomize {
 	path
 }
@@ -1125,6 +1240,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	}
 	git {
 		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
 	}
 	repository {
 		... GitRepositoryFragment
@@ -1183,6 +1301,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
 fragment KustomizeFragment on Kustomize {
 	path
 }
@@ -1196,6 +1317,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	}
 	git {
 		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
 	}
 	repository {
 		... GitRepositoryFragment
@@ -1322,6 +1446,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
 fragment KustomizeFragment on Kustomize {
 	path
 }
@@ -1357,6 +1484,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	}
 	git {
 		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
 	}
 	repository {
 		... GitRepositoryFragment
@@ -1430,6 +1560,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
 fragment KustomizeFragment on Kustomize {
 	path
 }
@@ -1449,6 +1582,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	}
 	git {
 		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
 	}
 	repository {
 		... GitRepositoryFragment
@@ -1559,6 +1695,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
 fragment KustomizeFragment on Kustomize {
 	path
 }
@@ -1572,6 +1711,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	}
 	git {
 		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
 	}
 	repository {
 		... GitRepositoryFragment
@@ -1673,6 +1815,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
 fragment KustomizeFragment on Kustomize {
 	path
 }
@@ -1708,6 +1853,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	}
 	git {
 		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
 	}
 	repository {
 		... GitRepositoryFragment
@@ -1833,6 +1981,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
 fragment KustomizeFragment on Kustomize {
 	path
 }
@@ -1868,6 +2019,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	}
 	git {
 		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
 	}
 	repository {
 		... GitRepositoryFragment
@@ -1969,6 +2123,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
 fragment KustomizeFragment on Kustomize {
 	path
 }
@@ -2004,6 +2161,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	}
 	git {
 		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
 	}
 	repository {
 		... GitRepositoryFragment
@@ -2050,26 +2210,32 @@ const GetClusterGatesDocument = `query GetClusterGates {
 		... PipelineGateFragment
 	}
 }
+fragment ContainerSpecFragment on ContainerSpec {
+	image
+	args
+	env {
+		name
+		value
+	}
+	envFrom {
+		configMap
+		secret
+	}
+}
 fragment GateSpecFragment on GateSpec {
 	job {
-		namespace
-		raw
-		containers {
-			image
-			args
-			env {
-				name
-				value
-			}
-			envFrom {
-				configMap
-				secret
-			}
-		}
-		labels
-		annotations
-		serviceAccount
+		... JobSpecFragment
 	}
+}
+fragment JobSpecFragment on JobGateSpec {
+	namespace
+	raw
+	containers {
+		... ContainerSpecFragment
+	}
+	labels
+	annotations
+	serviceAccount
 }
 fragment PipelineGateFragment on PipelineGate {
 	id
@@ -2126,6 +2292,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
 fragment KustomizeFragment on Kustomize {
 	path
 }
@@ -2145,6 +2314,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	}
 	git {
 		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
 	}
 	repository {
 		... GitRepositoryFragment
@@ -2230,6 +2402,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
 fragment KustomizeFragment on Kustomize {
 	path
 }
@@ -2278,6 +2453,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	git {
 		... GitRefFragment
 	}
+	helm {
+		... HelmSpecFragment
+	}
 	repository {
 		... GitRepositoryFragment
 	}
@@ -2314,6 +2492,9 @@ fragment GitRepositoryFragment on GitRepository {
 	health
 	authMethod
 	url
+}
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
 }
 fragment KustomizeFragment on Kustomize {
 	path
@@ -2367,6 +2548,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	}
 	git {
 		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
 	}
 	repository {
 		... GitRepositoryFragment
@@ -2436,6 +2620,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
 fragment KustomizeFragment on Kustomize {
 	path
 }
@@ -2479,6 +2666,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	}
 	git {
 		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
 	}
 	repository {
 		... GitRepositoryFragment
@@ -2581,6 +2771,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
 fragment KustomizeFragment on Kustomize {
 	path
 }
@@ -2624,6 +2817,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	}
 	git {
 		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
 	}
 	repository {
 		... GitRepositoryFragment
@@ -2727,6 +2923,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
 fragment KustomizeFragment on Kustomize {
 	path
 }
@@ -2740,6 +2939,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	}
 	git {
 		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
 	}
 	repository {
 		... GitRepositoryFragment
@@ -2825,6 +3027,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
 fragment KustomizeFragment on Kustomize {
 	path
 }
@@ -2860,6 +3065,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	}
 	git {
 		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
 	}
 	repository {
 		... GitRepositoryFragment
@@ -3045,6 +3253,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
 fragment KustomizeFragment on Kustomize {
 	path
 }
@@ -3064,6 +3275,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	}
 	git {
 		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
 	}
 	repository {
 		... GitRepositoryFragment
@@ -3121,6 +3335,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
 fragment KustomizeFragment on Kustomize {
 	path
 }
@@ -3134,6 +3351,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	}
 	git {
 		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
 	}
 	repository {
 		... GitRepositoryFragment
@@ -3180,6 +3400,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
 fragment KustomizeFragment on Kustomize {
 	path
 }
@@ -3193,6 +3416,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	}
 	git {
 		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
 	}
 	repository {
 		... GitRepositoryFragment
@@ -3241,6 +3467,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
 fragment KustomizeFragment on Kustomize {
 	path
 }
@@ -3254,6 +3483,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	}
 	git {
 		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
 	}
 	repository {
 		... GitRepositoryFragment
@@ -3374,6 +3606,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
 fragment KustomizeFragment on Kustomize {
 	path
 }
@@ -3387,6 +3622,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	}
 	git {
 		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
 	}
 	repository {
 		... GitRepositoryFragment
@@ -3445,6 +3683,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
 fragment KustomizeFragment on Kustomize {
 	path
 }
@@ -3492,6 +3733,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	}
 	git {
 		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
 	}
 	repository {
 		... GitRepositoryFragment
@@ -3606,6 +3850,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
 fragment KustomizeFragment on Kustomize {
 	path
 }
@@ -3641,6 +3888,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	}
 	git {
 		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
 	}
 	repository {
 		... GitRepositoryFragment
@@ -3715,6 +3965,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
 fragment KustomizeFragment on Kustomize {
 	path
 }
@@ -3734,6 +3987,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	}
 	git {
 		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
 	}
 	repository {
 		... GitRepositoryFragment
@@ -3906,6 +4162,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
 fragment KustomizeFragment on Kustomize {
 	path
 }
@@ -3919,6 +4178,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	}
 	git {
 		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
 	}
 	repository {
 		... GitRepositoryFragment
@@ -3977,6 +4239,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
 fragment KustomizeFragment on Kustomize {
 	path
 }
@@ -3990,6 +4255,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	}
 	git {
 		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
 	}
 	repository {
 		... GitRepositoryFragment
@@ -4038,26 +4306,32 @@ const UpdateGateDocument = `mutation updateGate ($id: ID!, $attributes: GateUpda
 		... PipelineGateFragment
 	}
 }
+fragment ContainerSpecFragment on ContainerSpec {
+	image
+	args
+	env {
+		name
+		value
+	}
+	envFrom {
+		configMap
+		secret
+	}
+}
 fragment GateSpecFragment on GateSpec {
 	job {
-		namespace
-		raw
-		containers {
-			image
-			args
-			env {
-				name
-				value
-			}
-			envFrom {
-				configMap
-				secret
-			}
-		}
-		labels
-		annotations
-		serviceAccount
+		... JobSpecFragment
 	}
+}
+fragment JobSpecFragment on JobGateSpec {
+	namespace
+	raw
+	containers {
+		... ContainerSpecFragment
+	}
+	labels
+	annotations
+	serviceAccount
 }
 fragment PipelineGateFragment on PipelineGate {
 	id
@@ -4101,6 +4375,9 @@ fragment GitRepositoryFragment on GitRepository {
 	authMethod
 	url
 }
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
 fragment KustomizeFragment on Kustomize {
 	path
 }
@@ -4114,6 +4391,9 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	}
 	git {
 		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
 	}
 	repository {
 		... GitRepositoryFragment
