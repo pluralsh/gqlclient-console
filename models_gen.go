@@ -1366,8 +1366,8 @@ type Metadata struct {
 }
 
 type MetadataAttributes struct {
-	Labels      interface{} `json:"labels,omitempty"`
-	Annotations interface{} `json:"annotations,omitempty"`
+	Labels      *string `json:"labels,omitempty"`
+	Annotations *string `json:"annotations,omitempty"`
 }
 
 type MetricResponse struct {
@@ -1464,7 +1464,7 @@ type NodePoolAttributes struct {
 	MinSize       int64                    `json:"minSize"`
 	MaxSize       int64                    `json:"maxSize"`
 	InstanceType  string                   `json:"instanceType"`
-	Labels        interface{}              `json:"labels,omitempty"`
+	Labels        *string                  `json:"labels,omitempty"`
 	Taints        []*TaintAttributes       `json:"taints,omitempty"`
 	CloudSettings *NodePoolCloudAttributes `json:"cloudSettings,omitempty"`
 }
