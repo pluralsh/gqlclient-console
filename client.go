@@ -316,7 +316,7 @@ type NodePoolFragment struct {
 	MinSize      int64                    "json:\"minSize\" graphql:\"minSize\""
 	MaxSize      int64                    "json:\"maxSize\" graphql:\"maxSize\""
 	InstanceType string                   "json:\"instanceType\" graphql:\"instanceType\""
-	Labels       interface{}              "json:\"labels\" graphql:\"labels\""
+	Labels       map[string]interface{}   "json:\"labels\" graphql:\"labels\""
 	Taints       []*NodePoolTaintFragment "json:\"taints\" graphql:\"taints\""
 }
 type NodePoolTaintFragment struct {

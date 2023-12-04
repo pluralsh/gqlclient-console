@@ -872,14 +872,6 @@ type DeploymentStrategy struct {
 	RollingUpdate *RollingUpdate `json:"rollingUpdate"`
 }
 
-type DiffNormalizerAttributes struct {
-	Group       string   `json:"group"`
-	Kind        string   `json:"kind"`
-	Name        string   `json:"name"`
-	Namespace   string   `json:"namespace"`
-	JSONPatches []string `json:"jsonPatches,omitempty"`
-}
-
 type EnvAttributes struct {
 	Name  string `json:"name"`
 	Value string `json:"value"`
@@ -1374,8 +1366,8 @@ type Metadata struct {
 }
 
 type MetadataAttributes struct {
-	Labels      map[string]interface{} `json:"labels,omitempty"`
-	Annotations map[string]interface{} `json:"annotations,omitempty"`
+	Labels      interface{} `json:"labels,omitempty"`
+	Annotations interface{} `json:"annotations,omitempty"`
 }
 
 type MetricResponse struct {
@@ -1458,7 +1450,7 @@ type NodePool struct {
 	// whether this is a spot pool or not
 	Spot *bool `json:"spot"`
 	// kubernetes labels to apply to the nodes in this pool, useful for node selectors
-	Labels interface{} `json:"labels"`
+	Labels map[string]interface{} `json:"labels"`
 	// any taints you'd want to apply to a node, for eg preventing scheduling on spot instances
 	Taints []*Taint `json:"taints"`
 	// cloud specific settings for the node groups
@@ -2238,7 +2230,7 @@ type ServiceDeploymentAttributes struct {
 	DocsPath      *string                    `json:"docsPath,omitempty"`
 	SyncConfig    *SyncConfigAttributes      `json:"syncConfig,omitempty"`
 	Protect       *bool                      `json:"protect,omitempty"`
-	RepositoryID  string                     `json:"repositoryId"`
+	RepositoryID  *string                    `json:"repositoryId,omitempty"`
 	Git           *GitRefAttributes          `json:"git,omitempty"`
 	Helm          *HelmConfigAttributes      `json:"helm,omitempty"`
 	Kustomize     *KustomizeAttributes       `json:"kustomize,omitempty"`
@@ -2391,8 +2383,7 @@ type SyncConfig struct {
 }
 
 type SyncConfigAttributes struct {
-	NamespaceMetadata *MetadataAttributes       `json:"namespaceMetadata,omitempty"`
-	DiffNormalizer    *DiffNormalizerAttributes `json:"diffNormalizer,omitempty"`
+	NamespaceMetadata *MetadataAttributes `json:"namespaceMetadata,omitempty"`
 }
 
 type Tag struct {
