@@ -98,6 +98,23 @@ type AddonVersion struct {
 	Blocking *bool `json:"blocking"`
 }
 
+// a representation of a bulk operation to be performed on all agent services
+type AgentMigration struct {
+	ID            string                 `json:"id"`
+	Name          *string                `json:"name"`
+	Ref           *string                `json:"ref"`
+	Configuration map[string]interface{} `json:"configuration"`
+	Completed     *bool                  `json:"completed"`
+	InsertedAt    *string                `json:"insertedAt"`
+	UpdatedAt     *string                `json:"updatedAt"`
+}
+
+type AgentMigrationAttributes struct {
+	Name          *string `json:"name,omitempty"`
+	Ref           *string `json:"ref,omitempty"`
+	Configuration *string `json:"configuration,omitempty"`
+}
+
 // a representation of a kubernetes api deprecation
 type APIDeprecation struct {
 	// the kubernetes version the deprecation was posted
@@ -830,6 +847,10 @@ type DeploymentSettings struct {
 	Name    string `json:"name"`
 	// whether the byok cluster has been brought under self-management
 	SelfManaged *bool `json:"selfManaged"`
+	// the way we can connect to your loki instance
+	LokiConnection *HTTPConnection `json:"lokiConnection"`
+	// the way we can connect to your prometheus instance
+	PrometheusConnection *HTTPConnection `json:"prometheusConnection"`
 	// the repo to fetch CAPI manifests from, for both providers and clusters
 	ArtifactRepository *GitRepository `json:"artifactRepository"`
 	// the repo to fetch the deploy operators manifests from
@@ -847,12 +868,16 @@ type DeploymentSettings struct {
 }
 
 type DeploymentSettingsAttributes struct {
-	ArtifactRepositoryID *string                    `json:"artifactRepositoryId,omitempty"`
-	DeployerRepositoryID *string                    `json:"deployerRepositoryId,omitempty"`
-	ReadBindings         []*PolicyBindingAttributes `json:"readBindings,omitempty"`
-	WriteBindings        []*PolicyBindingAttributes `json:"writeBindings,omitempty"`
-	GitBindings          []*PolicyBindingAttributes `json:"gitBindings,omitempty"`
-	CreateBindings       []*PolicyBindingAttributes `json:"createBindings,omitempty"`
+	ArtifactRepositoryID *string `json:"artifactRepositoryId,omitempty"`
+	DeployerRepositoryID *string `json:"deployerRepositoryId,omitempty"`
+	// connection details for a prometheus instance to use
+	PrometheusConnection *HTTPConnectionAttributes `json:"prometheusConnection,omitempty"`
+	// connection details for a loki instance to use
+	LokiConnection *HTTPConnectionAttributes  `json:"lokiConnection,omitempty"`
+	ReadBindings   []*PolicyBindingAttributes `json:"readBindings,omitempty"`
+	WriteBindings  []*PolicyBindingAttributes `json:"writeBindings,omitempty"`
+	GitBindings    []*PolicyBindingAttributes `json:"gitBindings,omitempty"`
+	CreateBindings []*PolicyBindingAttributes `json:"createBindings,omitempty"`
 }
 
 type DeploymentSpec struct {
@@ -1146,6 +1171,23 @@ type HelmSpec struct {
 	Version *string `json:"version"`
 	// a list of relative paths to values files to use for helm applies
 	ValuesFiles []*string `json:"valuesFiles"`
+}
+
+// the details of how to connect to a http service like prometheus
+type HTTPConnection struct {
+	Host string `json:"host"`
+	// user to connect w/ for basic auth
+	User *string `json:"user"`
+	// password to connect w/ for basic auth
+	Password *string `json:"password"`
+}
+
+type HTTPConnectionAttributes struct {
+	Host string `json:"host"`
+	// user to connect w/ for basic auth
+	User *string `json:"user,omitempty"`
+	// password to connect w/ for basic auth
+	Password *string `json:"password,omitempty"`
 }
 
 type HTTPIngressRule struct {

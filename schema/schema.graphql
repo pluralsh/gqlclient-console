@@ -15,6 +15,10 @@ type RootQueryType {
 
   buildInfo: BuildInfo
 
+  user(email: String!): User
+
+  group(name: String!): Group
+
   users(after: String, first: Int, before: String, last: Int, q: String): UserConnection
 
   loginInfo(redirect: String): LoginInfo
@@ -43,9 +47,9 @@ type RootQueryType {
 
   dashboard(repo: String!, name: String!, step: String, offset: Int, labels: [LabelInput]): Dashboard
 
-  metric(query: String!, offset: Int, step: String): [MetricResponse]
+  metric(query: String!, offset: Int, step: String, clusterId: ID): [MetricResponse]
 
-  logs(query: String!, start: Long, end: Long, limit: Int!): [LogStream]
+  logs(query: String!, start: Long, end: Long, limit: Int!, clusterId: ID): [LogStream]
 
   scalingRecommendation(kind: AutoscalingTarget!, namespace: String!, name: String!): VerticalPodAutoscaler
 
@@ -164,7 +168,7 @@ type RootQueryType {
   cluster(id: ID, handle: String): Cluster
 
   "fetches an individual cluster provider"
-  clusterProvider(id: ID!): ClusterProvider
+  clusterProvider(id: ID, cloud: String, name: String): ClusterProvider
 
   "list all addons currently resident in the artifacts repo"
   clusterAddOns: [ClusterAddOn]
@@ -323,6 +327,8 @@ type RootMutationType {
 
   installAddOn(name: String!, configuration: [ConfigAttributes], clusterId: ID!, global: GlobalServiceAttributes): ServiceDeployment
 
+  createAgentMigration(attributes: AgentMigrationAttributes!): AgentMigration
+
   createServiceDeployment(
     clusterId: ID
 
@@ -449,6 +455,12 @@ type DeploymentSettings {
   "whether the byok cluster has been brought under self-management"
   selfManaged: Boolean
 
+  "the way we can connect to your loki instance"
+  lokiConnection: HttpConnection
+
+  "the way we can connect to your prometheus instance"
+  prometheusConnection: HttpConnection
+
   "the repo to fetch CAPI manifests from, for both providers and clusters"
   artifactRepository: GitRepository
 
@@ -472,13 +484,45 @@ type DeploymentSettings {
   updatedAt: DateTime
 }
 
+"the details of how to connect to a http service like prometheus"
+type HttpConnection {
+  host: String!
+
+  "user to connect w\/ for basic auth"
+  user: String
+
+  "password to connect w\/ for basic auth"
+  password: String
+}
+
 input DeploymentSettingsAttributes {
   artifactRepositoryId: ID
+
   deployerRepositoryId: ID
+
+  "connection details for a prometheus instance to use"
+  prometheusConnection: HttpConnectionAttributes
+
+  "connection details for a loki instance to use"
+  lokiConnection: HttpConnectionAttributes
+
   readBindings: [PolicyBindingAttributes]
+
   writeBindings: [PolicyBindingAttributes]
+
   gitBindings: [PolicyBindingAttributes]
+
   createBindings: [PolicyBindingAttributes]
+}
+
+input HttpConnectionAttributes {
+  host: String!
+
+  "user to connect w\/ for basic auth"
+  user: String
+
+  "password to connect w\/ for basic auth"
+  password: String
 }
 
 input RbacAttributes {
@@ -1350,6 +1394,12 @@ input RuntimeServiceAttributes {
   version: String!
 }
 
+input AgentMigrationAttributes {
+  name: String
+  ref: String
+  configuration: Json
+}
+
 "a CAPI provider for a cluster, cloud is inferred from name if not provided manually"
 type ClusterProvider {
   "the id of this provider"
@@ -1695,6 +1745,17 @@ type AddonVersion {
 type VersionReference {
   name: String!
   version: String!
+}
+
+"a representation of a bulk operation to be performed on all agent services"
+type AgentMigration {
+  id: ID!
+  name: String
+  ref: String
+  configuration: Map
+  completed: Boolean
+  insertedAt: DateTime
+  updatedAt: DateTime
 }
 
 type Tag {

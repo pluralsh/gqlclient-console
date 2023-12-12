@@ -23,6 +23,8 @@ type RootQueryType struct {
 	Builds                *BuildConnection             "json:\"builds\" graphql:\"builds\""
 	Build                 *Build                       "json:\"build\" graphql:\"build\""
 	BuildInfo             *BuildInfo                   "json:\"buildInfo\" graphql:\"buildInfo\""
+	User                  *User                        "json:\"user\" graphql:\"user\""
+	Group                 *Group                       "json:\"group\" graphql:\"group\""
 	Users                 *UserConnection              "json:\"users\" graphql:\"users\""
 	LoginInfo             *LoginInfo                   "json:\"loginInfo\" graphql:\"loginInfo\""
 	Me                    *User                        "json:\"me\" graphql:\"me\""
@@ -161,6 +163,7 @@ type RootMutationType struct {
 	CreateProviderCredential *ProviderCredential    "json:\"createProviderCredential\" graphql:\"createProviderCredential\""
 	DeleteProviderCredential *ProviderCredential    "json:\"deleteProviderCredential\" graphql:\"deleteProviderCredential\""
 	InstallAddOn             *ServiceDeployment     "json:\"installAddOn\" graphql:\"installAddOn\""
+	CreateAgentMigration     *AgentMigration        "json:\"createAgentMigration\" graphql:\"createAgentMigration\""
 	CreateServiceDeployment  *ServiceDeployment     "json:\"createServiceDeployment\" graphql:\"createServiceDeployment\""
 	UpdateServiceDeployment  *ServiceDeployment     "json:\"updateServiceDeployment\" graphql:\"updateServiceDeployment\""
 	DeleteServiceDeployment  *ServiceDeployment     "json:\"deleteServiceDeployment\" graphql:\"deleteServiceDeployment\""
@@ -223,6 +226,7 @@ type ClusterFragment struct {
 	Protect        *bool                       "json:\"protect\" graphql:\"protect\""
 	CurrentVersion *string                     "json:\"currentVersion\" graphql:\"currentVersion\""
 	KasURL         *string                     "json:\"kasUrl\" graphql:\"kasUrl\""
+	DeletedAt      *string                     "json:\"deletedAt\" graphql:\"deletedAt\""
 	Tags           []*ClusterTags              "json:\"tags\" graphql:\"tags\""
 	Credential     *ProviderCredentialFragment "json:\"credential\" graphql:\"credential\""
 	Provider       *ClusterProviderFragment    "json:\"provider\" graphql:\"provider\""
@@ -240,6 +244,7 @@ type ClusterProviderFragment struct {
 	Namespace   string                        "json:\"namespace\" graphql:\"namespace\""
 	Cloud       string                        "json:\"cloud\" graphql:\"cloud\""
 	Editable    *bool                         "json:\"editable\" graphql:\"editable\""
+	DeletedAt   *string                       "json:\"deletedAt\" graphql:\"deletedAt\""
 	Repository  *GitRepositoryFragment        "json:\"repository\" graphql:\"repository\""
 	Service     *ServiceDeploymentFragment    "json:\"service\" graphql:\"service\""
 	Credentials []*ProviderCredentialFragment "json:\"credentials\" graphql:\"credentials\""
@@ -478,6 +483,7 @@ type CreateCluster struct {
 		Protect        *bool                       "json:\"protect\" graphql:\"protect\""
 		CurrentVersion *string                     "json:\"currentVersion\" graphql:\"currentVersion\""
 		KasURL         *string                     "json:\"kasUrl\" graphql:\"kasUrl\""
+		DeletedAt      *string                     "json:\"deletedAt\" graphql:\"deletedAt\""
 		Tags           []*ClusterTags              "json:\"tags\" graphql:\"tags\""
 		Credential     *ProviderCredentialFragment "json:\"credential\" graphql:\"credential\""
 		Provider       *ClusterProviderFragment    "json:\"provider\" graphql:\"provider\""
@@ -930,6 +936,7 @@ fragment ClusterFragment on Cluster {
 	protect
 	currentVersion
 	kasUrl
+	deletedAt
 	tags {
 		... ClusterTags
 	}
@@ -949,6 +956,7 @@ fragment ClusterProviderFragment on ClusterProvider {
 	namespace
 	cloud
 	editable
+	deletedAt
 	repository {
 		... GitRepositoryFragment
 	}
@@ -1067,6 +1075,7 @@ fragment ClusterProviderFragment on ClusterProvider {
 	namespace
 	cloud
 	editable
+	deletedAt
 	repository {
 		... GitRepositoryFragment
 	}
@@ -1402,6 +1411,7 @@ fragment ClusterFragment on Cluster {
 	protect
 	currentVersion
 	kasUrl
+	deletedAt
 	tags {
 		... ClusterTags
 	}
@@ -1421,6 +1431,7 @@ fragment ClusterProviderFragment on ClusterProvider {
 	namespace
 	cloud
 	editable
+	deletedAt
 	repository {
 		... GitRepositoryFragment
 	}
@@ -1539,6 +1550,7 @@ fragment ClusterProviderFragment on ClusterProvider {
 	namespace
 	cloud
 	editable
+	deletedAt
 	repository {
 		... GitRepositoryFragment
 	}
@@ -1771,6 +1783,7 @@ fragment ClusterFragment on Cluster {
 	protect
 	currentVersion
 	kasUrl
+	deletedAt
 	tags {
 		... ClusterTags
 	}
@@ -1790,6 +1803,7 @@ fragment ClusterProviderFragment on ClusterProvider {
 	namespace
 	cloud
 	editable
+	deletedAt
 	repository {
 		... GitRepositoryFragment
 	}
@@ -1937,6 +1951,7 @@ fragment ClusterFragment on Cluster {
 	protect
 	currentVersion
 	kasUrl
+	deletedAt
 	tags {
 		... ClusterTags
 	}
@@ -1956,6 +1971,7 @@ fragment ClusterProviderFragment on ClusterProvider {
 	namespace
 	cloud
 	editable
+	deletedAt
 	repository {
 		... GitRepositoryFragment
 	}
@@ -2079,6 +2095,7 @@ fragment ClusterFragment on Cluster {
 	protect
 	currentVersion
 	kasUrl
+	deletedAt
 	tags {
 		... ClusterTags
 	}
@@ -2098,6 +2115,7 @@ fragment ClusterProviderFragment on ClusterProvider {
 	namespace
 	cloud
 	editable
+	deletedAt
 	repository {
 		... GitRepositoryFragment
 	}
@@ -2271,6 +2289,7 @@ fragment ClusterProviderFragment on ClusterProvider {
 	namespace
 	cloud
 	editable
+	deletedAt
 	repository {
 		... GitRepositoryFragment
 	}
@@ -2983,6 +3002,7 @@ fragment ClusterFragment on Cluster {
 	protect
 	currentVersion
 	kasUrl
+	deletedAt
 	tags {
 		... ClusterTags
 	}
@@ -3002,6 +3022,7 @@ fragment ClusterProviderFragment on ClusterProvider {
 	namespace
 	cloud
 	editable
+	deletedAt
 	repository {
 		... GitRepositoryFragment
 	}
@@ -3232,6 +3253,7 @@ fragment ClusterProviderFragment on ClusterProvider {
 	namespace
 	cloud
 	editable
+	deletedAt
 	repository {
 		... GitRepositoryFragment
 	}
@@ -3806,6 +3828,7 @@ fragment ClusterFragment on Cluster {
 	protect
 	currentVersion
 	kasUrl
+	deletedAt
 	tags {
 		... ClusterTags
 	}
@@ -3825,6 +3848,7 @@ fragment ClusterProviderFragment on ClusterProvider {
 	namespace
 	cloud
 	editable
+	deletedAt
 	repository {
 		... GitRepositoryFragment
 	}
@@ -3944,6 +3968,7 @@ fragment ClusterProviderFragment on ClusterProvider {
 	namespace
 	cloud
 	editable
+	deletedAt
 	repository {
 		... GitRepositoryFragment
 	}

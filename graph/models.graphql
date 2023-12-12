@@ -78,6 +78,7 @@ fragment GitRepositoryFragment on GitRepository {
     health
     authMethod
     url
+
 }
 
 fragment GitRefFragment on GitRef {
@@ -114,6 +115,7 @@ fragment ClusterFragment on Cluster {
     protect
     currentVersion
     kasUrl
+    deletedAt
     tags { ...ClusterTags }
     credential { ...ProviderCredentialFragment }
     provider { ...ClusterProviderFragment }
@@ -160,6 +162,7 @@ fragment ClusterProviderFragment on ClusterProvider {
     namespace
     cloud
     editable
+    deletedAt
     repository {
         ...GitRepositoryFragment
     }
