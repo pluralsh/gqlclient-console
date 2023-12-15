@@ -312,6 +312,43 @@ type BuildInfo struct {
 	Successful *int64 `json:"successful"`
 }
 
+type Canary struct {
+	Metadata          Metadata     `json:"metadata"`
+	Status            CanaryStatus `json:"status"`
+	Spec              CanarySpec   `json:"spec"`
+	PrimaryDeployment *Deployment  `json:"primaryDeployment"`
+	CanaryDeployment  *Deployment  `json:"canaryDeployment"`
+	Ingress           *Ingress     `json:"ingress"`
+	IngressPrimary    *Ingress     `json:"ingressPrimary"`
+	Raw               string       `json:"raw"`
+	Events            []*Event     `json:"events"`
+}
+
+type CanaryAnalysis struct {
+	Interval    *string  `json:"interval"`
+	MaxWeight   *int64   `json:"maxWeight"`
+	StepWeight  *int64   `json:"stepWeight"`
+	StepWeights []*int64 `json:"stepWeights"`
+	Threshold   *int64   `json:"threshold"`
+}
+
+type CanarySpec struct {
+	AutoscalerRef *TargetRef      `json:"autoscalerRef"`
+	TargetRef     *TargetRef      `json:"targetRef"`
+	IngressRef    *TargetRef      `json:"ingressRef"`
+	Analysis      *CanaryAnalysis `json:"analysis"`
+	Provider      *string         `json:"provider"`
+}
+
+type CanaryStatus struct {
+	Conditions         []*StatusCondition `json:"conditions"`
+	FailedChecks       *int64             `json:"failedChecks"`
+	CanaryWeight       *int64             `json:"canaryWeight"`
+	Iterations         *int64             `json:"iterations"`
+	LastTransitionTime *string            `json:"lastTransitionTime"`
+	Phase              *string            `json:"phase"`
+}
+
 type Certificate struct {
 	Metadata Metadata          `json:"metadata"`
 	Status   CertificateStatus `json:"status"`
@@ -559,6 +596,12 @@ type ClusterStatus struct {
 	FailureMessage    *string             `json:"failureMessage"`
 	FailureReason     *string             `json:"failureReason"`
 	Conditions        []*ClusterCondition `json:"conditions"`
+}
+
+// a cluster info data struct
+type ClusterStatusInfo struct {
+	Healthy *bool  `json:"healthy"`
+	Count   *int64 `json:"count"`
 }
 
 type ClusterUpdateAttributes struct {
@@ -2438,6 +2481,11 @@ type TagAttributes struct {
 	Value string `json:"value"`
 }
 
+type TagInput struct {
+	Name  string `json:"name"`
+	Value string `json:"value"`
+}
+
 // a kubernetes node taint
 type Taint struct {
 	Key    string `json:"key"`
@@ -2449,6 +2497,12 @@ type TaintAttributes struct {
 	Key    string `json:"key"`
 	Value  string `json:"value"`
 	Effect string `json:"effect"`
+}
+
+type TargetRef struct {
+	APIVersion *string `json:"apiVersion"`
+	Kind       *string `json:"kind"`
+	Name       *string `json:"name"`
 }
 
 type TerminatedState struct {
@@ -3195,6 +3249,7 @@ const (
 	ServiceDeploymentStatusSynced  ServiceDeploymentStatus = "SYNCED"
 	ServiceDeploymentStatusHealthy ServiceDeploymentStatus = "HEALTHY"
 	ServiceDeploymentStatusFailed  ServiceDeploymentStatus = "FAILED"
+	ServiceDeploymentStatusPaused  ServiceDeploymentStatus = "PAUSED"
 )
 
 var AllServiceDeploymentStatus = []ServiceDeploymentStatus{
@@ -3202,11 +3257,12 @@ var AllServiceDeploymentStatus = []ServiceDeploymentStatus{
 	ServiceDeploymentStatusSynced,
 	ServiceDeploymentStatusHealthy,
 	ServiceDeploymentStatusFailed,
+	ServiceDeploymentStatusPaused,
 }
 
 func (e ServiceDeploymentStatus) IsValid() bool {
 	switch e {
-	case ServiceDeploymentStatusStale, ServiceDeploymentStatusSynced, ServiceDeploymentStatusHealthy, ServiceDeploymentStatusFailed:
+	case ServiceDeploymentStatusStale, ServiceDeploymentStatusSynced, ServiceDeploymentStatusHealthy, ServiceDeploymentStatusFailed, ServiceDeploymentStatusPaused:
 		return true
 	}
 	return false
