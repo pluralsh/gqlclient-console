@@ -2908,17 +2908,19 @@ const (
 	ComponentStateRunning ComponentState = "RUNNING"
 	ComponentStatePending ComponentState = "PENDING"
 	ComponentStateFailed  ComponentState = "FAILED"
+	ComponentStatePaused  ComponentState = "PAUSED"
 )
 
 var AllComponentState = []ComponentState{
 	ComponentStateRunning,
 	ComponentStatePending,
 	ComponentStateFailed,
+	ComponentStatePaused,
 }
 
 func (e ComponentState) IsValid() bool {
 	switch e {
-	case ComponentStateRunning, ComponentStatePending, ComponentStateFailed:
+	case ComponentStateRunning, ComponentStatePending, ComponentStateFailed, ComponentStatePaused:
 		return true
 	}
 	return false
