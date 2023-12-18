@@ -545,6 +545,9 @@ type GetClusterGates struct {
 type GetClusterProvider struct {
 	ClusterProvider *ClusterProviderFragment "json:\"clusterProvider\" graphql:\"clusterProvider\""
 }
+type GetClusterProviderByCloud struct {
+	ClusterProvider *ClusterProviderFragment "json:\"clusterProvider\" graphql:\"clusterProvider\""
+}
 type GetGitRepository struct {
 	GitRepository *GitRepositoryFragment "json:\"gitRepository\" graphql:\"gitRepository\""
 }
@@ -2375,6 +2378,105 @@ func (c *Client) GetClusterProvider(ctx context.Context, id string, httpRequestO
 
 	var res GetClusterProvider
 	if err := c.Client.Post(ctx, "GetClusterProvider", GetClusterProviderDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const GetClusterProviderByCloudDocument = `query GetClusterProviderByCloud ($cloud: String!) {
+	clusterProvider(cloud: $cloud) {
+		... ClusterProviderFragment
+	}
+}
+fragment ClusterProviderFragment on ClusterProvider {
+	id
+	name
+	namespace
+	cloud
+	editable
+	deletedAt
+	repository {
+		... GitRepositoryFragment
+	}
+	service {
+		... ServiceDeploymentFragment
+	}
+	credentials {
+		... ProviderCredentialFragment
+	}
+}
+fragment GitRefFragment on GitRef {
+	folder
+	ref
+}
+fragment GitRepositoryFragment on GitRepository {
+	id
+	error
+	health
+	authMethod
+	url
+}
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
+fragment KustomizeFragment on Kustomize {
+	path
+}
+fragment ProviderCredentialFragment on ProviderCredential {
+	id
+	name
+	namespace
+	kind
+}
+fragment ServiceDeploymentBaseFragment on ServiceDeployment {
+	id
+	name
+	namespace
+	version
+	kustomize {
+		... KustomizeFragment
+	}
+	git {
+		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+}
+fragment ServiceDeploymentFragment on ServiceDeployment {
+	... ServiceDeploymentBaseFragment
+	components {
+		id
+		name
+		group
+		kind
+		namespace
+		state
+		synced
+		version
+	}
+	protect
+	deletedAt
+	sha
+	tarball
+	configuration {
+		name
+		value
+	}
+}
+`
+
+func (c *Client) GetClusterProviderByCloud(ctx context.Context, cloud string, httpRequestOptions ...client.HTTPRequestOption) (*GetClusterProviderByCloud, error) {
+	vars := map[string]interface{}{
+		"cloud": cloud,
+	}
+
+	var res GetClusterProviderByCloud
+	if err := c.Client.Post(ctx, "GetClusterProviderByCloud", GetClusterProviderByCloudDocument, &res, vars, httpRequestOptions...); err != nil {
 		return nil, err
 	}
 
