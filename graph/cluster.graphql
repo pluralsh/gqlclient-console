@@ -76,6 +76,12 @@ query GetClusterProvider($id: ID!) {
     }
 }
 
+query GetClusterProviderByCloud($cloud: String!) {
+    clusterProvider(cloud: $cloud) {
+        ...ClusterProviderFragment
+    }
+}
+
 query ListClusterServices {
     clusterServices {
         ...ServiceDeploymentBaseFragment
