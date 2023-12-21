@@ -71,6 +71,8 @@ type RootQueryType {
 
   statefulSet(namespace: String!, name: String!, serviceId: ID): StatefulSet
 
+  daemonSet(namespace: String!, name: String!, serviceId: ID): DaemonSet
+
   ingress(namespace: String!, name: String!, serviceId: ID): Ingress
 
   nodes: [Node]
@@ -104,6 +106,8 @@ type RootQueryType {
   nodeMetric(name: String!, clusterId: ID): NodeMetric
 
   canary(namespace: String!, name: String!, serviceId: ID): Canary
+
+  upgradePlan(namespace: String!, name: String!, serviceId: ID): UpgradePlan
 
   configurationOverlays(namespace: String!): [ConfigurationOverlay]
 
@@ -398,6 +402,8 @@ type RootMutationType {
     cluster: String
 
     name: String
+
+    promotion: ServicePromotion
   ): ServiceDeployment
 
   createGlobalService(
@@ -898,6 +904,12 @@ enum ServiceDeploymentStatus {
   PAUSED
 }
 
+enum ServicePromotion {
+  IGNORE
+  PROCEED
+  ROLLBACK
+}
+
 input ServiceDeploymentAttributes {
   name: String!
   namespace: String!
@@ -1004,6 +1016,9 @@ type ServiceDeployment {
 
   "description of how helm charts should be applied"
   helm: HelmSpec
+
+  "how you'd like to perform a canary promotion"
+  promotion: ServicePromotion
 
   "if true, deletion of this service is not allowed"
   protect: Boolean
@@ -1307,11 +1322,14 @@ input ClusterUpdateAttributes {
   "if you optionally want to reconfigure the git repository for the cluster service"
   service: ClusterServiceAttributes
 
+  "pass a kubeconfig for this cluster (DEPRECATED)"
   kubeconfig: KubeconfigAttributes
 
   protect: Boolean
 
   nodePools: [NodePoolAttributes]
+
+  tags: [TagAttributes]
 }
 
 input ClusterServiceAttributes {
@@ -2414,6 +2432,44 @@ type KubernetesUnstructured {
 type ApplicationDelta {
   delta: Delta
   payload: Application
+}
+
+type DaemonSet {
+  metadata: Metadata!
+  status: DaemonSetStatus!
+  spec: DaemonSetSpec!
+  pods: [Pod]
+  raw: String!
+  events: [Event]
+}
+
+type DaemonSetStatus {
+  currentNumberScheduled: Int
+  desiredNumberScheduled: Int
+  numberReady: Int
+}
+
+type DaemonSetSpec {
+  strategy: DeploymentStrategy
+}
+
+type UpgradePlan {
+  metadata: Metadata!
+  status: UpgradePlanStatus!
+  spec: UpgradePlanSpec!
+  pods: [Pod]
+  raw: String!
+  events: [Event]
+}
+
+type UpgradePlanStatus {
+  conditions: [StatusCondition]
+}
+
+type UpgradePlanSpec {
+  version: String
+  cordon: Boolean
+  concurrency: Int
 }
 
 type Canary {

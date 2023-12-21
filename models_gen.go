@@ -609,10 +609,12 @@ type ClusterUpdateAttributes struct {
 	// a short, unique human readable name used to identify this cluster and does not necessarily map to the cloud resource name
 	Handle *string `json:"handle,omitempty"`
 	// if you optionally want to reconfigure the git repository for the cluster service
-	Service    *ClusterServiceAttributes `json:"service,omitempty"`
-	Kubeconfig *KubeconfigAttributes     `json:"kubeconfig,omitempty"`
-	Protect    *bool                     `json:"protect,omitempty"`
-	NodePools  []*NodePoolAttributes     `json:"nodePools,omitempty"`
+	Service *ClusterServiceAttributes `json:"service,omitempty"`
+	// pass a kubeconfig for this cluster (DEPRECATED)
+	Kubeconfig *KubeconfigAttributes `json:"kubeconfig,omitempty"`
+	Protect    *bool                 `json:"protect,omitempty"`
+	NodePools  []*NodePoolAttributes `json:"nodePools,omitempty"`
+	Tags       []*TagAttributes      `json:"tags,omitempty"`
 }
 
 type Command struct {
@@ -835,6 +837,25 @@ type CrossVersionResourceTarget struct {
 	APIVersion *string `json:"apiVersion"`
 	Kind       *string `json:"kind"`
 	Name       *string `json:"name"`
+}
+
+type DaemonSet struct {
+	Metadata Metadata        `json:"metadata"`
+	Status   DaemonSetStatus `json:"status"`
+	Spec     DaemonSetSpec   `json:"spec"`
+	Pods     []*Pod          `json:"pods"`
+	Raw      string          `json:"raw"`
+	Events   []*Event        `json:"events"`
+}
+
+type DaemonSetSpec struct {
+	Strategy *DeploymentStrategy `json:"strategy"`
+}
+
+type DaemonSetStatus struct {
+	CurrentNumberScheduled *int64 `json:"currentNumberScheduled"`
+	DesiredNumberScheduled *int64 `json:"desiredNumberScheduled"`
+	NumberReady            *int64 `json:"numberReady"`
 }
 
 type Dashboard struct {
@@ -2261,6 +2282,8 @@ type ServiceDeployment struct {
 	Git *GitRef `json:"git"`
 	// description of how helm charts should be applied
 	Helm *HelmSpec `json:"helm"`
+	// how you'd like to perform a canary promotion
+	Promotion *ServicePromotion `json:"promotion"`
 	// if true, deletion of this service is not allowed
 	Protect *bool `json:"protect"`
 	// latest git sha we pulled from
@@ -2511,6 +2534,25 @@ type TerminatedState struct {
 	StartedAt  *string `json:"startedAt"`
 	Message    *string `json:"message"`
 	Reason     *string `json:"reason"`
+}
+
+type UpgradePlan struct {
+	Metadata Metadata          `json:"metadata"`
+	Status   UpgradePlanStatus `json:"status"`
+	Spec     UpgradePlanSpec   `json:"spec"`
+	Pods     []*Pod            `json:"pods"`
+	Raw      string            `json:"raw"`
+	Events   []*Event          `json:"events"`
+}
+
+type UpgradePlanSpec struct {
+	Version     *string `json:"version"`
+	Cordon      *bool   `json:"cordon"`
+	Concurrency *int64  `json:"concurrency"`
+}
+
+type UpgradePlanStatus struct {
+	Conditions []*StatusCondition `json:"conditions"`
 }
 
 type UpgradePolicy struct {
@@ -3288,6 +3330,49 @@ func (e *ServiceDeploymentStatus) UnmarshalGQL(v interface{}) error {
 }
 
 func (e ServiceDeploymentStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type ServicePromotion string
+
+const (
+	ServicePromotionIgnore   ServicePromotion = "IGNORE"
+	ServicePromotionProceed  ServicePromotion = "PROCEED"
+	ServicePromotionRollback ServicePromotion = "ROLLBACK"
+)
+
+var AllServicePromotion = []ServicePromotion{
+	ServicePromotionIgnore,
+	ServicePromotionProceed,
+	ServicePromotionRollback,
+}
+
+func (e ServicePromotion) IsValid() bool {
+	switch e {
+	case ServicePromotionIgnore, ServicePromotionProceed, ServicePromotionRollback:
+		return true
+	}
+	return false
+}
+
+func (e ServicePromotion) String() string {
+	return string(e)
+}
+
+func (e *ServicePromotion) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ServicePromotion(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ServicePromotion", str)
+	}
+	return nil
+}
+
+func (e ServicePromotion) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

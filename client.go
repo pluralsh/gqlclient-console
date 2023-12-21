@@ -51,6 +51,7 @@ type RootQueryType struct {
 	ClusterInfo           *ClusterInfo                 "json:\"clusterInfo\" graphql:\"clusterInfo\""
 	Deployment            *Deployment                  "json:\"deployment\" graphql:\"deployment\""
 	StatefulSet           *StatefulSet                 "json:\"statefulSet\" graphql:\"statefulSet\""
+	DaemonSet             *DaemonSet                   "json:\"daemonSet\" graphql:\"daemonSet\""
 	Ingress               *Ingress                     "json:\"ingress\" graphql:\"ingress\""
 	Nodes                 []*Node                      "json:\"nodes\" graphql:\"nodes\""
 	Node                  *Node                        "json:\"node\" graphql:\"node\""
@@ -68,6 +69,7 @@ type RootQueryType struct {
 	NodeMetrics           []*NodeMetric                "json:\"nodeMetrics\" graphql:\"nodeMetrics\""
 	NodeMetric            *NodeMetric                  "json:\"nodeMetric\" graphql:\"nodeMetric\""
 	Canary                *Canary                      "json:\"canary\" graphql:\"canary\""
+	UpgradePlan           *UpgradePlan                 "json:\"upgradePlan\" graphql:\"upgradePlan\""
 	ConfigurationOverlays []*ConfigurationOverlay      "json:\"configurationOverlays\" graphql:\"configurationOverlays\""
 	Audits                *AuditConnection             "json:\"audits\" graphql:\"audits\""
 	AuditMetrics          []*AuditMetric               "json:\"auditMetrics\" graphql:\"auditMetrics\""
@@ -547,6 +549,26 @@ type GetClusterProvider struct {
 }
 type GetClusterProviderByCloud struct {
 	ClusterProvider *ClusterProviderFragment "json:\"clusterProvider\" graphql:\"clusterProvider\""
+}
+type GetClusterWithToken struct {
+	Cluster *struct {
+		ID             string                      "json:\"id\" graphql:\"id\""
+		Name           string                      "json:\"name\" graphql:\"name\""
+		Handle         *string                     "json:\"handle\" graphql:\"handle\""
+		Self           *bool                       "json:\"self\" graphql:\"self\""
+		Version        *string                     "json:\"version\" graphql:\"version\""
+		InsertedAt     *string                     "json:\"insertedAt\" graphql:\"insertedAt\""
+		PingedAt       *string                     "json:\"pingedAt\" graphql:\"pingedAt\""
+		Protect        *bool                       "json:\"protect\" graphql:\"protect\""
+		CurrentVersion *string                     "json:\"currentVersion\" graphql:\"currentVersion\""
+		KasURL         *string                     "json:\"kasUrl\" graphql:\"kasUrl\""
+		DeletedAt      *string                     "json:\"deletedAt\" graphql:\"deletedAt\""
+		Tags           []*ClusterTags              "json:\"tags\" graphql:\"tags\""
+		Credential     *ProviderCredentialFragment "json:\"credential\" graphql:\"credential\""
+		Provider       *ClusterProviderFragment    "json:\"provider\" graphql:\"provider\""
+		NodePools      []*NodePoolFragment         "json:\"nodePools\" graphql:\"nodePools\""
+		DeployToken    *string                     "json:\"deployToken\" graphql:\"deployToken\""
+	} "json:\"cluster\" graphql:\"cluster\""
 }
 type GetGitRepository struct {
 	GitRepository *GitRepositoryFragment "json:\"gitRepository\" graphql:\"gitRepository\""
@@ -2477,6 +2499,152 @@ func (c *Client) GetClusterProviderByCloud(ctx context.Context, cloud string, ht
 
 	var res GetClusterProviderByCloud
 	if err := c.Client.Post(ctx, "GetClusterProviderByCloud", GetClusterProviderByCloudDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const GetClusterWithTokenDocument = `query GetClusterWithToken ($id: ID, $handle: String) {
+	cluster(id: $id, handle: $handle) {
+		... ClusterFragment
+		deployToken
+	}
+}
+fragment ClusterFragment on Cluster {
+	id
+	name
+	handle
+	self
+	version
+	insertedAt
+	pingedAt
+	protect
+	currentVersion
+	kasUrl
+	deletedAt
+	tags {
+		... ClusterTags
+	}
+	credential {
+		... ProviderCredentialFragment
+	}
+	provider {
+		... ClusterProviderFragment
+	}
+	nodePools {
+		... NodePoolFragment
+	}
+}
+fragment ClusterProviderFragment on ClusterProvider {
+	id
+	name
+	namespace
+	cloud
+	editable
+	deletedAt
+	repository {
+		... GitRepositoryFragment
+	}
+	service {
+		... ServiceDeploymentFragment
+	}
+	credentials {
+		... ProviderCredentialFragment
+	}
+}
+fragment ClusterTags on Tag {
+	name
+	value
+}
+fragment GitRefFragment on GitRef {
+	folder
+	ref
+}
+fragment GitRepositoryFragment on GitRepository {
+	id
+	error
+	health
+	authMethod
+	url
+}
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
+fragment KustomizeFragment on Kustomize {
+	path
+}
+fragment NodePoolFragment on NodePool {
+	id
+	name
+	minSize
+	maxSize
+	instanceType
+	labels
+	taints {
+		... NodePoolTaintFragment
+	}
+}
+fragment NodePoolTaintFragment on Taint {
+	key
+	value
+	effect
+}
+fragment ProviderCredentialFragment on ProviderCredential {
+	id
+	name
+	namespace
+	kind
+}
+fragment ServiceDeploymentBaseFragment on ServiceDeployment {
+	id
+	name
+	namespace
+	version
+	kustomize {
+		... KustomizeFragment
+	}
+	git {
+		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+}
+fragment ServiceDeploymentFragment on ServiceDeployment {
+	... ServiceDeploymentBaseFragment
+	components {
+		id
+		name
+		group
+		kind
+		namespace
+		state
+		synced
+		version
+	}
+	protect
+	deletedAt
+	sha
+	tarball
+	configuration {
+		name
+		value
+	}
+}
+`
+
+func (c *Client) GetClusterWithToken(ctx context.Context, id *string, handle *string, httpRequestOptions ...client.HTTPRequestOption) (*GetClusterWithToken, error) {
+	vars := map[string]interface{}{
+		"id":     id,
+		"handle": handle,
+	}
+
+	var res GetClusterWithToken
+	if err := c.Client.Post(ctx, "GetClusterWithToken", GetClusterWithTokenDocument, &res, vars, httpRequestOptions...); err != nil {
 		return nil, err
 	}
 

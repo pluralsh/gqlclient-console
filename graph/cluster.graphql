@@ -64,6 +64,13 @@ query GetCluster($id: ID) {
     }
 }
 
+query GetClusterWithToken($id: ID, $handle: String) {
+    cluster(id: $id, handle: $handle) {
+        ...ClusterFragment
+        deployToken
+    }
+}
+
 query GetClusterByHandle($handle: String) {
     cluster(handle: $handle) {
         ...ClusterFragment
