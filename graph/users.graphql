@@ -15,3 +15,9 @@ mutation AddGroupMember($groupId: ID!, $userId: ID!) {
         ...GroupMemberFragment
      }
 }
+
+mutation DeleteGroupMember($userId: ID!, $groupId: ID!) {
+    deleteGroupMember(userId: $userId, groupId: $groupId) {
+        ...GroupMemberFragment
+    }
+}

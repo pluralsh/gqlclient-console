@@ -535,6 +535,9 @@ type DeleteClusterProvider struct {
 type DeleteGitRepository struct {
 	DeleteGitRepository *GitRepositoryFragment "json:\"deleteGitRepository\" graphql:\"deleteGitRepository\""
 }
+type DeleteGroupMember struct {
+	DeleteGroupMember *GroupMemberFragment "json:\"deleteGroupMember\" graphql:\"deleteGroupMember\""
+}
 type DeleteProviderCredential struct {
 	DeleteProviderCredential *ProviderCredentialFragment "json:\"deleteProviderCredential\" graphql:\"deleteProviderCredential\""
 }
@@ -1736,6 +1739,36 @@ func (c *Client) DeleteGitRepository(ctx context.Context, id string, httpRequest
 
 	var res DeleteGitRepository
 	if err := c.Client.Post(ctx, "DeleteGitRepository", DeleteGitRepositoryDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const DeleteGroupMemberDocument = `mutation DeleteGroupMember ($userId: ID!, $groupId: ID!) {
+	deleteGroupMember(userId: $userId, groupId: $groupId) {
+		... GroupMemberFragment
+	}
+}
+fragment GroupMemberFragment on GroupMember {
+	id
+	user {
+		id
+	}
+	group {
+		id
+	}
+}
+`
+
+func (c *Client) DeleteGroupMember(ctx context.Context, userID string, groupID string, httpRequestOptions ...client.HTTPRequestOption) (*DeleteGroupMember, error) {
+	vars := map[string]interface{}{
+		"userId":  userID,
+		"groupId": groupID,
+	}
+
+	var res DeleteGroupMember
+	if err := c.Client.Post(ctx, "DeleteGroupMember", DeleteGroupMemberDocument, &res, vars, httpRequestOptions...); err != nil {
 		return nil, err
 	}
 
