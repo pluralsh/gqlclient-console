@@ -1,0 +1,15 @@
+query GetUser($email: String!) {
+    user(email: $email) {
+        ...UserFragment
+    }
+}
+
+query GetGroup($name: String!) {
+    group(name: $name) {
+        ...GroupFragment
+    }
+}
+
+mutation AddGroupMember($groupId: ID!, $userId: ID!) {
+    createGroupMember(groupId: $groupId, userId: $userId) { id }
+}

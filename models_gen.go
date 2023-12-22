@@ -1088,6 +1088,8 @@ type GitRepository struct {
 	HTTPSPath *string `json:"httpsPath"`
 	// a format string to get the http url for a subfolder in a git repo
 	URLFormat *string `json:"urlFormat"`
+	// named refs like branches/tags for a repository
+	Refs []string `json:"refs"`
 	// whether the current user can edit this repo
 	Editable   *bool   `json:"editable"`
 	InsertedAt *string `json:"insertedAt"`

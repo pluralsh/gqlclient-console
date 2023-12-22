@@ -464,6 +464,11 @@ type UserFragment struct {
 	ID    string "json:\"id\" graphql:\"id\""
 	Email string "json:\"email\" graphql:\"email\""
 }
+type AddGroupMember struct {
+	CreateGroupMember *struct {
+		ID string "json:\"id\" graphql:\"id\""
+	} "json:\"createGroupMember\" graphql:\"createGroupMember\""
+}
 type AddServiceError struct {
 	UpdateServiceComponents *ServiceDeploymentFragment "json:\"updateServiceComponents\" graphql:\"updateServiceComponents\""
 }
@@ -573,6 +578,9 @@ type GetClusterWithToken struct {
 type GetGitRepository struct {
 	GitRepository *GitRepositoryFragment "json:\"gitRepository\" graphql:\"gitRepository\""
 }
+type GetGroup struct {
+	Group *GroupFragment "json:\"group\" graphql:\"group\""
+}
 type GetPipeline struct {
 	Pipeline *PipelineFragment "json:\"pipeline\" graphql:\"pipeline\""
 }
@@ -586,6 +594,9 @@ type GetServiceDeployment struct {
 }
 type GetServiceDeploymentByHandle struct {
 	ServiceDeployment *ServiceDeploymentExtended "json:\"serviceDeployment\" graphql:\"serviceDeployment\""
+}
+type GetUser struct {
+	User *UserFragment "json:\"user\" graphql:\"user\""
 }
 type ListAccessTokens struct {
 	AccessTokens *struct {
@@ -690,6 +701,27 @@ type UpdateGate struct {
 }
 type UpdateServiceComponents struct {
 	UpdateServiceComponents *ServiceDeploymentFragment "json:\"updateServiceComponents\" graphql:\"updateServiceComponents\""
+}
+
+const AddGroupMemberDocument = `mutation AddGroupMember ($groupId: ID!, $userId: ID!) {
+	createGroupMember(groupId: $groupId, userId: $userId) {
+		id
+	}
+}
+`
+
+func (c *Client) AddGroupMember(ctx context.Context, groupID string, userID string, httpRequestOptions ...client.HTTPRequestOption) (*AddGroupMember, error) {
+	vars := map[string]interface{}{
+		"groupId": groupID,
+		"userId":  userID,
+	}
+
+	var res AddGroupMember
+	if err := c.Client.Post(ctx, "AddGroupMember", AddGroupMemberDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
 }
 
 const AddServiceErrorDocument = `mutation AddServiceError ($id: ID!, $errors: [ServiceErrorAttributes]) {
@@ -2679,6 +2711,31 @@ func (c *Client) GetGitRepository(ctx context.Context, id *string, url *string, 
 	return &res, nil
 }
 
+const GetGroupDocument = `query GetGroup ($name: String!) {
+	group(name: $name) {
+		... GroupFragment
+	}
+}
+fragment GroupFragment on Group {
+	id
+	name
+	description
+}
+`
+
+func (c *Client) GetGroup(ctx context.Context, name string, httpRequestOptions ...client.HTTPRequestOption) (*GetGroup, error) {
+	vars := map[string]interface{}{
+		"name": name,
+	}
+
+	var res GetGroup
+	if err := c.Client.Post(ctx, "GetGroup", GetGroupDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
 const GetPipelineDocument = `query GetPipeline ($id: ID!) {
 	pipeline(id: $id) {
 		... PipelineFragment
@@ -3161,6 +3218,31 @@ func (c *Client) GetServiceDeploymentByHandle(ctx context.Context, cluster strin
 
 	var res GetServiceDeploymentByHandle
 	if err := c.Client.Post(ctx, "GetServiceDeploymentByHandle", GetServiceDeploymentByHandleDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const GetUserDocument = `query GetUser ($email: String!) {
+	user(email: $email) {
+		... UserFragment
+	}
+}
+fragment UserFragment on User {
+	name
+	id
+	email
+}
+`
+
+func (c *Client) GetUser(ctx context.Context, email string, httpRequestOptions ...client.HTTPRequestOption) (*GetUser, error) {
+	vars := map[string]interface{}{
+		"email": email,
+	}
+
+	var res GetUser
+	if err := c.Client.Post(ctx, "GetUser", GetUserDocument, &res, vars, httpRequestOptions...); err != nil {
 		return nil, err
 	}
 
