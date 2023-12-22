@@ -307,6 +307,15 @@ type GroupFragment struct {
 	Name        string  "json:\"name\" graphql:\"name\""
 	Description *string "json:\"description\" graphql:\"description\""
 }
+type GroupMemberFragment struct {
+	ID   string "json:\"id\" graphql:\"id\""
+	User *struct {
+		ID string "json:\"id\" graphql:\"id\""
+	} "json:\"user\" graphql:\"user\""
+	Group *struct {
+		ID string "json:\"id\" graphql:\"id\""
+	} "json:\"group\" graphql:\"group\""
+}
 type HelmSpecFragment struct {
 	ValuesFiles []*string "json:\"valuesFiles\" graphql:\"valuesFiles\""
 }
@@ -465,9 +474,7 @@ type UserFragment struct {
 	Email string "json:\"email\" graphql:\"email\""
 }
 type AddGroupMember struct {
-	CreateGroupMember *struct {
-		ID string "json:\"id\" graphql:\"id\""
-	} "json:\"createGroupMember\" graphql:\"createGroupMember\""
+	CreateGroupMember *GroupMemberFragment "json:\"createGroupMember\" graphql:\"createGroupMember\""
 }
 type AddServiceError struct {
 	UpdateServiceComponents *ServiceDeploymentFragment "json:\"updateServiceComponents\" graphql:\"updateServiceComponents\""
@@ -705,6 +712,15 @@ type UpdateServiceComponents struct {
 
 const AddGroupMemberDocument = `mutation AddGroupMember ($groupId: ID!, $userId: ID!) {
 	createGroupMember(groupId: $groupId, userId: $userId) {
+		... GroupMemberFragment
+	}
+}
+fragment GroupMemberFragment on GroupMember {
+	id
+	user {
+		id
+	}
+	group {
 		id
 	}
 }

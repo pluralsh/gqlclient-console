@@ -72,6 +72,12 @@ fragment GroupFragment on Group {
     description
 }
 
+fragment GroupMemberFragment on GroupMember {
+    id
+    user { id }
+    group { id }
+}
+
 fragment GitRepositoryFragment on GitRepository {
     id
     error
