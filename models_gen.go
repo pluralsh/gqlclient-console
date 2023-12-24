@@ -16,6 +16,7 @@ type KubernetesData interface {
 type AccessToken struct {
 	ID         *string                     `json:"id"`
 	Token      *string                     `json:"token"`
+	Scopes     []*AccessTokenScope         `json:"scopes"`
 	Audits     *AccessTokenAuditConnection `json:"audits"`
 	InsertedAt *string                     `json:"insertedAt"`
 	UpdatedAt  *string                     `json:"updatedAt"`
@@ -52,6 +53,13 @@ type AccessTokenConnection struct {
 type AccessTokenEdge struct {
 	Node   *AccessToken `json:"node"`
 	Cursor *string      `json:"cursor"`
+}
+
+type AccessTokenScope struct {
+	API        string   `json:"api"`
+	Apis       []string `json:"apis"`
+	Identifier *string  `json:"identifier"`
+	Ids        []string `json:"ids"`
 }
 
 type Account struct {
@@ -418,6 +426,10 @@ type Cluster struct {
 	Protect *bool `json:"protect"`
 	// desired k8s version for the cluster
 	Version *string `json:"version"`
+	// the distribution of kubernetes this cluster is running
+	Distro *ClusterDistro `json:"distro"`
+	// arbitrary json metadata to store user-specific state of this cluster (eg IAM roles for add-ons)
+	Metadata map[string]interface{} `json:"metadata"`
 	// current k8s version as told to us by the deployment operator
 	CurrentVersion *string `json:"currentVersion"`
 	// a short, unique human readable name used to identify this cluster and does not necessarily map to the cloud resource name
@@ -487,6 +499,8 @@ type ClusterAttributes struct {
 	// a cloud credential to use when provisioning this cluster
 	CredentialID  *string                    `json:"credentialId,omitempty"`
 	Version       *string                    `json:"version,omitempty"`
+	Distro        *ClusterDistro             `json:"distro,omitempty"`
+	Metadata      *string                    `json:"metadata,omitempty"`
 	Protect       *bool                      `json:"protect,omitempty"`
 	Kubeconfig    *KubeconfigAttributes      `json:"kubeconfig,omitempty"`
 	CloudSettings *CloudSettingsAttributes   `json:"cloudSettings,omitempty"`
@@ -524,7 +538,8 @@ type ClusterInfo struct {
 }
 
 type ClusterPing struct {
-	CurrentVersion string `json:"currentVersion"`
+	CurrentVersion string         `json:"currentVersion"`
+	Distro         *ClusterDistro `json:"distro,omitempty"`
 }
 
 // a CAPI provider for a cluster, cloud is inferred from name if not provided manually
@@ -613,6 +628,8 @@ type ClusterUpdateAttributes struct {
 	// pass a kubeconfig for this cluster (DEPRECATED)
 	Kubeconfig *KubeconfigAttributes `json:"kubeconfig,omitempty"`
 	Protect    *bool                 `json:"protect,omitempty"`
+	Distro     *ClusterDistro        `json:"distro,omitempty"`
+	Metadata   *string               `json:"metadata,omitempty"`
 	NodePools  []*NodePoolAttributes `json:"nodePools,omitempty"`
 	Tags       []*TagAttributes      `json:"tags,omitempty"`
 }
@@ -1119,6 +1136,8 @@ type GlobalService struct {
 	Name string `json:"name"`
 	// a set of tags to select clusters for this global service
 	Tags []*Tag `json:"tags"`
+	// the kubernetes distribution to target with this global service
+	Distro *ClusterDistro `json:"distro"`
 	// the service to replicate across clusters
 	Service *ServiceDeployment `json:"service"`
 	// whether to only apply to clusters with this provider
@@ -1127,10 +1146,16 @@ type GlobalService struct {
 	UpdatedAt  *string          `json:"updatedAt"`
 }
 
+// A reference for a globalized service, which targets clusters based on the configured criteria
 type GlobalServiceAttributes struct {
-	Name       string           `json:"name"`
-	Tags       []*TagAttributes `json:"tags,omitempty"`
-	ProviderID *string          `json:"providerId,omitempty"`
+	// name for this global service
+	Name string `json:"name"`
+	// the cluster tags to target
+	Tags []*TagAttributes `json:"tags,omitempty"`
+	// kubernetes distribution to target
+	Distro *ClusterDistro `json:"distro,omitempty"`
+	// cluster api provider to target
+	ProviderID *string `json:"providerId,omitempty"`
 }
 
 type Group struct {
@@ -2212,6 +2237,13 @@ type RuntimeServiceAttributes struct {
 	Version string `json:"version"`
 }
 
+type ScopeAttributes struct {
+	API        *string  `json:"api,omitempty"`
+	Apis       []string `json:"apis,omitempty"`
+	Identifier *string  `json:"identifier,omitempty"`
+	Ids        []string `json:"ids,omitempty"`
+}
+
 type Secret struct {
 	Metadata Metadata               `json:"metadata"`
 	Type     *string                `json:"type"`
@@ -2230,6 +2262,13 @@ type Service struct {
 	Pods     []*Pod        `json:"pods"`
 	Raw      string        `json:"raw"`
 	Events   []*Event      `json:"events"`
+}
+
+type ServiceAccountAttributes struct {
+	Name           *string                    `json:"name,omitempty"`
+	Email          *string                    `json:"email,omitempty"`
+	Roles          *UserRoleAttributes        `json:"roles,omitempty"`
+	AssumeBindings []*PolicyBindingAttributes `json:"assumeBindings,omitempty"`
 }
 
 type ServiceCloneAttributes struct {
@@ -2579,22 +2618,23 @@ type UpgradePolicyAttributes struct {
 }
 
 type User struct {
-	ID                  string     `json:"id"`
-	Name                string     `json:"name"`
-	Email               string     `json:"email"`
-	DeletedAt           *string    `json:"deletedAt"`
-	Profile             *string    `json:"profile"`
-	PluralID            *string    `json:"pluralId"`
-	Roles               *UserRoles `json:"roles"`
-	ReadTimestamp       *string    `json:"readTimestamp"`
-	BuildTimestamp      *string    `json:"buildTimestamp"`
-	Groups              []*Group   `json:"groups"`
-	BoundRoles          []*Role    `json:"boundRoles"`
-	Jwt                 *string    `json:"jwt"`
-	UnreadNotifications *int64     `json:"unreadNotifications"`
-	BackgroundColor     *string    `json:"backgroundColor"`
-	InsertedAt          *string    `json:"insertedAt"`
-	UpdatedAt           *string    `json:"updatedAt"`
+	ID                  string           `json:"id"`
+	Name                string           `json:"name"`
+	Email               string           `json:"email"`
+	DeletedAt           *string          `json:"deletedAt"`
+	Profile             *string          `json:"profile"`
+	PluralID            *string          `json:"pluralId"`
+	Roles               *UserRoles       `json:"roles"`
+	ReadTimestamp       *string          `json:"readTimestamp"`
+	BuildTimestamp      *string          `json:"buildTimestamp"`
+	AssumeBindings      []*PolicyBinding `json:"assumeBindings"`
+	Groups              []*Group         `json:"groups"`
+	BoundRoles          []*Role          `json:"boundRoles"`
+	Jwt                 *string          `json:"jwt"`
+	UnreadNotifications *int64           `json:"unreadNotifications"`
+	BackgroundColor     *string          `json:"backgroundColor"`
+	InsertedAt          *string          `json:"insertedAt"`
+	UpdatedAt           *string          `json:"updatedAt"`
 }
 
 type UserAttributes struct {
@@ -2943,6 +2983,55 @@ func (e *BuildType) UnmarshalGQL(v interface{}) error {
 }
 
 func (e BuildType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type ClusterDistro string
+
+const (
+	ClusterDistroGeneric ClusterDistro = "GENERIC"
+	ClusterDistroEks     ClusterDistro = "EKS"
+	ClusterDistroAks     ClusterDistro = "AKS"
+	ClusterDistroGke     ClusterDistro = "GKE"
+	ClusterDistroRke     ClusterDistro = "RKE"
+	ClusterDistroK3s     ClusterDistro = "K3S"
+)
+
+var AllClusterDistro = []ClusterDistro{
+	ClusterDistroGeneric,
+	ClusterDistroEks,
+	ClusterDistroAks,
+	ClusterDistroGke,
+	ClusterDistroRke,
+	ClusterDistroK3s,
+}
+
+func (e ClusterDistro) IsValid() bool {
+	switch e {
+	case ClusterDistroGeneric, ClusterDistroEks, ClusterDistroAks, ClusterDistroGke, ClusterDistroRke, ClusterDistroK3s:
+		return true
+	}
+	return false
+}
+
+func (e ClusterDistro) String() string {
+	return string(e)
+}
+
+func (e *ClusterDistro) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ClusterDistro(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ClusterDistro", str)
+	}
+	return nil
+}
+
+func (e ClusterDistro) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
