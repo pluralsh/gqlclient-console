@@ -6,3 +6,10 @@ update-schema: ## download schema from plural
 
 generate: update-schema
 	go run github.com/Yamashou/gqlgenc
+
+release-vsn:
+	@read -p "Version: " tag; \
+	git checkout main; \
+	git pull --rebase; \
+	git tag -a $$tag -m "new release"; \
+	git push origin $$tag;

@@ -97,3 +97,21 @@ query ListServiceDeploymentByHandle($after: String, $before: String, $last: Int,
         }
     }
 }
+
+mutation CreateGlobalService($attributes: GlobalServiceAttributes!) {
+    createGlobalService(attributes: $attributes) {
+        ...GlobalServiceFragment
+    }
+}
+
+mutation UpdateGlobalService($id: ID!, $attributes: GlobalServiceAttributes!) {
+    updateGlobalService(id: $id, attributes: $attributes) {
+        ...GlobalServiceFragment
+    }
+}
+
+mutation DeleteGlobalService($id: ID!) {
+    deleteGlobalService(id: $id) {
+        ...GlobalServiceFragment
+    }
+}

@@ -182,6 +182,7 @@ type RootMutationType struct {
 	SelfManage                *ServiceDeployment     "json:\"selfManage\" graphql:\"selfManage\""
 	Proceed                   *ServiceDeployment     "json:\"proceed\" graphql:\"proceed\""
 	CreateGlobalService       *GlobalService         "json:\"createGlobalService\" graphql:\"createGlobalService\""
+	UpdateGlobalService       *GlobalService         "json:\"updateGlobalService\" graphql:\"updateGlobalService\""
 	DeleteGlobalService       *GlobalService         "json:\"deleteGlobalService\" graphql:\"deleteGlobalService\""
 	SavePipeline              *Pipeline              "json:\"savePipeline\" graphql:\"savePipeline\""
 	ApproveGate               *PipelineGate          "json:\"approveGate\" graphql:\"approveGate\""
@@ -305,6 +306,18 @@ type GitRepositoryFragment struct {
 	Health     *GitHealth  "json:\"health\" graphql:\"health\""
 	AuthMethod *AuthMethod "json:\"authMethod\" graphql:\"authMethod\""
 	URL        string      "json:\"url\" graphql:\"url\""
+}
+type GlobalServiceFragment struct {
+	ID       string         "json:\"id\" graphql:\"id\""
+	Name     string         "json:\"name\" graphql:\"name\""
+	Distro   *ClusterDistro "json:\"distro\" graphql:\"distro\""
+	Provider *struct {
+		ID string "json:\"id\" graphql:\"id\""
+	} "json:\"provider\" graphql:\"provider\""
+	Service *struct {
+		ID string "json:\"id\" graphql:\"id\""
+	} "json:\"service\" graphql:\"service\""
+	Tags []*TagFragment "json:\"tags\" graphql:\"tags\""
 }
 type GroupFragment struct {
 	ID          string  "json:\"id\" graphql:\"id\""
@@ -472,6 +485,10 @@ type ServiceDeploymentFragment struct {
 		Value string "json:\"value\" graphql:\"value\""
 	} "json:\"configuration\" graphql:\"configuration\""
 }
+type TagFragment struct {
+	Name  string "json:\"name\" graphql:\"name\""
+	Value string "json:\"value\" graphql:\"value\""
+}
 type UserFragment struct {
 	Name  string "json:\"name\" graphql:\"name\""
 	ID    string "json:\"id\" graphql:\"id\""
@@ -518,6 +535,9 @@ type CreateClusterProvider struct {
 type CreateGitRepository struct {
 	CreateGitRepository *GitRepositoryFragment "json:\"createGitRepository\" graphql:\"createGitRepository\""
 }
+type CreateGlobalService struct {
+	CreateGlobalService *GlobalServiceFragment "json:\"createGlobalService\" graphql:\"createGlobalService\""
+}
 type CreateProviderCredential struct {
 	CreateProviderCredential *ProviderCredentialFragment "json:\"createProviderCredential\" graphql:\"createProviderCredential\""
 }
@@ -538,6 +558,9 @@ type DeleteClusterProvider struct {
 }
 type DeleteGitRepository struct {
 	DeleteGitRepository *GitRepositoryFragment "json:\"deleteGitRepository\" graphql:\"deleteGitRepository\""
+}
+type DeleteGlobalService struct {
+	DeleteGlobalService *GlobalServiceFragment "json:\"deleteGlobalService\" graphql:\"deleteGlobalService\""
 }
 type DeleteGroupMember struct {
 	DeleteGroupMember *GroupMemberFragment "json:\"deleteGroupMember\" graphql:\"deleteGroupMember\""
@@ -700,6 +723,9 @@ type UpdateDeploymentSettings struct {
 }
 type UpdateGitRepository struct {
 	UpdateGitRepository *GitRepositoryFragment "json:\"updateGitRepository\" graphql:\"updateGitRepository\""
+}
+type UpdateGlobalService struct {
+	UpdateGlobalService *GlobalServiceFragment "json:\"updateGlobalService\" graphql:\"updateGlobalService\""
 }
 type UpdateRbac struct {
 	UpdateRbac *bool "json:\"updateRbac\" graphql:\"updateRbac\""
@@ -1274,6 +1300,44 @@ func (c *Client) CreateGitRepository(ctx context.Context, attributes GitAttribut
 	return &res, nil
 }
 
+const CreateGlobalServiceDocument = `mutation CreateGlobalService ($attributes: GlobalServiceAttributes!) {
+	createGlobalService(attributes: $attributes) {
+		... GlobalServiceFragment
+	}
+}
+fragment GlobalServiceFragment on GlobalService {
+	id
+	name
+	distro
+	provider {
+		id
+	}
+	service {
+		id
+	}
+	tags {
+		... TagFragment
+	}
+}
+fragment TagFragment on Tag {
+	name
+	value
+}
+`
+
+func (c *Client) CreateGlobalService(ctx context.Context, attributes GlobalServiceAttributes, httpRequestOptions ...client.HTTPRequestOption) (*CreateGlobalService, error) {
+	vars := map[string]interface{}{
+		"attributes": attributes,
+	}
+
+	var res CreateGlobalService
+	if err := c.Client.Post(ctx, "CreateGlobalService", CreateGlobalServiceDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
 const CreateProviderCredentialDocument = `mutation CreateProviderCredential ($attributes: ProviderCredentialAttributes!, $name: String!) {
 	createProviderCredential(attributes: $attributes, name: $name) {
 		... ProviderCredentialFragment
@@ -1743,6 +1807,44 @@ func (c *Client) DeleteGitRepository(ctx context.Context, id string, httpRequest
 
 	var res DeleteGitRepository
 	if err := c.Client.Post(ctx, "DeleteGitRepository", DeleteGitRepositoryDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const DeleteGlobalServiceDocument = `mutation DeleteGlobalService ($id: ID!) {
+	deleteGlobalService(id: $id) {
+		... GlobalServiceFragment
+	}
+}
+fragment GlobalServiceFragment on GlobalService {
+	id
+	name
+	distro
+	provider {
+		id
+	}
+	service {
+		id
+	}
+	tags {
+		... TagFragment
+	}
+}
+fragment TagFragment on Tag {
+	name
+	value
+}
+`
+
+func (c *Client) DeleteGlobalService(ctx context.Context, id string, httpRequestOptions ...client.HTTPRequestOption) (*DeleteGlobalService, error) {
+	vars := map[string]interface{}{
+		"id": id,
+	}
+
+	var res DeleteGlobalService
+	if err := c.Client.Post(ctx, "DeleteGlobalService", DeleteGlobalServiceDocument, &res, vars, httpRequestOptions...); err != nil {
 		return nil, err
 	}
 
@@ -4553,6 +4655,45 @@ func (c *Client) UpdateGitRepository(ctx context.Context, id string, attributes 
 
 	var res UpdateGitRepository
 	if err := c.Client.Post(ctx, "UpdateGitRepository", UpdateGitRepositoryDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const UpdateGlobalServiceDocument = `mutation UpdateGlobalService ($id: ID!, $attributes: GlobalServiceAttributes!) {
+	updateGlobalService(id: $id, attributes: $attributes) {
+		... GlobalServiceFragment
+	}
+}
+fragment GlobalServiceFragment on GlobalService {
+	id
+	name
+	distro
+	provider {
+		id
+	}
+	service {
+		id
+	}
+	tags {
+		... TagFragment
+	}
+}
+fragment TagFragment on Tag {
+	name
+	value
+}
+`
+
+func (c *Client) UpdateGlobalService(ctx context.Context, id string, attributes GlobalServiceAttributes, httpRequestOptions ...client.HTTPRequestOption) (*UpdateGlobalService, error) {
+	vars := map[string]interface{}{
+		"id":         id,
+		"attributes": attributes,
+	}
+
+	var res UpdateGlobalService
+	if err := c.Client.Post(ctx, "UpdateGlobalService", UpdateGlobalServiceDocument, &res, vars, httpRequestOptions...); err != nil {
 		return nil, err
 	}
 

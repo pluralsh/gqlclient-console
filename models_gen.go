@@ -327,7 +327,7 @@ type Canary struct {
 	PrimaryDeployment *Deployment  `json:"primaryDeployment"`
 	CanaryDeployment  *Deployment  `json:"canaryDeployment"`
 	Ingress           *Ingress     `json:"ingress"`
-	IngressPrimary    *Ingress     `json:"ingressPrimary"`
+	IngressCanary     *Ingress     `json:"ingressCanary"`
 	Raw               string       `json:"raw"`
 	Events            []*Event     `json:"events"`
 }
@@ -1066,6 +1066,8 @@ type GitAttributes struct {
 	HTTPSPath *string `json:"httpsPath,omitempty"`
 	// similar to https_path, a manually supplied url format for custom git.  Should be something like {url}/tree/{ref}/{folder}
 	URLFormat *string `json:"urlFormat,omitempty"`
+	// whether to run plural crypto on this repo
+	Decrypt *bool `json:"decrypt,omitempty"`
 }
 
 // a file fetched from a git repository, eg a docs .md file
@@ -1105,6 +1107,8 @@ type GitRepository struct {
 	HTTPSPath *string `json:"httpsPath"`
 	// a format string to get the http url for a subfolder in a git repo
 	URLFormat *string `json:"urlFormat"`
+	// whether to run plural crypto unlock on this repo
+	Decrypt *bool `json:"decrypt"`
 	// named refs like branches/tags for a repository
 	Refs []string `json:"refs"`
 	// whether the current user can edit this repo
@@ -1310,8 +1314,9 @@ type IngressRule struct {
 }
 
 type IngressSpec struct {
-	Rules []*IngressRule `json:"rules"`
-	TLS   []*IngressTLS  `json:"tls"`
+	IngressClassName *string        `json:"ingressClassName"`
+	Rules            []*IngressRule `json:"rules"`
+	TLS              []*IngressTLS  `json:"tls"`
 }
 
 type IngressTLS struct {
