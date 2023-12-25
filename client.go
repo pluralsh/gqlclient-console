@@ -317,7 +317,7 @@ type GlobalServiceFragment struct {
 	Service *struct {
 		ID string "json:\"id\" graphql:\"id\""
 	} "json:\"service\" graphql:\"service\""
-	Tags []*TagFragment "json:\"tags\" graphql:\"tags\""
+	Tags []*ClusterTags "json:\"tags\" graphql:\"tags\""
 }
 type GroupFragment struct {
 	ID          string  "json:\"id\" graphql:\"id\""
@@ -484,10 +484,6 @@ type ServiceDeploymentFragment struct {
 		Name  string "json:\"name\" graphql:\"name\""
 		Value string "json:\"value\" graphql:\"value\""
 	} "json:\"configuration\" graphql:\"configuration\""
-}
-type TagFragment struct {
-	Name  string "json:\"name\" graphql:\"name\""
-	Value string "json:\"value\" graphql:\"value\""
 }
 type UserFragment struct {
 	Name  string "json:\"name\" graphql:\"name\""
@@ -1305,6 +1301,10 @@ const CreateGlobalServiceDocument = `mutation CreateGlobalService ($attributes: 
 		... GlobalServiceFragment
 	}
 }
+fragment ClusterTags on Tag {
+	name
+	value
+}
 fragment GlobalServiceFragment on GlobalService {
 	id
 	name
@@ -1316,12 +1316,8 @@ fragment GlobalServiceFragment on GlobalService {
 		id
 	}
 	tags {
-		... TagFragment
+		... ClusterTags
 	}
-}
-fragment TagFragment on Tag {
-	name
-	value
 }
 `
 
@@ -1818,6 +1814,10 @@ const DeleteGlobalServiceDocument = `mutation DeleteGlobalService ($id: ID!) {
 		... GlobalServiceFragment
 	}
 }
+fragment ClusterTags on Tag {
+	name
+	value
+}
 fragment GlobalServiceFragment on GlobalService {
 	id
 	name
@@ -1829,12 +1829,8 @@ fragment GlobalServiceFragment on GlobalService {
 		id
 	}
 	tags {
-		... TagFragment
+		... ClusterTags
 	}
-}
-fragment TagFragment on Tag {
-	name
-	value
 }
 `
 
@@ -4666,6 +4662,10 @@ const UpdateGlobalServiceDocument = `mutation UpdateGlobalService ($id: ID!, $at
 		... GlobalServiceFragment
 	}
 }
+fragment ClusterTags on Tag {
+	name
+	value
+}
 fragment GlobalServiceFragment on GlobalService {
 	id
 	name
@@ -4677,12 +4677,8 @@ fragment GlobalServiceFragment on GlobalService {
 		id
 	}
 	tags {
-		... TagFragment
+		... ClusterTags
 	}
-}
-fragment TagFragment on Tag {
-	name
-	value
 }
 `
 

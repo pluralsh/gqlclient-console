@@ -277,16 +277,11 @@ fragment PipelineEdgeFragment on PipelineEdge {
     node { ...PipelineFragment }
 }
 
-fragment TagFragment on Tag {
-    name
-    value
-}
-
 fragment GlobalServiceFragment on GlobalService {
     id
     name
     distro
     provider { id }
     service { id }
-    tags { ...TagFragment }
+    tags { ...ClusterTags }
 }
