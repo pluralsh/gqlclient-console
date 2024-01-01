@@ -84,7 +84,7 @@ fragment GitRepositoryFragment on GitRepository {
     health
     authMethod
     url
-
+    decrypt
 }
 
 fragment GitRefFragment on GitRef {

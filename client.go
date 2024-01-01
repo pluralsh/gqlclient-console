@@ -306,6 +306,7 @@ type GitRepositoryFragment struct {
 	Health     *GitHealth  "json:\"health\" graphql:\"health\""
 	AuthMethod *AuthMethod "json:\"authMethod\" graphql:\"authMethod\""
 	URL        string      "json:\"url\" graphql:\"url\""
+	Decrypt    *bool       "json:\"decrypt\" graphql:\"decrypt\""
 }
 type GlobalServiceFragment struct {
 	ID       string         "json:\"id\" graphql:\"id\""
@@ -784,6 +785,7 @@ fragment GitRepositoryFragment on GitRepository {
 	health
 	authMethod
 	url
+	decrypt
 }
 fragment HelmSpecFragment on HelmSpec {
 	valuesFiles
@@ -861,6 +863,7 @@ fragment GitRepositoryFragment on GitRepository {
 	health
 	authMethod
 	url
+	decrypt
 }
 fragment HelmSpecFragment on HelmSpec {
 	valuesFiles
@@ -939,6 +942,7 @@ fragment GitRepositoryFragment on GitRepository {
 	health
 	authMethod
 	url
+	decrypt
 }
 fragment HelmSpecFragment on HelmSpec {
 	valuesFiles
@@ -1087,6 +1091,7 @@ fragment GitRepositoryFragment on GitRepository {
 	health
 	authMethod
 	url
+	decrypt
 }
 fragment HelmSpecFragment on HelmSpec {
 	valuesFiles
@@ -1202,6 +1207,7 @@ fragment GitRepositoryFragment on GitRepository {
 	health
 	authMethod
 	url
+	decrypt
 }
 fragment HelmSpecFragment on HelmSpec {
 	valuesFiles
@@ -1280,6 +1286,7 @@ fragment GitRepositoryFragment on GitRepository {
 	health
 	authMethod
 	url
+	decrypt
 }
 `
 
@@ -1376,6 +1383,7 @@ fragment GitRepositoryFragment on GitRepository {
 	health
 	authMethod
 	url
+	decrypt
 }
 fragment HelmSpecFragment on HelmSpec {
 	valuesFiles
@@ -1453,6 +1461,7 @@ fragment GitRepositoryFragment on GitRepository {
 	health
 	authMethod
 	url
+	decrypt
 }
 fragment HelmSpecFragment on HelmSpec {
 	valuesFiles
@@ -1600,6 +1609,7 @@ fragment GitRepositoryFragment on GitRepository {
 	health
 	authMethod
 	url
+	decrypt
 }
 fragment HelmSpecFragment on HelmSpec {
 	valuesFiles
@@ -1715,6 +1725,7 @@ fragment GitRepositoryFragment on GitRepository {
 	health
 	authMethod
 	url
+	decrypt
 }
 fragment HelmSpecFragment on HelmSpec {
 	valuesFiles
@@ -1793,6 +1804,7 @@ fragment GitRepositoryFragment on GitRepository {
 	health
 	authMethod
 	url
+	decrypt
 }
 `
 
@@ -1918,6 +1930,7 @@ fragment GitRepositoryFragment on GitRepository {
 	health
 	authMethod
 	url
+	decrypt
 }
 fragment HelmSpecFragment on HelmSpec {
 	valuesFiles
@@ -2040,6 +2053,7 @@ fragment GitRepositoryFragment on GitRepository {
 	health
 	authMethod
 	url
+	decrypt
 }
 fragment HelmSpecFragment on HelmSpec {
 	valuesFiles
@@ -2208,6 +2222,7 @@ fragment GitRepositoryFragment on GitRepository {
 	health
 	authMethod
 	url
+	decrypt
 }
 fragment HelmSpecFragment on HelmSpec {
 	valuesFiles
@@ -2352,6 +2367,7 @@ fragment GitRepositoryFragment on GitRepository {
 	health
 	authMethod
 	url
+	decrypt
 }
 fragment HelmSpecFragment on HelmSpec {
 	valuesFiles
@@ -2522,6 +2538,7 @@ fragment GitRepositoryFragment on GitRepository {
 	health
 	authMethod
 	url
+	decrypt
 }
 fragment HelmSpecFragment on HelmSpec {
 	valuesFiles
@@ -2621,6 +2638,7 @@ fragment GitRepositoryFragment on GitRepository {
 	health
 	authMethod
 	url
+	decrypt
 }
 fragment HelmSpecFragment on HelmSpec {
 	valuesFiles
@@ -2750,6 +2768,7 @@ fragment GitRepositoryFragment on GitRepository {
 	health
 	authMethod
 	url
+	decrypt
 }
 fragment HelmSpecFragment on HelmSpec {
 	valuesFiles
@@ -2845,6 +2864,7 @@ fragment GitRepositoryFragment on GitRepository {
 	health
 	authMethod
 	url
+	decrypt
 }
 `
 
@@ -2902,6 +2922,7 @@ fragment GitRepositoryFragment on GitRepository {
 	health
 	authMethod
 	url
+	decrypt
 }
 fragment HelmSpecFragment on HelmSpec {
 	valuesFiles
@@ -2993,6 +3014,7 @@ fragment GitRepositoryFragment on GitRepository {
 	health
 	authMethod
 	url
+	decrypt
 }
 fragment HelmSpecFragment on HelmSpec {
 	valuesFiles
@@ -3120,6 +3142,7 @@ fragment GitRepositoryFragment on GitRepository {
 	health
 	authMethod
 	url
+	decrypt
 }
 fragment HelmSpecFragment on HelmSpec {
 	valuesFiles
@@ -3271,6 +3294,7 @@ fragment GitRepositoryFragment on GitRepository {
 	health
 	authMethod
 	url
+	decrypt
 }
 fragment HelmSpecFragment on HelmSpec {
 	valuesFiles
@@ -3448,6 +3472,7 @@ fragment GitRepositoryFragment on GitRepository {
 	health
 	authMethod
 	url
+	decrypt
 }
 fragment HelmSpecFragment on HelmSpec {
 	valuesFiles
@@ -3554,6 +3579,7 @@ fragment GitRepositoryFragment on GitRepository {
 	health
 	authMethod
 	url
+	decrypt
 }
 fragment HelmSpecFragment on HelmSpec {
 	valuesFiles
@@ -3669,6 +3695,7 @@ fragment GitRepositoryFragment on GitRepository {
 	health
 	authMethod
 	url
+	decrypt
 }
 fragment GroupFragment on Group {
 	id
@@ -3721,6 +3748,7 @@ fragment GitRepositoryFragment on GitRepository {
 	health
 	authMethod
 	url
+	decrypt
 }
 `
 
@@ -3781,6 +3809,7 @@ fragment GitRepositoryFragment on GitRepository {
 	health
 	authMethod
 	url
+	decrypt
 }
 fragment HelmSpecFragment on HelmSpec {
 	valuesFiles
@@ -3863,6 +3892,7 @@ fragment GitRepositoryFragment on GitRepository {
 	health
 	authMethod
 	url
+	decrypt
 }
 fragment HelmSpecFragment on HelmSpec {
 	valuesFiles
@@ -3928,6 +3958,7 @@ fragment GitRepositoryFragment on GitRepository {
 	health
 	authMethod
 	url
+	decrypt
 }
 fragment HelmSpecFragment on HelmSpec {
 	valuesFiles
@@ -3995,6 +4026,7 @@ fragment GitRepositoryFragment on GitRepository {
 	health
 	authMethod
 	url
+	decrypt
 }
 fragment HelmSpecFragment on HelmSpec {
 	valuesFiles
@@ -4134,6 +4166,7 @@ fragment GitRepositoryFragment on GitRepository {
 	health
 	authMethod
 	url
+	decrypt
 }
 fragment HelmSpecFragment on HelmSpec {
 	valuesFiles
@@ -4211,6 +4244,7 @@ fragment GitRepositoryFragment on GitRepository {
 	health
 	authMethod
 	url
+	decrypt
 }
 fragment HelmSpecFragment on HelmSpec {
 	valuesFiles
@@ -4380,6 +4414,7 @@ fragment GitRepositoryFragment on GitRepository {
 	health
 	authMethod
 	url
+	decrypt
 }
 fragment HelmSpecFragment on HelmSpec {
 	valuesFiles
@@ -4496,6 +4531,7 @@ fragment GitRepositoryFragment on GitRepository {
 	health
 	authMethod
 	url
+	decrypt
 }
 fragment HelmSpecFragment on HelmSpec {
 	valuesFiles
@@ -4594,6 +4630,7 @@ fragment GitRepositoryFragment on GitRepository {
 	health
 	authMethod
 	url
+	decrypt
 }
 fragment GroupFragment on Group {
 	id
@@ -4640,6 +4677,7 @@ fragment GitRepositoryFragment on GitRepository {
 	health
 	authMethod
 	url
+	decrypt
 }
 `
 
@@ -4732,6 +4770,7 @@ fragment GitRepositoryFragment on GitRepository {
 	health
 	authMethod
 	url
+	decrypt
 }
 fragment HelmSpecFragment on HelmSpec {
 	valuesFiles
@@ -4809,6 +4848,7 @@ fragment GitRepositoryFragment on GitRepository {
 	health
 	authMethod
 	url
+	decrypt
 }
 fragment HelmSpecFragment on HelmSpec {
 	valuesFiles
@@ -4945,6 +4985,7 @@ fragment GitRepositoryFragment on GitRepository {
 	health
 	authMethod
 	url
+	decrypt
 }
 fragment HelmSpecFragment on HelmSpec {
 	valuesFiles
