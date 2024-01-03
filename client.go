@@ -539,10 +539,10 @@ type CreateProviderCredential struct {
 	CreateProviderCredential *ProviderCredentialFragment "json:\"createProviderCredential\" graphql:\"createProviderCredential\""
 }
 type CreateServiceDeployment struct {
-	CreateServiceDeployment *ServiceDeploymentFragment "json:\"createServiceDeployment\" graphql:\"createServiceDeployment\""
+	CreateServiceDeployment *ServiceDeploymentExtended "json:\"createServiceDeployment\" graphql:\"createServiceDeployment\""
 }
 type CreateServiceDeploymentWithHandle struct {
-	CreateServiceDeployment *ServiceDeploymentFragment "json:\"createServiceDeployment\" graphql:\"createServiceDeployment\""
+	CreateServiceDeployment *ServiceDeploymentExtended "json:\"createServiceDeployment\" graphql:\"createServiceDeployment\""
 }
 type DeleteAccessToken struct {
 	DeleteAccessToken *AccessTokenFragment "json:\"deleteAccessToken\" graphql:\"deleteAccessToken\""
@@ -728,7 +728,7 @@ type UpdateRbac struct {
 	UpdateRbac *bool "json:\"updateRbac\" graphql:\"updateRbac\""
 }
 type UpdateServiceDeployment struct {
-	UpdateServiceDeployment *ServiceDeploymentFragment "json:\"updateServiceDeployment\" graphql:\"updateServiceDeployment\""
+	UpdateServiceDeployment *ServiceDeploymentExtended "json:\"updateServiceDeployment\" graphql:\"updateServiceDeployment\""
 }
 type UpdateServiceDeploymentWithHandle struct {
 	UpdateServiceDeployment *ServiceDeploymentFragment "json:\"updateServiceDeployment\" graphql:\"updateServiceDeployment\""
@@ -1370,8 +1370,41 @@ func (c *Client) CreateProviderCredential(ctx context.Context, attributes Provid
 
 const CreateServiceDeploymentDocument = `mutation CreateServiceDeployment ($clusterId: ID!, $attributes: ServiceDeploymentAttributes!) {
 	createServiceDeployment(clusterId: $clusterId, attributes: $attributes) {
-		... ServiceDeploymentFragment
+		... ServiceDeploymentExtended
 	}
+}
+fragment BaseClusterFragment on Cluster {
+	id
+	name
+	handle
+	self
+	version
+	pingedAt
+	currentVersion
+	kasUrl
+	credential {
+		... ProviderCredentialFragment
+	}
+	provider {
+		... BaseClusterProviderFragment
+	}
+	nodePools {
+		... NodePoolFragment
+	}
+}
+fragment BaseClusterProviderFragment on ClusterProvider {
+	id
+	name
+	namespace
+	cloud
+	editable
+	repository {
+		... GitRepositoryFragment
+	}
+}
+fragment ErrorFragment on ServiceError {
+	source
+	message
 }
 fragment GitRefFragment on GitRef {
 	folder
@@ -1391,6 +1424,36 @@ fragment HelmSpecFragment on HelmSpec {
 fragment KustomizeFragment on Kustomize {
 	path
 }
+fragment NodePoolFragment on NodePool {
+	id
+	name
+	minSize
+	maxSize
+	instanceType
+	labels
+	taints {
+		... NodePoolTaintFragment
+	}
+}
+fragment NodePoolTaintFragment on Taint {
+	key
+	value
+	effect
+}
+fragment ProviderCredentialFragment on ProviderCredential {
+	id
+	name
+	namespace
+	kind
+}
+fragment RevisionFragment on Revision {
+	id
+	sha
+	git {
+		ref
+		folder
+	}
+}
 fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	id
 	name
@@ -1408,6 +1471,18 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	repository {
 		... GitRepositoryFragment
 	}
+}
+fragment ServiceDeploymentExtended on ServiceDeployment {
+	cluster {
+		... BaseClusterFragment
+	}
+	errors {
+		... ErrorFragment
+	}
+	revision {
+		... RevisionFragment
+	}
+	... ServiceDeploymentFragment
 }
 fragment ServiceDeploymentFragment on ServiceDeployment {
 	... ServiceDeploymentBaseFragment
@@ -1448,8 +1523,41 @@ func (c *Client) CreateServiceDeployment(ctx context.Context, clusterID string, 
 
 const CreateServiceDeploymentWithHandleDocument = `mutation CreateServiceDeploymentWithHandle ($cluster: String!, $attributes: ServiceDeploymentAttributes!) {
 	createServiceDeployment(cluster: $cluster, attributes: $attributes) {
-		... ServiceDeploymentFragment
+		... ServiceDeploymentExtended
 	}
+}
+fragment BaseClusterFragment on Cluster {
+	id
+	name
+	handle
+	self
+	version
+	pingedAt
+	currentVersion
+	kasUrl
+	credential {
+		... ProviderCredentialFragment
+	}
+	provider {
+		... BaseClusterProviderFragment
+	}
+	nodePools {
+		... NodePoolFragment
+	}
+}
+fragment BaseClusterProviderFragment on ClusterProvider {
+	id
+	name
+	namespace
+	cloud
+	editable
+	repository {
+		... GitRepositoryFragment
+	}
+}
+fragment ErrorFragment on ServiceError {
+	source
+	message
 }
 fragment GitRefFragment on GitRef {
 	folder
@@ -1469,6 +1577,36 @@ fragment HelmSpecFragment on HelmSpec {
 fragment KustomizeFragment on Kustomize {
 	path
 }
+fragment NodePoolFragment on NodePool {
+	id
+	name
+	minSize
+	maxSize
+	instanceType
+	labels
+	taints {
+		... NodePoolTaintFragment
+	}
+}
+fragment NodePoolTaintFragment on Taint {
+	key
+	value
+	effect
+}
+fragment ProviderCredentialFragment on ProviderCredential {
+	id
+	name
+	namespace
+	kind
+}
+fragment RevisionFragment on Revision {
+	id
+	sha
+	git {
+		ref
+		folder
+	}
+}
 fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	id
 	name
@@ -1486,6 +1624,18 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	repository {
 		... GitRepositoryFragment
 	}
+}
+fragment ServiceDeploymentExtended on ServiceDeployment {
+	cluster {
+		... BaseClusterFragment
+	}
+	errors {
+		... ErrorFragment
+	}
+	revision {
+		... RevisionFragment
+	}
+	... ServiceDeploymentFragment
 }
 fragment ServiceDeploymentFragment on ServiceDeployment {
 	... ServiceDeploymentBaseFragment
@@ -4757,8 +4907,41 @@ func (c *Client) UpdateRbac(ctx context.Context, rbac RbacAttributes, serviceID 
 
 const UpdateServiceDeploymentDocument = `mutation UpdateServiceDeployment ($id: ID!, $attributes: ServiceUpdateAttributes!) {
 	updateServiceDeployment(id: $id, attributes: $attributes) {
-		... ServiceDeploymentFragment
+		... ServiceDeploymentExtended
 	}
+}
+fragment BaseClusterFragment on Cluster {
+	id
+	name
+	handle
+	self
+	version
+	pingedAt
+	currentVersion
+	kasUrl
+	credential {
+		... ProviderCredentialFragment
+	}
+	provider {
+		... BaseClusterProviderFragment
+	}
+	nodePools {
+		... NodePoolFragment
+	}
+}
+fragment BaseClusterProviderFragment on ClusterProvider {
+	id
+	name
+	namespace
+	cloud
+	editable
+	repository {
+		... GitRepositoryFragment
+	}
+}
+fragment ErrorFragment on ServiceError {
+	source
+	message
 }
 fragment GitRefFragment on GitRef {
 	folder
@@ -4778,6 +4961,36 @@ fragment HelmSpecFragment on HelmSpec {
 fragment KustomizeFragment on Kustomize {
 	path
 }
+fragment NodePoolFragment on NodePool {
+	id
+	name
+	minSize
+	maxSize
+	instanceType
+	labels
+	taints {
+		... NodePoolTaintFragment
+	}
+}
+fragment NodePoolTaintFragment on Taint {
+	key
+	value
+	effect
+}
+fragment ProviderCredentialFragment on ProviderCredential {
+	id
+	name
+	namespace
+	kind
+}
+fragment RevisionFragment on Revision {
+	id
+	sha
+	git {
+		ref
+		folder
+	}
+}
 fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	id
 	name
@@ -4795,6 +5008,18 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	repository {
 		... GitRepositoryFragment
 	}
+}
+fragment ServiceDeploymentExtended on ServiceDeployment {
+	cluster {
+		... BaseClusterFragment
+	}
+	errors {
+		... ErrorFragment
+	}
+	revision {
+		... RevisionFragment
+	}
+	... ServiceDeploymentFragment
 }
 fragment ServiceDeploymentFragment on ServiceDeployment {
 	... ServiceDeploymentBaseFragment
