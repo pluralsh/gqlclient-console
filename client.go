@@ -731,7 +731,7 @@ type UpdateServiceDeployment struct {
 	UpdateServiceDeployment *ServiceDeploymentExtended "json:\"updateServiceDeployment\" graphql:\"updateServiceDeployment\""
 }
 type UpdateServiceDeploymentWithHandle struct {
-	UpdateServiceDeployment *ServiceDeploymentFragment "json:\"updateServiceDeployment\" graphql:\"updateServiceDeployment\""
+	UpdateServiceDeployment *ServiceDeploymentExtended "json:\"updateServiceDeployment\" graphql:\"updateServiceDeployment\""
 }
 type UpdateGate struct {
 	UpdateGate *PipelineGateFragment "json:\"updateGate\" graphql:\"updateGate\""
@@ -5060,8 +5060,41 @@ func (c *Client) UpdateServiceDeployment(ctx context.Context, id string, attribu
 
 const UpdateServiceDeploymentWithHandleDocument = `mutation UpdateServiceDeploymentWithHandle ($cluster: String!, $name: String!, $attributes: ServiceUpdateAttributes!) {
 	updateServiceDeployment(cluster: $cluster, name: $name, attributes: $attributes) {
-		... ServiceDeploymentFragment
+		... ServiceDeploymentExtended
 	}
+}
+fragment BaseClusterFragment on Cluster {
+	id
+	name
+	handle
+	self
+	version
+	pingedAt
+	currentVersion
+	kasUrl
+	credential {
+		... ProviderCredentialFragment
+	}
+	provider {
+		... BaseClusterProviderFragment
+	}
+	nodePools {
+		... NodePoolFragment
+	}
+}
+fragment BaseClusterProviderFragment on ClusterProvider {
+	id
+	name
+	namespace
+	cloud
+	editable
+	repository {
+		... GitRepositoryFragment
+	}
+}
+fragment ErrorFragment on ServiceError {
+	source
+	message
 }
 fragment GitRefFragment on GitRef {
 	folder
@@ -5081,6 +5114,36 @@ fragment HelmSpecFragment on HelmSpec {
 fragment KustomizeFragment on Kustomize {
 	path
 }
+fragment NodePoolFragment on NodePool {
+	id
+	name
+	minSize
+	maxSize
+	instanceType
+	labels
+	taints {
+		... NodePoolTaintFragment
+	}
+}
+fragment NodePoolTaintFragment on Taint {
+	key
+	value
+	effect
+}
+fragment ProviderCredentialFragment on ProviderCredential {
+	id
+	name
+	namespace
+	kind
+}
+fragment RevisionFragment on Revision {
+	id
+	sha
+	git {
+		ref
+		folder
+	}
+}
 fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	id
 	name
@@ -5098,6 +5161,18 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	repository {
 		... GitRepositoryFragment
 	}
+}
+fragment ServiceDeploymentExtended on ServiceDeployment {
+	cluster {
+		... BaseClusterFragment
+	}
+	errors {
+		... ErrorFragment
+	}
+	revision {
+		... RevisionFragment
+	}
+	... ServiceDeploymentFragment
 }
 fragment ServiceDeploymentFragment on ServiceDeployment {
 	... ServiceDeploymentBaseFragment
