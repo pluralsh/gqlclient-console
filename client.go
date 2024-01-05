@@ -535,6 +535,9 @@ type CreateGitRepository struct {
 type CreateGlobalService struct {
 	CreateGlobalService *GlobalServiceFragment "json:\"createGlobalService\" graphql:\"createGlobalService\""
 }
+type CreateGlobalServiceDeployment struct {
+	CreateGlobalService *GlobalServiceFragment "json:\"createGlobalService\" graphql:\"createGlobalService\""
+}
 type CreateProviderCredential struct {
 	CreateProviderCredential *ProviderCredentialFragment "json:\"createProviderCredential\" graphql:\"createProviderCredential\""
 }
@@ -557,6 +560,9 @@ type DeleteGitRepository struct {
 	DeleteGitRepository *GitRepositoryFragment "json:\"deleteGitRepository\" graphql:\"deleteGitRepository\""
 }
 type DeleteGlobalService struct {
+	DeleteGlobalService *GlobalServiceFragment "json:\"deleteGlobalService\" graphql:\"deleteGlobalService\""
+}
+type DeleteGlobalServiceDeployment struct {
 	DeleteGlobalService *GlobalServiceFragment "json:\"deleteGlobalService\" graphql:\"deleteGlobalService\""
 }
 type DeleteGroupMember struct {
@@ -722,6 +728,9 @@ type UpdateGitRepository struct {
 	UpdateGitRepository *GitRepositoryFragment "json:\"updateGitRepository\" graphql:\"updateGitRepository\""
 }
 type UpdateGlobalService struct {
+	UpdateGlobalService *GlobalServiceFragment "json:\"updateGlobalService\" graphql:\"updateGlobalService\""
+}
+type UpdateGlobalServiceDeployment struct {
 	UpdateGlobalService *GlobalServiceFragment "json:\"updateGlobalService\" graphql:\"updateGlobalService\""
 }
 type UpdateRbac struct {
@@ -1335,6 +1344,47 @@ func (c *Client) CreateGlobalService(ctx context.Context, attributes GlobalServi
 
 	var res CreateGlobalService
 	if err := c.Client.Post(ctx, "CreateGlobalService", CreateGlobalServiceDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const CreateGlobalServiceDeploymentDocument = `mutation CreateGlobalServiceDeployment ($serviceId: ID!, $cluster: String!, $name: String!, $attributes: GlobalServiceAttributes!) {
+	createGlobalService(serviceId: $serviceId, cluster: $cluster, name: $name, attributes: $attributes) {
+		... GlobalServiceFragment
+	}
+}
+fragment ClusterTags on Tag {
+	name
+	value
+}
+fragment GlobalServiceFragment on GlobalService {
+	id
+	name
+	distro
+	provider {
+		id
+	}
+	service {
+		id
+	}
+	tags {
+		... ClusterTags
+	}
+}
+`
+
+func (c *Client) CreateGlobalServiceDeployment(ctx context.Context, serviceID string, cluster string, name string, attributes GlobalServiceAttributes, httpRequestOptions ...client.HTTPRequestOption) (*CreateGlobalServiceDeployment, error) {
+	vars := map[string]interface{}{
+		"serviceId":  serviceID,
+		"cluster":    cluster,
+		"name":       name,
+		"attributes": attributes,
+	}
+
+	var res CreateGlobalServiceDeployment
+	if err := c.Client.Post(ctx, "CreateGlobalServiceDeployment", CreateGlobalServiceDeploymentDocument, &res, vars, httpRequestOptions...); err != nil {
 		return nil, err
 	}
 
@@ -2003,6 +2053,44 @@ func (c *Client) DeleteGlobalService(ctx context.Context, id string, httpRequest
 
 	var res DeleteGlobalService
 	if err := c.Client.Post(ctx, "DeleteGlobalService", DeleteGlobalServiceDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const DeleteGlobalServiceDeploymentDocument = `mutation DeleteGlobalServiceDeployment ($id: ID!) {
+	deleteGlobalService(id: $id) {
+		... GlobalServiceFragment
+	}
+}
+fragment ClusterTags on Tag {
+	name
+	value
+}
+fragment GlobalServiceFragment on GlobalService {
+	id
+	name
+	distro
+	provider {
+		id
+	}
+	service {
+		id
+	}
+	tags {
+		... ClusterTags
+	}
+}
+`
+
+func (c *Client) DeleteGlobalServiceDeployment(ctx context.Context, id string, httpRequestOptions ...client.HTTPRequestOption) (*DeleteGlobalServiceDeployment, error) {
+	vars := map[string]interface{}{
+		"id": id,
+	}
+
+	var res DeleteGlobalServiceDeployment
+	if err := c.Client.Post(ctx, "DeleteGlobalServiceDeployment", DeleteGlobalServiceDeploymentDocument, &res, vars, httpRequestOptions...); err != nil {
 		return nil, err
 	}
 
@@ -4878,6 +4966,45 @@ func (c *Client) UpdateGlobalService(ctx context.Context, id string, attributes 
 
 	var res UpdateGlobalService
 	if err := c.Client.Post(ctx, "UpdateGlobalService", UpdateGlobalServiceDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const UpdateGlobalServiceDeploymentDocument = `mutation UpdateGlobalServiceDeployment ($id: ID!, $attributes: GlobalServiceAttributes!) {
+	updateGlobalService(id: $id, attributes: $attributes) {
+		... GlobalServiceFragment
+	}
+}
+fragment ClusterTags on Tag {
+	name
+	value
+}
+fragment GlobalServiceFragment on GlobalService {
+	id
+	name
+	distro
+	provider {
+		id
+	}
+	service {
+		id
+	}
+	tags {
+		... ClusterTags
+	}
+}
+`
+
+func (c *Client) UpdateGlobalServiceDeployment(ctx context.Context, id string, attributes GlobalServiceAttributes, httpRequestOptions ...client.HTTPRequestOption) (*UpdateGlobalServiceDeployment, error) {
+	vars := map[string]interface{}{
+		"id":         id,
+		"attributes": attributes,
+	}
+
+	var res UpdateGlobalServiceDeployment
+	if err := c.Client.Post(ctx, "UpdateGlobalServiceDeployment", UpdateGlobalServiceDeploymentDocument, &res, vars, httpRequestOptions...); err != nil {
 		return nil, err
 	}
 

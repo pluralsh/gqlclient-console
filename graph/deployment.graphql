@@ -1,3 +1,21 @@
+mutation CreateGlobalServiceDeployment($serviceId: ID!, $cluster: String!, $name: String!, $attributes: GlobalServiceAttributes!) {
+    createGlobalService(serviceId: $serviceId, cluster: $cluster, name: $name, attributes: $attributes) {
+        ...GlobalServiceFragment
+    }
+}
+
+mutation UpdateGlobalServiceDeployment($id: ID!, $attributes: GlobalServiceAttributes!) {
+    updateGlobalService(id: $id, attributes: $attributes) {
+        ...GlobalServiceFragment
+    }
+}
+
+mutation DeleteGlobalServiceDeployment($id: ID!) {
+    deleteGlobalService(id: $id) {
+        ...GlobalServiceFragment
+    }
+}
+
 mutation CreateServiceDeployment($clusterId: ID!, $attributes: ServiceDeploymentAttributes!) {
     createServiceDeployment(clusterId: $clusterId, attributes: $attributes) {
         ...ServiceDeploymentExtended
