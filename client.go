@@ -1354,8 +1354,8 @@ func (c *Client) CreateGlobalService(ctx context.Context, attributes GlobalServi
 	return &res, nil
 }
 
-const CreateGlobalServiceDeploymentDocument = `mutation CreateGlobalServiceDeployment ($serviceId: ID!, $cluster: String!, $name: String!, $attributes: GlobalServiceAttributes!) {
-	createGlobalService(serviceId: $serviceId, cluster: $cluster, name: $name, attributes: $attributes) {
+const CreateGlobalServiceDeploymentDocument = `mutation CreateGlobalServiceDeployment ($serviceId: ID!, $attributes: GlobalServiceAttributes!) {
+	createGlobalService(serviceId: $serviceId, attributes: $attributes) {
 		... GlobalServiceFragment
 	}
 }
@@ -1379,11 +1379,9 @@ fragment GlobalServiceFragment on GlobalService {
 }
 `
 
-func (c *Client) CreateGlobalServiceDeployment(ctx context.Context, serviceID string, cluster string, name string, attributes GlobalServiceAttributes, httpRequestOptions ...client.HTTPRequestOption) (*CreateGlobalServiceDeployment, error) {
+func (c *Client) CreateGlobalServiceDeployment(ctx context.Context, serviceID string, attributes GlobalServiceAttributes, httpRequestOptions ...client.HTTPRequestOption) (*CreateGlobalServiceDeployment, error) {
 	vars := map[string]interface{}{
 		"serviceId":  serviceID,
-		"cluster":    cluster,
-		"name":       name,
 		"attributes": attributes,
 	}
 
