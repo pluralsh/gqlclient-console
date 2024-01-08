@@ -1738,6 +1738,8 @@ type PipelineGate struct {
 	State GateState `json:"state"`
 	// more detailed specification for complex gates
 	Spec *GateSpec `json:"spec"`
+	// the cluster this gate can run on
+	Cluster *Cluster `json:"cluster"`
 	// the last user to approve this gate
 	Approver   *User   `json:"approver"`
 	InsertedAt *string `json:"insertedAt"`

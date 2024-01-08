@@ -107,6 +107,7 @@ type RootQueryType struct {
 	ClusterAddOns         []*ClusterAddOn              "json:\"clusterAddOns\" graphql:\"clusterAddOns\""
 	ServiceDeployments    *ServiceDeploymentConnection "json:\"serviceDeployments\" graphql:\"serviceDeployments\""
 	ServiceStatuses       []*ServiceStatusCount        "json:\"serviceStatuses\" graphql:\"serviceStatuses\""
+	GlobalService         *GlobalService               "json:\"globalService\" graphql:\"globalService\""
 	Pipelines             *PipelineConnection          "json:\"pipelines\" graphql:\"pipelines\""
 	Pipeline              *Pipeline                    "json:\"pipeline\" graphql:\"pipeline\""
 	ClusterServices       []*ServiceDeployment         "json:\"clusterServices\" graphql:\"clusterServices\""
@@ -617,6 +618,9 @@ type GetClusterWithToken struct {
 }
 type GetGitRepository struct {
 	GitRepository *GitRepositoryFragment "json:\"gitRepository\" graphql:\"gitRepository\""
+}
+type GetGlobalServiceDeployment struct {
+	GlobalService *GlobalServiceFragment "json:\"globalService\" graphql:\"globalService\""
 }
 type GetGroup struct {
 	Group *GroupFragment "json:\"group\" graphql:\"group\""
@@ -3114,6 +3118,44 @@ func (c *Client) GetGitRepository(ctx context.Context, id *string, url *string, 
 
 	var res GetGitRepository
 	if err := c.Client.Post(ctx, "GetGitRepository", GetGitRepositoryDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const GetGlobalServiceDeploymentDocument = `query GetGlobalServiceDeployment ($id: ID!) {
+	globalService(id: $id) {
+		... GlobalServiceFragment
+	}
+}
+fragment ClusterTags on Tag {
+	name
+	value
+}
+fragment GlobalServiceFragment on GlobalService {
+	id
+	name
+	distro
+	provider {
+		id
+	}
+	service {
+		id
+	}
+	tags {
+		... ClusterTags
+	}
+}
+`
+
+func (c *Client) GetGlobalServiceDeployment(ctx context.Context, id string, httpRequestOptions ...client.HTTPRequestOption) (*GetGlobalServiceDeployment, error) {
+	vars := map[string]interface{}{
+		"id": id,
+	}
+
+	var res GetGlobalServiceDeployment
+	if err := c.Client.Post(ctx, "GetGlobalServiceDeployment", GetGlobalServiceDeploymentDocument, &res, vars, httpRequestOptions...); err != nil {
 		return nil, err
 	}
 

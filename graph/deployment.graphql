@@ -1,3 +1,9 @@
+query GetGlobalServiceDeployment($id: ID!) {
+    globalService(id: $id) {
+        ...GlobalServiceFragment
+    }
+}
+
 mutation CreateGlobalServiceDeployment($serviceId: ID!, $cluster: String!, $name: String!, $attributes: GlobalServiceAttributes!) {
     createGlobalService(serviceId: $serviceId, cluster: $cluster, name: $name, attributes: $attributes) {
         ...GlobalServiceFragment
