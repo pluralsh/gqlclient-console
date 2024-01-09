@@ -4,6 +4,12 @@ mutation SavePipeline($name: String!, $attributes: PipelineAttributes!) {
     }
 }
 
+mutation DeletePipeline($id: ID!) {
+    deletePipeline(id: $id) {
+        ...PipelineFragment
+    }
+}
+
 query GetPipeline($id: ID!) {
     pipeline(id: $id) { ...PipelineFragment }
 }

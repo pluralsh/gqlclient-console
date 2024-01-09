@@ -186,6 +186,7 @@ type RootMutationType struct {
 	UpdateGlobalService       *GlobalService         "json:\"updateGlobalService\" graphql:\"updateGlobalService\""
 	DeleteGlobalService       *GlobalService         "json:\"deleteGlobalService\" graphql:\"deleteGlobalService\""
 	SavePipeline              *Pipeline              "json:\"savePipeline\" graphql:\"savePipeline\""
+	DeletePipeline            *Pipeline              "json:\"deletePipeline\" graphql:\"deletePipeline\""
 	ApproveGate               *PipelineGate          "json:\"approveGate\" graphql:\"approveGate\""
 	ForceGate                 *PipelineGate          "json:\"forceGate\" graphql:\"forceGate\""
 	PingCluster               *Cluster               "json:\"pingCluster\" graphql:\"pingCluster\""
@@ -568,6 +569,9 @@ type DeleteGlobalServiceDeployment struct {
 }
 type DeleteGroupMember struct {
 	DeleteGroupMember *GroupMemberFragment "json:\"deleteGroupMember\" graphql:\"deleteGroupMember\""
+}
+type DeletePipeline struct {
+	DeletePipeline *PipelineFragment "json:\"deletePipeline\" graphql:\"deletePipeline\""
 }
 type DeleteProviderCredential struct {
 	DeleteProviderCredential *ProviderCredentialFragment "json:\"deleteProviderCredential\" graphql:\"deleteProviderCredential\""
@@ -2123,6 +2127,96 @@ func (c *Client) DeleteGroupMember(ctx context.Context, userID string, groupID s
 
 	var res DeleteGroupMember
 	if err := c.Client.Post(ctx, "DeleteGroupMember", DeleteGroupMemberDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const DeletePipelineDocument = `mutation DeletePipeline ($id: ID!) {
+	deletePipeline(id: $id) {
+		... PipelineFragment
+	}
+}
+fragment GitRefFragment on GitRef {
+	folder
+	ref
+}
+fragment GitRepositoryFragment on GitRepository {
+	id
+	error
+	health
+	authMethod
+	url
+	decrypt
+}
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
+fragment KustomizeFragment on Kustomize {
+	path
+}
+fragment PipelineFragment on Pipeline {
+	id
+	name
+	stages {
+		... PipelineStageFragment
+	}
+	edges {
+		... PipelineStageEdgeFragment
+	}
+}
+fragment PipelineStageEdgeFragment on PipelineStageEdge {
+	id
+	from {
+		... PipelineStageFragment
+	}
+	to {
+		... PipelineStageFragment
+	}
+}
+fragment PipelineStageFragment on PipelineStage {
+	id
+	name
+	services {
+		service {
+			... ServiceDeploymentBaseFragment
+		}
+		criteria {
+			source {
+				... ServiceDeploymentBaseFragment
+			}
+			secrets
+		}
+	}
+}
+fragment ServiceDeploymentBaseFragment on ServiceDeployment {
+	id
+	name
+	namespace
+	version
+	kustomize {
+		... KustomizeFragment
+	}
+	git {
+		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+}
+`
+
+func (c *Client) DeletePipeline(ctx context.Context, id string, httpRequestOptions ...client.HTTPRequestOption) (*DeletePipeline, error) {
+	vars := map[string]interface{}{
+		"id": id,
+	}
+
+	var res DeletePipeline
+	if err := c.Client.Post(ctx, "DeletePipeline", DeletePipelineDocument, &res, vars, httpRequestOptions...); err != nil {
 		return nil, err
 	}
 
