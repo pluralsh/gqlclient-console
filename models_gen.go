@@ -1009,8 +1009,8 @@ type GateJobAttributes struct {
 	// if you'd rather define the job spec via straight k8s yaml
 	Raw            *string                `json:"raw,omitempty"`
 	Containers     []*ContainerAttributes `json:"containers,omitempty"`
-	Labels         map[string]interface{} `json:"labels,omitempty"`
-	Annotations    map[string]interface{} `json:"annotations,omitempty"`
+	Labels         *string                `json:"labels,omitempty"`
+	Annotations    *string                `json:"annotations,omitempty"`
 	ServiceAccount *string                `json:"serviceAccount,omitempty"`
 }
 
