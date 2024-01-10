@@ -126,6 +126,24 @@ fragment ClusterFragment on Cluster {
     credential { ...ProviderCredentialFragment }
     provider { ...ClusterProviderFragment }
     nodePools { ...NodePoolFragment }
+    status { ...ClusterStatusFragment }
+}
+
+fragment ClusterStatusFragment on ClusterStatus {
+    conditions { ...ClusterConditionFragment }
+    controlPlaneReady
+    failureMessage
+    failureReason
+    phase
+}
+
+fragment ClusterConditionFragment on ClusterCondition {
+    lastTransitionTime
+    status
+    type
+    message
+    reason
+    severity
 }
 
 fragment ClusterTags on Tag {

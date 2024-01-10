@@ -225,6 +225,14 @@ type BaseClusterProviderFragment struct {
 	Editable   *bool                  "json:\"editable\" graphql:\"editable\""
 	Repository *GitRepositoryFragment "json:\"repository\" graphql:\"repository\""
 }
+type ClusterConditionFragment struct {
+	LastTransitionTime *string "json:\"lastTransitionTime\" graphql:\"lastTransitionTime\""
+	Status             *string "json:\"status\" graphql:\"status\""
+	Type               *string "json:\"type\" graphql:\"type\""
+	Message            *string "json:\"message\" graphql:\"message\""
+	Reason             *string "json:\"reason\" graphql:\"reason\""
+	Severity           *string "json:\"severity\" graphql:\"severity\""
+}
 type ClusterEdgeFragment struct {
 	Node *ClusterFragment "json:\"node\" graphql:\"node\""
 }
@@ -244,6 +252,7 @@ type ClusterFragment struct {
 	Credential     *ProviderCredentialFragment "json:\"credential\" graphql:\"credential\""
 	Provider       *ClusterProviderFragment    "json:\"provider\" graphql:\"provider\""
 	NodePools      []*NodePoolFragment         "json:\"nodePools\" graphql:\"nodePools\""
+	Status         *ClusterStatusFragment      "json:\"status\" graphql:\"status\""
 }
 type ClusterProviderConnectionFragment struct {
 	Edges []*ClusterProviderEdgeFragment "json:\"edges\" graphql:\"edges\""
@@ -261,6 +270,13 @@ type ClusterProviderFragment struct {
 	Repository  *GitRepositoryFragment        "json:\"repository\" graphql:\"repository\""
 	Service     *ServiceDeploymentFragment    "json:\"service\" graphql:\"service\""
 	Credentials []*ProviderCredentialFragment "json:\"credentials\" graphql:\"credentials\""
+}
+type ClusterStatusFragment struct {
+	Conditions        []*ClusterConditionFragment "json:\"conditions\" graphql:\"conditions\""
+	ControlPlaneReady *bool                       "json:\"controlPlaneReady\" graphql:\"controlPlaneReady\""
+	FailureMessage    *string                     "json:\"failureMessage\" graphql:\"failureMessage\""
+	FailureReason     *string                     "json:\"failureReason\" graphql:\"failureReason\""
+	Phase             *string                     "json:\"phase\" graphql:\"phase\""
 }
 type ClusterTags struct {
 	Name  string "json:\"name\" graphql:\"name\""
@@ -526,6 +542,7 @@ type CreateCluster struct {
 		Credential     *ProviderCredentialFragment "json:\"credential\" graphql:\"credential\""
 		Provider       *ClusterProviderFragment    "json:\"provider\" graphql:\"provider\""
 		NodePools      []*NodePoolFragment         "json:\"nodePools\" graphql:\"nodePools\""
+		Status         *ClusterStatusFragment      "json:\"status\" graphql:\"status\""
 	} "json:\"createCluster\" graphql:\"createCluster\""
 }
 type CreateClusterProvider struct {
@@ -617,6 +634,7 @@ type GetClusterWithToken struct {
 		Credential     *ProviderCredentialFragment "json:\"credential\" graphql:\"credential\""
 		Provider       *ClusterProviderFragment    "json:\"provider\" graphql:\"provider\""
 		NodePools      []*NodePoolFragment         "json:\"nodePools\" graphql:\"nodePools\""
+		Status         *ClusterStatusFragment      "json:\"status\" graphql:\"status\""
 		DeployToken    *string                     "json:\"deployToken\" graphql:\"deployToken\""
 	} "json:\"cluster\" graphql:\"cluster\""
 }
@@ -1052,6 +1070,14 @@ const CreateClusterDocument = `mutation CreateCluster ($attributes: ClusterAttri
 		... ClusterFragment
 	}
 }
+fragment ClusterConditionFragment on ClusterCondition {
+	lastTransitionTime
+	status
+	type
+	message
+	reason
+	severity
+}
 fragment ClusterFragment on Cluster {
 	id
 	name
@@ -1076,6 +1102,9 @@ fragment ClusterFragment on Cluster {
 	nodePools {
 		... NodePoolFragment
 	}
+	status {
+		... ClusterStatusFragment
+	}
 }
 fragment ClusterProviderFragment on ClusterProvider {
 	id
@@ -1093,6 +1122,15 @@ fragment ClusterProviderFragment on ClusterProvider {
 	credentials {
 		... ProviderCredentialFragment
 	}
+}
+fragment ClusterStatusFragment on ClusterStatus {
+	conditions {
+		... ClusterConditionFragment
+	}
+	controlPlaneReady
+	failureMessage
+	failureReason
+	phase
 }
 fragment ClusterTags on Tag {
 	name
@@ -1759,6 +1797,14 @@ const DeleteClusterDocument = `mutation DeleteCluster ($id: ID!) {
 		... ClusterFragment
 	}
 }
+fragment ClusterConditionFragment on ClusterCondition {
+	lastTransitionTime
+	status
+	type
+	message
+	reason
+	severity
+}
 fragment ClusterFragment on Cluster {
 	id
 	name
@@ -1783,6 +1829,9 @@ fragment ClusterFragment on Cluster {
 	nodePools {
 		... NodePoolFragment
 	}
+	status {
+		... ClusterStatusFragment
+	}
 }
 fragment ClusterProviderFragment on ClusterProvider {
 	id
@@ -1800,6 +1849,15 @@ fragment ClusterProviderFragment on ClusterProvider {
 	credentials {
 		... ProviderCredentialFragment
 	}
+}
+fragment ClusterStatusFragment on ClusterStatus {
+	conditions {
+		... ClusterConditionFragment
+	}
+	controlPlaneReady
+	failureMessage
+	failureReason
+	phase
 }
 fragment ClusterTags on Tag {
 	name
@@ -2331,6 +2389,14 @@ const DetachClusterDocument = `mutation DetachCluster ($id: ID!) {
 		... ClusterFragment
 	}
 }
+fragment ClusterConditionFragment on ClusterCondition {
+	lastTransitionTime
+	status
+	type
+	message
+	reason
+	severity
+}
 fragment ClusterFragment on Cluster {
 	id
 	name
@@ -2355,6 +2421,9 @@ fragment ClusterFragment on Cluster {
 	nodePools {
 		... NodePoolFragment
 	}
+	status {
+		... ClusterStatusFragment
+	}
 }
 fragment ClusterProviderFragment on ClusterProvider {
 	id
@@ -2372,6 +2441,15 @@ fragment ClusterProviderFragment on ClusterProvider {
 	credentials {
 		... ProviderCredentialFragment
 	}
+}
+fragment ClusterStatusFragment on ClusterStatus {
+	conditions {
+		... ClusterConditionFragment
+	}
+	controlPlaneReady
+	failureMessage
+	failureReason
+	phase
 }
 fragment ClusterTags on Tag {
 	name
@@ -2500,6 +2578,14 @@ const GetClusterDocument = `query GetCluster ($id: ID) {
 		... ClusterFragment
 	}
 }
+fragment ClusterConditionFragment on ClusterCondition {
+	lastTransitionTime
+	status
+	type
+	message
+	reason
+	severity
+}
 fragment ClusterFragment on Cluster {
 	id
 	name
@@ -2524,6 +2610,9 @@ fragment ClusterFragment on Cluster {
 	nodePools {
 		... NodePoolFragment
 	}
+	status {
+		... ClusterStatusFragment
+	}
 }
 fragment ClusterProviderFragment on ClusterProvider {
 	id
@@ -2541,6 +2630,15 @@ fragment ClusterProviderFragment on ClusterProvider {
 	credentials {
 		... ProviderCredentialFragment
 	}
+}
+fragment ClusterStatusFragment on ClusterStatus {
+	conditions {
+		... ClusterConditionFragment
+	}
+	controlPlaneReady
+	failureMessage
+	failureReason
+	phase
 }
 fragment ClusterTags on Tag {
 	name
@@ -2645,6 +2743,14 @@ const GetClusterByHandleDocument = `query GetClusterByHandle ($handle: String) {
 		... ClusterFragment
 	}
 }
+fragment ClusterConditionFragment on ClusterCondition {
+	lastTransitionTime
+	status
+	type
+	message
+	reason
+	severity
+}
 fragment ClusterFragment on Cluster {
 	id
 	name
@@ -2669,6 +2775,9 @@ fragment ClusterFragment on Cluster {
 	nodePools {
 		... NodePoolFragment
 	}
+	status {
+		... ClusterStatusFragment
+	}
 }
 fragment ClusterProviderFragment on ClusterProvider {
 	id
@@ -2686,6 +2795,15 @@ fragment ClusterProviderFragment on ClusterProvider {
 	credentials {
 		... ProviderCredentialFragment
 	}
+}
+fragment ClusterStatusFragment on ClusterStatus {
+	conditions {
+		... ClusterConditionFragment
+	}
+	controlPlaneReady
+	failureMessage
+	failureReason
+	phase
 }
 fragment ClusterTags on Tag {
 	name
@@ -3046,6 +3164,14 @@ const GetClusterWithTokenDocument = `query GetClusterWithToken ($id: ID, $handle
 		deployToken
 	}
 }
+fragment ClusterConditionFragment on ClusterCondition {
+	lastTransitionTime
+	status
+	type
+	message
+	reason
+	severity
+}
 fragment ClusterFragment on Cluster {
 	id
 	name
@@ -3070,6 +3196,9 @@ fragment ClusterFragment on Cluster {
 	nodePools {
 		... NodePoolFragment
 	}
+	status {
+		... ClusterStatusFragment
+	}
 }
 fragment ClusterProviderFragment on ClusterProvider {
 	id
@@ -3087,6 +3216,15 @@ fragment ClusterProviderFragment on ClusterProvider {
 	credentials {
 		... ProviderCredentialFragment
 	}
+}
+fragment ClusterStatusFragment on ClusterStatus {
+	conditions {
+		... ClusterConditionFragment
+	}
+	controlPlaneReady
+	failureMessage
+	failureReason
+	phase
 }
 fragment ClusterTags on Tag {
 	name
@@ -3890,6 +4028,14 @@ const ListClustersDocument = `query ListClusters ($cursor: String, $before: Stri
 		}
 	}
 }
+fragment ClusterConditionFragment on ClusterCondition {
+	lastTransitionTime
+	status
+	type
+	message
+	reason
+	severity
+}
 fragment ClusterEdgeFragment on ClusterEdge {
 	node {
 		... ClusterFragment
@@ -3919,6 +4065,9 @@ fragment ClusterFragment on Cluster {
 	nodePools {
 		... NodePoolFragment
 	}
+	status {
+		... ClusterStatusFragment
+	}
 }
 fragment ClusterProviderFragment on ClusterProvider {
 	id
@@ -3936,6 +4085,15 @@ fragment ClusterProviderFragment on ClusterProvider {
 	credentials {
 		... ProviderCredentialFragment
 	}
+}
+fragment ClusterStatusFragment on ClusterStatus {
+	conditions {
+		... ClusterConditionFragment
+	}
+	controlPlaneReady
+	failureMessage
+	failureReason
+	phase
 }
 fragment ClusterTags on Tag {
 	name
@@ -4730,6 +4888,14 @@ const UpdateClusterDocument = `mutation UpdateCluster ($id: ID!, $attributes: Cl
 		... ClusterFragment
 	}
 }
+fragment ClusterConditionFragment on ClusterCondition {
+	lastTransitionTime
+	status
+	type
+	message
+	reason
+	severity
+}
 fragment ClusterFragment on Cluster {
 	id
 	name
@@ -4754,6 +4920,9 @@ fragment ClusterFragment on Cluster {
 	nodePools {
 		... NodePoolFragment
 	}
+	status {
+		... ClusterStatusFragment
+	}
 }
 fragment ClusterProviderFragment on ClusterProvider {
 	id
@@ -4771,6 +4940,15 @@ fragment ClusterProviderFragment on ClusterProvider {
 	credentials {
 		... ProviderCredentialFragment
 	}
+}
+fragment ClusterStatusFragment on ClusterStatus {
+	conditions {
+		... ClusterConditionFragment
+	}
+	controlPlaneReady
+	failureMessage
+	failureReason
+	phase
 }
 fragment ClusterTags on Tag {
 	name
