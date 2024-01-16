@@ -13,6 +13,12 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
     repository { ... GitRepositoryFragment }
 }
 
+fragment ComponentContentFragment on ComponentContent{
+    id
+    live
+    desired
+}
+
 fragment ServiceDeploymentFragment on ServiceDeployment {
     ...ServiceDeploymentBaseFragment
     components {
@@ -24,11 +30,13 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
         state
         synced
         version
+        content {... ComponentContentFragment}
     }
     protect
     deletedAt
     sha
     tarball
+    dryRun
     configuration { name value }
 }
 

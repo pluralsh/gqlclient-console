@@ -286,6 +286,11 @@ type ClusterTags struct {
 	Name  string "json:\"name\" graphql:\"name\""
 	Value string "json:\"value\" graphql:\"value\""
 }
+type ComponentContentFragment struct {
+	ID      string  "json:\"id\" graphql:\"id\""
+	Live    *string "json:\"live\" graphql:\"live\""
+	Desired *string "json:\"desired\" graphql:\"desired\""
+}
 type ContainerSpecFragment struct {
 	Image string    "json:\"image\" graphql:\"image\""
 	Args  []*string "json:\"args\" graphql:\"args\""
@@ -462,19 +467,21 @@ type ServiceDeploymentExtended struct {
 	Helm       *HelmSpecFragment      "json:\"helm\" graphql:\"helm\""
 	Repository *GitRepositoryFragment "json:\"repository\" graphql:\"repository\""
 	Components []*struct {
-		ID        string          "json:\"id\" graphql:\"id\""
-		Name      string          "json:\"name\" graphql:\"name\""
-		Group     *string         "json:\"group\" graphql:\"group\""
-		Kind      string          "json:\"kind\" graphql:\"kind\""
-		Namespace *string         "json:\"namespace\" graphql:\"namespace\""
-		State     *ComponentState "json:\"state\" graphql:\"state\""
-		Synced    bool            "json:\"synced\" graphql:\"synced\""
-		Version   *string         "json:\"version\" graphql:\"version\""
+		ID        string                    "json:\"id\" graphql:\"id\""
+		Name      string                    "json:\"name\" graphql:\"name\""
+		Group     *string                   "json:\"group\" graphql:\"group\""
+		Kind      string                    "json:\"kind\" graphql:\"kind\""
+		Namespace *string                   "json:\"namespace\" graphql:\"namespace\""
+		State     *ComponentState           "json:\"state\" graphql:\"state\""
+		Synced    bool                      "json:\"synced\" graphql:\"synced\""
+		Version   *string                   "json:\"version\" graphql:\"version\""
+		Content   *ComponentContentFragment "json:\"content\" graphql:\"content\""
 	} "json:\"components\" graphql:\"components\""
 	Protect       *bool   "json:\"protect\" graphql:\"protect\""
 	DeletedAt     *string "json:\"deletedAt\" graphql:\"deletedAt\""
 	Sha           *string "json:\"sha\" graphql:\"sha\""
 	Tarball       *string "json:\"tarball\" graphql:\"tarball\""
+	DryRun        *bool   "json:\"dryRun\" graphql:\"dryRun\""
 	Configuration []*struct {
 		Name  string "json:\"name\" graphql:\"name\""
 		Value string "json:\"value\" graphql:\"value\""
@@ -490,19 +497,21 @@ type ServiceDeploymentFragment struct {
 	Helm       *HelmSpecFragment      "json:\"helm\" graphql:\"helm\""
 	Repository *GitRepositoryFragment "json:\"repository\" graphql:\"repository\""
 	Components []*struct {
-		ID        string          "json:\"id\" graphql:\"id\""
-		Name      string          "json:\"name\" graphql:\"name\""
-		Group     *string         "json:\"group\" graphql:\"group\""
-		Kind      string          "json:\"kind\" graphql:\"kind\""
-		Namespace *string         "json:\"namespace\" graphql:\"namespace\""
-		State     *ComponentState "json:\"state\" graphql:\"state\""
-		Synced    bool            "json:\"synced\" graphql:\"synced\""
-		Version   *string         "json:\"version\" graphql:\"version\""
+		ID        string                    "json:\"id\" graphql:\"id\""
+		Name      string                    "json:\"name\" graphql:\"name\""
+		Group     *string                   "json:\"group\" graphql:\"group\""
+		Kind      string                    "json:\"kind\" graphql:\"kind\""
+		Namespace *string                   "json:\"namespace\" graphql:\"namespace\""
+		State     *ComponentState           "json:\"state\" graphql:\"state\""
+		Synced    bool                      "json:\"synced\" graphql:\"synced\""
+		Version   *string                   "json:\"version\" graphql:\"version\""
+		Content   *ComponentContentFragment "json:\"content\" graphql:\"content\""
 	} "json:\"components\" graphql:\"components\""
 	Protect       *bool   "json:\"protect\" graphql:\"protect\""
 	DeletedAt     *string "json:\"deletedAt\" graphql:\"deletedAt\""
 	Sha           *string "json:\"sha\" graphql:\"sha\""
 	Tarball       *string "json:\"tarball\" graphql:\"tarball\""
+	DryRun        *bool   "json:\"dryRun\" graphql:\"dryRun\""
 	Configuration []*struct {
 		Name  string "json:\"name\" graphql:\"name\""
 		Value string "json:\"value\" graphql:\"value\""
@@ -814,6 +823,11 @@ const AddServiceErrorDocument = `mutation AddServiceError ($id: ID!, $errors: [S
 		... ServiceDeploymentFragment
 	}
 }
+fragment ComponentContentFragment on ComponentContent {
+	id
+	live
+	desired
+}
 fragment GitRefFragment on GitRef {
 	folder
 	ref
@@ -861,11 +875,15 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		state
 		synced
 		version
+		content {
+			... ComponentContentFragment
+		}
 	}
 	protect
 	deletedAt
 	sha
 	tarball
+	dryRun
 	configuration {
 		name
 		value
@@ -892,6 +910,11 @@ const CloneServiceDeploymentDocument = `mutation CloneServiceDeployment ($cluste
 		... ServiceDeploymentFragment
 	}
 }
+fragment ComponentContentFragment on ComponentContent {
+	id
+	live
+	desired
+}
 fragment GitRefFragment on GitRef {
 	folder
 	ref
@@ -939,11 +962,15 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		state
 		synced
 		version
+		content {
+			... ComponentContentFragment
+		}
 	}
 	protect
 	deletedAt
 	sha
 	tarball
+	dryRun
 	configuration {
 		name
 		value
@@ -971,6 +998,11 @@ const CloneServiceDeploymentWithHandleDocument = `mutation CloneServiceDeploymen
 		... ServiceDeploymentFragment
 	}
 }
+fragment ComponentContentFragment on ComponentContent {
+	id
+	live
+	desired
+}
 fragment GitRefFragment on GitRef {
 	folder
 	ref
@@ -1018,11 +1050,15 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		state
 		synced
 		version
+		content {
+			... ComponentContentFragment
+		}
 	}
 	protect
 	deletedAt
 	sha
 	tarball
+	dryRun
 	configuration {
 		name
 		value
@@ -1140,6 +1176,11 @@ fragment ClusterTags on Tag {
 	name
 	value
 }
+fragment ComponentContentFragment on ComponentContent {
+	id
+	live
+	desired
+}
 fragment GitRefFragment on GitRef {
 	folder
 	ref
@@ -1209,11 +1250,15 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		state
 		synced
 		version
+		content {
+			... ComponentContentFragment
+		}
 	}
 	protect
 	deletedAt
 	sha
 	tarball
+	dryRun
 	configuration {
 		name
 		value
@@ -1255,6 +1300,11 @@ fragment ClusterProviderFragment on ClusterProvider {
 	credentials {
 		... ProviderCredentialFragment
 	}
+}
+fragment ComponentContentFragment on ComponentContent {
+	id
+	live
+	desired
 }
 fragment GitRefFragment on GitRef {
 	folder
@@ -1309,11 +1359,15 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		state
 		synced
 		version
+		content {
+			... ComponentContentFragment
+		}
 	}
 	protect
 	deletedAt
 	sha
 	tarball
+	dryRun
 	configuration {
 		name
 		value
@@ -1500,6 +1554,11 @@ fragment BaseClusterProviderFragment on ClusterProvider {
 		... GitRepositoryFragment
 	}
 }
+fragment ComponentContentFragment on ComponentContent {
+	id
+	live
+	desired
+}
 fragment ErrorFragment on ServiceError {
 	source
 	message
@@ -1593,11 +1652,15 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		state
 		synced
 		version
+		content {
+			... ComponentContentFragment
+		}
 	}
 	protect
 	deletedAt
 	sha
 	tarball
+	dryRun
 	configuration {
 		name
 		value
@@ -1653,6 +1716,11 @@ fragment BaseClusterProviderFragment on ClusterProvider {
 		... GitRepositoryFragment
 	}
 }
+fragment ComponentContentFragment on ComponentContent {
+	id
+	live
+	desired
+}
 fragment ErrorFragment on ServiceError {
 	source
 	message
@@ -1746,11 +1814,15 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		state
 		synced
 		version
+		content {
+			... ComponentContentFragment
+		}
 	}
 	protect
 	deletedAt
 	sha
 	tarball
+	dryRun
 	configuration {
 		name
 		value
@@ -1867,6 +1939,11 @@ fragment ClusterTags on Tag {
 	name
 	value
 }
+fragment ComponentContentFragment on ComponentContent {
+	id
+	live
+	desired
+}
 fragment GitRefFragment on GitRef {
 	folder
 	ref
@@ -1936,11 +2013,15 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		state
 		synced
 		version
+		content {
+			... ComponentContentFragment
+		}
 	}
 	protect
 	deletedAt
 	sha
 	tarball
+	dryRun
 	configuration {
 		name
 		value
@@ -1982,6 +2063,11 @@ fragment ClusterProviderFragment on ClusterProvider {
 	credentials {
 		... ProviderCredentialFragment
 	}
+}
+fragment ComponentContentFragment on ComponentContent {
+	id
+	live
+	desired
 }
 fragment GitRefFragment on GitRef {
 	folder
@@ -2036,11 +2122,15 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		state
 		synced
 		version
+		content {
+			... ComponentContentFragment
+		}
 	}
 	protect
 	deletedAt
 	sha
 	tarball
+	dryRun
 	configuration {
 		name
 		value
@@ -2316,6 +2406,11 @@ const DeleteServiceDeploymentDocument = `mutation DeleteServiceDeployment ($id: 
 		... ServiceDeploymentFragment
 	}
 }
+fragment ComponentContentFragment on ComponentContent {
+	id
+	live
+	desired
+}
 fragment GitRefFragment on GitRef {
 	folder
 	ref
@@ -2363,11 +2458,15 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		state
 		synced
 		version
+		content {
+			... ComponentContentFragment
+		}
 	}
 	protect
 	deletedAt
 	sha
 	tarball
+	dryRun
 	configuration {
 		name
 		value
@@ -2459,6 +2558,11 @@ fragment ClusterTags on Tag {
 	name
 	value
 }
+fragment ComponentContentFragment on ComponentContent {
+	id
+	live
+	desired
+}
 fragment GitRefFragment on GitRef {
 	folder
 	ref
@@ -2528,11 +2632,15 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		state
 		synced
 		version
+		content {
+			... ComponentContentFragment
+		}
 	}
 	protect
 	deletedAt
 	sha
 	tarball
+	dryRun
 	configuration {
 		name
 		value
@@ -2648,6 +2756,11 @@ fragment ClusterTags on Tag {
 	name
 	value
 }
+fragment ComponentContentFragment on ComponentContent {
+	id
+	live
+	desired
+}
 fragment GitRefFragment on GitRef {
 	folder
 	ref
@@ -2717,11 +2830,15 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		state
 		synced
 		version
+		content {
+			... ComponentContentFragment
+		}
 	}
 	protect
 	deletedAt
 	sha
 	tarball
+	dryRun
 	configuration {
 		name
 		value
@@ -2813,6 +2930,11 @@ fragment ClusterTags on Tag {
 	name
 	value
 }
+fragment ComponentContentFragment on ComponentContent {
+	id
+	live
+	desired
+}
 fragment GitRefFragment on GitRef {
 	folder
 	ref
@@ -2882,11 +3004,15 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		state
 		synced
 		version
+		content {
+			... ComponentContentFragment
+		}
 	}
 	protect
 	deletedAt
 	sha
 	tarball
+	dryRun
 	configuration {
 		name
 		value
@@ -2984,6 +3110,11 @@ fragment ClusterProviderFragment on ClusterProvider {
 		... ProviderCredentialFragment
 	}
 }
+fragment ComponentContentFragment on ComponentContent {
+	id
+	live
+	desired
+}
 fragment GitRefFragment on GitRef {
 	folder
 	ref
@@ -3037,11 +3168,15 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		state
 		synced
 		version
+		content {
+			... ComponentContentFragment
+		}
 	}
 	protect
 	deletedAt
 	sha
 	tarball
+	dryRun
 	configuration {
 		name
 		value
@@ -3084,6 +3219,11 @@ fragment ClusterProviderFragment on ClusterProvider {
 		... ProviderCredentialFragment
 	}
 }
+fragment ComponentContentFragment on ComponentContent {
+	id
+	live
+	desired
+}
 fragment GitRefFragment on GitRef {
 	folder
 	ref
@@ -3137,11 +3277,15 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		state
 		synced
 		version
+		content {
+			... ComponentContentFragment
+		}
 	}
 	protect
 	deletedAt
 	sha
 	tarball
+	dryRun
 	configuration {
 		name
 		value
@@ -3234,6 +3378,11 @@ fragment ClusterTags on Tag {
 	name
 	value
 }
+fragment ComponentContentFragment on ComponentContent {
+	id
+	live
+	desired
+}
 fragment GitRefFragment on GitRef {
 	folder
 	ref
@@ -3303,11 +3452,15 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		state
 		synced
 		version
+		content {
+			... ComponentContentFragment
+		}
 	}
 	protect
 	deletedAt
 	sha
 	tarball
+	dryRun
 	configuration {
 		name
 		value
@@ -3642,6 +3795,11 @@ fragment BaseClusterProviderFragment on ClusterProvider {
 		... GitRepositoryFragment
 	}
 }
+fragment ComponentContentFragment on ComponentContent {
+	id
+	live
+	desired
+}
 fragment ErrorFragment on ServiceError {
 	source
 	message
@@ -3735,11 +3893,15 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		state
 		synced
 		version
+		content {
+			... ComponentContentFragment
+		}
 	}
 	protect
 	deletedAt
 	sha
 	tarball
+	dryRun
 	configuration {
 		name
 		value
@@ -3794,6 +3956,11 @@ fragment BaseClusterProviderFragment on ClusterProvider {
 		... GitRepositoryFragment
 	}
 }
+fragment ComponentContentFragment on ComponentContent {
+	id
+	live
+	desired
+}
 fragment ErrorFragment on ServiceError {
 	source
 	message
@@ -3887,11 +4054,15 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		state
 		synced
 		version
+		content {
+			... ComponentContentFragment
+		}
 	}
 	protect
 	deletedAt
 	sha
 	tarball
+	dryRun
 	configuration {
 		name
 		value
@@ -4103,6 +4274,11 @@ fragment ClusterTags on Tag {
 	name
 	value
 }
+fragment ComponentContentFragment on ComponentContent {
+	id
+	live
+	desired
+}
 fragment GitRefFragment on GitRef {
 	folder
 	ref
@@ -4172,11 +4348,15 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		state
 		synced
 		version
+		content {
+			... ComponentContentFragment
+		}
 	}
 	protect
 	deletedAt
 	sha
 	tarball
+	dryRun
 	configuration {
 		name
 		value
@@ -4333,6 +4513,11 @@ fragment ClusterProviderFragment on ClusterProvider {
 		... ProviderCredentialFragment
 	}
 }
+fragment ComponentContentFragment on ComponentContent {
+	id
+	live
+	desired
+}
 fragment GitRefFragment on GitRef {
 	folder
 	ref
@@ -4386,11 +4571,15 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		state
 		synced
 		version
+		content {
+			... ComponentContentFragment
+		}
 	}
 	protect
 	deletedAt
 	sha
 	tarball
+	dryRun
 	configuration {
 		name
 		value
@@ -4550,6 +4739,11 @@ const ListServiceDeploymentsDocument = `query ListServiceDeployments ($cursor: S
 		}
 	}
 }
+fragment ComponentContentFragment on ComponentContent {
+	id
+	live
+	desired
+}
 fragment GitRefFragment on GitRef {
 	folder
 	ref
@@ -4597,11 +4791,15 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		state
 		synced
 		version
+		content {
+			... ComponentContentFragment
+		}
 	}
 	protect
 	deletedAt
 	sha
 	tarball
+	dryRun
 	configuration {
 		name
 		value
@@ -4690,6 +4888,11 @@ const RollbackServiceDocument = `mutation RollbackService ($id: ID!, $revisionId
 		... ServiceDeploymentFragment
 	}
 }
+fragment ComponentContentFragment on ComponentContent {
+	id
+	live
+	desired
+}
 fragment GitRefFragment on GitRef {
 	folder
 	ref
@@ -4737,11 +4940,15 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		state
 		synced
 		version
+		content {
+			... ComponentContentFragment
+		}
 	}
 	protect
 	deletedAt
 	sha
 	tarball
+	dryRun
 	configuration {
 		name
 		value
@@ -4958,6 +5165,11 @@ fragment ClusterTags on Tag {
 	name
 	value
 }
+fragment ComponentContentFragment on ComponentContent {
+	id
+	live
+	desired
+}
 fragment GitRefFragment on GitRef {
 	folder
 	ref
@@ -5027,11 +5239,15 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		state
 		synced
 		version
+		content {
+			... ComponentContentFragment
+		}
 	}
 	protect
 	deletedAt
 	sha
 	tarball
+	dryRun
 	configuration {
 		name
 		value
@@ -5074,6 +5290,11 @@ fragment ClusterProviderFragment on ClusterProvider {
 	credentials {
 		... ProviderCredentialFragment
 	}
+}
+fragment ComponentContentFragment on ComponentContent {
+	id
+	live
+	desired
 }
 fragment GitRefFragment on GitRef {
 	folder
@@ -5128,11 +5349,15 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		state
 		synced
 		version
+		content {
+			... ComponentContentFragment
+		}
 	}
 	protect
 	deletedAt
 	sha
 	tarball
+	dryRun
 	configuration {
 		name
 		value
@@ -5382,6 +5607,11 @@ fragment BaseClusterProviderFragment on ClusterProvider {
 		... GitRepositoryFragment
 	}
 }
+fragment ComponentContentFragment on ComponentContent {
+	id
+	live
+	desired
+}
 fragment ErrorFragment on ServiceError {
 	source
 	message
@@ -5475,11 +5705,15 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		state
 		synced
 		version
+		content {
+			... ComponentContentFragment
+		}
 	}
 	protect
 	deletedAt
 	sha
 	tarball
+	dryRun
 	configuration {
 		name
 		value
@@ -5535,6 +5769,11 @@ fragment BaseClusterProviderFragment on ClusterProvider {
 		... GitRepositoryFragment
 	}
 }
+fragment ComponentContentFragment on ComponentContent {
+	id
+	live
+	desired
+}
 fragment ErrorFragment on ServiceError {
 	source
 	message
@@ -5628,11 +5867,15 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		state
 		synced
 		version
+		content {
+			... ComponentContentFragment
+		}
 	}
 	protect
 	deletedAt
 	sha
 	tarball
+	dryRun
 	configuration {
 		name
 		value
@@ -5718,6 +5961,11 @@ const UpdateServiceComponentsDocument = `mutation updateServiceComponents ($id: 
 		... ServiceDeploymentFragment
 	}
 }
+fragment ComponentContentFragment on ComponentContent {
+	id
+	live
+	desired
+}
 fragment GitRefFragment on GitRef {
 	folder
 	ref
@@ -5765,11 +6013,15 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 		state
 		synced
 		version
+		content {
+			... ComponentContentFragment
+		}
 	}
 	protect
 	deletedAt
 	sha
 	tarball
+	dryRun
 	configuration {
 		name
 		value
