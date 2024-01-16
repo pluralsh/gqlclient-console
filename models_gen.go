@@ -102,6 +102,8 @@ type AddonVersion struct {
 	Requirements []*VersionReference `json:"requirements"`
 	// any add-ons this might break
 	Incompatibilities []*VersionReference `json:"incompatibilities"`
+	// the release page for a runtime service at a version, this is a heavy operation not suitable for lists
+	ReleaseURL *string `json:"releaseUrl"`
 	// checks if this is blocking a specific kubernetes upgrade
 	Blocking *bool `json:"blocking"`
 }
@@ -666,13 +668,31 @@ type Component struct {
 }
 
 type ComponentAttributes struct {
-	State     *ComponentState `json:"state,omitempty"`
-	Synced    bool            `json:"synced"`
-	Group     string          `json:"group"`
-	Version   string          `json:"version"`
-	Kind      string          `json:"kind"`
-	Namespace string          `json:"namespace"`
-	Name      string          `json:"name"`
+	State     *ComponentState             `json:"state,omitempty"`
+	Synced    bool                        `json:"synced"`
+	Group     string                      `json:"group"`
+	Version   string                      `json:"version"`
+	Kind      string                      `json:"kind"`
+	Namespace string                      `json:"namespace"`
+	Name      string                      `json:"name"`
+	Content   *ComponentContentAttributes `json:"content,omitempty"`
+}
+
+// dry run content of a service component
+type ComponentContent struct {
+	ID   string  `json:"id"`
+	Live *string `json:"live"`
+	// the inferred desired state of this component
+	Desired    *string `json:"desired"`
+	InsertedAt *string `json:"insertedAt"`
+	UpdatedAt  *string `json:"updatedAt"`
+}
+
+// the content of a component when visualized in dry run state
+type ComponentContentAttributes struct {
+	// the desired state of a service component as determined from the configured manifests
+	Desired *string `json:"desired,omitempty"`
+	Live    *string `json:"live,omitempty"`
 }
 
 type ConfigAttributes struct {
@@ -1225,11 +1245,12 @@ type HelmChartVersion struct {
 }
 
 type HelmConfigAttributes struct {
-	Values      *string         `json:"values,omitempty"`
-	ValuesFiles []*string       `json:"valuesFiles,omitempty"`
-	Chart       *string         `json:"chart,omitempty"`
-	Version     *string         `json:"version,omitempty"`
-	Repository  *NamespacedName `json:"repository,omitempty"`
+	Values      *string              `json:"values,omitempty"`
+	ValuesFiles []*string            `json:"valuesFiles,omitempty"`
+	Chart       *string              `json:"chart,omitempty"`
+	Version     *string              `json:"version,omitempty"`
+	Set         *HelmValueAttributes `json:"set,omitempty"`
+	Repository  *NamespacedName      `json:"repository,omitempty"`
 }
 
 // a crd representation of a helm repository
@@ -1264,8 +1285,23 @@ type HelmSpec struct {
 	Repository *ObjectReference `json:"repository"`
 	// the chart version in use currently
 	Version *string `json:"version"`
+	// a list of helm name/value pairs to precisely set individual values
+	Set []*HelmValue `json:"set"`
 	// a list of relative paths to values files to use for helm applies
 	ValuesFiles []*string `json:"valuesFiles"`
+}
+
+// a (possibly nested) helm value pair
+type HelmValue struct {
+	Name  string `json:"name"`
+	Value string `json:"value"`
+}
+
+type HelmValueAttributes struct {
+	// helm value name, can be deeply nested via dot like `image.tag`
+	Name *string `json:"name,omitempty"`
+	// value of the attribute
+	Value *string `json:"value,omitempty"`
 }
 
 // the details of how to connect to a http service like prometheus
@@ -1810,16 +1846,45 @@ type Plan struct {
 	Period *string `json:"period"`
 }
 
+type PluralCluster struct {
+	Status    PluralObjectStatus `json:"status"`
+	Metadata  Metadata           `json:"metadata"`
+	Reference *Cluster           `json:"reference"`
+	Raw       string             `json:"raw"`
+	Events    []*Event           `json:"events"`
+}
+
 type PluralContext struct {
 	Buckets       []*string              `json:"buckets"`
 	Domains       []*string              `json:"domains"`
 	Configuration map[string]interface{} `json:"configuration"`
 }
 
+type PluralGitRepository struct {
+	Status    PluralObjectStatus `json:"status"`
+	Metadata  Metadata           `json:"metadata"`
+	Reference *GitRepository     `json:"reference"`
+	Raw       string             `json:"raw"`
+	Events    []*Event           `json:"events"`
+}
+
 type PluralManifest struct {
 	Network      *ManifestNetwork `json:"network"`
 	BucketPrefix *string          `json:"bucketPrefix"`
 	Cluster      *string          `json:"cluster"`
+}
+
+type PluralObjectStatus struct {
+	ID         *string            `json:"id"`
+	Conditions []*StatusCondition `json:"conditions"`
+}
+
+type PluralServiceDeployment struct {
+	Status    PluralObjectStatus `json:"status"`
+	Metadata  Metadata           `json:"metadata"`
+	Reference *ServiceDeployment `json:"reference"`
+	Raw       string             `json:"raw"`
+	Events    []*Event           `json:"events"`
 }
 
 type PluralSubscription struct {
@@ -2218,8 +2283,14 @@ type RunningState struct {
 // a full specification of a kubernetes runtime component's requirements
 type RuntimeAddon struct {
 	// an icon to identify this runtime add-on
-	Icon     *string         `json:"icon"`
-	Versions []*AddonVersion `json:"versions"`
+	Icon *string `json:"icon"`
+	// the url to the add-ons git repository
+	GitURL *string `json:"gitUrl"`
+	// the add-on's readme, this is a heavy operation that should not be performed w/in lists
+	Readme *string `json:"readme"`
+	// the release page for a runtime service at a version, this is a heavy operation not suitable for lists
+	ReleaseURL *string         `json:"releaseUrl"`
+	Versions   []*AddonVersion `json:"versions"`
 }
 
 // a service encapsulating a controller like istio/ingress-nginx/etc that is meant to extend the kubernetes api
@@ -2302,6 +2373,8 @@ type ServiceComponent struct {
 	Namespace *string `json:"namespace"`
 	// kubernetes name of this resource
 	Name string `json:"name"`
+	// the live and desired states of this service component
+	Content *ComponentContent `json:"content"`
 	// the service this component belongs to
 	Service *ServiceDeployment `json:"service"`
 	// any api deprecations discovered from this component
@@ -2326,6 +2399,8 @@ type ServiceDeployment struct {
 	Status ServiceDeploymentStatus `json:"status"`
 	// semver of this service
 	Version string `json:"version"`
+	// the desired sync interval for this service
+	Interval *string `json:"interval"`
 	// description on where in git the service's manifests should be fetched
 	Git *GitRef `json:"git"`
 	// description of how helm charts should be applied
@@ -2348,6 +2423,8 @@ type ServiceDeployment struct {
 	Message *string `json:"message"`
 	// the time this service was scheduled for deletion
 	DeletedAt *string `json:"deletedAt"`
+	// whether this service should not actively reconcile state and instead simply report pending changes
+	DryRun *bool `json:"dryRun"`
 	// fetches the /docs directory within this services git tree.  This is a heavy operation and should NOT be used in list queries
 	Docs []*GitFile `json:"docs"`
 	// the git repo of this service
@@ -2387,6 +2464,7 @@ type ServiceDeploymentAttributes struct {
 	SyncConfig    *SyncConfigAttributes      `json:"syncConfig,omitempty"`
 	Protect       *bool                      `json:"protect,omitempty"`
 	RepositoryID  *string                    `json:"repositoryId,omitempty"`
+	DryRun        *bool                      `json:"dryRun,omitempty"`
 	Git           *GitRefAttributes          `json:"git,omitempty"`
 	Helm          *HelmConfigAttributes      `json:"helm,omitempty"`
 	Kustomize     *KustomizeAttributes       `json:"kustomize,omitempty"`
