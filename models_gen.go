@@ -1991,6 +1991,85 @@ type PostgresqlStatus struct {
 	ClusterStatus *string `json:"clusterStatus"`
 }
 
+// a description of how to generate a pr, which can either modify existing files or generate new ones w/in a repo
+type PrAutomation struct {
+	ID string `json:"id"`
+	// string id for a repository, eg for github, this is {organization}/{repository-name}
+	Identifier string `json:"identifier"`
+	// the name for this automation
+	Name          string        `json:"name"`
+	Documentation *string       `json:"documentation"`
+	Title         string        `json:"title"`
+	Message       string        `json:"message"`
+	Updates       *PrUpdateSpec `json:"updates"`
+	// write policy for this pr automation, also propagates to the notifications list for any created PRs
+	WriteBindings []*PolicyBinding `json:"writeBindings"`
+	// users who can generate prs with this automation
+	CreateBindings []*PolicyBinding `json:"createBindings"`
+	// link to an add-on name if this can update it
+	Addon *string `json:"addon"`
+	// link to a cluster if this is to perform an upgrade
+	Cluster *Cluster `json:"cluster"`
+	// link to a service if this can update its configuration
+	Service *ServiceDeployment `json:"service"`
+	// the scm connection to use for pr generation
+	Connection *ScmConnection `json:"connection"`
+	InsertedAt *string        `json:"insertedAt"`
+	UpdatedAt  *string        `json:"updatedAt"`
+}
+
+// A way to create a self-service means of generating PRs against an IaC repo
+type PrAutomationAttributes struct {
+	Name *string `json:"name,omitempty"`
+	// string id for a repository, eg for github, this is {organization}/{repository-name}
+	Identifier    *string                           `json:"identifier,omitempty"`
+	Documentation *string                           `json:"documentation,omitempty"`
+	Title         *string                           `json:"title,omitempty"`
+	Message       *string                           `json:"message,omitempty"`
+	Branch        *string                           `json:"branch,omitempty"`
+	Updates       *PrAutomationUpdateSpecAttributes `json:"updates,omitempty"`
+	// link to an add-on name if this can update it
+	Addon *string `json:"addon,omitempty"`
+	// link to a cluster if this is to perform an upgrade
+	ClusterID *string `json:"clusterId,omitempty"`
+	// link to a service if this can modify its configuration
+	ServiceID *string `json:"serviceId,omitempty"`
+	// the scm connection to use for pr generation
+	ConnectionID *string `json:"connectionId,omitempty"`
+	// users who can update this automation
+	WriteBindings []*PolicyBindingAttributes `json:"writeBindings,omitempty"`
+	// users who can create prs with this automation
+	CreateBindings []*PolicyBindingAttributes `json:"createBindings,omitempty"`
+}
+
+type PrAutomationConnection struct {
+	PageInfo PageInfo            `json:"pageInfo"`
+	Edges    []*PrAutomationEdge `json:"edges"`
+}
+
+type PrAutomationEdge struct {
+	Node   *PrAutomation `json:"node"`
+	Cursor *string       `json:"cursor"`
+}
+
+// The operations to be performed on the files w/in the pr
+type PrAutomationUpdateSpecAttributes struct {
+	Regexes         []*string      `json:"regexes,omitempty"`
+	Files           []*string      `json:"files,omitempty"`
+	ReplaceTemplate *string        `json:"replaceTemplate,omitempty"`
+	Yq              *string        `json:"yq,omitempty"`
+	MatchStrategy   *MatchStrategy `json:"matchStrategy,omitempty"`
+}
+
+// existing file updates that can be performed in a PR
+type PrUpdateSpec struct {
+	Regexes         []*string      `json:"regexes"`
+	Files           []*string      `json:"files"`
+	ReplaceTemplate *string        `json:"replaceTemplate"`
+	Yq              *string        `json:"yq"`
+	MatchStrategy   *MatchStrategy `json:"matchStrategy"`
+}
+
 type PrometheusDatasource struct {
 	Query  string  `json:"query"`
 	Format *string `json:"format"`
@@ -2045,6 +2124,29 @@ type ProviderCredentialAttributes struct {
 	Namespace *string `json:"namespace,omitempty"`
 	Name      string  `json:"name"`
 	Kind      *string `json:"kind,omitempty"`
+}
+
+// A reference to a pull request for your kubernetes related IaC
+type PullRequest struct {
+	ID    string  `json:"id"`
+	URL   string  `json:"url"`
+	Title *string `json:"title"`
+	// the cluster this pr is meant to modify
+	Cluster *Cluster `json:"cluster"`
+	// the service this pr is meant to modify
+	Service    *ServiceDeployment `json:"service"`
+	InsertedAt *string            `json:"insertedAt"`
+	UpdatedAt  *string            `json:"updatedAt"`
+}
+
+type PullRequestConnection struct {
+	PageInfo PageInfo           `json:"pageInfo"`
+	Edges    []*PullRequestEdge `json:"edges"`
+}
+
+type PullRequestEdge struct {
+	Node   *PullRequest `json:"node"`
+	Cursor *string      `json:"cursor"`
 }
 
 type RbacAttributes struct {
@@ -2313,6 +2415,40 @@ type RuntimeService struct {
 type RuntimeServiceAttributes struct {
 	Name    string `json:"name"`
 	Version string `json:"version"`
+}
+
+// an object representing the means to connect to SCM apis
+type ScmConnection struct {
+	ID       string  `json:"id"`
+	Name     string  `json:"name"`
+	Type     ScmType `json:"type"`
+	Username *string `json:"username"`
+	// base url for git clones for self-hosted versions
+	BaseURL *string `json:"baseUrl"`
+	// base url for HTTP apis for self-hosted versions if different from base url
+	APIURL     *string `json:"apiUrl"`
+	InsertedAt *string `json:"insertedAt"`
+	UpdatedAt  *string `json:"updatedAt"`
+}
+
+// an object representing a means to authenticate to a source control provider like Github
+type ScmConnectionAttributes struct {
+	Name     string  `json:"name"`
+	Type     ScmType `json:"type"`
+	Username *string `json:"username,omitempty"`
+	Token    *string `json:"token,omitempty"`
+	BaseURL  *string `json:"baseUrl,omitempty"`
+	APIURL   *string `json:"apiUrl,omitempty"`
+}
+
+type ScmConnectionConnection struct {
+	PageInfo PageInfo             `json:"pageInfo"`
+	Edges    []*ScmConnectionEdge `json:"edges"`
+}
+
+type ScmConnectionEdge struct {
+	Node   *ScmConnection `json:"node"`
+	Cursor *string        `json:"cursor"`
 }
 
 type ScopeAttributes struct {
@@ -2621,6 +2757,7 @@ type SyncConfigAttributes struct {
 }
 
 type Tag struct {
+	ID    string `json:"id"`
 	Name  string `json:"name"`
 	Value string `json:"value"`
 }
@@ -2628,6 +2765,16 @@ type Tag struct {
 type TagAttributes struct {
 	Name  string `json:"name"`
 	Value string `json:"value"`
+}
+
+type TagConnection struct {
+	PageInfo PageInfo   `json:"pageInfo"`
+	Edges    []*TagEdge `json:"edges"`
+}
+
+type TagEdge struct {
+	Node   *Tag    `json:"node"`
+	Cursor *string `json:"cursor"`
 }
 
 type TagInput struct {
@@ -3335,6 +3482,49 @@ func (e GitHealth) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+type MatchStrategy string
+
+const (
+	MatchStrategyAny       MatchStrategy = "ANY"
+	MatchStrategyAll       MatchStrategy = "ALL"
+	MatchStrategyRecursive MatchStrategy = "RECURSIVE"
+)
+
+var AllMatchStrategy = []MatchStrategy{
+	MatchStrategyAny,
+	MatchStrategyAll,
+	MatchStrategyRecursive,
+}
+
+func (e MatchStrategy) IsValid() bool {
+	switch e {
+	case MatchStrategyAny, MatchStrategyAll, MatchStrategyRecursive:
+		return true
+	}
+	return false
+}
+
+func (e MatchStrategy) String() string {
+	return string(e)
+}
+
+func (e *MatchStrategy) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = MatchStrategy(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid MatchStrategy", str)
+	}
+	return nil
+}
+
+func (e MatchStrategy) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 type NotificationStatus string
 
 const (
@@ -3459,6 +3649,47 @@ func (e *ReadType) UnmarshalGQL(v interface{}) error {
 }
 
 func (e ReadType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type ScmType string
+
+const (
+	ScmTypeGithub ScmType = "GITHUB"
+	ScmTypeGitlab ScmType = "GITLAB"
+)
+
+var AllScmType = []ScmType{
+	ScmTypeGithub,
+	ScmTypeGitlab,
+}
+
+func (e ScmType) IsValid() bool {
+	switch e {
+	case ScmTypeGithub, ScmTypeGitlab:
+		return true
+	}
+	return false
+}
+
+func (e ScmType) String() string {
+	return string(e)
+}
+
+func (e *ScmType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ScmType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ScmType", str)
+	}
+	return nil
+}
+
+func (e ScmType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
