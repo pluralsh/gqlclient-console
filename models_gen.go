@@ -2601,6 +2601,7 @@ type ServiceDeploymentAttributes struct {
 	Protect       *bool                      `json:"protect,omitempty"`
 	RepositoryID  *string                    `json:"repositoryId,omitempty"`
 	DryRun        *bool                      `json:"dryRun,omitempty"`
+	Interval      *string                    `json:"interval,omitempty"`
 	Git           *GitRefAttributes          `json:"git,omitempty"`
 	Helm          *HelmConfigAttributes      `json:"helm,omitempty"`
 	Kustomize     *KustomizeAttributes       `json:"kustomize,omitempty"`
@@ -2657,6 +2658,8 @@ type ServiceStatusCount struct {
 type ServiceUpdateAttributes struct {
 	Version       *string               `json:"version,omitempty"`
 	Protect       *bool                 `json:"protect,omitempty"`
+	DryRun        *bool                 `json:"dryRun,omitempty"`
+	Interval      *string               `json:"interval,omitempty"`
 	Git           *GitRefAttributes     `json:"git,omitempty"`
 	Helm          *HelmConfigAttributes `json:"helm,omitempty"`
 	Configuration []*ConfigAttributes   `json:"configuration,omitempty"`
