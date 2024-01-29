@@ -171,11 +171,11 @@ type RootQueryType {
 
   scmConnections(after: String, first: Int, before: String, last: Int): ScmConnectionConnection
 
-  scmConnection(id: ID!): ScmConnection
+  scmConnection(id: ID, name: String): ScmConnection
 
   prAutomations(after: String, first: Int, before: String, last: Int): PrAutomationConnection
 
-  prAutomation(id: ID!): PrAutomation
+  prAutomation(id: ID, name: String): PrAutomation
 
   pullRequests(after: String, first: Int, before: String, last: Int, clusterId: ID, serviceId: ID): PullRequestConnection
 
@@ -183,7 +183,9 @@ type RootQueryType {
   tokenExchange(token: String!): User
 
   "a relay connection of all clusters visible to the current user"
-  clusters(after: String, first: Int, before: String, last: Int, q: String, healthy: Boolean, tag: TagInput): ClusterConnection
+  clusters(
+    after: String, first: Int, before: String, last: Int, q: String, healthy: Boolean, tag: TagInput, tagQuery: TagQuery
+  ): ClusterConnection
 
   "gets summary information for all healthy\/unhealthy clusters in your fleet"
   clusterStatuses(q: String, tag: TagInput): [ClusterStatusInfo]
@@ -385,6 +387,9 @@ type RootMutationType {
     context: Json
   ): PullRequest
 
+  "just registers a pointer record to a PR after it was created externally be some other automation"
+  createPullRequestPointer(attributes: PullRequestAttributes): PullRequest
+
   createCluster(attributes: ClusterAttributes!): Cluster
 
   updateCluster(id: ID!, attributes: ClusterUpdateAttributes!): Cluster
@@ -429,6 +434,9 @@ type RootMutationType {
   ): ServiceDeployment
 
   deleteServiceDeployment(id: ID!): ServiceDeployment
+
+  "removes a service from storage, but bypasses waiting for the agent to fully drain it from its hosting cluster"
+  detachServiceDeployment(id: ID!): ServiceDeployment
 
   "merges configuration for a service"
   mergeService(id: ID!, configuration: [ConfigAttributes]): ServiceDeployment
@@ -497,7 +505,7 @@ type RootMutationType {
   approveGate(id: ID!): PipelineGate
 
   "forces a pipeline gate to be in open state"
-  forceGate(id: ID!): PipelineGate
+  forceGate(id: ID!, state: GateState): PipelineGate
 
   "a regular status ping to be sent by the deploy operator"
   pingCluster(attributes: ClusterPing!): Cluster
@@ -1421,6 +1429,11 @@ enum ClusterDistro {
   K3S
 }
 
+enum Conjunction {
+  AND
+  OR
+}
+
 input ClusterAttributes {
   name: String!
 
@@ -1601,6 +1614,11 @@ input TagInput {
   value: String!
 }
 
+input TagQuery {
+  op: Conjunction!
+  tags: [TagInput]
+}
+
 "a CAPI provider for a cluster, cloud is inferred from name if not provided manually"
 type ClusterProvider {
   "the id of this provider"
@@ -1728,6 +1746,9 @@ type Cluster {
 
   "a custom git repository if you want to define your own CAPI manifests"
   repository: GitRepository
+
+  "pr automations that are relevant to managing this cluster"
+  prAutomations: [PrAutomation]
 
   "list cached nodes for a cluster, this can be stale up to 5m"
   nodes: [Node]
@@ -2025,6 +2046,28 @@ enum MatchStrategy {
   RECURSIVE
 }
 
+enum ConfigurationType {
+  STRING
+  INT
+  BOOL
+  DOMAIN
+  BUCKET
+  FILE
+  FUNCTION
+  PASSWORD
+}
+
+enum Operation {
+  NOT
+  GT
+  LT
+  EQ
+  GTE
+  LTE
+  PREFIX
+  SUFFIX
+}
+
 input GitAttributes {
   "the url of this repository"
   url: String!
@@ -2090,6 +2133,8 @@ input PrAutomationAttributes {
   "the scm connection to use for pr generation"
   connectionId: ID
 
+  configuration: [PrConfigurationAttributes]
+
   "users who can update this automation"
   writeBindings: [PolicyBindingAttributes]
 
@@ -2097,13 +2142,57 @@ input PrAutomationAttributes {
   createBindings: [PolicyBindingAttributes]
 }
 
+"the a configuration item for creating a new pr"
+input PrConfigurationAttributes {
+  type: ConfigurationType!
+  name: String!
+  default: String
+  documentation: String
+  longform: String
+  placeholder: String
+  optional: Boolean
+  condition: ConditionAttributes
+}
+
+"attributes for declaratively specifying whether a config item is relevant given prior config"
+input ConditionAttributes {
+  operation: Operation!
+  field: String!
+  value: String
+}
+
 "The operations to be performed on the files w\/in the pr"
 input PrAutomationUpdateSpecAttributes {
   regexes: [String]
+
+  "list of regex scope replacement templates, useful for ANY strategies"
+  regexReplacements: [RegexReplacementAttributes]
+
   files: [String]
+
   replaceTemplate: String
+
   yq: String
+
   matchStrategy: MatchStrategy
+}
+
+"a fully specify regex\/replace flow"
+input RegexReplacementAttributes {
+  regex: String!
+  replacement: String!
+}
+
+"attributes for a pull request pointer record"
+input PullRequestAttributes {
+  url: String!
+  title: String!
+  creator: String
+  labels: [String]
+  serviceId: ID
+  clusterId: ID
+  service: NamespacedName
+  cluster: NamespacedName
 }
 
 "a git repository available for deployments"
@@ -2263,10 +2352,19 @@ type PrAutomation {
 "existing file updates that can be performed in a PR"
 type PrUpdateSpec {
   regexes: [String]
+  regexReplacements: [RegexReplacement]
   files: [String]
   replaceTemplate: String
   yq: String
   matchStrategy: MatchStrategy
+}
+
+"a fully specified regex\/replace flow"
+type RegexReplacement {
+  regex: String!
+
+  "template string to replace any match with"
+  replacement: String!
 }
 
 "A reference to a pull request for your kubernetes related IaC"
@@ -2276,6 +2374,8 @@ type PullRequest {
   url: String!
 
   title: String
+
+  labels: [String]
 
   "the cluster this pr is meant to modify"
   cluster: Cluster
