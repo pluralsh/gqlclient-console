@@ -751,7 +751,13 @@ type GetPipelines struct {
 type GetPrAutomation struct {
 	PrAutomation *PrAutomationFragment "json:\"prAutomation\" graphql:\"prAutomation\""
 }
+type GetPrAutomationByName struct {
+	PrAutomation *PrAutomationFragment "json:\"prAutomation\" graphql:\"prAutomation\""
+}
 type GetScmConnection struct {
+	ScmConnection *ScmConnectionFragment "json:\"scmConnection\" graphql:\"scmConnection\""
+}
+type GetScmConnectionByName struct {
 	ScmConnection *ScmConnectionFragment "json:\"scmConnection\" graphql:\"scmConnection\""
 }
 type GetServiceDeployment struct {
@@ -4087,8 +4093,8 @@ func (c *Client) GetPipelines(ctx context.Context, after *string, httpRequestOpt
 	return &res, nil
 }
 
-const GetPrAutomationDocument = `query GetPrAutomation ($id: ID, $name: String) {
-	prAutomation(id: $id, name: $name) {
+const GetPrAutomationDocument = `query GetPrAutomation ($id: ID!) {
+	prAutomation(id: $id) {
 		... PrAutomationFragment
 	}
 }
@@ -4104,10 +4110,9 @@ fragment PrAutomationFragment on PrAutomation {
 }
 `
 
-func (c *Client) GetPrAutomation(ctx context.Context, id *string, name *string, httpRequestOptions ...client.HTTPRequestOption) (*GetPrAutomation, error) {
+func (c *Client) GetPrAutomation(ctx context.Context, id string, httpRequestOptions ...client.HTTPRequestOption) (*GetPrAutomation, error) {
 	vars := map[string]interface{}{
-		"id":   id,
-		"name": name,
+		"id": id,
 	}
 
 	var res GetPrAutomation
@@ -4118,8 +4123,38 @@ func (c *Client) GetPrAutomation(ctx context.Context, id *string, name *string, 
 	return &res, nil
 }
 
-const GetScmConnectionDocument = `query GetScmConnection ($id: ID, $name: String) {
-	scmConnection(id: $id, name: $name) {
+const GetPrAutomationByNameDocument = `query GetPrAutomationByName ($name: String!) {
+	prAutomation(name: $name) {
+		... PrAutomationFragment
+	}
+}
+fragment PrAutomationFragment on PrAutomation {
+	id
+	name
+	title
+	addon
+	message
+	identifier
+	insertedAt
+	updatedAt
+}
+`
+
+func (c *Client) GetPrAutomationByName(ctx context.Context, name string, httpRequestOptions ...client.HTTPRequestOption) (*GetPrAutomationByName, error) {
+	vars := map[string]interface{}{
+		"name": name,
+	}
+
+	var res GetPrAutomationByName
+	if err := c.Client.Post(ctx, "GetPrAutomationByName", GetPrAutomationByNameDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const GetScmConnectionDocument = `query GetScmConnection ($id: ID!) {
+	scmConnection(id: $id) {
 		... ScmConnectionFragment
 	}
 }
@@ -4135,14 +4170,43 @@ fragment ScmConnectionFragment on ScmConnection {
 }
 `
 
-func (c *Client) GetScmConnection(ctx context.Context, id *string, name *string, httpRequestOptions ...client.HTTPRequestOption) (*GetScmConnection, error) {
+func (c *Client) GetScmConnection(ctx context.Context, id string, httpRequestOptions ...client.HTTPRequestOption) (*GetScmConnection, error) {
 	vars := map[string]interface{}{
-		"id":   id,
-		"name": name,
+		"id": id,
 	}
 
 	var res GetScmConnection
 	if err := c.Client.Post(ctx, "GetScmConnection", GetScmConnectionDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const GetScmConnectionByNameDocument = `query GetScmConnectionByName ($name: String!) {
+	scmConnection(name: $name) {
+		... ScmConnectionFragment
+	}
+}
+fragment ScmConnectionFragment on ScmConnection {
+	id
+	name
+	apiUrl
+	baseUrl
+	type
+	username
+	insertedAt
+	updatedAt
+}
+`
+
+func (c *Client) GetScmConnectionByName(ctx context.Context, name string, httpRequestOptions ...client.HTTPRequestOption) (*GetScmConnectionByName, error) {
+	vars := map[string]interface{}{
+		"name": name,
+	}
+
+	var res GetScmConnectionByName
+	if err := c.Client.Post(ctx, "GetScmConnectionByName", GetScmConnectionByNameDocument, &res, vars, httpRequestOptions...); err != nil {
 		return nil, err
 	}
 

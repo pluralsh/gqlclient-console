@@ -30,8 +30,14 @@ query GetGitRepository($id: ID, $url: String) {
     }
 }
 
-query GetScmConnection($id: ID, $name: String) {
-    scmConnection(id: $id, name: $name) {
+query GetScmConnection($id: ID!) {
+    scmConnection(id: $id) {
+        ...ScmConnectionFragment
+    }
+}
+
+query GetScmConnectionByName($name: String!) {
+    scmConnection(name: $name) {
         ...ScmConnectionFragment
     }
 }
@@ -65,8 +71,14 @@ mutation DeleteScmConnection($id: ID!) {
     }
 }
 
-query GetPrAutomation($id: ID, $name: String) {
-    prAutomation(id: $id, name: $name) {
+query GetPrAutomation($id: ID!) {
+    prAutomation(id: $id) {
+        ...PrAutomationFragment
+    }
+}
+
+query GetPrAutomationByName($name: String!) {
+    prAutomation(name: $name) {
         ...PrAutomationFragment
     }
 }
