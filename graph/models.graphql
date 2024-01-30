@@ -311,3 +311,15 @@ fragment GlobalServiceFragment on GlobalService {
     service { id }
     tags { ...ClusterTags }
 }
+
+fragment ClusterBackupFragment on ClusterBackup {
+    id
+    name
+    cluster { id }
+}
+
+fragment ClusterRestoreFragment on ClusterRestore {
+    id
+    status
+    backup { ... ClusterBackupFragment}
+}

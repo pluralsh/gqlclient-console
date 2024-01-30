@@ -271,6 +271,27 @@ type AzureSettingsAttributes struct {
 	ClientSecret   string `json:"clientSecret"`
 }
 
+type AzureStore struct {
+	StorageAccount string `json:"storageAccount"`
+	Container      string `json:"container"`
+	SubscriptionID string `json:"subscriptionId"`
+	TenantID       string `json:"tenantId"`
+	ClientID       string `json:"clientId"`
+}
+
+type AzureStoreAttributes struct {
+	StorageAccount string `json:"storageAccount"`
+	Container      string `json:"container"`
+	SubscriptionID string `json:"subscriptionId"`
+	TenantID       string `json:"tenantId"`
+	ClientID       string `json:"clientId"`
+	ClientSecret   string `json:"clientSecret"`
+}
+
+type BackupAttributes struct {
+	Name string `json:"name"`
+}
+
 type BindingAttributes struct {
 	ID      *string `json:"id,omitempty"`
 	UserID  *string `json:"userId,omitempty"`
@@ -468,6 +489,8 @@ type Cluster struct {
 	ServiceErrors []*ServiceError `json:"serviceErrors"`
 	// a custom git repository if you want to define your own CAPI manifests
 	Repository *GitRepository `json:"repository"`
+	// pr automations that are relevant to managing this cluster
+	PrAutomations []*PrAutomation `json:"prAutomations"`
 	// list cached nodes for a cluster, this can be stale up to 5m
 	Nodes []*Node `json:"nodes"`
 	// list the cached node metrics for a cluster, can also be stale up to 5m
@@ -510,6 +533,14 @@ type ClusterAttributes struct {
 	ReadBindings  []*PolicyBindingAttributes `json:"readBindings,omitempty"`
 	WriteBindings []*PolicyBindingAttributes `json:"writeBindings,omitempty"`
 	Tags          []*TagAttributes           `json:"tags,omitempty"`
+}
+
+type ClusterBackup struct {
+	ID         string   `json:"id"`
+	Name       string   `json:"name"`
+	Cluster    *Cluster `json:"cluster"`
+	InsertedAt *string  `json:"insertedAt"`
+	UpdatedAt  *string  `json:"updatedAt"`
 }
 
 // a single condition struct for various phases of the cluster provisionining process
@@ -598,6 +629,14 @@ type ClusterProviderUpdateAttributes struct {
 	// if you optionally want to reconfigure the git repository for the cluster provider
 	Service       *ClusterServiceAttributes        `json:"service,omitempty"`
 	CloudSettings *CloudProviderSettingsAttributes `json:"cloudSettings,omitempty"`
+}
+
+type ClusterRestore struct {
+	ID         string         `json:"id"`
+	Status     RestoreStatus  `json:"status"`
+	Backup     *ClusterBackup `json:"backup"`
+	InsertedAt *string        `json:"insertedAt"`
+	UpdatedAt  *string        `json:"updatedAt"`
 }
 
 type ClusterServiceAttributes struct {
@@ -693,6 +732,13 @@ type ComponentContentAttributes struct {
 	// the desired state of a service component as determined from the configured manifests
 	Desired *string `json:"desired,omitempty"`
 	Live    *string `json:"live,omitempty"`
+}
+
+// attributes for declaratively specifying whether a config item is relevant given prior config
+type ConditionAttributes struct {
+	Operation Operation `json:"operation"`
+	Field     string    `json:"field"`
+	Value     *string   `json:"value,omitempty"`
 }
 
 type ConfigAttributes struct {
@@ -834,6 +880,11 @@ type ContextAttributes struct {
 	Domain        []*string              `json:"domain,omitempty"`
 	Configuration map[string]interface{} `json:"configuration"`
 	Protect       []*string              `json:"protect,omitempty"`
+}
+
+// a binding from a service to a service context
+type ContextBindingAttributes struct {
+	ContextID string `json:"contextId"`
 }
 
 type CostAnalysis struct {
@@ -1068,6 +1119,17 @@ type GcpCloudSettings struct {
 }
 
 type GcpSettingsAttributes struct {
+	ApplicationCredentials string `json:"applicationCredentials"`
+}
+
+type GcsStore struct {
+	Bucket string `json:"bucket"`
+	Region string `json:"region"`
+}
+
+type GcsStoreAttributes struct {
+	Bucket                 string `json:"bucket"`
+	Region                 string `json:"region"`
 	ApplicationCredentials string `json:"applicationCredentials"`
 }
 
@@ -1700,6 +1762,33 @@ type ObjectReference struct {
 	Namespace *string `json:"namespace"`
 }
 
+type ObjectStore struct {
+	ID         string      `json:"id"`
+	Name       string      `json:"name"`
+	S3         *S3Store    `json:"s3"`
+	Gcs        *GcsStore   `json:"gcs"`
+	Azure      *AzureStore `json:"azure"`
+	InsertedAt *string     `json:"insertedAt"`
+	UpdatedAt  *string     `json:"updatedAt"`
+}
+
+type ObjectStoreAttributes struct {
+	Name  string                `json:"name"`
+	S3    *S3StoreAttributes    `json:"s3,omitempty"`
+	Gcs   *GcsStoreAttributes   `json:"gcs,omitempty"`
+	Azure *AzureStoreAttributes `json:"azure,omitempty"`
+}
+
+type ObjectStoreConnection struct {
+	PageInfo PageInfo           `json:"pageInfo"`
+	Edges    []*ObjectStoreEdge `json:"edges"`
+}
+
+type ObjectStoreEdge struct {
+	Node   *ObjectStore `json:"node"`
+	Cursor *string      `json:"cursor"`
+}
+
 type OverlayUpdate struct {
 	Path []*string `json:"path"`
 }
@@ -2035,7 +2124,8 @@ type PrAutomationAttributes struct {
 	// link to a service if this can modify its configuration
 	ServiceID *string `json:"serviceId,omitempty"`
 	// the scm connection to use for pr generation
-	ConnectionID *string `json:"connectionId,omitempty"`
+	ConnectionID  *string                      `json:"connectionId,omitempty"`
+	Configuration []*PrConfigurationAttributes `json:"configuration,omitempty"`
 	// users who can update this automation
 	WriteBindings []*PolicyBindingAttributes `json:"writeBindings,omitempty"`
 	// users who can create prs with this automation
@@ -2054,20 +2144,35 @@ type PrAutomationEdge struct {
 
 // The operations to be performed on the files w/in the pr
 type PrAutomationUpdateSpecAttributes struct {
-	Regexes         []*string      `json:"regexes,omitempty"`
-	Files           []*string      `json:"files,omitempty"`
-	ReplaceTemplate *string        `json:"replaceTemplate,omitempty"`
-	Yq              *string        `json:"yq,omitempty"`
-	MatchStrategy   *MatchStrategy `json:"matchStrategy,omitempty"`
+	Regexes []*string `json:"regexes,omitempty"`
+	// list of regex scope replacement templates, useful for ANY strategies
+	RegexReplacements []*RegexReplacementAttributes `json:"regexReplacements,omitempty"`
+	Files             []*string                     `json:"files,omitempty"`
+	ReplaceTemplate   *string                       `json:"replaceTemplate,omitempty"`
+	Yq                *string                       `json:"yq,omitempty"`
+	MatchStrategy     *MatchStrategy                `json:"matchStrategy,omitempty"`
+}
+
+// the a configuration item for creating a new pr
+type PrConfigurationAttributes struct {
+	Type          ConfigurationType    `json:"type"`
+	Name          string               `json:"name"`
+	Default       *string              `json:"default,omitempty"`
+	Documentation *string              `json:"documentation,omitempty"`
+	Longform      *string              `json:"longform,omitempty"`
+	Placeholder   *string              `json:"placeholder,omitempty"`
+	Optional      *bool                `json:"optional,omitempty"`
+	Condition     *ConditionAttributes `json:"condition,omitempty"`
 }
 
 // existing file updates that can be performed in a PR
 type PrUpdateSpec struct {
-	Regexes         []*string      `json:"regexes"`
-	Files           []*string      `json:"files"`
-	ReplaceTemplate *string        `json:"replaceTemplate"`
-	Yq              *string        `json:"yq"`
-	MatchStrategy   *MatchStrategy `json:"matchStrategy"`
+	Regexes           []*string           `json:"regexes"`
+	RegexReplacements []*RegexReplacement `json:"regexReplacements"`
+	Files             []*string           `json:"files"`
+	ReplaceTemplate   *string             `json:"replaceTemplate"`
+	Yq                *string             `json:"yq"`
+	MatchStrategy     *MatchStrategy      `json:"matchStrategy"`
 }
 
 type PrometheusDatasource struct {
@@ -2128,15 +2233,28 @@ type ProviderCredentialAttributes struct {
 
 // A reference to a pull request for your kubernetes related IaC
 type PullRequest struct {
-	ID    string  `json:"id"`
-	URL   string  `json:"url"`
-	Title *string `json:"title"`
+	ID     string    `json:"id"`
+	URL    string    `json:"url"`
+	Title  *string   `json:"title"`
+	Labels []*string `json:"labels"`
 	// the cluster this pr is meant to modify
 	Cluster *Cluster `json:"cluster"`
 	// the service this pr is meant to modify
 	Service    *ServiceDeployment `json:"service"`
 	InsertedAt *string            `json:"insertedAt"`
 	UpdatedAt  *string            `json:"updatedAt"`
+}
+
+// attributes for a pull request pointer record
+type PullRequestAttributes struct {
+	URL       string          `json:"url"`
+	Title     string          `json:"title"`
+	Creator   *string         `json:"creator,omitempty"`
+	Labels    []*string       `json:"labels,omitempty"`
+	ServiceID *string         `json:"serviceId,omitempty"`
+	ClusterID *string         `json:"clusterId,omitempty"`
+	Service   *NamespacedName `json:"service,omitempty"`
+	Cluster   *NamespacedName `json:"cluster,omitempty"`
 }
 
 type PullRequestConnection struct {
@@ -2190,6 +2308,19 @@ type Recommendation struct {
 	ContainerRecommendations []*ContainerRecommendation `json:"containerRecommendations"`
 }
 
+// a fully specified regex/replace flow
+type RegexReplacement struct {
+	Regex string `json:"regex"`
+	// template string to replace any match with
+	Replacement string `json:"replacement"`
+}
+
+// a fully specify regex/replace flow
+type RegexReplacementAttributes struct {
+	Regex       string `json:"regex"`
+	Replacement string `json:"replacement"`
+}
+
 type Repository struct {
 	ID            string         `json:"id"`
 	Name          string         `json:"name"`
@@ -2223,6 +2354,10 @@ type ResourceSpec struct {
 type Resources struct {
 	Limits   *ResourceSpec `json:"limits"`
 	Requests *ResourceSpec `json:"requests"`
+}
+
+type RestoreAttributes struct {
+	Status RestoreStatus `json:"status"`
 }
 
 // a representation of a past revision of a service
@@ -2417,6 +2552,21 @@ type RuntimeServiceAttributes struct {
 	Version string `json:"version"`
 }
 
+type S3Store struct {
+	Bucket      string  `json:"bucket"`
+	Region      *string `json:"region"`
+	Endpoint    *string `json:"endpoint"`
+	AccessKeyID string  `json:"accessKeyId"`
+}
+
+type S3StoreAttributes struct {
+	Bucket          string  `json:"bucket"`
+	Region          *string `json:"region,omitempty"`
+	Endpoint        *string `json:"endpoint,omitempty"`
+	AccessKeyID     string  `json:"accessKeyId"`
+	SecretAccessKey string  `json:"secretAccessKey"`
+}
+
 // an object representing the means to connect to SCM apis
 type ScmConnection struct {
 	ID       string  `json:"id"`
@@ -2523,6 +2673,22 @@ type ServiceConfiguration struct {
 	Value string `json:"value"`
 }
 
+// A reusable bundle of configuration designed to make it easy to communicate between tools like tf/pulumi and k8s
+type ServiceContext struct {
+	ID            string                  `json:"id"`
+	Name          string                  `json:"name"`
+	Configuration map[string]interface{}  `json:"configuration"`
+	Secrets       []*ServiceConfiguration `json:"secrets"`
+	InsertedAt    *string                 `json:"insertedAt"`
+	UpdatedAt     *string                 `json:"updatedAt"`
+}
+
+// A reusable configuration context, useful for plumbing data from external tools like terraform/pulumi/etc
+type ServiceContextAttributes struct {
+	Configuration *string             `json:"configuration,omitempty"`
+	Secrets       []*ConfigAttributes `json:"secrets,omitempty"`
+}
+
 // a reference to a service deployed from a git repo into a cluster
 type ServiceDeployment struct {
 	// internal id of this service
@@ -2584,6 +2750,8 @@ type ServiceDeployment struct {
 	GlobalService *GlobalService `json:"globalService"`
 	// whether this service is controlled by a global service
 	Owner *GlobalService `json:"owner"`
+	// bound contexts for this service
+	Contexts []*ServiceContext `json:"contexts"`
 	// a relay connection of all revisions of this service, these are periodically pruned up to a history limit
 	Revisions *RevisionConnection `json:"revisions"`
 	// whether this service is editable
@@ -2593,21 +2761,22 @@ type ServiceDeployment struct {
 }
 
 type ServiceDeploymentAttributes struct {
-	Name          string                     `json:"name"`
-	Namespace     string                     `json:"namespace"`
-	Version       *string                    `json:"version,omitempty"`
-	DocsPath      *string                    `json:"docsPath,omitempty"`
-	SyncConfig    *SyncConfigAttributes      `json:"syncConfig,omitempty"`
-	Protect       *bool                      `json:"protect,omitempty"`
-	RepositoryID  *string                    `json:"repositoryId,omitempty"`
-	DryRun        *bool                      `json:"dryRun,omitempty"`
-	Interval      *string                    `json:"interval,omitempty"`
-	Git           *GitRefAttributes          `json:"git,omitempty"`
-	Helm          *HelmConfigAttributes      `json:"helm,omitempty"`
-	Kustomize     *KustomizeAttributes       `json:"kustomize,omitempty"`
-	Configuration []*ConfigAttributes        `json:"configuration,omitempty"`
-	ReadBindings  []*PolicyBindingAttributes `json:"readBindings,omitempty"`
-	WriteBindings []*PolicyBindingAttributes `json:"writeBindings,omitempty"`
+	Name            string                      `json:"name"`
+	Namespace       string                      `json:"namespace"`
+	Version         *string                     `json:"version,omitempty"`
+	DocsPath        *string                     `json:"docsPath,omitempty"`
+	SyncConfig      *SyncConfigAttributes       `json:"syncConfig,omitempty"`
+	Protect         *bool                       `json:"protect,omitempty"`
+	RepositoryID    *string                     `json:"repositoryId,omitempty"`
+	DryRun          *bool                       `json:"dryRun,omitempty"`
+	Interval        *string                     `json:"interval,omitempty"`
+	Git             *GitRefAttributes           `json:"git,omitempty"`
+	Helm            *HelmConfigAttributes       `json:"helm,omitempty"`
+	Kustomize       *KustomizeAttributes        `json:"kustomize,omitempty"`
+	Configuration   []*ConfigAttributes         `json:"configuration,omitempty"`
+	ReadBindings    []*PolicyBindingAttributes  `json:"readBindings,omitempty"`
+	WriteBindings   []*PolicyBindingAttributes  `json:"writeBindings,omitempty"`
+	ContextBindings []*ContextBindingAttributes `json:"contextBindings,omitempty"`
 }
 
 type ServiceDeploymentConnection struct {
@@ -2656,14 +2825,17 @@ type ServiceStatusCount struct {
 }
 
 type ServiceUpdateAttributes struct {
-	Version       *string               `json:"version,omitempty"`
-	Protect       *bool                 `json:"protect,omitempty"`
-	DryRun        *bool                 `json:"dryRun,omitempty"`
-	Interval      *string               `json:"interval,omitempty"`
-	Git           *GitRefAttributes     `json:"git,omitempty"`
-	Helm          *HelmConfigAttributes `json:"helm,omitempty"`
-	Configuration []*ConfigAttributes   `json:"configuration,omitempty"`
-	Kustomize     *KustomizeAttributes  `json:"kustomize,omitempty"`
+	Version         *string                     `json:"version,omitempty"`
+	Protect         *bool                       `json:"protect,omitempty"`
+	DryRun          *bool                       `json:"dryRun,omitempty"`
+	Interval        *string                     `json:"interval,omitempty"`
+	Git             *GitRefAttributes           `json:"git,omitempty"`
+	Helm            *HelmConfigAttributes       `json:"helm,omitempty"`
+	Configuration   []*ConfigAttributes         `json:"configuration,omitempty"`
+	Kustomize       *KustomizeAttributes        `json:"kustomize,omitempty"`
+	ReadBindings    []*PolicyBindingAttributes  `json:"readBindings,omitempty"`
+	WriteBindings   []*PolicyBindingAttributes  `json:"writeBindings,omitempty"`
+	ContextBindings []*ContextBindingAttributes `json:"contextBindings,omitempty"`
 }
 
 type SMTP struct {
@@ -2783,6 +2955,11 @@ type TagEdge struct {
 type TagInput struct {
 	Name  string `json:"name"`
 	Value string `json:"value"`
+}
+
+type TagQuery struct {
+	Op   Conjunction `json:"op"`
+	Tags []*TagInput `json:"tags,omitempty"`
 }
 
 // a kubernetes node taint
@@ -3315,6 +3492,100 @@ func (e ComponentState) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+type ConfigurationType string
+
+const (
+	ConfigurationTypeString   ConfigurationType = "STRING"
+	ConfigurationTypeInt      ConfigurationType = "INT"
+	ConfigurationTypeBool     ConfigurationType = "BOOL"
+	ConfigurationTypeDomain   ConfigurationType = "DOMAIN"
+	ConfigurationTypeBucket   ConfigurationType = "BUCKET"
+	ConfigurationTypeFile     ConfigurationType = "FILE"
+	ConfigurationTypeFunction ConfigurationType = "FUNCTION"
+	ConfigurationTypePassword ConfigurationType = "PASSWORD"
+)
+
+var AllConfigurationType = []ConfigurationType{
+	ConfigurationTypeString,
+	ConfigurationTypeInt,
+	ConfigurationTypeBool,
+	ConfigurationTypeDomain,
+	ConfigurationTypeBucket,
+	ConfigurationTypeFile,
+	ConfigurationTypeFunction,
+	ConfigurationTypePassword,
+}
+
+func (e ConfigurationType) IsValid() bool {
+	switch e {
+	case ConfigurationTypeString, ConfigurationTypeInt, ConfigurationTypeBool, ConfigurationTypeDomain, ConfigurationTypeBucket, ConfigurationTypeFile, ConfigurationTypeFunction, ConfigurationTypePassword:
+		return true
+	}
+	return false
+}
+
+func (e ConfigurationType) String() string {
+	return string(e)
+}
+
+func (e *ConfigurationType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ConfigurationType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ConfigurationType", str)
+	}
+	return nil
+}
+
+func (e ConfigurationType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type Conjunction string
+
+const (
+	ConjunctionAnd Conjunction = "AND"
+	ConjunctionOr  Conjunction = "OR"
+)
+
+var AllConjunction = []Conjunction{
+	ConjunctionAnd,
+	ConjunctionOr,
+}
+
+func (e Conjunction) IsValid() bool {
+	switch e {
+	case ConjunctionAnd, ConjunctionOr:
+		return true
+	}
+	return false
+}
+
+func (e Conjunction) String() string {
+	return string(e)
+}
+
+func (e *Conjunction) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = Conjunction(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid Conjunction", str)
+	}
+	return nil
+}
+
+func (e Conjunction) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 type Delta string
 
 const (
@@ -3569,6 +3840,59 @@ func (e NotificationStatus) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+type Operation string
+
+const (
+	OperationNot    Operation = "NOT"
+	OperationGt     Operation = "GT"
+	OperationLt     Operation = "LT"
+	OperationEq     Operation = "EQ"
+	OperationGte    Operation = "GTE"
+	OperationLte    Operation = "LTE"
+	OperationPrefix Operation = "PREFIX"
+	OperationSuffix Operation = "SUFFIX"
+)
+
+var AllOperation = []Operation{
+	OperationNot,
+	OperationGt,
+	OperationLt,
+	OperationEq,
+	OperationGte,
+	OperationLte,
+	OperationPrefix,
+	OperationSuffix,
+}
+
+func (e Operation) IsValid() bool {
+	switch e {
+	case OperationNot, OperationGt, OperationLt, OperationEq, OperationGte, OperationLte, OperationPrefix, OperationSuffix:
+		return true
+	}
+	return false
+}
+
+func (e Operation) String() string {
+	return string(e)
+}
+
+func (e *Operation) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = Operation(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid Operation", str)
+	}
+	return nil
+}
+
+func (e Operation) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 type Permission string
 
 const (
@@ -3652,6 +3976,51 @@ func (e *ReadType) UnmarshalGQL(v interface{}) error {
 }
 
 func (e ReadType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type RestoreStatus string
+
+const (
+	RestoreStatusCreated    RestoreStatus = "CREATED"
+	RestoreStatusPending    RestoreStatus = "PENDING"
+	RestoreStatusSuccessful RestoreStatus = "SUCCESSFUL"
+	RestoreStatusFailed     RestoreStatus = "FAILED"
+)
+
+var AllRestoreStatus = []RestoreStatus{
+	RestoreStatusCreated,
+	RestoreStatusPending,
+	RestoreStatusSuccessful,
+	RestoreStatusFailed,
+}
+
+func (e RestoreStatus) IsValid() bool {
+	switch e {
+	case RestoreStatusCreated, RestoreStatusPending, RestoreStatusSuccessful, RestoreStatusFailed:
+		return true
+	}
+	return false
+}
+
+func (e RestoreStatus) String() string {
+	return string(e)
+}
+
+func (e *RestoreStatus) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = RestoreStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid RestoreStatus", str)
+	}
+	return nil
+}
+
+func (e RestoreStatus) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

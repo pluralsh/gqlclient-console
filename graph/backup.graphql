@@ -1,0 +1,24 @@
+mutation CreateClusterBackup($attributes: BackupAttributes!) {
+    createClusterBackup(attributes: $attributes) {
+        ... ClusterBackupFragment
+    }
+}
+
+mutation UpdateClusterRestore($id: ID!, $attributes: RestoreAttributes!) {
+    updateClusterRestore(id: $id, attributes: $attributes) {
+        ... ClusterRestoreFragment
+    }
+}
+
+mutation CreateClusterRestore($backupId: ID!) {
+    createClusterRestore(backupId: $backupId) {
+        ... ClusterRestoreFragment
+    }
+}
+
+query GetClusterRestore($id: ID!) {
+    clusterRestore(id: $id) {
+        ... ClusterRestoreFragment
+    }
+}
+

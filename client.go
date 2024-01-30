@@ -118,12 +118,16 @@ type RootQueryType struct {
 	ServiceDeployments      *ServiceDeploymentConnection "json:\"serviceDeployments\" graphql:\"serviceDeployments\""
 	ServiceStatuses         []*ServiceStatusCount        "json:\"serviceStatuses\" graphql:\"serviceStatuses\""
 	GlobalService           *GlobalService               "json:\"globalService\" graphql:\"globalService\""
+	ServiceContext          *ServiceContext              "json:\"serviceContext\" graphql:\"serviceContext\""
 	Pipelines               *PipelineConnection          "json:\"pipelines\" graphql:\"pipelines\""
 	Pipeline                *Pipeline                    "json:\"pipeline\" graphql:\"pipeline\""
+	ObjectStores            *ObjectStoreConnection       "json:\"objectStores\" graphql:\"objectStores\""
 	ClusterServices         []*ServiceDeployment         "json:\"clusterServices\" graphql:\"clusterServices\""
 	ServiceDeployment       *ServiceDeployment           "json:\"serviceDeployment\" graphql:\"serviceDeployment\""
 	MyCluster               *Cluster                     "json:\"myCluster\" graphql:\"myCluster\""
 	ClusterGates            []*PipelineGate              "json:\"clusterGates\" graphql:\"clusterGates\""
+	ClusterGate             *PipelineGate                "json:\"clusterGate\" graphql:\"clusterGate\""
+	ClusterRestore          *ClusterRestore              "json:\"clusterRestore\" graphql:\"clusterRestore\""
 	DeploymentSettings      *DeploymentSettings          "json:\"deploymentSettings\" graphql:\"deploymentSettings\""
 }
 type RootMutationType struct {
@@ -180,6 +184,7 @@ type RootMutationType struct {
 	UpdatePrAutomation        *PrAutomation          "json:\"updatePrAutomation\" graphql:\"updatePrAutomation\""
 	DeletePrAutomation        *PrAutomation          "json:\"deletePrAutomation\" graphql:\"deletePrAutomation\""
 	CreatePullRequest         *PullRequest           "json:\"createPullRequest\" graphql:\"createPullRequest\""
+	CreatePullRequestPointer  *PullRequest           "json:\"createPullRequestPointer\" graphql:\"createPullRequestPointer\""
 	CreateCluster             *Cluster               "json:\"createCluster\" graphql:\"createCluster\""
 	UpdateCluster             *Cluster               "json:\"updateCluster\" graphql:\"updateCluster\""
 	DeleteCluster             *Cluster               "json:\"deleteCluster\" graphql:\"deleteCluster\""
@@ -194,6 +199,7 @@ type RootMutationType struct {
 	CreateServiceDeployment   *ServiceDeployment     "json:\"createServiceDeployment\" graphql:\"createServiceDeployment\""
 	UpdateServiceDeployment   *ServiceDeployment     "json:\"updateServiceDeployment\" graphql:\"updateServiceDeployment\""
 	DeleteServiceDeployment   *ServiceDeployment     "json:\"deleteServiceDeployment\" graphql:\"deleteServiceDeployment\""
+	DetachServiceDeployment   *ServiceDeployment     "json:\"detachServiceDeployment\" graphql:\"detachServiceDeployment\""
 	MergeService              *ServiceDeployment     "json:\"mergeService\" graphql:\"mergeService\""
 	RollbackService           *ServiceDeployment     "json:\"rollbackService\" graphql:\"rollbackService\""
 	CloneService              *ServiceDeployment     "json:\"cloneService\" graphql:\"cloneService\""
@@ -202,14 +208,22 @@ type RootMutationType struct {
 	CreateGlobalService       *GlobalService         "json:\"createGlobalService\" graphql:\"createGlobalService\""
 	UpdateGlobalService       *GlobalService         "json:\"updateGlobalService\" graphql:\"updateGlobalService\""
 	DeleteGlobalService       *GlobalService         "json:\"deleteGlobalService\" graphql:\"deleteGlobalService\""
+	SaveServiceContext        *ServiceContext        "json:\"saveServiceContext\" graphql:\"saveServiceContext\""
+	DeleteServiceContext      *ServiceContext        "json:\"deleteServiceContext\" graphql:\"deleteServiceContext\""
 	SavePipeline              *Pipeline              "json:\"savePipeline\" graphql:\"savePipeline\""
 	DeletePipeline            *Pipeline              "json:\"deletePipeline\" graphql:\"deletePipeline\""
 	ApproveGate               *PipelineGate          "json:\"approveGate\" graphql:\"approveGate\""
 	ForceGate                 *PipelineGate          "json:\"forceGate\" graphql:\"forceGate\""
+	CreateObjectStore         *ObjectStore           "json:\"createObjectStore\" graphql:\"createObjectStore\""
+	UpdateObjectStore         *ObjectStore           "json:\"updateObjectStore\" graphql:\"updateObjectStore\""
+	DeleteObjectStore         *ObjectStore           "json:\"deleteObjectStore\" graphql:\"deleteObjectStore\""
+	CreateClusterRestore      *ClusterRestore        "json:\"createClusterRestore\" graphql:\"createClusterRestore\""
 	PingCluster               *Cluster               "json:\"pingCluster\" graphql:\"pingCluster\""
 	RegisterRuntimeServices   *int64                 "json:\"registerRuntimeServices\" graphql:\"registerRuntimeServices\""
 	UpdateServiceComponents   *ServiceDeployment     "json:\"updateServiceComponents\" graphql:\"updateServiceComponents\""
 	UpdateGate                *PipelineGate          "json:\"updateGate\" graphql:\"updateGate\""
+	CreateClusterBackup       *ClusterBackup         "json:\"createClusterBackup\" graphql:\"createClusterBackup\""
+	UpdateClusterRestore      *ClusterRestore        "json:\"updateClusterRestore\" graphql:\"updateClusterRestore\""
 	UpdateRbac                *bool                  "json:\"updateRbac\" graphql:\"updateRbac\""
 	UpdateDeploymentSettings  *DeploymentSettings    "json:\"updateDeploymentSettings\" graphql:\"updateDeploymentSettings\""
 	EnableDeployments         *DeploymentSettings    "json:\"enableDeployments\" graphql:\"enableDeployments\""
@@ -241,6 +255,13 @@ type BaseClusterProviderFragment struct {
 	Cloud      string                 "json:\"cloud\" graphql:\"cloud\""
 	Editable   *bool                  "json:\"editable\" graphql:\"editable\""
 	Repository *GitRepositoryFragment "json:\"repository\" graphql:\"repository\""
+}
+type ClusterBackupFragment struct {
+	ID      string "json:\"id\" graphql:\"id\""
+	Name    string "json:\"name\" graphql:\"name\""
+	Cluster *struct {
+		ID string "json:\"id\" graphql:\"id\""
+	} "json:\"cluster\" graphql:\"cluster\""
 }
 type ClusterConditionFragment struct {
 	LastTransitionTime *string "json:\"lastTransitionTime\" graphql:\"lastTransitionTime\""
@@ -287,6 +308,11 @@ type ClusterProviderFragment struct {
 	Repository  *GitRepositoryFragment        "json:\"repository\" graphql:\"repository\""
 	Service     *ServiceDeploymentFragment    "json:\"service\" graphql:\"service\""
 	Credentials []*ProviderCredentialFragment "json:\"credentials\" graphql:\"credentials\""
+}
+type ClusterRestoreFragment struct {
+	ID     string                 "json:\"id\" graphql:\"id\""
+	Status RestoreStatus          "json:\"status\" graphql:\"status\""
+	Backup *ClusterBackupFragment "json:\"backup\" graphql:\"backup\""
 }
 type ClusterStatusFragment struct {
 	Conditions        []*ClusterConditionFragment "json:\"conditions\" graphql:\"conditions\""
@@ -571,8 +597,14 @@ type CreateCluster struct {
 		Status         *ClusterStatusFragment      "json:\"status\" graphql:\"status\""
 	} "json:\"createCluster\" graphql:\"createCluster\""
 }
+type CreateClusterBackup struct {
+	CreateClusterBackup *ClusterBackupFragment "json:\"createClusterBackup\" graphql:\"createClusterBackup\""
+}
 type CreateClusterProvider struct {
 	CreateClusterProvider *ClusterProviderFragment "json:\"createClusterProvider\" graphql:\"createClusterProvider\""
+}
+type CreateClusterRestore struct {
+	CreateClusterRestore *ClusterRestoreFragment "json:\"createClusterRestore\" graphql:\"createClusterRestore\""
 }
 type CreateGitRepository struct {
 	CreateGitRepository *GitRepositoryFragment "json:\"createGitRepository\" graphql:\"createGitRepository\""
@@ -642,6 +674,9 @@ type GetClusterProvider struct {
 }
 type GetClusterProviderByCloud struct {
 	ClusterProvider *ClusterProviderFragment "json:\"clusterProvider\" graphql:\"clusterProvider\""
+}
+type GetClusterRestore struct {
+	ClusterRestore *ClusterRestoreFragment "json:\"clusterRestore\" graphql:\"clusterRestore\""
 }
 type GetClusterWithToken struct {
 	Cluster *struct {
@@ -772,6 +807,9 @@ type UpdateCluster struct {
 }
 type UpdateClusterProvider struct {
 	UpdateClusterProvider *ClusterProviderFragment "json:\"updateClusterProvider\" graphql:\"updateClusterProvider\""
+}
+type UpdateClusterRestore struct {
+	UpdateClusterRestore *ClusterRestoreFragment "json:\"updateClusterRestore\" graphql:\"updateClusterRestore\""
 }
 type UpdateDeploymentSettings struct {
 	UpdateDeploymentSettings *DeploymentSettingsFragment "json:\"updateDeploymentSettings\" graphql:\"updateDeploymentSettings\""
@@ -1292,6 +1330,33 @@ func (c *Client) CreateCluster(ctx context.Context, attributes ClusterAttributes
 	return &res, nil
 }
 
+const CreateClusterBackupDocument = `mutation CreateClusterBackup ($attributes: BackupAttributes!) {
+	createClusterBackup(attributes: $attributes) {
+		... ClusterBackupFragment
+	}
+}
+fragment ClusterBackupFragment on ClusterBackup {
+	id
+	name
+	cluster {
+		id
+	}
+}
+`
+
+func (c *Client) CreateClusterBackup(ctx context.Context, attributes BackupAttributes, httpRequestOptions ...client.HTTPRequestOption) (*CreateClusterBackup, error) {
+	vars := map[string]interface{}{
+		"attributes": attributes,
+	}
+
+	var res CreateClusterBackup
+	if err := c.Client.Post(ctx, "CreateClusterBackup", CreateClusterBackupDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
 const CreateClusterProviderDocument = `mutation CreateClusterProvider ($attributes: ClusterProviderAttributes!) {
 	createClusterProvider(attributes: $attributes) {
 		... ClusterProviderFragment
@@ -1395,6 +1460,40 @@ func (c *Client) CreateClusterProvider(ctx context.Context, attributes ClusterPr
 
 	var res CreateClusterProvider
 	if err := c.Client.Post(ctx, "CreateClusterProvider", CreateClusterProviderDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const CreateClusterRestoreDocument = `mutation CreateClusterRestore ($backupId: ID!) {
+	createClusterRestore(backupId: $backupId) {
+		... ClusterRestoreFragment
+	}
+}
+fragment ClusterBackupFragment on ClusterBackup {
+	id
+	name
+	cluster {
+		id
+	}
+}
+fragment ClusterRestoreFragment on ClusterRestore {
+	id
+	status
+	backup {
+		... ClusterBackupFragment
+	}
+}
+`
+
+func (c *Client) CreateClusterRestore(ctx context.Context, backupID string, httpRequestOptions ...client.HTTPRequestOption) (*CreateClusterRestore, error) {
+	vars := map[string]interface{}{
+		"backupId": backupID,
+	}
+
+	var res CreateClusterRestore
+	if err := c.Client.Post(ctx, "CreateClusterRestore", CreateClusterRestoreDocument, &res, vars, httpRequestOptions...); err != nil {
 		return nil, err
 	}
 
@@ -3313,6 +3412,40 @@ func (c *Client) GetClusterProviderByCloud(ctx context.Context, cloud string, ht
 
 	var res GetClusterProviderByCloud
 	if err := c.Client.Post(ctx, "GetClusterProviderByCloud", GetClusterProviderByCloudDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const GetClusterRestoreDocument = `query GetClusterRestore ($id: ID!) {
+	clusterRestore(id: $id) {
+		... ClusterRestoreFragment
+	}
+}
+fragment ClusterBackupFragment on ClusterBackup {
+	id
+	name
+	cluster {
+		id
+	}
+}
+fragment ClusterRestoreFragment on ClusterRestore {
+	id
+	status
+	backup {
+		... ClusterBackupFragment
+	}
+}
+`
+
+func (c *Client) GetClusterRestore(ctx context.Context, id string, httpRequestOptions ...client.HTTPRequestOption) (*GetClusterRestore, error) {
+	vars := map[string]interface{}{
+		"id": id,
+	}
+
+	var res GetClusterRestore
+	if err := c.Client.Post(ctx, "GetClusterRestore", GetClusterRestoreDocument, &res, vars, httpRequestOptions...); err != nil {
 		return nil, err
 	}
 
@@ -5386,6 +5519,41 @@ func (c *Client) UpdateClusterProvider(ctx context.Context, id string, attribute
 
 	var res UpdateClusterProvider
 	if err := c.Client.Post(ctx, "UpdateClusterProvider", UpdateClusterProviderDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const UpdateClusterRestoreDocument = `mutation UpdateClusterRestore ($id: ID!, $attributes: RestoreAttributes!) {
+	updateClusterRestore(id: $id, attributes: $attributes) {
+		... ClusterRestoreFragment
+	}
+}
+fragment ClusterBackupFragment on ClusterBackup {
+	id
+	name
+	cluster {
+		id
+	}
+}
+fragment ClusterRestoreFragment on ClusterRestore {
+	id
+	status
+	backup {
+		... ClusterBackupFragment
+	}
+}
+`
+
+func (c *Client) UpdateClusterRestore(ctx context.Context, id string, attributes RestoreAttributes, httpRequestOptions ...client.HTTPRequestOption) (*UpdateClusterRestore, error) {
+	vars := map[string]interface{}{
+		"id":         id,
+		"attributes": attributes,
+	}
+
+	var res UpdateClusterRestore
+	if err := c.Client.Post(ctx, "UpdateClusterRestore", UpdateClusterRestoreDocument, &res, vars, httpRequestOptions...); err != nil {
 		return nil, err
 	}
 
