@@ -323,3 +323,25 @@ fragment ClusterRestoreFragment on ClusterRestore {
     status
     backup { ... ClusterBackupFragment}
 }
+
+fragment ScmConnectionFragment on ScmConnection {
+    id
+    name
+    apiUrl
+    baseUrl
+    type
+    username
+    insertedAt
+    updatedAt
+}
+
+fragment PrAutomationFragment on PrAutomation {
+    id
+    name
+    title
+    addon
+    message
+    identifier
+    insertedAt
+    updatedAt
+}

@@ -466,6 +466,16 @@ type PolicyBindingFragment struct {
 	Group *GroupFragment "json:\"group\" graphql:\"group\""
 	User  *UserFragment  "json:\"user\" graphql:\"user\""
 }
+type PrAutomationFragment struct {
+	ID         string  "json:\"id\" graphql:\"id\""
+	Name       string  "json:\"name\" graphql:\"name\""
+	Title      string  "json:\"title\" graphql:\"title\""
+	Addon      *string "json:\"addon\" graphql:\"addon\""
+	Message    string  "json:\"message\" graphql:\"message\""
+	Identifier string  "json:\"identifier\" graphql:\"identifier\""
+	InsertedAt *string "json:\"insertedAt\" graphql:\"insertedAt\""
+	UpdatedAt  *string "json:\"updatedAt\" graphql:\"updatedAt\""
+}
 type ProviderCredentialFragment struct {
 	ID        string "json:\"id\" graphql:\"id\""
 	Name      string "json:\"name\" graphql:\"name\""
@@ -479,6 +489,16 @@ type RevisionFragment struct {
 		Ref    string "json:\"ref\" graphql:\"ref\""
 		Folder string "json:\"folder\" graphql:\"folder\""
 	} "json:\"git\" graphql:\"git\""
+}
+type ScmConnectionFragment struct {
+	ID         string  "json:\"id\" graphql:\"id\""
+	Name       string  "json:\"name\" graphql:\"name\""
+	APIURL     *string "json:\"apiUrl\" graphql:\"apiUrl\""
+	BaseURL    *string "json:\"baseUrl\" graphql:\"baseUrl\""
+	Type       ScmType "json:\"type\" graphql:\"type\""
+	Username   *string "json:\"username\" graphql:\"username\""
+	InsertedAt *string "json:\"insertedAt\" graphql:\"insertedAt\""
+	UpdatedAt  *string "json:\"updatedAt\" graphql:\"updatedAt\""
 }
 type ServiceDeploymentBaseFragment struct {
 	ID         string                 "json:\"id\" graphql:\"id\""
@@ -615,8 +635,14 @@ type CreateGlobalService struct {
 type CreateGlobalServiceDeployment struct {
 	CreateGlobalService *GlobalServiceFragment "json:\"createGlobalService\" graphql:\"createGlobalService\""
 }
+type CreatePrAutomation struct {
+	CreatePrAutomation *PrAutomationFragment "json:\"createPrAutomation\" graphql:\"createPrAutomation\""
+}
 type CreateProviderCredential struct {
 	CreateProviderCredential *ProviderCredentialFragment "json:\"createProviderCredential\" graphql:\"createProviderCredential\""
+}
+type CreateScmConnection struct {
+	CreateScmConnection *ScmConnectionFragment "json:\"createScmConnection\" graphql:\"createScmConnection\""
 }
 type CreateServiceDeployment struct {
 	CreateServiceDeployment *ServiceDeploymentExtended "json:\"createServiceDeployment\" graphql:\"createServiceDeployment\""
@@ -648,8 +674,14 @@ type DeleteGroupMember struct {
 type DeletePipeline struct {
 	DeletePipeline *PipelineFragment "json:\"deletePipeline\" graphql:\"deletePipeline\""
 }
+type DeletePrAutomation struct {
+	DeletePrAutomation *PrAutomationFragment "json:\"deletePrAutomation\" graphql:\"deletePrAutomation\""
+}
 type DeleteProviderCredential struct {
 	DeleteProviderCredential *ProviderCredentialFragment "json:\"deleteProviderCredential\" graphql:\"deleteProviderCredential\""
+}
+type DeleteScmConnection struct {
+	DeleteScmConnection *ScmConnectionFragment "json:\"deleteScmConnection\" graphql:\"deleteScmConnection\""
 }
 type DeleteServiceDeployment struct {
 	DeleteServiceDeployment *ServiceDeploymentFragment "json:\"deleteServiceDeployment\" graphql:\"deleteServiceDeployment\""
@@ -716,6 +748,12 @@ type GetPipelines struct {
 		Edges []*PipelineEdgeFragment "json:\"edges\" graphql:\"edges\""
 	} "json:\"pipelines\" graphql:\"pipelines\""
 }
+type GetPrAutomation struct {
+	PrAutomation *PrAutomationFragment "json:\"prAutomation\" graphql:\"prAutomation\""
+}
+type GetScmConnection struct {
+	ScmConnection *ScmConnectionFragment "json:\"scmConnection\" graphql:\"scmConnection\""
+}
 type GetServiceDeployment struct {
 	ServiceDeployment *ServiceDeploymentExtended "json:\"serviceDeployment\" graphql:\"serviceDeployment\""
 }
@@ -746,8 +784,24 @@ type ListGitRepositories struct {
 		Edges []*GitRepositoryEdgeFragment "json:\"edges\" graphql:\"edges\""
 	} "json:\"gitRepositories\" graphql:\"gitRepositories\""
 }
+type ListPrAutomations struct {
+	PrAutomations *struct {
+		Edges []*struct {
+			Node   *PrAutomationFragment "json:\"node\" graphql:\"node\""
+			Cursor *string               "json:\"cursor\" graphql:\"cursor\""
+		} "json:\"edges\" graphql:\"edges\""
+	} "json:\"prAutomations\" graphql:\"prAutomations\""
+}
 type ListProviders struct {
 	ClusterProviders *ClusterProviderConnectionFragment "json:\"clusterProviders\" graphql:\"clusterProviders\""
+}
+type ListScmConnections struct {
+	ScmConnections *struct {
+		Edges []*struct {
+			Node   *ScmConnectionFragment "json:\"node\" graphql:\"node\""
+			Cursor *string                "json:\"cursor\" graphql:\"cursor\""
+		} "json:\"edges\" graphql:\"edges\""
+	} "json:\"scmConnections\" graphql:\"scmConnections\""
 }
 type ListServiceDeployment struct {
 	ServiceDeployments *struct {
@@ -823,8 +877,14 @@ type UpdateGlobalService struct {
 type UpdateGlobalServiceDeployment struct {
 	UpdateGlobalService *GlobalServiceFragment "json:\"updateGlobalService\" graphql:\"updateGlobalService\""
 }
+type UpdatePrAutomation struct {
+	UpdatePrAutomation *PrAutomationFragment "json:\"updatePrAutomation\" graphql:\"updatePrAutomation\""
+}
 type UpdateRbac struct {
 	UpdateRbac *bool "json:\"updateRbac\" graphql:\"updateRbac\""
+}
+type UpdateScmConnection struct {
+	UpdateScmConnection *ScmConnectionFragment "json:\"updateScmConnection\" graphql:\"updateScmConnection\""
 }
 type UpdateServiceDeployment struct {
 	UpdateServiceDeployment *ServiceDeploymentExtended "json:\"updateServiceDeployment\" graphql:\"updateServiceDeployment\""
@@ -1605,6 +1665,36 @@ func (c *Client) CreateGlobalServiceDeployment(ctx context.Context, serviceID st
 	return &res, nil
 }
 
+const CreatePrAutomationDocument = `mutation CreatePrAutomation ($attributes: PrAutomationAttributes!) {
+	createPrAutomation(attributes: $attributes) {
+		... PrAutomationFragment
+	}
+}
+fragment PrAutomationFragment on PrAutomation {
+	id
+	name
+	title
+	addon
+	message
+	identifier
+	insertedAt
+	updatedAt
+}
+`
+
+func (c *Client) CreatePrAutomation(ctx context.Context, attributes PrAutomationAttributes, httpRequestOptions ...client.HTTPRequestOption) (*CreatePrAutomation, error) {
+	vars := map[string]interface{}{
+		"attributes": attributes,
+	}
+
+	var res CreatePrAutomation
+	if err := c.Client.Post(ctx, "CreatePrAutomation", CreatePrAutomationDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
 const CreateProviderCredentialDocument = `mutation CreateProviderCredential ($attributes: ProviderCredentialAttributes!, $name: String!) {
 	createProviderCredential(attributes: $attributes, name: $name) {
 		... ProviderCredentialFragment
@@ -1626,6 +1716,36 @@ func (c *Client) CreateProviderCredential(ctx context.Context, attributes Provid
 
 	var res CreateProviderCredential
 	if err := c.Client.Post(ctx, "CreateProviderCredential", CreateProviderCredentialDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const CreateScmConnectionDocument = `mutation CreateScmConnection ($attributes: ScmConnectionAttributes!) {
+	createScmConnection(attributes: $attributes) {
+		... ScmConnectionFragment
+	}
+}
+fragment ScmConnectionFragment on ScmConnection {
+	id
+	name
+	apiUrl
+	baseUrl
+	type
+	username
+	insertedAt
+	updatedAt
+}
+`
+
+func (c *Client) CreateScmConnection(ctx context.Context, attributes ScmConnectionAttributes, httpRequestOptions ...client.HTTPRequestOption) (*CreateScmConnection, error) {
+	vars := map[string]interface{}{
+		"attributes": attributes,
+	}
+
+	var res CreateScmConnection
+	if err := c.Client.Post(ctx, "CreateScmConnection", CreateScmConnectionDocument, &res, vars, httpRequestOptions...); err != nil {
 		return nil, err
 	}
 
@@ -2487,6 +2607,36 @@ func (c *Client) DeletePipeline(ctx context.Context, id string, httpRequestOptio
 	return &res, nil
 }
 
+const DeletePrAutomationDocument = `mutation DeletePrAutomation ($id: ID!) {
+	deletePrAutomation(id: $id) {
+		... PrAutomationFragment
+	}
+}
+fragment PrAutomationFragment on PrAutomation {
+	id
+	name
+	title
+	addon
+	message
+	identifier
+	insertedAt
+	updatedAt
+}
+`
+
+func (c *Client) DeletePrAutomation(ctx context.Context, id string, httpRequestOptions ...client.HTTPRequestOption) (*DeletePrAutomation, error) {
+	vars := map[string]interface{}{
+		"id": id,
+	}
+
+	var res DeletePrAutomation
+	if err := c.Client.Post(ctx, "DeletePrAutomation", DeletePrAutomationDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
 const DeleteProviderCredentialDocument = `mutation DeleteProviderCredential ($id: ID!) {
 	deleteProviderCredential(id: $id) {
 		... ProviderCredentialFragment
@@ -2507,6 +2657,36 @@ func (c *Client) DeleteProviderCredential(ctx context.Context, id string, httpRe
 
 	var res DeleteProviderCredential
 	if err := c.Client.Post(ctx, "DeleteProviderCredential", DeleteProviderCredentialDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const DeleteScmConnectionDocument = `mutation DeleteScmConnection ($id: ID!) {
+	deleteScmConnection(id: $id) {
+		... ScmConnectionFragment
+	}
+}
+fragment ScmConnectionFragment on ScmConnection {
+	id
+	name
+	apiUrl
+	baseUrl
+	type
+	username
+	insertedAt
+	updatedAt
+}
+`
+
+func (c *Client) DeleteScmConnection(ctx context.Context, id string, httpRequestOptions ...client.HTTPRequestOption) (*DeleteScmConnection, error) {
+	vars := map[string]interface{}{
+		"id": id,
+	}
+
+	var res DeleteScmConnection
+	if err := c.Client.Post(ctx, "DeleteScmConnection", DeleteScmConnectionDocument, &res, vars, httpRequestOptions...); err != nil {
 		return nil, err
 	}
 
@@ -3907,6 +4087,68 @@ func (c *Client) GetPipelines(ctx context.Context, after *string, httpRequestOpt
 	return &res, nil
 }
 
+const GetPrAutomationDocument = `query GetPrAutomation ($id: ID, $name: String) {
+	prAutomation(id: $id, name: $name) {
+		... PrAutomationFragment
+	}
+}
+fragment PrAutomationFragment on PrAutomation {
+	id
+	name
+	title
+	addon
+	message
+	identifier
+	insertedAt
+	updatedAt
+}
+`
+
+func (c *Client) GetPrAutomation(ctx context.Context, id *string, name *string, httpRequestOptions ...client.HTTPRequestOption) (*GetPrAutomation, error) {
+	vars := map[string]interface{}{
+		"id":   id,
+		"name": name,
+	}
+
+	var res GetPrAutomation
+	if err := c.Client.Post(ctx, "GetPrAutomation", GetPrAutomationDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const GetScmConnectionDocument = `query GetScmConnection ($id: ID, $name: String) {
+	scmConnection(id: $id, name: $name) {
+		... ScmConnectionFragment
+	}
+}
+fragment ScmConnectionFragment on ScmConnection {
+	id
+	name
+	apiUrl
+	baseUrl
+	type
+	username
+	insertedAt
+	updatedAt
+}
+`
+
+func (c *Client) GetScmConnection(ctx context.Context, id *string, name *string, httpRequestOptions ...client.HTTPRequestOption) (*GetScmConnection, error) {
+	vars := map[string]interface{}{
+		"id":   id,
+		"name": name,
+	}
+
+	var res GetScmConnection
+	if err := c.Client.Post(ctx, "GetScmConnection", GetScmConnectionDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
 const GetServiceDeploymentDocument = `query GetServiceDeployment ($id: ID!) {
 	serviceDeployment(id: $id) {
 		... ServiceDeploymentExtended
@@ -4627,6 +4869,43 @@ func (c *Client) ListGitRepositories(ctx context.Context, cursor *string, before
 	return &res, nil
 }
 
+const ListPrAutomationsDocument = `query ListPrAutomations ($cursor: String, $before: String, $last: Int) {
+	prAutomations(after: $cursor, first: 100, before: $before, last: $last) {
+		edges {
+			node {
+				... PrAutomationFragment
+			}
+			cursor
+		}
+	}
+}
+fragment PrAutomationFragment on PrAutomation {
+	id
+	name
+	title
+	addon
+	message
+	identifier
+	insertedAt
+	updatedAt
+}
+`
+
+func (c *Client) ListPrAutomations(ctx context.Context, cursor *string, before *string, last *int64, httpRequestOptions ...client.HTTPRequestOption) (*ListPrAutomations, error) {
+	vars := map[string]interface{}{
+		"cursor": cursor,
+		"before": before,
+		"last":   last,
+	}
+
+	var res ListPrAutomations
+	if err := c.Client.Post(ctx, "ListPrAutomations", ListPrAutomationsDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
 const ListProvidersDocument = `query ListProviders {
 	clusterProviders(first: 100) {
 		... ClusterProviderConnectionFragment
@@ -4738,6 +5017,43 @@ func (c *Client) ListProviders(ctx context.Context, httpRequestOptions ...client
 
 	var res ListProviders
 	if err := c.Client.Post(ctx, "ListProviders", ListProvidersDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const ListScmConnectionsDocument = `query ListScmConnections ($cursor: String, $before: String, $last: Int) {
+	scmConnections(after: $cursor, first: 100, before: $before, last: $last) {
+		edges {
+			node {
+				... ScmConnectionFragment
+			}
+			cursor
+		}
+	}
+}
+fragment ScmConnectionFragment on ScmConnection {
+	id
+	name
+	apiUrl
+	baseUrl
+	type
+	username
+	insertedAt
+	updatedAt
+}
+`
+
+func (c *Client) ListScmConnections(ctx context.Context, cursor *string, before *string, last *int64, httpRequestOptions ...client.HTTPRequestOption) (*ListScmConnections, error) {
+	vars := map[string]interface{}{
+		"cursor": cursor,
+		"before": before,
+		"last":   last,
+	}
+
+	var res ListScmConnections
+	if err := c.Client.Post(ctx, "ListScmConnections", ListScmConnectionsDocument, &res, vars, httpRequestOptions...); err != nil {
 		return nil, err
 	}
 
@@ -5733,6 +6049,37 @@ func (c *Client) UpdateGlobalServiceDeployment(ctx context.Context, id string, a
 	return &res, nil
 }
 
+const UpdatePrAutomationDocument = `mutation UpdatePrAutomation ($id: ID!, $attributes: PrAutomationAttributes!) {
+	updatePrAutomation(id: $id, attributes: $attributes) {
+		... PrAutomationFragment
+	}
+}
+fragment PrAutomationFragment on PrAutomation {
+	id
+	name
+	title
+	addon
+	message
+	identifier
+	insertedAt
+	updatedAt
+}
+`
+
+func (c *Client) UpdatePrAutomation(ctx context.Context, id string, attributes PrAutomationAttributes, httpRequestOptions ...client.HTTPRequestOption) (*UpdatePrAutomation, error) {
+	vars := map[string]interface{}{
+		"id":         id,
+		"attributes": attributes,
+	}
+
+	var res UpdatePrAutomation
+	if err := c.Client.Post(ctx, "UpdatePrAutomation", UpdatePrAutomationDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
 const UpdateRbacDocument = `mutation UpdateRbac ($rbac: RbacAttributes!, $serviceId: ID, $clusterId: ID, $providerId: ID) {
 	updateRbac(rbac: $rbac, serviceId: $serviceId, clusterId: $clusterId, providerId: $providerId)
 }
@@ -5748,6 +6095,37 @@ func (c *Client) UpdateRbac(ctx context.Context, rbac RbacAttributes, serviceID 
 
 	var res UpdateRbac
 	if err := c.Client.Post(ctx, "UpdateRbac", UpdateRbacDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const UpdateScmConnectionDocument = `mutation UpdateScmConnection ($id: ID!, $attributes: ScmConnectionAttributes!) {
+	updateScmConnection(id: $id, attributes: $attributes) {
+		... ScmConnectionFragment
+	}
+}
+fragment ScmConnectionFragment on ScmConnection {
+	id
+	name
+	apiUrl
+	baseUrl
+	type
+	username
+	insertedAt
+	updatedAt
+}
+`
+
+func (c *Client) UpdateScmConnection(ctx context.Context, id string, attributes ScmConnectionAttributes, httpRequestOptions ...client.HTTPRequestOption) (*UpdateScmConnection, error) {
+	vars := map[string]interface{}{
+		"id":         id,
+		"attributes": attributes,
+	}
+
+	var res UpdateScmConnection
+	if err := c.Client.Post(ctx, "UpdateScmConnection", UpdateScmConnectionDocument, &res, vars, httpRequestOptions...); err != nil {
 		return nil, err
 	}
 
