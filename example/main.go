@@ -15,7 +15,7 @@ type authedTransport struct {
 }
 
 func (t *authedTransport) RoundTrip(req *http.Request) (*http.Response, error) {
-	req.Header.Set("Authorization", "Token "+t.key)
+	req.Header.Set("Authorization", "Bearer "+t.key)
 	return t.wrapped.RoundTrip(req)
 }
 
@@ -28,7 +28,7 @@ func main() {
 		}
 	}()
 
-	key := "deploy-h89xne0p2efknbud7n26nzc2rym9anhwppj3mifwrc2bzyiafe"
+	key := "PASTE YOUR KEY HERE FROM https://app.plural.sh/profile/tokens"
 
 	httpClient := http.Client{
 		Transport: &authedTransport{
@@ -36,11 +36,11 @@ func main() {
 			wrapped: http.DefaultTransport,
 		},
 	}
-	graphqlClient := gqlclient.NewClient(&httpClient, "https://console.cdaws.onplural.sh/gql/ext")
-	meResp, err := graphqlClient.ListClusterRestore(context.Background(), "daa2b5f7-a0e7-4e11-896a-6e5389b3d8aa")
+	graphqlClient := gqlclient.NewClient(&httpClient, "https://app.plural.sh/gql")
+	meResp, err := graphqlClient.MyCluster(context.Background())
 	if err != nil {
 		return
 	}
-	fmt.Println("my cluster", meResp)
+	fmt.Println("my cluster", meResp.MyCluster.Name)
 
 }
