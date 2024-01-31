@@ -828,8 +828,9 @@ type ListServiceDeployments struct {
 }
 type MyCluster struct {
 	MyCluster *struct {
-		ID   string "json:\"id\" graphql:\"id\""
-		Name string "json:\"name\" graphql:\"name\""
+		ID      string                  "json:\"id\" graphql:\"id\""
+		Name    string                  "json:\"name\" graphql:\"name\""
+		Restore *ClusterRestoreFragment "json:\"restore\" graphql:\"restore\""
 	} "json:\"myCluster\" graphql:\"myCluster\""
 }
 type PingCluster struct {
@@ -5353,7 +5354,24 @@ const MyClusterDocument = `query MyCluster {
 		... {
 			id
 			name
+			restore {
+				... ClusterRestoreFragment
+			}
 		}
+	}
+}
+fragment ClusterBackupFragment on ClusterBackup {
+	id
+	name
+	cluster {
+		id
+	}
+}
+fragment ClusterRestoreFragment on ClusterRestore {
+	id
+	status
+	backup {
+		... ClusterBackupFragment
 	}
 }
 `

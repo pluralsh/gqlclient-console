@@ -491,6 +491,10 @@ type Cluster struct {
 	Repository *GitRepository `json:"repository"`
 	// pr automations that are relevant to managing this cluster
 	PrAutomations []*PrAutomation `json:"prAutomations"`
+	// the active restore for this cluster
+	Restore *ClusterRestore `json:"restore"`
+	// the object store connection bound to this cluster for backup/restore
+	ObjectStore *ObjectStore `json:"objectStore"`
 	// list cached nodes for a cluster, this can be stale up to 5m
 	Nodes []*Node `json:"nodes"`
 	// list the cached node metrics for a cluster, can also be stale up to 5m
@@ -2586,9 +2590,11 @@ type ScmConnectionAttributes struct {
 	Name     string  `json:"name"`
 	Type     ScmType `json:"type"`
 	Username *string `json:"username,omitempty"`
-	Token    *string `json:"token,omitempty"`
+	Token    string  `json:"token"`
 	BaseURL  *string `json:"baseUrl,omitempty"`
 	APIURL   *string `json:"apiUrl,omitempty"`
+	// a ssh private key to be used for commit signing
+	SigningPrivateKey *string `json:"signingPrivateKey,omitempty"`
 }
 
 type ScmConnectionConnection struct {
@@ -3050,10 +3056,11 @@ type User struct {
 }
 
 type UserAttributes struct {
-	Name     *string             `json:"name,omitempty"`
-	Email    *string             `json:"email,omitempty"`
-	Password *string             `json:"password,omitempty"`
-	Roles    *UserRoleAttributes `json:"roles,omitempty"`
+	Name              *string             `json:"name,omitempty"`
+	Email             *string             `json:"email,omitempty"`
+	Password          *string             `json:"password,omitempty"`
+	Roles             *UserRoleAttributes `json:"roles,omitempty"`
+	SigningPrivateKey *string             `json:"signingPrivateKey,omitempty"`
 }
 
 type UserConnection struct {

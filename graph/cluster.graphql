@@ -106,6 +106,7 @@ query MyCluster {
         ...{
             id
             name
+            restore {... ClusterRestoreFragment }
         }
     }
 }
