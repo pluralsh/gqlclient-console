@@ -263,6 +263,7 @@ type ClusterBackupFragment struct {
 	Cluster *struct {
 		ID string "json:\"id\" graphql:\"id\""
 	} "json:\"cluster\" graphql:\"cluster\""
+	GarbageCollected *bool "json:\"garbageCollected\" graphql:\"garbageCollected\""
 }
 type ClusterConditionFragment struct {
 	LastTransitionTime *string "json:\"lastTransitionTime\" graphql:\"lastTransitionTime\""
@@ -1412,6 +1413,7 @@ fragment ClusterBackupFragment on ClusterBackup {
 	cluster {
 		id
 	}
+	garbageCollected
 }
 `
 
@@ -1548,6 +1550,7 @@ fragment ClusterBackupFragment on ClusterBackup {
 	cluster {
 		id
 	}
+	garbageCollected
 }
 fragment ClusterRestoreFragment on ClusterRestore {
 	id
@@ -3173,6 +3176,7 @@ fragment ClusterBackupFragment on ClusterBackup {
 	cluster {
 		id
 	}
+	garbageCollected
 }
 `
 
@@ -3650,6 +3654,7 @@ fragment ClusterBackupFragment on ClusterBackup {
 	cluster {
 		id
 	}
+	garbageCollected
 }
 fragment ClusterRestoreFragment on ClusterRestore {
 	id
@@ -5400,6 +5405,7 @@ fragment ClusterBackupFragment on ClusterBackup {
 	cluster {
 		id
 	}
+	garbageCollected
 }
 fragment ClusterRestoreFragment on ClusterRestore {
 	id
@@ -5968,6 +5974,7 @@ fragment ClusterBackupFragment on ClusterBackup {
 	cluster {
 		id
 	}
+	garbageCollected
 }
 fragment ClusterRestoreFragment on ClusterRestore {
 	id

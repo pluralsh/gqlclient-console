@@ -316,6 +316,7 @@ fragment ClusterBackupFragment on ClusterBackup {
     id
     name
     cluster { id }
+    garbageCollected
 }
 
 fragment ClusterRestoreFragment on ClusterRestore {
