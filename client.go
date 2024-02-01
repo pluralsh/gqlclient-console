@@ -121,6 +121,7 @@ type RootQueryType struct {
 	ServiceContext          *ServiceContext              "json:\"serviceContext\" graphql:\"serviceContext\""
 	Pipelines               *PipelineConnection          "json:\"pipelines\" graphql:\"pipelines\""
 	Pipeline                *Pipeline                    "json:\"pipeline\" graphql:\"pipeline\""
+	ClusterBackup           *ClusterBackup               "json:\"clusterBackup\" graphql:\"clusterBackup\""
 	ObjectStores            *ObjectStoreConnection       "json:\"objectStores\" graphql:\"objectStores\""
 	ClusterServices         []*ServiceDeployment         "json:\"clusterServices\" graphql:\"clusterServices\""
 	ServiceDeployment       *ServiceDeployment           "json:\"serviceDeployment\" graphql:\"serviceDeployment\""
@@ -694,6 +695,9 @@ type GetAccessToken struct {
 }
 type GetCluster struct {
 	Cluster *ClusterFragment "json:\"cluster\" graphql:\"cluster\""
+}
+type GetClusterBackup struct {
+	ClusterBackup *ClusterBackupFragment "json:\"clusterBackup\" graphql:\"clusterBackup\""
 }
 type GetClusterByHandle struct {
 	Cluster *ClusterFragment "json:\"cluster\" graphql:\"cluster\""
@@ -3152,6 +3156,36 @@ func (c *Client) GetCluster(ctx context.Context, id *string, httpRequestOptions 
 
 	var res GetCluster
 	if err := c.Client.Post(ctx, "GetCluster", GetClusterDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const GetClusterBackupDocument = `query GetClusterBackup ($id: ID, $clusterId: ID, $namespace: String, $name: String) {
+	clusterBackup(id: $id, clusterId: $clusterId, namespace: $namespace, name: $name) {
+		... ClusterBackupFragment
+	}
+}
+fragment ClusterBackupFragment on ClusterBackup {
+	id
+	name
+	cluster {
+		id
+	}
+}
+`
+
+func (c *Client) GetClusterBackup(ctx context.Context, id *string, clusterID *string, namespace *string, name *string, httpRequestOptions ...client.HTTPRequestOption) (*GetClusterBackup, error) {
+	vars := map[string]interface{}{
+		"id":        id,
+		"clusterId": clusterID,
+		"namespace": namespace,
+		"name":      name,
+	}
+
+	var res GetClusterBackup
+	if err := c.Client.Post(ctx, "GetClusterBackup", GetClusterBackupDocument, &res, vars, httpRequestOptions...); err != nil {
 		return nil, err
 	}
 

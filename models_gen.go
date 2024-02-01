@@ -289,7 +289,9 @@ type AzureStoreAttributes struct {
 }
 
 type BackupAttributes struct {
-	Name string `json:"name"`
+	Name             string `json:"name"`
+	Namespace        string `json:"namespace"`
+	GarbageCollected *bool  `json:"garbageCollected,omitempty"`
 }
 
 type BindingAttributes struct {
@@ -540,11 +542,13 @@ type ClusterAttributes struct {
 }
 
 type ClusterBackup struct {
-	ID         string   `json:"id"`
-	Name       string   `json:"name"`
-	Cluster    *Cluster `json:"cluster"`
-	InsertedAt *string  `json:"insertedAt"`
-	UpdatedAt  *string  `json:"updatedAt"`
+	ID               string   `json:"id"`
+	Name             string   `json:"name"`
+	Namespace        string   `json:"namespace"`
+	GarbageCollected *bool    `json:"garbageCollected"`
+	Cluster          *Cluster `json:"cluster"`
+	InsertedAt       *string  `json:"insertedAt"`
+	UpdatedAt        *string  `json:"updatedAt"`
 }
 
 // a single condition struct for various phases of the cluster provisionining process
@@ -2095,12 +2099,15 @@ type PrAutomation struct {
 	Title         string        `json:"title"`
 	Message       string        `json:"message"`
 	Updates       *PrUpdateSpec `json:"updates"`
+	Creates       *PrCreateSpec `json:"creates"`
 	// write policy for this pr automation, also propagates to the notifications list for any created PRs
 	WriteBindings []*PolicyBinding `json:"writeBindings"`
 	// users who can generate prs with this automation
 	CreateBindings []*PolicyBinding `json:"createBindings"`
 	// link to an add-on name if this can update it
 	Addon *string `json:"addon"`
+	// the git repository to use for sourcing external templates
+	Repository *GitRepository `json:"repository"`
 	// link to a cluster if this is to perform an upgrade
 	Cluster *Cluster `json:"cluster"`
 	// link to a service if this can update its configuration
@@ -2121,6 +2128,7 @@ type PrAutomationAttributes struct {
 	Message       *string                           `json:"message,omitempty"`
 	Branch        *string                           `json:"branch,omitempty"`
 	Updates       *PrAutomationUpdateSpecAttributes `json:"updates,omitempty"`
+	Creates       *PrAutomationCreateSpecAttributes `json:"creates,omitempty"`
 	// link to an add-on name if this can update it
 	Addon *string `json:"addon,omitempty"`
 	// link to a cluster if this is to perform an upgrade
@@ -2128,7 +2136,9 @@ type PrAutomationAttributes struct {
 	// link to a service if this can modify its configuration
 	ServiceID *string `json:"serviceId,omitempty"`
 	// the scm connection to use for pr generation
-	ConnectionID  *string                      `json:"connectionId,omitempty"`
+	ConnectionID *string `json:"connectionId,omitempty"`
+	// a git repository to use for create mode prs
+	RepositoryID  *string                      `json:"repositoryId,omitempty"`
 	Configuration []*PrConfigurationAttributes `json:"configuration,omitempty"`
 	// users who can update this automation
 	WriteBindings []*PolicyBindingAttributes `json:"writeBindings,omitempty"`
@@ -2141,9 +2151,23 @@ type PrAutomationConnection struct {
 	Edges    []*PrAutomationEdge `json:"edges"`
 }
 
+// Operations to create new templated files within this pr
+type PrAutomationCreateSpecAttributes struct {
+	Git       *GitRefAttributes                 `json:"git,omitempty"`
+	Templates []*PrAutomationTemplateAttributes `json:"templates,omitempty"`
+}
+
 type PrAutomationEdge struct {
 	Node   *PrAutomation `json:"node"`
 	Cursor *string       `json:"cursor"`
+}
+
+// templates to apply in this pr
+type PrAutomationTemplateAttributes struct {
+	Source      string `json:"source"`
+	Destination string `json:"destination"`
+	// whether the source template is sourced from an external git repo bound to this automation
+	External bool `json:"external"`
 }
 
 // The operations to be performed on the files w/in the pr
@@ -2167,6 +2191,20 @@ type PrConfigurationAttributes struct {
 	Placeholder   *string              `json:"placeholder,omitempty"`
 	Optional      *bool                `json:"optional,omitempty"`
 	Condition     *ConditionAttributes `json:"condition,omitempty"`
+}
+
+// templated files used to add new files to a given pr
+type PrCreateSpec struct {
+	// pointer within an external git repository to source templates from
+	Git       *GitRef           `json:"git"`
+	Templates []*PrTemplateSpec `json:"templates"`
+}
+
+// the details of where to find and place a templated file
+type PrTemplateSpec struct {
+	Source      string `json:"source"`
+	Destination string `json:"destination"`
+	External    bool   `json:"external"`
 }
 
 // existing file updates that can be performed in a PR

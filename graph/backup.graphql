@@ -4,6 +4,12 @@ mutation CreateClusterBackup($attributes: BackupAttributes!) {
     }
 }
 
+query GetClusterBackup($id: ID, $clusterId: ID, $namespace: String, $name: String) {
+    clusterBackup(id: $id, clusterId: $clusterId, namespace: $namespace, name: $name) {
+        ... ClusterBackupFragment
+    }
+}
+
 mutation UpdateClusterRestore($id: ID!, $attributes: RestoreAttributes!) {
     updateClusterRestore(id: $id, attributes: $attributes) {
         ... ClusterRestoreFragment
