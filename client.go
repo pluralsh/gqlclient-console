@@ -218,6 +218,7 @@ type RootMutationType struct {
 	CreateObjectStore         *ObjectStore           "json:\"createObjectStore\" graphql:\"createObjectStore\""
 	UpdateObjectStore         *ObjectStore           "json:\"updateObjectStore\" graphql:\"updateObjectStore\""
 	DeleteObjectStore         *ObjectStore           "json:\"deleteObjectStore\" graphql:\"deleteObjectStore\""
+	ConfigureBackups          *Cluster               "json:\"configureBackups\" graphql:\"configureBackups\""
 	CreateClusterRestore      *ClusterRestore        "json:\"createClusterRestore\" graphql:\"createClusterRestore\""
 	PingCluster               *Cluster               "json:\"pingCluster\" graphql:\"pingCluster\""
 	RegisterRuntimeServices   *int64                 "json:\"registerRuntimeServices\" graphql:\"registerRuntimeServices\""

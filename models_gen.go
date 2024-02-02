@@ -3259,6 +3259,8 @@ const (
 	AuditTypeProviderCredential AuditType = "PROVIDER_CREDENTIAL"
 	AuditTypePipeline           AuditType = "PIPELINE"
 	AuditTypeGlobal             AuditType = "GLOBAL"
+	AuditTypeObjectStore        AuditType = "OBJECT_STORE"
+	AuditTypeClusterRestore     AuditType = "CLUSTER_RESTORE"
 )
 
 var AllAuditType = []AuditType{
@@ -3279,11 +3281,13 @@ var AllAuditType = []AuditType{
 	AuditTypeProviderCredential,
 	AuditTypePipeline,
 	AuditTypeGlobal,
+	AuditTypeObjectStore,
+	AuditTypeClusterRestore,
 }
 
 func (e AuditType) IsValid() bool {
 	switch e {
-	case AuditTypeBuild, AuditTypePod, AuditTypeConfiguration, AuditTypeUser, AuditTypeGroup, AuditTypeRole, AuditTypeGroupMember, AuditTypePolicy, AuditTypeTempToken, AuditTypeService, AuditTypeCluster, AuditTypeClusterProvider, AuditTypeGitRepository, AuditTypeDeploymentSettings, AuditTypeProviderCredential, AuditTypePipeline, AuditTypeGlobal:
+	case AuditTypeBuild, AuditTypePod, AuditTypeConfiguration, AuditTypeUser, AuditTypeGroup, AuditTypeRole, AuditTypeGroupMember, AuditTypePolicy, AuditTypeTempToken, AuditTypeService, AuditTypeCluster, AuditTypeClusterProvider, AuditTypeGitRepository, AuditTypeDeploymentSettings, AuditTypeProviderCredential, AuditTypePipeline, AuditTypeGlobal, AuditTypeObjectStore, AuditTypeClusterRestore:
 		return true
 	}
 	return false
