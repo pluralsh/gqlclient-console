@@ -503,6 +503,10 @@ type ScmConnectionFragment struct {
 	InsertedAt *string "json:\"insertedAt\" graphql:\"insertedAt\""
 	UpdatedAt  *string "json:\"updatedAt\" graphql:\"updatedAt\""
 }
+type ServiceContextFragment struct {
+	ID            string                 "json:\"id\" graphql:\"id\""
+	Configuration map[string]interface{} "json:\"configuration\" graphql:\"configuration\""
+}
 type ServiceDeploymentBaseFragment struct {
 	ID         string                 "json:\"id\" graphql:\"id\""
 	Name       string                 "json:\"name\" graphql:\"name\""
@@ -517,17 +521,18 @@ type ServiceDeploymentEdgeFragment struct {
 	Node *ServiceDeploymentBaseFragment "json:\"node\" graphql:\"node\""
 }
 type ServiceDeploymentExtended struct {
-	Cluster    *BaseClusterFragment   "json:\"cluster\" graphql:\"cluster\""
-	Errors     []*ErrorFragment       "json:\"errors\" graphql:\"errors\""
-	Revision   *RevisionFragment      "json:\"revision\" graphql:\"revision\""
-	ID         string                 "json:\"id\" graphql:\"id\""
-	Name       string                 "json:\"name\" graphql:\"name\""
-	Namespace  string                 "json:\"namespace\" graphql:\"namespace\""
-	Version    string                 "json:\"version\" graphql:\"version\""
-	Kustomize  *KustomizeFragment     "json:\"kustomize\" graphql:\"kustomize\""
-	Git        *GitRefFragment        "json:\"git\" graphql:\"git\""
-	Helm       *HelmSpecFragment      "json:\"helm\" graphql:\"helm\""
-	Repository *GitRepositoryFragment "json:\"repository\" graphql:\"repository\""
+	Cluster    *BaseClusterFragment      "json:\"cluster\" graphql:\"cluster\""
+	Errors     []*ErrorFragment          "json:\"errors\" graphql:\"errors\""
+	Revision   *RevisionFragment         "json:\"revision\" graphql:\"revision\""
+	Contexts   []*ServiceContextFragment "json:\"contexts\" graphql:\"contexts\""
+	ID         string                    "json:\"id\" graphql:\"id\""
+	Name       string                    "json:\"name\" graphql:\"name\""
+	Namespace  string                    "json:\"namespace\" graphql:\"namespace\""
+	Version    string                    "json:\"version\" graphql:\"version\""
+	Kustomize  *KustomizeFragment        "json:\"kustomize\" graphql:\"kustomize\""
+	Git        *GitRefFragment           "json:\"git\" graphql:\"git\""
+	Helm       *HelmSpecFragment         "json:\"helm\" graphql:\"helm\""
+	Repository *GitRepositoryFragment    "json:\"repository\" graphql:\"repository\""
 	Components []*struct {
 		ID        string                    "json:\"id\" graphql:\"id\""
 		Name      string                    "json:\"name\" graphql:\"name\""
@@ -1858,6 +1863,10 @@ fragment RevisionFragment on Revision {
 		folder
 	}
 }
+fragment ServiceContextFragment on ServiceContext {
+	id
+	configuration
+}
 fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	id
 	name
@@ -1885,6 +1894,9 @@ fragment ServiceDeploymentExtended on ServiceDeployment {
 	}
 	revision {
 		... RevisionFragment
+	}
+	contexts {
+		... ServiceContextFragment
 	}
 	... ServiceDeploymentFragment
 }
@@ -2020,6 +2032,10 @@ fragment RevisionFragment on Revision {
 		folder
 	}
 }
+fragment ServiceContextFragment on ServiceContext {
+	id
+	configuration
+}
 fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	id
 	name
@@ -2047,6 +2063,9 @@ fragment ServiceDeploymentExtended on ServiceDeployment {
 	}
 	revision {
 		... RevisionFragment
+	}
+	contexts {
+		... ServiceContextFragment
 	}
 	... ServiceDeploymentFragment
 }
@@ -4345,6 +4364,10 @@ fragment RevisionFragment on Revision {
 		folder
 	}
 }
+fragment ServiceContextFragment on ServiceContext {
+	id
+	configuration
+}
 fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	id
 	name
@@ -4372,6 +4395,9 @@ fragment ServiceDeploymentExtended on ServiceDeployment {
 	}
 	revision {
 		... RevisionFragment
+	}
+	contexts {
+		... ServiceContextFragment
 	}
 	... ServiceDeploymentFragment
 }
@@ -4506,6 +4532,10 @@ fragment RevisionFragment on Revision {
 		folder
 	}
 }
+fragment ServiceContextFragment on ServiceContext {
+	id
+	configuration
+}
 fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	id
 	name
@@ -4533,6 +4563,9 @@ fragment ServiceDeploymentExtended on ServiceDeployment {
 	}
 	revision {
 		... RevisionFragment
+	}
+	contexts {
+		... ServiceContextFragment
 	}
 	... ServiceDeploymentFragment
 }
@@ -6347,6 +6380,10 @@ fragment RevisionFragment on Revision {
 		folder
 	}
 }
+fragment ServiceContextFragment on ServiceContext {
+	id
+	configuration
+}
 fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	id
 	name
@@ -6374,6 +6411,9 @@ fragment ServiceDeploymentExtended on ServiceDeployment {
 	}
 	revision {
 		... RevisionFragment
+	}
+	contexts {
+		... ServiceContextFragment
 	}
 	... ServiceDeploymentFragment
 }
@@ -6509,6 +6549,10 @@ fragment RevisionFragment on Revision {
 		folder
 	}
 }
+fragment ServiceContextFragment on ServiceContext {
+	id
+	configuration
+}
 fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 	id
 	name
@@ -6536,6 +6580,9 @@ fragment ServiceDeploymentExtended on ServiceDeployment {
 	}
 	revision {
 		... RevisionFragment
+	}
+	contexts {
+		... ServiceContextFragment
 	}
 	... ServiceDeploymentFragment
 }
