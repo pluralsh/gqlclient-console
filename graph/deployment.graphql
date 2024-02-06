@@ -122,6 +122,12 @@ query ListServiceDeploymentByHandle($after: String, $before: String, $last: Int,
     }
 }
 
+query GetServiceContext($name: String!) {
+    serviceContext(name: $name) {
+        ...ServiceContextFragment
+    }
+}
+
 mutation SaveServiceContext($name: String!, $attributes: ServiceContextAttributes!) {
     saveServiceContext(name: $name, attributes: $attributes) {
         ...ServiceContextFragment

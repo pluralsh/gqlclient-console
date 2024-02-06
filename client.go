@@ -774,6 +774,9 @@ type GetScmConnection struct {
 type GetScmConnectionByName struct {
 	ScmConnection *ScmConnectionFragment "json:\"scmConnection\" graphql:\"scmConnection\""
 }
+type GetServiceContext struct {
+	ServiceContext *ServiceContextFragment "json:\"serviceContext\" graphql:\"serviceContext\""
+}
 type GetServiceDeployment struct {
 	ServiceDeployment *ServiceDeploymentExtended "json:\"serviceDeployment\" graphql:\"serviceDeployment\""
 }
@@ -4297,6 +4300,30 @@ func (c *Client) GetScmConnectionByName(ctx context.Context, name string, httpRe
 
 	var res GetScmConnectionByName
 	if err := c.Client.Post(ctx, "GetScmConnectionByName", GetScmConnectionByNameDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const GetServiceContextDocument = `query GetServiceContext ($name: String!) {
+	serviceContext(name: $name) {
+		... ServiceContextFragment
+	}
+}
+fragment ServiceContextFragment on ServiceContext {
+	id
+	configuration
+}
+`
+
+func (c *Client) GetServiceContext(ctx context.Context, name string, httpRequestOptions ...client.HTTPRequestOption) (*GetServiceContext, error) {
+	vars := map[string]interface{}{
+		"name": name,
+	}
+
+	var res GetServiceContext
+	if err := c.Client.Post(ctx, "GetServiceContext", GetServiceContextDocument, &res, vars, httpRequestOptions...); err != nil {
 		return nil, err
 	}
 
