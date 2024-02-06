@@ -691,6 +691,9 @@ type DeleteProviderCredential struct {
 type DeleteScmConnection struct {
 	DeleteScmConnection *ScmConnectionFragment "json:\"deleteScmConnection\" graphql:\"deleteScmConnection\""
 }
+type DeleteServiceContext struct {
+	DeleteServiceContext *ServiceContextFragment "json:\"deleteServiceContext\" graphql:\"deleteServiceContext\""
+}
 type DeleteServiceDeployment struct {
 	DeleteServiceDeployment *ServiceDeploymentFragment "json:\"deleteServiceDeployment\" graphql:\"deleteServiceDeployment\""
 }
@@ -858,6 +861,9 @@ type RollbackService struct {
 }
 type SavePipeline struct {
 	SavePipeline *PipelineFragment "json:\"savePipeline\" graphql:\"savePipeline\""
+}
+type SaveServiceContext struct {
+	SaveServiceContext *ServiceContextFragment "json:\"saveServiceContext\" graphql:\"saveServiceContext\""
 }
 type TokenExchange struct {
 	TokenExchange *struct {
@@ -2721,6 +2727,30 @@ func (c *Client) DeleteScmConnection(ctx context.Context, id string, httpRequest
 
 	var res DeleteScmConnection
 	if err := c.Client.Post(ctx, "DeleteScmConnection", DeleteScmConnectionDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const DeleteServiceContextDocument = `mutation DeleteServiceContext ($id: ID!) {
+	deleteServiceContext(id: $id) {
+		... ServiceContextFragment
+	}
+}
+fragment ServiceContextFragment on ServiceContext {
+	id
+	configuration
+}
+`
+
+func (c *Client) DeleteServiceContext(ctx context.Context, id string, httpRequestOptions ...client.HTTPRequestOption) (*DeleteServiceContext, error) {
+	vars := map[string]interface{}{
+		"id": id,
+	}
+
+	var res DeleteServiceContext
+	if err := c.Client.Post(ctx, "DeleteServiceContext", DeleteServiceContextDocument, &res, vars, httpRequestOptions...); err != nil {
 		return nil, err
 	}
 
@@ -5673,6 +5703,31 @@ func (c *Client) SavePipeline(ctx context.Context, name string, attributes Pipel
 
 	var res SavePipeline
 	if err := c.Client.Post(ctx, "SavePipeline", SavePipelineDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const SaveServiceContextDocument = `mutation SaveServiceContext ($name: String!, $attributes: ServiceContextAttributes!) {
+	saveServiceContext(name: $name, attributes: $attributes) {
+		... ServiceContextFragment
+	}
+}
+fragment ServiceContextFragment on ServiceContext {
+	id
+	configuration
+}
+`
+
+func (c *Client) SaveServiceContext(ctx context.Context, name string, attributes ServiceContextAttributes, httpRequestOptions ...client.HTTPRequestOption) (*SaveServiceContext, error) {
+	vars := map[string]interface{}{
+		"name":       name,
+		"attributes": attributes,
+	}
+
+	var res SaveServiceContext
+	if err := c.Client.Post(ctx, "SaveServiceContext", SaveServiceContextDocument, &res, vars, httpRequestOptions...); err != nil {
 		return nil, err
 	}
 
