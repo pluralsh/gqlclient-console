@@ -13,6 +13,11 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
     repository { ... GitRepositoryFragment }
 }
 
+fragment ServiceContextFragment on ServiceContext {
+    id
+    configuration
+}
+
 fragment ComponentContentFragment on ComponentContent{
     id
     live
@@ -44,6 +49,7 @@ fragment ServiceDeploymentExtended on ServiceDeployment {
     cluster { ...BaseClusterFragment }
     errors { ...ErrorFragment }
     revision { ...RevisionFragment }
+    contexts { ...ServiceContextFragment }
     ...ServiceDeploymentFragment
 }
 
