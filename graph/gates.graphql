@@ -44,3 +44,7 @@ mutation updateGate($id: ID!, $attributes: GateUpdateAttributes!) {
     ...PipelineGateFragment
   }
 }
+
+query GetClusterGate($id: ID!) {
+  clusterGate(id: $id) { ...PipelineGateFragment }
+}
