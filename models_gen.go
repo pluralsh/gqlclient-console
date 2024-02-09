@@ -56,7 +56,7 @@ type AccessTokenEdge struct {
 }
 
 type AccessTokenScope struct {
-	API        string   `json:"api"`
+	API        *string  `json:"api"`
 	Apis       []string `json:"apis"`
 	Identifier *string  `json:"identifier"`
 	Ids        []string `json:"ids"`
@@ -1011,6 +1011,8 @@ type DeploymentSettings struct {
 	LokiConnection *HTTPConnection `json:"lokiConnection"`
 	// the way we can connect to your prometheus instance
 	PrometheusConnection *HTTPConnection `json:"prometheusConnection"`
+	// custom helm values to apply to all agents (useful for things like adding customary annotations/labels)
+	AgentHelmValues *string `json:"agentHelmValues"`
 	// the repo to fetch CAPI manifests from, for both providers and clusters
 	ArtifactRepository *GitRepository `json:"artifactRepository"`
 	// the repo to fetch the deploy operators manifests from
@@ -1030,6 +1032,8 @@ type DeploymentSettings struct {
 type DeploymentSettingsAttributes struct {
 	ArtifactRepositoryID *string `json:"artifactRepositoryId,omitempty"`
 	DeployerRepositoryID *string `json:"deployerRepositoryId,omitempty"`
+	// custom helm values to apply to all agents (useful for things like adding customary annotations/labels)
+	AgentHelmValues *string `json:"agentHelmValues,omitempty"`
 	// connection details for a prometheus instance to use
 	PrometheusConnection *HTTPConnectionAttributes `json:"prometheusConnection,omitempty"`
 	// connection details for a loki instance to use
@@ -1466,6 +1470,7 @@ type Job struct {
 	Raw      string    `json:"raw"`
 	Events   []*Event  `json:"events"`
 	Pods     []*Pod    `json:"pods"`
+	Logs     []*string `json:"logs"`
 }
 
 // the full specification of a job gate
@@ -1871,6 +1876,8 @@ type PipelineGate struct {
 	State GateState `json:"state"`
 	// more detailed specification for complex gates
 	Spec *GateSpec `json:"spec"`
+	// the kubernetes job running this gate (should only be fetched lazily as this is a heavy operation)
+	Job *Job `json:"job"`
 	// the cluster this gate can run on
 	Cluster *Cluster `json:"cluster"`
 	// the last user to approve this gate
@@ -1891,6 +1898,16 @@ type PipelineGateAttributes struct {
 	ClusterID *string `json:"clusterId,omitempty"`
 	// a specification for more complex gate types
 	Spec *GateSpecAttributes `json:"spec,omitempty"`
+}
+
+type PipelineGateConnection struct {
+	PageInfo PageInfo            `json:"pageInfo"`
+	Edges    []*PipelineGateEdge `json:"edges"`
+}
+
+type PipelineGateEdge struct {
+	Node   *PipelineGate `json:"node"`
+	Cursor *string       `json:"cursor"`
 }
 
 // a representation of an individual pipeline promotion, which is a list of services/revisions and timestamps to determine promotion status
@@ -2094,12 +2111,15 @@ type PrAutomation struct {
 	// string id for a repository, eg for github, this is {organization}/{repository-name}
 	Identifier string `json:"identifier"`
 	// the name for this automation
-	Name          string        `json:"name"`
-	Documentation *string       `json:"documentation"`
-	Title         string        `json:"title"`
-	Message       string        `json:"message"`
-	Updates       *PrUpdateSpec `json:"updates"`
-	Creates       *PrCreateSpec `json:"creates"`
+	Name string `json:"name"`
+	// An enum describing the high-level responsibility of this pr, eg creating a cluster or service, or upgrading a cluster
+	Role          *PrRole            `json:"role"`
+	Documentation *string            `json:"documentation"`
+	Title         string             `json:"title"`
+	Message       string             `json:"message"`
+	Updates       *PrUpdateSpec      `json:"updates"`
+	Creates       *PrCreateSpec      `json:"creates"`
+	Configuration []*PrConfiguration `json:"configuration"`
 	// write policy for this pr automation, also propagates to the notifications list for any created PRs
 	WriteBindings []*PolicyBinding `json:"writeBindings"`
 	// users who can generate prs with this automation
@@ -2121,6 +2141,7 @@ type PrAutomation struct {
 // A way to create a self-service means of generating PRs against an IaC repo
 type PrAutomationAttributes struct {
 	Name *string `json:"name,omitempty"`
+	Role *PrRole `json:"role,omitempty"`
 	// string id for a repository, eg for github, this is {organization}/{repository-name}
 	Identifier    *string                           `json:"identifier,omitempty"`
 	Documentation *string                           `json:"documentation,omitempty"`
@@ -2181,6 +2202,18 @@ type PrAutomationUpdateSpecAttributes struct {
 	MatchStrategy     *MatchStrategy                `json:"matchStrategy,omitempty"`
 }
 
+// the a configuration item for creating a new pr, used for templating the ultimate code changes made
+type PrConfiguration struct {
+	Type          ConfigurationType         `json:"type"`
+	Name          string                    `json:"name"`
+	Default       *string                   `json:"default"`
+	Documentation *string                   `json:"documentation"`
+	Longform      *string                   `json:"longform"`
+	Placeholder   *string                   `json:"placeholder"`
+	Optional      *bool                     `json:"optional"`
+	Condition     *PrConfigurationCondition `json:"condition"`
+}
+
 // the a configuration item for creating a new pr
 type PrConfigurationAttributes struct {
 	Type          ConfigurationType    `json:"type"`
@@ -2191,6 +2224,16 @@ type PrConfigurationAttributes struct {
 	Placeholder   *string              `json:"placeholder,omitempty"`
 	Optional      *bool                `json:"optional,omitempty"`
 	Condition     *ConditionAttributes `json:"condition,omitempty"`
+}
+
+// declaritive spec for whether a config item is relevant given prior config
+type PrConfigurationCondition struct {
+	// a boolean operation to apply
+	Operation Operation `json:"operation"`
+	// the prior field to check
+	Field string `json:"field"`
+	// a fixed value to check against if its a binary operation
+	Value *string `json:"value"`
 }
 
 // templated files used to add new files to a given pr
@@ -2628,7 +2671,7 @@ type ScmConnectionAttributes struct {
 	Name     string  `json:"name"`
 	Type     ScmType `json:"type"`
 	Username *string `json:"username,omitempty"`
-	Token    string  `json:"token"`
+	Token    *string `json:"token,omitempty"`
 	BaseURL  *string `json:"baseUrl,omitempty"`
 	APIURL   *string `json:"apiUrl,omitempty"`
 	// a ssh private key to be used for commit signing
@@ -3984,6 +4027,53 @@ func (e *Permission) UnmarshalGQL(v interface{}) error {
 }
 
 func (e Permission) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type PrRole string
+
+const (
+	PrRoleCluster  PrRole = "CLUSTER"
+	PrRoleService  PrRole = "SERVICE"
+	PrRolePipeline PrRole = "PIPELINE"
+	PrRoleUpdate   PrRole = "UPDATE"
+	PrRoleUpgrade  PrRole = "UPGRADE"
+)
+
+var AllPrRole = []PrRole{
+	PrRoleCluster,
+	PrRoleService,
+	PrRolePipeline,
+	PrRoleUpdate,
+	PrRoleUpgrade,
+}
+
+func (e PrRole) IsValid() bool {
+	switch e {
+	case PrRoleCluster, PrRoleService, PrRolePipeline, PrRoleUpdate, PrRoleUpgrade:
+		return true
+	}
+	return false
+}
+
+func (e PrRole) String() string {
+	return string(e)
+}
+
+func (e *PrRole) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = PrRole(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid PrRole", str)
+	}
+	return nil
+}
+
+func (e PrRole) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
