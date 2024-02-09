@@ -14,109 +14,109 @@ type KubernetesData interface {
 }
 
 type AccessToken struct {
-	ID         *string                     `json:"id"`
-	Token      *string                     `json:"token"`
-	Scopes     []*AccessTokenScope         `json:"scopes"`
-	Audits     *AccessTokenAuditConnection `json:"audits"`
-	InsertedAt *string                     `json:"insertedAt"`
-	UpdatedAt  *string                     `json:"updatedAt"`
+	ID         *string                     `json:"id,omitempty"`
+	Token      *string                     `json:"token,omitempty"`
+	Scopes     []*AccessTokenScope         `json:"scopes,omitempty"`
+	Audits     *AccessTokenAuditConnection `json:"audits,omitempty"`
+	InsertedAt *string                     `json:"insertedAt,omitempty"`
+	UpdatedAt  *string                     `json:"updatedAt,omitempty"`
 }
 
 type AccessTokenAudit struct {
-	ID         *string `json:"id"`
-	IP         *string `json:"ip"`
-	Timestamp  *string `json:"timestamp"`
-	Count      *int64  `json:"count"`
-	City       *string `json:"city"`
-	Country    *string `json:"country"`
-	Latitude   *string `json:"latitude"`
-	Longitude  *string `json:"longitude"`
-	InsertedAt *string `json:"insertedAt"`
-	UpdatedAt  *string `json:"updatedAt"`
+	ID         *string `json:"id,omitempty"`
+	IP         *string `json:"ip,omitempty"`
+	Timestamp  *string `json:"timestamp,omitempty"`
+	Count      *int64  `json:"count,omitempty"`
+	City       *string `json:"city,omitempty"`
+	Country    *string `json:"country,omitempty"`
+	Latitude   *string `json:"latitude,omitempty"`
+	Longitude  *string `json:"longitude,omitempty"`
+	InsertedAt *string `json:"insertedAt,omitempty"`
+	UpdatedAt  *string `json:"updatedAt,omitempty"`
 }
 
 type AccessTokenAuditConnection struct {
 	PageInfo PageInfo                `json:"pageInfo"`
-	Edges    []*AccessTokenAuditEdge `json:"edges"`
+	Edges    []*AccessTokenAuditEdge `json:"edges,omitempty"`
 }
 
 type AccessTokenAuditEdge struct {
-	Node   *AccessTokenAudit `json:"node"`
-	Cursor *string           `json:"cursor"`
+	Node   *AccessTokenAudit `json:"node,omitempty"`
+	Cursor *string           `json:"cursor,omitempty"`
 }
 
 type AccessTokenConnection struct {
 	PageInfo PageInfo           `json:"pageInfo"`
-	Edges    []*AccessTokenEdge `json:"edges"`
+	Edges    []*AccessTokenEdge `json:"edges,omitempty"`
 }
 
 type AccessTokenEdge struct {
-	Node   *AccessToken `json:"node"`
-	Cursor *string      `json:"cursor"`
+	Node   *AccessToken `json:"node,omitempty"`
+	Cursor *string      `json:"cursor,omitempty"`
 }
 
 type AccessTokenScope struct {
-	API        string   `json:"api"`
-	Apis       []string `json:"apis"`
-	Identifier *string  `json:"identifier"`
-	Ids        []string `json:"ids"`
+	API        *string  `json:"api,omitempty"`
+	Apis       []string `json:"apis,omitempty"`
+	Identifier *string  `json:"identifier,omitempty"`
+	Ids        []string `json:"ids,omitempty"`
 }
 
 type Account struct {
-	DelinquentAt       *string             `json:"delinquentAt"`
-	GrandfatheredUntil *string             `json:"grandfatheredUntil"`
-	AvailableFeatures  *AvailableFeatures  `json:"availableFeatures"`
-	Subscription       *PluralSubscription `json:"subscription"`
+	DelinquentAt       *string             `json:"delinquentAt,omitempty"`
+	GrandfatheredUntil *string             `json:"grandfatheredUntil,omitempty"`
+	AvailableFeatures  *AvailableFeatures  `json:"availableFeatures,omitempty"`
+	Subscription       *PluralSubscription `json:"subscription,omitempty"`
 }
 
 // a condition that determines whether its configuration is viewable
 type AddOnConfigCondition struct {
 	// the operation for this condition, eg EQ, LT, GT
-	Operation *string `json:"operation"`
+	Operation *string `json:"operation,omitempty"`
 	// the field this condition applies to
-	Field *string `json:"field"`
+	Field *string `json:"field,omitempty"`
 	// the value to apply the condition with, for binary operators like LT/GT
-	Value *string `json:"value"`
+	Value *string `json:"value,omitempty"`
 }
 
 // Input configuration for an add-on you can install
 type AddOnConfiguration struct {
 	// name for this configuration
-	Name *string `json:"name"`
+	Name *string `json:"name,omitempty"`
 	// a docstring explaining this configuration
-	Documentation *string `json:"documentation"`
+	Documentation *string `json:"documentation,omitempty"`
 	// a type for the configuration (should eventually be coerced back to string)
-	Type *string `json:"type"`
+	Type *string `json:"type,omitempty"`
 	// the values for ENUM type conditions
-	Values    []*string             `json:"values"`
-	Condition *AddOnConfigCondition `json:"condition"`
+	Values    []*string             `json:"values,omitempty"`
+	Condition *AddOnConfigCondition `json:"condition,omitempty"`
 }
 
 // the specification of a runtime service at a specific version
 type AddonVersion struct {
 	// add-on version, semver formatted
-	Version *string `json:"version"`
+	Version *string `json:"version,omitempty"`
 	// kubernetes versions this add-on works with
-	Kube []*string `json:"kube"`
+	Kube []*string `json:"kube,omitempty"`
 	// any other add-ons this might require
-	Requirements []*VersionReference `json:"requirements"`
+	Requirements []*VersionReference `json:"requirements,omitempty"`
 	// any add-ons this might break
-	Incompatibilities []*VersionReference `json:"incompatibilities"`
+	Incompatibilities []*VersionReference `json:"incompatibilities,omitempty"`
 	// the release page for a runtime service at a version, this is a heavy operation not suitable for lists
-	ReleaseURL *string `json:"releaseUrl"`
+	ReleaseURL *string `json:"releaseUrl,omitempty"`
 	// checks if this is blocking a specific kubernetes upgrade
-	Blocking *bool `json:"blocking"`
+	Blocking *bool `json:"blocking,omitempty"`
 }
 
 // a representation of a bulk operation to be performed on all agent services
 type AgentMigration struct {
 	ID            string                 `json:"id"`
-	Name          *string                `json:"name"`
-	Ref           *string                `json:"ref"`
-	Configuration map[string]interface{} `json:"configuration"`
-	Completed     *bool                  `json:"completed"`
-	InsertedAt    *string                `json:"insertedAt"`
-	UpdatedAt     *string                `json:"updatedAt"`
+	Name          *string                `json:"name,omitempty"`
+	Ref           *string                `json:"ref,omitempty"`
+	Configuration map[string]interface{} `json:"configuration,omitempty"`
+	Completed     *bool                  `json:"completed,omitempty"`
+	InsertedAt    *string                `json:"insertedAt,omitempty"`
+	UpdatedAt     *string                `json:"updatedAt,omitempty"`
 }
 
 type AgentMigrationAttributes struct {
@@ -128,62 +128,62 @@ type AgentMigrationAttributes struct {
 // a representation of a kubernetes api deprecation
 type APIDeprecation struct {
 	// the kubernetes version the deprecation was posted
-	DeprecatedIn *string `json:"deprecatedIn"`
+	DeprecatedIn *string `json:"deprecatedIn,omitempty"`
 	// the kubernetes version the api version will be removed and unusable in
-	RemovedIn *string `json:"removedIn"`
+	RemovedIn *string `json:"removedIn,omitempty"`
 	// the api you can replace this resource with
-	Replacement *string `json:"replacement"`
+	Replacement *string `json:"replacement,omitempty"`
 	// the kubernetes version the replacement api was created in
-	AvailableIn *string `json:"availableIn"`
+	AvailableIn *string `json:"availableIn,omitempty"`
 	// whether you cannot safely upgrade to the next kubernetes version if this deprecation exists
-	Blocking *bool `json:"blocking"`
+	Blocking *bool `json:"blocking,omitempty"`
 	// the component of this deprecation
-	Component *ServiceComponent `json:"component"`
+	Component *ServiceComponent `json:"component,omitempty"`
 }
 
 type Application struct {
 	Name          string            `json:"name"`
 	Spec          ApplicationSpec   `json:"spec"`
 	Status        ApplicationStatus `json:"status"`
-	Cost          *CostAnalysis     `json:"cost"`
-	License       *License          `json:"license"`
-	Configuration *Configuration    `json:"configuration"`
-	Info          *string           `json:"info"`
+	Cost          *CostAnalysis     `json:"cost,omitempty"`
+	License       *License          `json:"license,omitempty"`
+	Configuration *Configuration    `json:"configuration,omitempty"`
+	Info          *string           `json:"info,omitempty"`
 }
 
 type ApplicationDelta struct {
-	Delta   *Delta       `json:"delta"`
-	Payload *Application `json:"payload"`
+	Delta   *Delta       `json:"delta,omitempty"`
+	Payload *Application `json:"payload,omitempty"`
 }
 
 type ApplicationDescriptor struct {
 	Type        string             `json:"type"`
 	Version     string             `json:"version"`
-	Description *string            `json:"description"`
-	Icons       []*string          `json:"icons"`
-	Links       []*ApplicationLink `json:"links"`
+	Description *string            `json:"description,omitempty"`
+	Icons       []*string          `json:"icons,omitempty"`
+	Links       []*ApplicationLink `json:"links,omitempty"`
 }
 
 type ApplicationInfoItem struct {
-	Type  *string `json:"type"`
-	Name  *string `json:"name"`
-	Value *string `json:"value"`
+	Type  *string `json:"type,omitempty"`
+	Name  *string `json:"name,omitempty"`
+	Value *string `json:"value,omitempty"`
 }
 
 type ApplicationLink struct {
-	URL         *string `json:"url"`
-	Description *string `json:"description"`
+	URL         *string `json:"url,omitempty"`
+	Description *string `json:"description,omitempty"`
 }
 
 type ApplicationSpec struct {
 	Descriptor ApplicationDescriptor  `json:"descriptor"`
-	Components []*Component           `json:"components"`
-	Info       []*ApplicationInfoItem `json:"info"`
+	Components []*Component           `json:"components,omitempty"`
+	Info       []*ApplicationInfoItem `json:"info,omitempty"`
 }
 
 type ApplicationStatus struct {
-	Components      []*StatusComponent `json:"components"`
-	Conditions      []*StatusCondition `json:"conditions"`
+	Components      []*StatusComponent `json:"components,omitempty"`
+	Conditions      []*StatusCondition `json:"conditions,omitempty"`
 	ComponentsReady string             `json:"componentsReady"`
 }
 
@@ -191,44 +191,44 @@ type Audit struct {
 	ID         string      `json:"id"`
 	Action     AuditAction `json:"action"`
 	Type       AuditType   `json:"type"`
-	Repository *string     `json:"repository"`
-	IP         *string     `json:"ip"`
-	City       *string     `json:"city"`
-	Country    *string     `json:"country"`
-	Latitude   *string     `json:"latitude"`
-	Longitude  *string     `json:"longitude"`
-	Actor      *User       `json:"actor"`
-	InsertedAt *string     `json:"insertedAt"`
-	UpdatedAt  *string     `json:"updatedAt"`
+	Repository *string     `json:"repository,omitempty"`
+	IP         *string     `json:"ip,omitempty"`
+	City       *string     `json:"city,omitempty"`
+	Country    *string     `json:"country,omitempty"`
+	Latitude   *string     `json:"latitude,omitempty"`
+	Longitude  *string     `json:"longitude,omitempty"`
+	Actor      *User       `json:"actor,omitempty"`
+	InsertedAt *string     `json:"insertedAt,omitempty"`
+	UpdatedAt  *string     `json:"updatedAt,omitempty"`
 }
 
 type AuditConnection struct {
 	PageInfo PageInfo     `json:"pageInfo"`
-	Edges    []*AuditEdge `json:"edges"`
+	Edges    []*AuditEdge `json:"edges,omitempty"`
 }
 
 type AuditEdge struct {
-	Node   *Audit  `json:"node"`
-	Cursor *string `json:"cursor"`
+	Node   *Audit  `json:"node,omitempty"`
+	Cursor *string `json:"cursor,omitempty"`
 }
 
 type AuditMetric struct {
-	Country *string `json:"country"`
-	Count   *int64  `json:"count"`
+	Country *string `json:"country,omitempty"`
+	Count   *int64  `json:"count,omitempty"`
 }
 
 type AvailableFeatures struct {
-	Vpn                *bool `json:"vpn"`
-	Audits             *bool `json:"audits"`
-	Cd                 *bool `json:"cd"`
-	UserManagement     *bool `json:"userManagement"`
-	DatabaseManagement *bool `json:"databaseManagement"`
+	Vpn                *bool `json:"vpn,omitempty"`
+	Audits             *bool `json:"audits,omitempty"`
+	Cd                 *bool `json:"cd,omitempty"`
+	UserManagement     *bool `json:"userManagement,omitempty"`
+	DatabaseManagement *bool `json:"databaseManagement,omitempty"`
 }
 
 // aws node customizations
 type AwsCloud struct {
 	// custom launch template for your nodes, useful for Golden AMI setups
-	LaunchTemplateID *string `json:"launchTemplateId"`
+	LaunchTemplateID *string `json:"launchTemplateId,omitempty"`
 }
 
 type AwsCloudAttributes struct {
@@ -237,7 +237,7 @@ type AwsCloudAttributes struct {
 
 // aws specific cloud configuration
 type AwsCloudSettings struct {
-	Region *string `json:"region"`
+	Region *string `json:"region,omitempty"`
 }
 
 type AwsNodeCloudAttributes struct {
@@ -258,10 +258,10 @@ type AzureCloudAttributes struct {
 
 // azure-specific cluster cloud configuration
 type AzureCloudSettings struct {
-	Location       *string `json:"location"`
-	SubscriptionID *string `json:"subscriptionId"`
-	ResourceGroup  *string `json:"resourceGroup"`
-	Network        *string `json:"network"`
+	Location       *string `json:"location,omitempty"`
+	SubscriptionID *string `json:"subscriptionId,omitempty"`
+	ResourceGroup  *string `json:"resourceGroup,omitempty"`
+	Network        *string `json:"network,omitempty"`
 }
 
 type AzureSettingsAttributes struct {
@@ -289,7 +289,9 @@ type AzureStoreAttributes struct {
 }
 
 type BackupAttributes struct {
-	Name string `json:"name"`
+	Name             string `json:"name"`
+	Namespace        string `json:"namespace"`
+	GarbageCollected *bool  `json:"garbageCollected,omitempty"`
 }
 
 type BindingAttributes struct {
@@ -303,15 +305,15 @@ type Build struct {
 	Repository  string             `json:"repository"`
 	Type        BuildType          `json:"type"`
 	Status      Status             `json:"status"`
-	Message     *string            `json:"message"`
-	CompletedAt *string            `json:"completedAt"`
-	Sha         *string            `json:"sha"`
-	Commands    *CommandConnection `json:"commands"`
-	Creator     *User              `json:"creator"`
-	Approver    *User              `json:"approver"`
-	Changelogs  []*Changelog       `json:"changelogs"`
-	InsertedAt  *string            `json:"insertedAt"`
-	UpdatedAt   *string            `json:"updatedAt"`
+	Message     *string            `json:"message,omitempty"`
+	CompletedAt *string            `json:"completedAt,omitempty"`
+	Sha         *string            `json:"sha,omitempty"`
+	Commands    *CommandConnection `json:"commands,omitempty"`
+	Creator     *User              `json:"creator,omitempty"`
+	Approver    *User              `json:"approver,omitempty"`
+	Changelogs  []*Changelog       `json:"changelogs,omitempty"`
+	InsertedAt  *string            `json:"insertedAt,omitempty"`
+	UpdatedAt   *string            `json:"updatedAt,omitempty"`
 }
 
 type BuildAttributes struct {
@@ -322,62 +324,62 @@ type BuildAttributes struct {
 
 type BuildConnection struct {
 	PageInfo PageInfo     `json:"pageInfo"`
-	Edges    []*BuildEdge `json:"edges"`
+	Edges    []*BuildEdge `json:"edges,omitempty"`
 }
 
 type BuildDelta struct {
-	Delta   *Delta `json:"delta"`
-	Payload *Build `json:"payload"`
+	Delta   *Delta `json:"delta,omitempty"`
+	Payload *Build `json:"payload,omitempty"`
 }
 
 type BuildEdge struct {
-	Node   *Build  `json:"node"`
-	Cursor *string `json:"cursor"`
+	Node   *Build  `json:"node,omitempty"`
+	Cursor *string `json:"cursor,omitempty"`
 }
 
 type BuildInfo struct {
-	All        *int64 `json:"all"`
-	Failed     *int64 `json:"failed"`
-	Queued     *int64 `json:"queued"`
-	Running    *int64 `json:"running"`
-	Successful *int64 `json:"successful"`
+	All        *int64 `json:"all,omitempty"`
+	Failed     *int64 `json:"failed,omitempty"`
+	Queued     *int64 `json:"queued,omitempty"`
+	Running    *int64 `json:"running,omitempty"`
+	Successful *int64 `json:"successful,omitempty"`
 }
 
 type Canary struct {
 	Metadata          Metadata     `json:"metadata"`
 	Status            CanaryStatus `json:"status"`
 	Spec              CanarySpec   `json:"spec"`
-	PrimaryDeployment *Deployment  `json:"primaryDeployment"`
-	CanaryDeployment  *Deployment  `json:"canaryDeployment"`
-	Ingress           *Ingress     `json:"ingress"`
-	IngressCanary     *Ingress     `json:"ingressCanary"`
+	PrimaryDeployment *Deployment  `json:"primaryDeployment,omitempty"`
+	CanaryDeployment  *Deployment  `json:"canaryDeployment,omitempty"`
+	Ingress           *Ingress     `json:"ingress,omitempty"`
+	IngressCanary     *Ingress     `json:"ingressCanary,omitempty"`
 	Raw               string       `json:"raw"`
-	Events            []*Event     `json:"events"`
+	Events            []*Event     `json:"events,omitempty"`
 }
 
 type CanaryAnalysis struct {
-	Interval    *string  `json:"interval"`
-	MaxWeight   *int64   `json:"maxWeight"`
-	StepWeight  *int64   `json:"stepWeight"`
-	StepWeights []*int64 `json:"stepWeights"`
-	Threshold   *int64   `json:"threshold"`
+	Interval    *string  `json:"interval,omitempty"`
+	MaxWeight   *int64   `json:"maxWeight,omitempty"`
+	StepWeight  *int64   `json:"stepWeight,omitempty"`
+	StepWeights []*int64 `json:"stepWeights,omitempty"`
+	Threshold   *int64   `json:"threshold,omitempty"`
 }
 
 type CanarySpec struct {
-	AutoscalerRef *TargetRef      `json:"autoscalerRef"`
-	TargetRef     *TargetRef      `json:"targetRef"`
-	IngressRef    *TargetRef      `json:"ingressRef"`
-	Analysis      *CanaryAnalysis `json:"analysis"`
-	Provider      *string         `json:"provider"`
+	AutoscalerRef *TargetRef      `json:"autoscalerRef,omitempty"`
+	TargetRef     *TargetRef      `json:"targetRef,omitempty"`
+	IngressRef    *TargetRef      `json:"ingressRef,omitempty"`
+	Analysis      *CanaryAnalysis `json:"analysis,omitempty"`
+	Provider      *string         `json:"provider,omitempty"`
 }
 
 type CanaryStatus struct {
-	Conditions         []*StatusCondition `json:"conditions"`
-	FailedChecks       *int64             `json:"failedChecks"`
-	CanaryWeight       *int64             `json:"canaryWeight"`
-	Iterations         *int64             `json:"iterations"`
-	LastTransitionTime *string            `json:"lastTransitionTime"`
-	Phase              *string            `json:"phase"`
+	Conditions         []*StatusCondition `json:"conditions,omitempty"`
+	FailedChecks       *int64             `json:"failedChecks,omitempty"`
+	CanaryWeight       *int64             `json:"canaryWeight,omitempty"`
+	Iterations         *int64             `json:"iterations,omitempty"`
+	LastTransitionTime *string            `json:"lastTransitionTime,omitempty"`
+	Phase              *string            `json:"phase,omitempty"`
 }
 
 type Certificate struct {
@@ -385,29 +387,29 @@ type Certificate struct {
 	Status   CertificateStatus `json:"status"`
 	Spec     CertificateSpec   `json:"spec"`
 	Raw      string            `json:"raw"`
-	Events   []*Event          `json:"events"`
+	Events   []*Event          `json:"events,omitempty"`
 }
 
 type CertificateSpec struct {
-	DNSNames   []*string  `json:"dnsNames"`
+	DNSNames   []*string  `json:"dnsNames,omitempty"`
 	SecretName string     `json:"secretName"`
-	IssuerRef  *IssuerRef `json:"issuerRef"`
+	IssuerRef  *IssuerRef `json:"issuerRef,omitempty"`
 }
 
 type CertificateStatus struct {
-	Conditions  []*StatusCondition `json:"conditions"`
-	NotAfter    *string            `json:"notAfter"`
-	NotBefore   *string            `json:"notBefore"`
-	RenewalTime *string            `json:"renewalTime"`
+	Conditions  []*StatusCondition `json:"conditions,omitempty"`
+	NotAfter    *string            `json:"notAfter,omitempty"`
+	NotBefore   *string            `json:"notBefore,omitempty"`
+	RenewalTime *string            `json:"renewalTime,omitempty"`
 }
 
 type Changelog struct {
 	ID         string  `json:"id"`
 	Repo       string  `json:"repo"`
 	Tool       string  `json:"tool"`
-	Content    *string `json:"content"`
-	InsertedAt *string `json:"insertedAt"`
-	UpdatedAt  *string `json:"updatedAt"`
+	Content    *string `json:"content,omitempty"`
+	InsertedAt *string `json:"insertedAt,omitempty"`
+	UpdatedAt  *string `json:"updatedAt,omitempty"`
 }
 
 type CloneAttributes struct {
@@ -426,9 +428,9 @@ type CloudProviderSettingsAttributes struct {
 
 // the cloud configuration for a cluster
 type CloudSettings struct {
-	Aws   *AwsCloudSettings   `json:"aws"`
-	Gcp   *GcpCloudSettings   `json:"gcp"`
-	Azure *AzureCloudSettings `json:"azure"`
+	Aws   *AwsCloudSettings   `json:"aws,omitempty"`
+	Gcp   *GcpCloudSettings   `json:"gcp,omitempty"`
+	Azure *AzureCloudSettings `json:"azure,omitempty"`
 }
 
 type CloudSettingsAttributes struct {
@@ -442,78 +444,82 @@ type Cluster struct {
 	// internal id of this cluster
 	ID string `json:"id"`
 	// whether this is the management cluster itself
-	Self *bool `json:"self"`
+	Self *bool `json:"self,omitempty"`
 	// human readable name of this cluster, will also translate to cloud k8s name
 	Name string `json:"name"`
 	// if true, this cluster cannot be deleted
-	Protect *bool `json:"protect"`
+	Protect *bool `json:"protect,omitempty"`
 	// desired k8s version for the cluster
-	Version *string `json:"version"`
+	Version *string `json:"version,omitempty"`
 	// the distribution of kubernetes this cluster is running
-	Distro *ClusterDistro `json:"distro"`
+	Distro *ClusterDistro `json:"distro,omitempty"`
 	// arbitrary json metadata to store user-specific state of this cluster (eg IAM roles for add-ons)
-	Metadata map[string]interface{} `json:"metadata"`
+	Metadata map[string]interface{} `json:"metadata,omitempty"`
 	// current k8s version as told to us by the deployment operator
-	CurrentVersion *string `json:"currentVersion"`
+	CurrentVersion *string `json:"currentVersion,omitempty"`
 	// a short, unique human readable name used to identify this cluster and does not necessarily map to the cloud resource name
-	Handle *string `json:"handle"`
+	Handle *string `json:"handle,omitempty"`
 	// whether the deploy operator has been registered for this cluster
-	Installed *bool `json:"installed"`
+	Installed *bool `json:"installed,omitempty"`
 	// the cloud settings for this cluster (for instance its aws region)
-	Settings *CloudSettings `json:"settings"`
+	Settings *CloudSettings `json:"settings,omitempty"`
 	// the url of the kas server you can access this cluster from
-	KasURL *string `json:"kasUrl"`
+	KasURL *string `json:"kasUrl,omitempty"`
 	// a auth token to be used by the deploy operator, only readable on create
-	DeployToken *string `json:"deployToken"`
+	DeployToken *string `json:"deployToken,omitempty"`
 	// when this cluster was scheduled for deletion
-	DeletedAt *string `json:"deletedAt"`
+	DeletedAt *string `json:"deletedAt,omitempty"`
 	// last time the deploy operator pinged this cluster
-	PingedAt *string `json:"pingedAt"`
+	PingedAt *string `json:"pingedAt,omitempty"`
 	// read policy for this cluster
-	ReadBindings []*PolicyBinding `json:"readBindings"`
+	ReadBindings []*PolicyBinding `json:"readBindings,omitempty"`
 	// write policy for this cluster
-	WriteBindings []*PolicyBinding `json:"writeBindings"`
+	WriteBindings []*PolicyBinding `json:"writeBindings,omitempty"`
 	// list of node pool specs managed by CAPI
-	NodePools []*NodePool `json:"nodePools"`
+	NodePools []*NodePool `json:"nodePools,omitempty"`
 	// the provider we use to create this cluster (null if BYOK)
-	Provider *ClusterProvider `json:"provider"`
+	Provider *ClusterProvider `json:"provider,omitempty"`
 	// a custom credential to use when provisioning this cluster
-	Credential *ProviderCredential `json:"credential"`
+	Credential *ProviderCredential `json:"credential,omitempty"`
 	// the service used to deploy the CAPI resources of this cluster
-	Service *ServiceDeployment `json:"service"`
+	Service *ServiceDeployment `json:"service,omitempty"`
 	// key/value tags to filter clusters
-	Tags []*Tag `json:"tags"`
+	Tags []*Tag `json:"tags,omitempty"`
 	// all api deprecations for all services in this cluster
-	APIDeprecations []*APIDeprecation `json:"apiDeprecations"`
+	APIDeprecations []*APIDeprecation `json:"apiDeprecations,omitempty"`
 	// any errors which might have occurred during the bootstrap process
-	ServiceErrors []*ServiceError `json:"serviceErrors"`
+	ServiceErrors []*ServiceError `json:"serviceErrors,omitempty"`
 	// a custom git repository if you want to define your own CAPI manifests
-	Repository *GitRepository `json:"repository"`
+	Repository *GitRepository `json:"repository,omitempty"`
 	// pr automations that are relevant to managing this cluster
-	PrAutomations []*PrAutomation `json:"prAutomations"`
+	PrAutomations []*PrAutomation `json:"prAutomations,omitempty"`
+	// the active restore for this cluster
+	Restore *ClusterRestore `json:"restore,omitempty"`
+	// the object store connection bound to this cluster for backup/restore
+	ObjectStore *ObjectStore `json:"objectStore,omitempty"`
 	// list cached nodes for a cluster, this can be stale up to 5m
-	Nodes []*Node `json:"nodes"`
+	Nodes []*Node `json:"nodes,omitempty"`
 	// list the cached node metrics for a cluster, can also be stale up to 5m
-	NodeMetrics []*NodeMetric `json:"nodeMetrics"`
+	NodeMetrics []*NodeMetric `json:"nodeMetrics,omitempty"`
 	// the status of the cluster as seen from the CAPI operator, since some clusters can be provisioned without CAPI, this can be null
-	Status *ClusterStatus `json:"status"`
+	Status *ClusterStatus `json:"status,omitempty"`
 	// a relay connection of all revisions of this service, these are periodically pruned up to a history limit
-	Revisions *RevisionConnection `json:"revisions"`
+	Revisions *RevisionConnection `json:"revisions,omitempty"`
 	// fetches a list of runtime services found in this cluster, this is an expensive operation that should not be done in list queries
-	RuntimeServices []*RuntimeService `json:"runtimeServices"`
+	RuntimeServices []*RuntimeService `json:"runtimeServices,omitempty"`
 	// whether the current user can edit this cluster
-	Editable   *bool   `json:"editable"`
-	InsertedAt *string `json:"insertedAt"`
-	UpdatedAt  *string `json:"updatedAt"`
+	Editable   *bool   `json:"editable,omitempty"`
+	InsertedAt *string `json:"insertedAt,omitempty"`
+	UpdatedAt  *string `json:"updatedAt,omitempty"`
 }
 
 // A common kubernetes cluster add-on like cert-manager, istio, etc
 type ClusterAddOn struct {
-	Name          *string               `json:"name"`
-	Version       *string               `json:"version"`
-	Icon          *string               `json:"icon"`
-	Global        *bool                 `json:"global"`
-	Configuration []*AddOnConfiguration `json:"configuration"`
+	Name          *string               `json:"name,omitempty"`
+	Version       *string               `json:"version,omitempty"`
+	Icon          *string               `json:"icon,omitempty"`
+	Global        *bool                 `json:"global,omitempty"`
+	Configuration []*AddOnConfiguration `json:"configuration,omitempty"`
 }
 
 type ClusterAttributes struct {
@@ -536,38 +542,40 @@ type ClusterAttributes struct {
 }
 
 type ClusterBackup struct {
-	ID         string   `json:"id"`
-	Name       string   `json:"name"`
-	Cluster    *Cluster `json:"cluster"`
-	InsertedAt *string  `json:"insertedAt"`
-	UpdatedAt  *string  `json:"updatedAt"`
+	ID               string   `json:"id"`
+	Name             string   `json:"name"`
+	Namespace        string   `json:"namespace"`
+	GarbageCollected *bool    `json:"garbageCollected,omitempty"`
+	Cluster          *Cluster `json:"cluster,omitempty"`
+	InsertedAt       *string  `json:"insertedAt,omitempty"`
+	UpdatedAt        *string  `json:"updatedAt,omitempty"`
 }
 
 // a single condition struct for various phases of the cluster provisionining process
 type ClusterCondition struct {
-	LastTransitionTime *string `json:"lastTransitionTime"`
-	Status             *string `json:"status"`
-	Type               *string `json:"type"`
-	Message            *string `json:"message"`
-	Reason             *string `json:"reason"`
-	Severity           *string `json:"severity"`
+	LastTransitionTime *string `json:"lastTransitionTime,omitempty"`
+	Status             *string `json:"status,omitempty"`
+	Type               *string `json:"type,omitempty"`
+	Message            *string `json:"message,omitempty"`
+	Reason             *string `json:"reason,omitempty"`
+	Severity           *string `json:"severity,omitempty"`
 }
 
 type ClusterConnection struct {
 	PageInfo PageInfo       `json:"pageInfo"`
-	Edges    []*ClusterEdge `json:"edges"`
+	Edges    []*ClusterEdge `json:"edges,omitempty"`
 }
 
 type ClusterEdge struct {
-	Node   *Cluster `json:"node"`
-	Cursor *string  `json:"cursor"`
+	Node   *Cluster `json:"node,omitempty"`
+	Cursor *string  `json:"cursor,omitempty"`
 }
 
 type ClusterInfo struct {
-	GitCommit  *string `json:"gitCommit"`
-	GitVersion *string `json:"gitVersion"`
-	Platform   *string `json:"platform"`
-	Version    *string `json:"version"`
+	GitCommit  *string `json:"gitCommit,omitempty"`
+	GitVersion *string `json:"gitVersion,omitempty"`
+	Platform   *string `json:"platform,omitempty"`
+	Version    *string `json:"version,omitempty"`
 }
 
 type ClusterPing struct {
@@ -588,24 +596,24 @@ type ClusterProvider struct {
 	// the details of how cluster manifests will be synced from git when created with this provider
 	Git GitRef `json:"git"`
 	// the repository used to serve cluster manifests
-	Repository *GitRepository `json:"repository"`
+	Repository *GitRepository `json:"repository,omitempty"`
 	// the repository for the CAPI service itself if customized
-	ProviderRepository *GitRepository `json:"providerRepository"`
+	ProviderRepository *GitRepository `json:"providerRepository,omitempty"`
 	// the service of the CAPI controller itself
-	Service *ServiceDeployment `json:"service"`
+	Service *ServiceDeployment `json:"service,omitempty"`
 	// a list of credentials eligible for this provider
-	Credentials []*ProviderCredential `json:"credentials"`
+	Credentials []*ProviderCredential `json:"credentials,omitempty"`
 	// when the cluster provider was deleted
-	DeletedAt       *string           `json:"deletedAt"`
-	RuntimeServices []*RuntimeService `json:"runtimeServices"`
+	DeletedAt       *string           `json:"deletedAt,omitempty"`
+	RuntimeServices []*RuntimeService `json:"runtimeServices,omitempty"`
 	// the kubernetes versions this provider currently supports
-	SupportedVersions []*string `json:"supportedVersions"`
+	SupportedVersions []*string `json:"supportedVersions,omitempty"`
 	// the region names this provider can deploy to
-	Regions []*string `json:"regions"`
+	Regions []*string `json:"regions,omitempty"`
 	// whether the current user can edit this resource
-	Editable   *bool   `json:"editable"`
-	InsertedAt *string `json:"insertedAt"`
-	UpdatedAt  *string `json:"updatedAt"`
+	Editable   *bool   `json:"editable,omitempty"`
+	InsertedAt *string `json:"insertedAt,omitempty"`
+	UpdatedAt  *string `json:"updatedAt,omitempty"`
 }
 
 type ClusterProviderAttributes struct {
@@ -617,12 +625,12 @@ type ClusterProviderAttributes struct {
 
 type ClusterProviderConnection struct {
 	PageInfo PageInfo               `json:"pageInfo"`
-	Edges    []*ClusterProviderEdge `json:"edges"`
+	Edges    []*ClusterProviderEdge `json:"edges,omitempty"`
 }
 
 type ClusterProviderEdge struct {
-	Node   *ClusterProvider `json:"node"`
-	Cursor *string          `json:"cursor"`
+	Node   *ClusterProvider `json:"node,omitempty"`
+	Cursor *string          `json:"cursor,omitempty"`
 }
 
 type ClusterProviderUpdateAttributes struct {
@@ -634,9 +642,9 @@ type ClusterProviderUpdateAttributes struct {
 type ClusterRestore struct {
 	ID         string         `json:"id"`
 	Status     RestoreStatus  `json:"status"`
-	Backup     *ClusterBackup `json:"backup"`
-	InsertedAt *string        `json:"insertedAt"`
-	UpdatedAt  *string        `json:"updatedAt"`
+	Backup     *ClusterBackup `json:"backup,omitempty"`
+	InsertedAt *string        `json:"insertedAt,omitempty"`
+	UpdatedAt  *string        `json:"updatedAt,omitempty"`
 }
 
 type ClusterServiceAttributes struct {
@@ -647,17 +655,17 @@ type ClusterServiceAttributes struct {
 
 // the crd status of the cluster as seen by the CAPI operator
 type ClusterStatus struct {
-	Phase             *string             `json:"phase"`
-	ControlPlaneReady *bool               `json:"controlPlaneReady"`
-	FailureMessage    *string             `json:"failureMessage"`
-	FailureReason     *string             `json:"failureReason"`
-	Conditions        []*ClusterCondition `json:"conditions"`
+	Phase             *string             `json:"phase,omitempty"`
+	ControlPlaneReady *bool               `json:"controlPlaneReady,omitempty"`
+	FailureMessage    *string             `json:"failureMessage,omitempty"`
+	FailureReason     *string             `json:"failureReason,omitempty"`
+	Conditions        []*ClusterCondition `json:"conditions,omitempty"`
 }
 
 // a cluster info data struct
 type ClusterStatusInfo struct {
-	Healthy *bool  `json:"healthy"`
-	Count   *int64 `json:"count"`
+	Healthy *bool  `json:"healthy,omitempty"`
+	Count   *int64 `json:"count,omitempty"`
 }
 
 type ClusterUpdateAttributes struct {
@@ -678,27 +686,27 @@ type ClusterUpdateAttributes struct {
 type Command struct {
 	ID          string  `json:"id"`
 	Command     string  `json:"command"`
-	ExitCode    *int64  `json:"exitCode"`
-	Stdout      *string `json:"stdout"`
-	CompletedAt *string `json:"completedAt"`
-	Build       *Build  `json:"build"`
-	InsertedAt  *string `json:"insertedAt"`
-	UpdatedAt   *string `json:"updatedAt"`
+	ExitCode    *int64  `json:"exitCode,omitempty"`
+	Stdout      *string `json:"stdout,omitempty"`
+	CompletedAt *string `json:"completedAt,omitempty"`
+	Build       *Build  `json:"build,omitempty"`
+	InsertedAt  *string `json:"insertedAt,omitempty"`
+	UpdatedAt   *string `json:"updatedAt,omitempty"`
 }
 
 type CommandConnection struct {
 	PageInfo PageInfo       `json:"pageInfo"`
-	Edges    []*CommandEdge `json:"edges"`
+	Edges    []*CommandEdge `json:"edges,omitempty"`
 }
 
 type CommandDelta struct {
-	Delta   *Delta   `json:"delta"`
-	Payload *Command `json:"payload"`
+	Delta   *Delta   `json:"delta,omitempty"`
+	Payload *Command `json:"payload,omitempty"`
 }
 
 type CommandEdge struct {
-	Node   *Command `json:"node"`
-	Cursor *string  `json:"cursor"`
+	Node   *Command `json:"node,omitempty"`
+	Cursor *string  `json:"cursor,omitempty"`
 }
 
 type Component struct {
@@ -720,11 +728,11 @@ type ComponentAttributes struct {
 // dry run content of a service component
 type ComponentContent struct {
 	ID   string  `json:"id"`
-	Live *string `json:"live"`
+	Live *string `json:"live,omitempty"`
 	// the inferred desired state of this component
-	Desired    *string `json:"desired"`
-	InsertedAt *string `json:"insertedAt"`
-	UpdatedAt  *string `json:"updatedAt"`
+	Desired    *string `json:"desired,omitempty"`
+	InsertedAt *string `json:"insertedAt,omitempty"`
+	UpdatedAt  *string `json:"updatedAt,omitempty"`
 }
 
 // the content of a component when visualized in dry run state
@@ -753,30 +761,30 @@ type ConfigMap struct {
 }
 
 type Configuration struct {
-	Terraform *string `json:"terraform"`
-	Helm      *string `json:"helm"`
-	Readme    *string `json:"readme"`
+	Terraform *string `json:"terraform,omitempty"`
+	Helm      *string `json:"helm,omitempty"`
+	Readme    *string `json:"readme,omitempty"`
 }
 
 type ConfigurationAction struct {
-	Updates []*PathUpdate `json:"updates"`
+	Updates []*PathUpdate `json:"updates,omitempty"`
 }
 
 type ConfigurationCondition struct {
-	Field     *string `json:"field"`
-	Value     *string `json:"value"`
-	Operation *string `json:"operation"`
+	Field     *string `json:"field,omitempty"`
+	Value     *string `json:"value,omitempty"`
+	Operation *string `json:"operation,omitempty"`
 }
 
 type ConfigurationItem struct {
-	Name          *string                  `json:"name"`
-	Type          *string                  `json:"type"`
-	Placeholder   *string                  `json:"placeholder"`
-	Documentation *string                  `json:"documentation"`
-	Default       *string                  `json:"default"`
-	Optional      *bool                    `json:"optional"`
-	Condition     *ConfigurationCondition  `json:"condition"`
-	Validation    *ConfigurationValidation `json:"validation"`
+	Name          *string                  `json:"name,omitempty"`
+	Type          *string                  `json:"type,omitempty"`
+	Placeholder   *string                  `json:"placeholder,omitempty"`
+	Documentation *string                  `json:"documentation,omitempty"`
+	Default       *string                  `json:"default,omitempty"`
+	Optional      *bool                    `json:"optional,omitempty"`
+	Condition     *ConfigurationCondition  `json:"condition,omitempty"`
+	Validation    *ConfigurationValidation `json:"validation,omitempty"`
 }
 
 type ConfigurationOverlay struct {
@@ -785,38 +793,38 @@ type ConfigurationOverlay struct {
 }
 
 type ConfigurationOverlaySpec struct {
-	Name          *string          `json:"name"`
-	Folder        *string          `json:"folder"`
-	Subfolder     *string          `json:"subfolder"`
-	Documentation *string          `json:"documentation"`
-	Updates       []*OverlayUpdate `json:"updates"`
-	InputType     *string          `json:"inputType"`
-	InputValues   []*string        `json:"inputValues"`
+	Name          *string          `json:"name,omitempty"`
+	Folder        *string          `json:"folder,omitempty"`
+	Subfolder     *string          `json:"subfolder,omitempty"`
+	Documentation *string          `json:"documentation,omitempty"`
+	Updates       []*OverlayUpdate `json:"updates,omitempty"`
+	InputType     *string          `json:"inputType,omitempty"`
+	InputValues   []*string        `json:"inputValues,omitempty"`
 }
 
 type ConfigurationValidation struct {
-	Type    *string `json:"type"`
-	Regex   *string `json:"regex"`
-	Message *string `json:"message"`
+	Type    *string `json:"type,omitempty"`
+	Regex   *string `json:"regex,omitempty"`
+	Message *string `json:"message,omitempty"`
 }
 
 type ConsoleConfiguration struct {
-	GitCommit     *string            `json:"gitCommit"`
-	IsDemoProject *bool              `json:"isDemoProject"`
-	IsSandbox     *bool              `json:"isSandbox"`
-	PluralLogin   *bool              `json:"pluralLogin"`
-	VpnEnabled    *bool              `json:"vpnEnabled"`
-	Byok          *bool              `json:"byok"`
-	Features      *AvailableFeatures `json:"features"`
-	Manifest      *PluralManifest    `json:"manifest"`
-	GitStatus     *GitStatus         `json:"gitStatus"`
+	GitCommit     *string            `json:"gitCommit,omitempty"`
+	IsDemoProject *bool              `json:"isDemoProject,omitempty"`
+	IsSandbox     *bool              `json:"isSandbox,omitempty"`
+	PluralLogin   *bool              `json:"pluralLogin,omitempty"`
+	VpnEnabled    *bool              `json:"vpnEnabled,omitempty"`
+	Byok          *bool              `json:"byok,omitempty"`
+	Features      *AvailableFeatures `json:"features,omitempty"`
+	Manifest      *PluralManifest    `json:"manifest,omitempty"`
+	GitStatus     *GitStatus         `json:"gitStatus,omitempty"`
 }
 
 type Container struct {
-	Image     *string    `json:"image"`
-	Name      *string    `json:"name"`
-	Ports     []*Port    `json:"ports"`
-	Resources *Resources `json:"resources"`
+	Image     *string    `json:"image,omitempty"`
+	Name      *string    `json:"name,omitempty"`
+	Ports     []*Port    `json:"ports,omitempty"`
+	Resources *Resources `json:"resources,omitempty"`
 }
 
 // the attributes for a container
@@ -840,39 +848,39 @@ type ContainerEnvFrom struct {
 }
 
 type ContainerRecommendation struct {
-	Name           *string             `json:"name"`
-	ContainerName  *string             `json:"containerName"`
-	Target         *ContainerResources `json:"target"`
-	LowerBound     *ContainerResources `json:"lowerBound"`
-	UpperBound     *ContainerResources `json:"upperBound"`
-	UncappedTarget *ContainerResources `json:"uncappedTarget"`
+	Name           *string             `json:"name,omitempty"`
+	ContainerName  *string             `json:"containerName,omitempty"`
+	Target         *ContainerResources `json:"target,omitempty"`
+	LowerBound     *ContainerResources `json:"lowerBound,omitempty"`
+	UpperBound     *ContainerResources `json:"upperBound,omitempty"`
+	UncappedTarget *ContainerResources `json:"uncappedTarget,omitempty"`
 }
 
 type ContainerResources struct {
-	CPU    *string `json:"cpu"`
-	Memory *string `json:"memory"`
+	CPU    *string `json:"cpu,omitempty"`
+	Memory *string `json:"memory,omitempty"`
 }
 
 // a shortform spec for job containers, designed for ease-of-use
 type ContainerSpec struct {
 	Image   string              `json:"image"`
-	Args    []*string           `json:"args"`
-	Env     []*ContainerEnv     `json:"env"`
-	EnvFrom []*ContainerEnvFrom `json:"envFrom"`
+	Args    []*string           `json:"args,omitempty"`
+	Env     []*ContainerEnv     `json:"env,omitempty"`
+	EnvFrom []*ContainerEnvFrom `json:"envFrom,omitempty"`
 }
 
 type ContainerState struct {
-	Running    *RunningState    `json:"running"`
-	Terminated *TerminatedState `json:"terminated"`
-	Waiting    *WaitingState    `json:"waiting"`
+	Running    *RunningState    `json:"running,omitempty"`
+	Terminated *TerminatedState `json:"terminated,omitempty"`
+	Waiting    *WaitingState    `json:"waiting,omitempty"`
 }
 
 type ContainerStatus struct {
-	RestartCount *int64          `json:"restartCount"`
-	Ready        *bool           `json:"ready"`
-	Name         *string         `json:"name"`
-	Image        *string         `json:"image"`
-	State        *ContainerState `json:"state"`
+	RestartCount *int64          `json:"restartCount,omitempty"`
+	Ready        *bool           `json:"ready,omitempty"`
+	Name         *string         `json:"name,omitempty"`
+	Image        *string         `json:"image,omitempty"`
+	State        *ContainerState `json:"state,omitempty"`
 }
 
 type ContextAttributes struct {
@@ -888,17 +896,17 @@ type ContextBindingAttributes struct {
 }
 
 type CostAnalysis struct {
-	Minutes       *float64 `json:"minutes"`
-	CPUCost       *float64 `json:"cpuCost"`
-	CPUEfficiency *float64 `json:"cpuEfficiency"`
-	Efficiency    *float64 `json:"efficiency"`
-	GpuCost       *float64 `json:"gpuCost"`
-	NetworkCost   *float64 `json:"networkCost"`
-	PvCost        *float64 `json:"pvCost"`
-	RAMCost       *float64 `json:"ramCost"`
-	RAMEfficiency *float64 `json:"ramEfficiency"`
-	TotalCost     *float64 `json:"totalCost"`
-	SharedCost    *float64 `json:"sharedCost"`
+	Minutes       *float64 `json:"minutes,omitempty"`
+	CPUCost       *float64 `json:"cpuCost,omitempty"`
+	CPUEfficiency *float64 `json:"cpuEfficiency,omitempty"`
+	Efficiency    *float64 `json:"efficiency,omitempty"`
+	GpuCost       *float64 `json:"gpuCost,omitempty"`
+	NetworkCost   *float64 `json:"networkCost,omitempty"`
+	PvCost        *float64 `json:"pvCost,omitempty"`
+	RAMCost       *float64 `json:"ramCost,omitempty"`
+	RAMEfficiency *float64 `json:"ramEfficiency,omitempty"`
+	TotalCost     *float64 `json:"totalCost,omitempty"`
+	SharedCost    *float64 `json:"sharedCost,omitempty"`
 }
 
 type CronJob struct {
@@ -906,44 +914,44 @@ type CronJob struct {
 	Status   CronStatus `json:"status"`
 	Spec     CronSpec   `json:"spec"`
 	Raw      string     `json:"raw"`
-	Events   []*Event   `json:"events"`
-	Jobs     []*Job     `json:"jobs"`
+	Events   []*Event   `json:"events,omitempty"`
+	Jobs     []*Job     `json:"jobs,omitempty"`
 }
 
 type CronSpec struct {
 	Schedule          string  `json:"schedule"`
-	Suspend           *bool   `json:"suspend"`
-	ConcurrencyPolicy *string `json:"concurrencyPolicy"`
+	Suspend           *bool   `json:"suspend,omitempty"`
+	ConcurrencyPolicy *string `json:"concurrencyPolicy,omitempty"`
 }
 
 type CronStatus struct {
-	Active           []*JobReference `json:"active"`
-	LastScheduleTime *string         `json:"lastScheduleTime"`
+	Active           []*JobReference `json:"active,omitempty"`
+	LastScheduleTime *string         `json:"lastScheduleTime,omitempty"`
 }
 
 type CrossVersionResourceTarget struct {
-	APIVersion *string `json:"apiVersion"`
-	Kind       *string `json:"kind"`
-	Name       *string `json:"name"`
+	APIVersion *string `json:"apiVersion,omitempty"`
+	Kind       *string `json:"kind,omitempty"`
+	Name       *string `json:"name,omitempty"`
 }
 
 type DaemonSet struct {
 	Metadata Metadata        `json:"metadata"`
 	Status   DaemonSetStatus `json:"status"`
 	Spec     DaemonSetSpec   `json:"spec"`
-	Pods     []*Pod          `json:"pods"`
+	Pods     []*Pod          `json:"pods,omitempty"`
 	Raw      string          `json:"raw"`
-	Events   []*Event        `json:"events"`
+	Events   []*Event        `json:"events,omitempty"`
 }
 
 type DaemonSetSpec struct {
-	Strategy *DeploymentStrategy `json:"strategy"`
+	Strategy *DeploymentStrategy `json:"strategy,omitempty"`
 }
 
 type DaemonSetStatus struct {
-	CurrentNumberScheduled *int64 `json:"currentNumberScheduled"`
-	DesiredNumberScheduled *int64 `json:"desiredNumberScheduled"`
-	NumberReady            *int64 `json:"numberReady"`
+	CurrentNumberScheduled *int64 `json:"currentNumberScheduled,omitempty"`
+	DesiredNumberScheduled *int64 `json:"desiredNumberScheduled,omitempty"`
+	NumberReady            *int64 `json:"numberReady,omitempty"`
 }
 
 type Dashboard struct {
@@ -953,40 +961,40 @@ type Dashboard struct {
 
 type DashboardGraph struct {
 	Name    string             `json:"name"`
-	Queries []*DashboardMetric `json:"queries"`
-	Format  *string            `json:"format"`
+	Queries []*DashboardMetric `json:"queries,omitempty"`
+	Format  *string            `json:"format,omitempty"`
 }
 
 type DashboardLabel struct {
 	Name   string    `json:"name"`
-	Values []*string `json:"values"`
+	Values []*string `json:"values,omitempty"`
 }
 
 type DashboardMetric struct {
-	Legend  *string         `json:"legend"`
-	Query   *string         `json:"query"`
-	Results []*MetricResult `json:"results"`
+	Legend  *string         `json:"legend,omitempty"`
+	Query   *string         `json:"query,omitempty"`
+	Results []*MetricResult `json:"results,omitempty"`
 }
 
 type DashboardSpec struct {
-	Name        *string           `json:"name"`
-	Description *string           `json:"description"`
-	Timeslices  []*string         `json:"timeslices"`
-	Labels      []*DashboardLabel `json:"labels"`
-	Graphs      []*DashboardGraph `json:"graphs"`
+	Name        *string           `json:"name,omitempty"`
+	Description *string           `json:"description,omitempty"`
+	Timeslices  []*string         `json:"timeslices,omitempty"`
+	Labels      []*DashboardLabel `json:"labels,omitempty"`
+	Graphs      []*DashboardGraph `json:"graphs,omitempty"`
 }
 
 type DatabaseVolume struct {
-	Size *string `json:"size"`
+	Size *string `json:"size,omitempty"`
 }
 
 type Deployment struct {
 	Metadata Metadata         `json:"metadata"`
 	Status   DeploymentStatus `json:"status"`
 	Spec     DeploymentSpec   `json:"spec"`
-	Pods     []*Pod           `json:"pods"`
+	Pods     []*Pod           `json:"pods,omitempty"`
 	Raw      string           `json:"raw"`
-	Events   []*Event         `json:"events"`
+	Events   []*Event         `json:"events,omitempty"`
 }
 
 func (Deployment) IsKubernetesData() {}
@@ -998,30 +1006,34 @@ type DeploymentSettings struct {
 	Enabled bool   `json:"enabled"`
 	Name    string `json:"name"`
 	// whether the byok cluster has been brought under self-management
-	SelfManaged *bool `json:"selfManaged"`
+	SelfManaged *bool `json:"selfManaged,omitempty"`
 	// the way we can connect to your loki instance
-	LokiConnection *HTTPConnection `json:"lokiConnection"`
+	LokiConnection *HTTPConnection `json:"lokiConnection,omitempty"`
 	// the way we can connect to your prometheus instance
-	PrometheusConnection *HTTPConnection `json:"prometheusConnection"`
+	PrometheusConnection *HTTPConnection `json:"prometheusConnection,omitempty"`
+	// custom helm values to apply to all agents (useful for things like adding customary annotations/labels)
+	AgentHelmValues *string `json:"agentHelmValues,omitempty"`
 	// the repo to fetch CAPI manifests from, for both providers and clusters
-	ArtifactRepository *GitRepository `json:"artifactRepository"`
+	ArtifactRepository *GitRepository `json:"artifactRepository,omitempty"`
 	// the repo to fetch the deploy operators manifests from
-	DeployerRepository *GitRepository `json:"deployerRepository"`
+	DeployerRepository *GitRepository `json:"deployerRepository,omitempty"`
 	// read policy across all clusters
-	ReadBindings []*PolicyBinding `json:"readBindings"`
+	ReadBindings []*PolicyBinding `json:"readBindings,omitempty"`
 	// write policy across all clusters
-	WriteBindings []*PolicyBinding `json:"writeBindings"`
+	WriteBindings []*PolicyBinding `json:"writeBindings,omitempty"`
 	// policy for managing git repos
-	GitBindings []*PolicyBinding `json:"gitBindings"`
+	GitBindings []*PolicyBinding `json:"gitBindings,omitempty"`
 	// policy for creation of new clusters
-	CreateBindings []*PolicyBinding `json:"createBindings"`
-	InsertedAt     *string          `json:"insertedAt"`
-	UpdatedAt      *string          `json:"updatedAt"`
+	CreateBindings []*PolicyBinding `json:"createBindings,omitempty"`
+	InsertedAt     *string          `json:"insertedAt,omitempty"`
+	UpdatedAt      *string          `json:"updatedAt,omitempty"`
 }
 
 type DeploymentSettingsAttributes struct {
 	ArtifactRepositoryID *string `json:"artifactRepositoryId,omitempty"`
 	DeployerRepositoryID *string `json:"deployerRepositoryId,omitempty"`
+	// custom helm values to apply to all agents (useful for things like adding customary annotations/labels)
+	AgentHelmValues *string `json:"agentHelmValues,omitempty"`
 	// connection details for a prometheus instance to use
 	PrometheusConnection *HTTPConnectionAttributes `json:"prometheusConnection,omitempty"`
 	// connection details for a loki instance to use
@@ -1033,20 +1045,20 @@ type DeploymentSettingsAttributes struct {
 }
 
 type DeploymentSpec struct {
-	Replicas *int64              `json:"replicas"`
-	Strategy *DeploymentStrategy `json:"strategy"`
+	Replicas *int64              `json:"replicas,omitempty"`
+	Strategy *DeploymentStrategy `json:"strategy,omitempty"`
 }
 
 type DeploymentStatus struct {
-	AvailableReplicas   *int64 `json:"availableReplicas"`
-	Replicas            *int64 `json:"replicas"`
-	ReadyReplicas       *int64 `json:"readyReplicas"`
-	UnavailableReplicas *int64 `json:"unavailableReplicas"`
+	AvailableReplicas   *int64 `json:"availableReplicas,omitempty"`
+	Replicas            *int64 `json:"replicas,omitempty"`
+	ReadyReplicas       *int64 `json:"readyReplicas,omitempty"`
+	UnavailableReplicas *int64 `json:"unavailableReplicas,omitempty"`
 }
 
 type DeploymentStrategy struct {
-	Type          *string        `json:"type"`
-	RollingUpdate *RollingUpdate `json:"rollingUpdate"`
+	Type          *string        `json:"type,omitempty"`
+	RollingUpdate *RollingUpdate `json:"rollingUpdate,omitempty"`
 }
 
 type EnvAttributes struct {
@@ -1060,18 +1072,18 @@ type EnvFromAttributes struct {
 }
 
 type Event struct {
-	Action        *string `json:"action"`
-	Count         *int64  `json:"count"`
-	EventTime     *string `json:"eventTime"`
-	LastTimestamp *string `json:"lastTimestamp"`
-	Message       *string `json:"message"`
-	Reason        *string `json:"reason"`
-	Type          *string `json:"type"`
+	Action        *string `json:"action,omitempty"`
+	Count         *int64  `json:"count,omitempty"`
+	EventTime     *string `json:"eventTime,omitempty"`
+	LastTimestamp *string `json:"lastTimestamp,omitempty"`
+	Message       *string `json:"message,omitempty"`
+	Reason        *string `json:"reason,omitempty"`
+	Type          *string `json:"type,omitempty"`
 }
 
 type FileContent struct {
-	Path    *string `json:"path"`
-	Content *string `json:"content"`
+	Path    *string `json:"path,omitempty"`
+	Content *string `json:"content,omitempty"`
 }
 
 // spec for a job gate
@@ -1087,7 +1099,7 @@ type GateJobAttributes struct {
 
 // detailed gate specifications
 type GateSpec struct {
-	Job *JobGateSpec `json:"job"`
+	Job *JobGateSpec `json:"job,omitempty"`
 }
 
 // a more refined spec for parameters needed for complex gates
@@ -1113,9 +1125,9 @@ type GcpCloudAttributes struct {
 
 // gcp specific cluster cloud configuration
 type GcpCloudSettings struct {
-	Project *string `json:"project"`
-	Network *string `json:"network"`
-	Region  *string `json:"region"`
+	Project *string `json:"project,omitempty"`
+	Network *string `json:"network,omitempty"`
+	Region  *string `json:"region,omitempty"`
 }
 
 type GcpSettingsAttributes struct {
@@ -1178,40 +1190,40 @@ type GitRepository struct {
 	// the git url of the repository, either https or ssh supported
 	URL string `json:"url"`
 	// whether its a http or ssh url
-	AuthMethod *AuthMethod `json:"authMethod"`
+	AuthMethod *AuthMethod `json:"authMethod,omitempty"`
 	// whether we can currently pull this repo with the provided credentials
-	Health *GitHealth `json:"health"`
+	Health *GitHealth `json:"health,omitempty"`
 	// the last successsful git pull timestamp
-	PulledAt *string `json:"pulledAt"`
+	PulledAt *string `json:"pulledAt,omitempty"`
 	// the error message if there were any pull errors
-	Error *string `json:"error"`
+	Error *string `json:"error,omitempty"`
 	// the https url for this git repo
-	HTTPSPath *string `json:"httpsPath"`
+	HTTPSPath *string `json:"httpsPath,omitempty"`
 	// a format string to get the http url for a subfolder in a git repo
-	URLFormat *string `json:"urlFormat"`
+	URLFormat *string `json:"urlFormat,omitempty"`
 	// whether to run plural crypto unlock on this repo
-	Decrypt *bool `json:"decrypt"`
+	Decrypt *bool `json:"decrypt,omitempty"`
 	// named refs like branches/tags for a repository
-	Refs []string `json:"refs"`
+	Refs []string `json:"refs,omitempty"`
 	// whether the current user can edit this repo
-	Editable   *bool   `json:"editable"`
-	InsertedAt *string `json:"insertedAt"`
-	UpdatedAt  *string `json:"updatedAt"`
+	Editable   *bool   `json:"editable,omitempty"`
+	InsertedAt *string `json:"insertedAt,omitempty"`
+	UpdatedAt  *string `json:"updatedAt,omitempty"`
 }
 
 type GitRepositoryConnection struct {
 	PageInfo PageInfo             `json:"pageInfo"`
-	Edges    []*GitRepositoryEdge `json:"edges"`
+	Edges    []*GitRepositoryEdge `json:"edges,omitempty"`
 }
 
 type GitRepositoryEdge struct {
-	Node   *GitRepository `json:"node"`
-	Cursor *string        `json:"cursor"`
+	Node   *GitRepository `json:"node,omitempty"`
+	Cursor *string        `json:"cursor,omitempty"`
 }
 
 type GitStatus struct {
-	Cloned *bool   `json:"cloned"`
-	Output *string `json:"output"`
+	Cloned *bool   `json:"cloned,omitempty"`
+	Output *string `json:"output,omitempty"`
 }
 
 // a rules based mechanism to redeploy a service across a fleet of clusters
@@ -1221,15 +1233,15 @@ type GlobalService struct {
 	// a human readable name for this global service
 	Name string `json:"name"`
 	// a set of tags to select clusters for this global service
-	Tags []*Tag `json:"tags"`
+	Tags []*Tag `json:"tags,omitempty"`
 	// the kubernetes distribution to target with this global service
-	Distro *ClusterDistro `json:"distro"`
+	Distro *ClusterDistro `json:"distro,omitempty"`
 	// the service to replicate across clusters
-	Service *ServiceDeployment `json:"service"`
+	Service *ServiceDeployment `json:"service,omitempty"`
 	// whether to only apply to clusters with this provider
-	Provider   *ClusterProvider `json:"provider"`
-	InsertedAt *string          `json:"insertedAt"`
-	UpdatedAt  *string          `json:"updatedAt"`
+	Provider   *ClusterProvider `json:"provider,omitempty"`
+	InsertedAt *string          `json:"insertedAt,omitempty"`
+	UpdatedAt  *string          `json:"updatedAt,omitempty"`
 }
 
 // A reference for a globalized service, which targets clusters based on the configured criteria
@@ -1247,9 +1259,9 @@ type GlobalServiceAttributes struct {
 type Group struct {
 	ID          string  `json:"id"`
 	Name        string  `json:"name"`
-	Description *string `json:"description"`
-	InsertedAt  *string `json:"insertedAt"`
-	UpdatedAt   *string `json:"updatedAt"`
+	Description *string `json:"description,omitempty"`
+	InsertedAt  *string `json:"insertedAt,omitempty"`
+	UpdatedAt   *string `json:"updatedAt,omitempty"`
 }
 
 type GroupAttributes struct {
@@ -1259,51 +1271,51 @@ type GroupAttributes struct {
 
 type GroupConnection struct {
 	PageInfo PageInfo     `json:"pageInfo"`
-	Edges    []*GroupEdge `json:"edges"`
+	Edges    []*GroupEdge `json:"edges,omitempty"`
 }
 
 type GroupEdge struct {
-	Node   *Group  `json:"node"`
-	Cursor *string `json:"cursor"`
+	Node   *Group  `json:"node,omitempty"`
+	Cursor *string `json:"cursor,omitempty"`
 }
 
 type GroupMember struct {
 	ID         string  `json:"id"`
-	User       *User   `json:"user"`
-	Group      *Group  `json:"group"`
-	InsertedAt *string `json:"insertedAt"`
-	UpdatedAt  *string `json:"updatedAt"`
+	User       *User   `json:"user,omitempty"`
+	Group      *Group  `json:"group,omitempty"`
+	InsertedAt *string `json:"insertedAt,omitempty"`
+	UpdatedAt  *string `json:"updatedAt,omitempty"`
 }
 
 type GroupMemberConnection struct {
 	PageInfo PageInfo           `json:"pageInfo"`
-	Edges    []*GroupMemberEdge `json:"edges"`
+	Edges    []*GroupMemberEdge `json:"edges,omitempty"`
 }
 
 type GroupMemberEdge struct {
-	Node   *GroupMember `json:"node"`
-	Cursor *string      `json:"cursor"`
+	Node   *GroupMember `json:"node,omitempty"`
+	Cursor *string      `json:"cursor,omitempty"`
 }
 
 // a chart manifest entry, including all versions
 type HelmChartEntry struct {
 	// the name of the chart
-	Name *string `json:"name"`
+	Name *string `json:"name,omitempty"`
 	// all found versions of the chart
-	Versions []*HelmChartVersion `json:"versions"`
+	Versions []*HelmChartVersion `json:"versions,omitempty"`
 }
 
 // a chart version contained within a helm repository manifest
 type HelmChartVersion struct {
 	// the version of the app contained w/in this chart
-	AppVersion *string `json:"appVersion"`
+	AppVersion *string `json:"appVersion,omitempty"`
 	// the version of the chart itself
-	Version *string `json:"version"`
+	Version *string `json:"version,omitempty"`
 	// the name of the chart
-	Name *string `json:"name"`
-	Type *string `json:"type"`
+	Name *string `json:"name,omitempty"`
+	Type *string `json:"type,omitempty"`
 	// sha digest of this chart's contents
-	Digest *string `json:"digest"`
+	Digest *string `json:"digest,omitempty"`
 }
 
 type HelmConfigAttributes struct {
@@ -1320,37 +1332,37 @@ type HelmRepository struct {
 	Metadata Metadata           `json:"metadata"`
 	Spec     HelmRepositorySpec `json:"spec"`
 	// the charts found in this repository (heavy operation, don't do in list endpoints)
-	Charts []*HelmChartEntry `json:"charts"`
+	Charts []*HelmChartEntry `json:"charts,omitempty"`
 	// can fetch the status of a given helm repository
-	Status *HelmRepositoryStatus `json:"status"`
+	Status *HelmRepositoryStatus `json:"status,omitempty"`
 }
 
 // a specification of how a helm repository is fetched
 type HelmRepositorySpec struct {
-	Provider *string `json:"provider"`
+	Provider *string `json:"provider,omitempty"`
 	URL      string  `json:"url"`
-	Type     *string `json:"type"`
+	Type     *string `json:"type,omitempty"`
 }
 
 // the state of this helm repository
 type HelmRepositoryStatus struct {
-	Ready   *bool   `json:"ready"`
-	Message *string `json:"message"`
+	Ready   *bool   `json:"ready,omitempty"`
+	Message *string `json:"message,omitempty"`
 }
 
 type HelmSpec struct {
 	// the name of the chart this service is using
-	Chart *string `json:"chart"`
+	Chart *string `json:"chart,omitempty"`
 	// a helm values file to use with this service, requires auth and so is heavy to query
-	Values *string `json:"values"`
+	Values *string `json:"values,omitempty"`
 	// pointer to the flux helm repository resource used for this chart
-	Repository *ObjectReference `json:"repository"`
+	Repository *ObjectReference `json:"repository,omitempty"`
 	// the chart version in use currently
-	Version *string `json:"version"`
+	Version *string `json:"version,omitempty"`
 	// a list of helm name/value pairs to precisely set individual values
-	Set []*HelmValue `json:"set"`
+	Set []*HelmValue `json:"set,omitempty"`
 	// a list of relative paths to values files to use for helm applies
-	ValuesFiles []*string `json:"valuesFiles"`
+	ValuesFiles []*string `json:"valuesFiles,omitempty"`
 }
 
 // a (possibly nested) helm value pair
@@ -1370,9 +1382,9 @@ type HelmValueAttributes struct {
 type HTTPConnection struct {
 	Host string `json:"host"`
 	// user to connect w/ for basic auth
-	User *string `json:"user"`
+	User *string `json:"user,omitempty"`
 	// password to connect w/ for basic auth
-	Password *string `json:"password"`
+	Password *string `json:"password,omitempty"`
 }
 
 type HTTPConnectionAttributes struct {
@@ -1384,61 +1396,61 @@ type HTTPConnectionAttributes struct {
 }
 
 type HTTPIngressRule struct {
-	Paths []*IngressPath `json:"paths"`
+	Paths []*IngressPath `json:"paths,omitempty"`
 }
 
 type Ingress struct {
 	Metadata     Metadata       `json:"metadata"`
 	Status       ServiceStatus  `json:"status"`
 	Spec         IngressSpec    `json:"spec"`
-	Certificates []*Certificate `json:"certificates"`
+	Certificates []*Certificate `json:"certificates,omitempty"`
 	Raw          string         `json:"raw"`
-	Events       []*Event       `json:"events"`
+	Events       []*Event       `json:"events,omitempty"`
 }
 
 type IngressBackend struct {
-	ServiceName *string `json:"serviceName"`
-	ServicePort *string `json:"servicePort"`
+	ServiceName *string `json:"serviceName,omitempty"`
+	ServicePort *string `json:"servicePort,omitempty"`
 }
 
 type IngressPath struct {
-	Backend *IngressBackend `json:"backend"`
-	Path    *string         `json:"path"`
+	Backend *IngressBackend `json:"backend,omitempty"`
+	Path    *string         `json:"path,omitempty"`
 }
 
 type IngressRule struct {
-	Host *string          `json:"host"`
-	HTTP *HTTPIngressRule `json:"http"`
+	Host *string          `json:"host,omitempty"`
+	HTTP *HTTPIngressRule `json:"http,omitempty"`
 }
 
 type IngressSpec struct {
-	IngressClassName *string        `json:"ingressClassName"`
-	Rules            []*IngressRule `json:"rules"`
-	TLS              []*IngressTLS  `json:"tls"`
+	IngressClassName *string        `json:"ingressClassName,omitempty"`
+	Rules            []*IngressRule `json:"rules,omitempty"`
+	TLS              []*IngressTLS  `json:"tls,omitempty"`
 }
 
 type IngressTLS struct {
-	Hosts []*string `json:"hosts"`
+	Hosts []*string `json:"hosts,omitempty"`
 }
 
 type Installation struct {
 	ID         string      `json:"id"`
-	Repository *Repository `json:"repository"`
+	Repository *Repository `json:"repository,omitempty"`
 }
 
 type InstallationConnection struct {
 	PageInfo PageInfo            `json:"pageInfo"`
-	Edges    []*InstallationEdge `json:"edges"`
+	Edges    []*InstallationEdge `json:"edges,omitempty"`
 }
 
 type InstallationEdge struct {
-	Node   *Installation `json:"node"`
-	Cursor *string       `json:"cursor"`
+	Node   *Installation `json:"node,omitempty"`
+	Cursor *string       `json:"cursor,omitempty"`
 }
 
 type Invite struct {
 	SecureID string  `json:"secureId"`
-	Email    *string `json:"email"`
+	Email    *string `json:"email,omitempty"`
 }
 
 type InviteAttributes struct {
@@ -1446,9 +1458,9 @@ type InviteAttributes struct {
 }
 
 type IssuerRef struct {
-	Group *string `json:"group"`
-	Kind  *string `json:"kind"`
-	Name  *string `json:"name"`
+	Group *string `json:"group,omitempty"`
+	Kind  *string `json:"kind,omitempty"`
+	Name  *string `json:"name,omitempty"`
 }
 
 type Job struct {
@@ -1456,8 +1468,9 @@ type Job struct {
 	Status   JobStatus `json:"status"`
 	Spec     JobSpec   `json:"spec"`
 	Raw      string    `json:"raw"`
-	Events   []*Event  `json:"events"`
-	Pods     []*Pod    `json:"pods"`
+	Events   []*Event  `json:"events,omitempty"`
+	Pods     []*Pod    `json:"pods,omitempty"`
+	Logs     []*string `json:"logs,omitempty"`
 }
 
 // the full specification of a job gate
@@ -1465,15 +1478,15 @@ type JobGateSpec struct {
 	// the namespace the job will run in
 	Namespace string `json:"namespace"`
 	// a raw kubernetes job resource, overrides any other configuration
-	Raw *string `json:"raw"`
+	Raw *string `json:"raw,omitempty"`
 	// list of containers to run in this job
-	Containers []*ContainerSpec `json:"containers"`
+	Containers []*ContainerSpec `json:"containers,omitempty"`
 	// any pod labels to apply
-	Labels map[string]interface{} `json:"labels"`
+	Labels map[string]interface{} `json:"labels,omitempty"`
 	// any pod annotations to apply
-	Annotations map[string]interface{} `json:"annotations"`
+	Annotations map[string]interface{} `json:"annotations,omitempty"`
 	// the service account the pod will use
-	ServiceAccount *string `json:"serviceAccount"`
+	ServiceAccount *string `json:"serviceAccount,omitempty"`
 }
 
 type JobReference struct {
@@ -1482,17 +1495,17 @@ type JobReference struct {
 }
 
 type JobSpec struct {
-	BackoffLimit          *int64 `json:"backoffLimit"`
-	Parallelism           *int64 `json:"parallelism"`
-	ActiveDeadlineSeconds *int64 `json:"activeDeadlineSeconds"`
+	BackoffLimit          *int64 `json:"backoffLimit,omitempty"`
+	Parallelism           *int64 `json:"parallelism,omitempty"`
+	ActiveDeadlineSeconds *int64 `json:"activeDeadlineSeconds,omitempty"`
 }
 
 type JobStatus struct {
-	Active         *int64  `json:"active"`
-	CompletionTime *string `json:"completionTime"`
-	StartTime      *string `json:"startTime"`
-	Succeeded      *int64  `json:"succeeded"`
-	Failed         *int64  `json:"failed"`
+	Active         *int64  `json:"active,omitempty"`
+	CompletionTime *string `json:"completionTime,omitempty"`
+	StartTime      *string `json:"startTime,omitempty"`
+	Succeeded      *int64  `json:"succeeded,omitempty"`
+	Failed         *int64  `json:"failed,omitempty"`
 }
 
 type KubeconfigAttributes struct {
@@ -1505,9 +1518,9 @@ type KubernetesDatasource struct {
 }
 
 type KubernetesUnstructured struct {
-	Raw      map[string]interface{} `json:"raw"`
+	Raw      map[string]interface{} `json:"raw,omitempty"`
 	Metadata Metadata               `json:"metadata"`
-	Events   []*Event               `json:"events"`
+	Events   []*Event               `json:"events,omitempty"`
 }
 
 // metadata needed for configuring kustomize
@@ -1526,19 +1539,19 @@ type LabelInput struct {
 }
 
 type LabelPair struct {
-	Name  *string `json:"name"`
-	Value *string `json:"value"`
+	Name  *string `json:"name,omitempty"`
+	Value *string `json:"value,omitempty"`
 }
 
 type License struct {
 	Metadata Metadata       `json:"metadata"`
 	Spec     LicenseSpec    `json:"spec"`
-	Status   *LicenseStatus `json:"status"`
+	Status   *LicenseStatus `json:"status,omitempty"`
 }
 
 type LicenseFeature struct {
 	Name        string  `json:"name"`
-	Description *string `json:"description"`
+	Description *string `json:"description,omitempty"`
 }
 
 type LicenseSpec struct {
@@ -1546,20 +1559,20 @@ type LicenseSpec struct {
 }
 
 type LicenseStatus struct {
-	Plan     *string                `json:"plan"`
-	Free     *bool                  `json:"free"`
-	Features []*LicenseFeature      `json:"features"`
-	Limits   map[string]interface{} `json:"limits"`
-	Secrets  map[string]interface{} `json:"secrets"`
+	Plan     *string                `json:"plan,omitempty"`
+	Free     *bool                  `json:"free,omitempty"`
+	Features []*LicenseFeature      `json:"features,omitempty"`
+	Limits   map[string]interface{} `json:"limits,omitempty"`
+	Secrets  map[string]interface{} `json:"secrets,omitempty"`
 }
 
 type LoadBalancerIngressStatus struct {
-	Hostname *string `json:"hostname"`
-	IP       *string `json:"ip"`
+	Hostname *string `json:"hostname,omitempty"`
+	IP       *string `json:"ip,omitempty"`
 }
 
 type LoadBalancerStatus struct {
-	Ingress []*LoadBalancerIngressStatus `json:"ingress"`
+	Ingress []*LoadBalancerIngressStatus `json:"ingress,omitempty"`
 }
 
 type LogFilter struct {
@@ -1568,37 +1581,37 @@ type LogFilter struct {
 }
 
 type LogFilterSpec struct {
-	Name        *string     `json:"name"`
-	Description *string     `json:"description"`
-	Query       *string     `json:"query"`
-	Labels      []*LogLabel `json:"labels"`
+	Name        *string     `json:"name,omitempty"`
+	Description *string     `json:"description,omitempty"`
+	Query       *string     `json:"query,omitempty"`
+	Labels      []*LogLabel `json:"labels,omitempty"`
 }
 
 type LogLabel struct {
-	Name  *string `json:"name"`
-	Value *string `json:"value"`
+	Name  *string `json:"name,omitempty"`
+	Value *string `json:"value,omitempty"`
 }
 
 type LogStream struct {
-	Stream map[string]interface{} `json:"stream"`
-	Values []*MetricResult        `json:"values"`
+	Stream map[string]interface{} `json:"stream,omitempty"`
+	Values []*MetricResult        `json:"values,omitempty"`
 }
 
 type LoginInfo struct {
-	OidcURI *string `json:"oidcUri"`
+	OidcURI *string `json:"oidcUri,omitempty"`
 }
 
 type ManifestNetwork struct {
-	PluralDNS *bool   `json:"pluralDns"`
-	Subdomain *string `json:"subdomain"`
+	PluralDNS *bool   `json:"pluralDns,omitempty"`
+	Subdomain *string `json:"subdomain,omitempty"`
 }
 
 type Metadata struct {
-	Labels            []*LabelPair `json:"labels"`
-	Annotations       []*LabelPair `json:"annotations"`
+	Labels            []*LabelPair `json:"labels,omitempty"`
+	Annotations       []*LabelPair `json:"annotations,omitempty"`
 	Name              string       `json:"name"`
-	Namespace         *string      `json:"namespace"`
-	CreationTimestamp *string      `json:"creationTimestamp"`
+	Namespace         *string      `json:"namespace,omitempty"`
+	CreationTimestamp *string      `json:"creationTimestamp,omitempty"`
 }
 
 type MetadataAttributes struct {
@@ -1607,13 +1620,13 @@ type MetadataAttributes struct {
 }
 
 type MetricResponse struct {
-	Metric map[string]interface{} `json:"metric"`
-	Values []*MetricResult        `json:"values"`
+	Metric map[string]interface{} `json:"metric,omitempty"`
+	Values []*MetricResult        `json:"values,omitempty"`
 }
 
 type MetricResult struct {
-	Timestamp *string `json:"timestamp"`
-	Value     *string `json:"value"`
+	Timestamp *string `json:"timestamp,omitempty"`
+	Value     *string `json:"value,omitempty"`
 }
 
 type Namespace struct {
@@ -1621,21 +1634,21 @@ type Namespace struct {
 	Spec     NamespaceSpec   `json:"spec"`
 	Metadata Metadata        `json:"metadata"`
 	Raw      string          `json:"raw"`
-	Events   []*Event        `json:"events"`
+	Events   []*Event        `json:"events,omitempty"`
 }
 
 // metadata fields for created namespaces
 type NamespaceMetadata struct {
-	Labels      map[string]interface{} `json:"labels"`
-	Annotations map[string]interface{} `json:"annotations"`
+	Labels      map[string]interface{} `json:"labels,omitempty"`
+	Annotations map[string]interface{} `json:"annotations,omitempty"`
 }
 
 type NamespaceSpec struct {
-	Finalizers []*string `json:"finalizers"`
+	Finalizers []*string `json:"finalizers,omitempty"`
 }
 
 type NamespaceStatus struct {
-	Phase *string `json:"phase"`
+	Phase *string `json:"phase,omitempty"`
 }
 
 type NamespacedName struct {
@@ -1648,27 +1661,27 @@ type Node struct {
 	Spec     NodeSpec   `json:"spec"`
 	Metadata Metadata   `json:"metadata"`
 	Raw      string     `json:"raw"`
-	Pods     []*Pod     `json:"pods"`
-	Events   []*Event   `json:"events"`
+	Pods     []*Pod     `json:"pods,omitempty"`
+	Events   []*Event   `json:"events,omitempty"`
 }
 
 // cloud specific settings for a node pool
 type NodeCloudSettings struct {
-	Aws *AwsCloud `json:"aws"`
+	Aws *AwsCloud `json:"aws,omitempty"`
 }
 
 type NodeCondition struct {
-	Message *string `json:"message"`
-	Reason  *string `json:"reason"`
-	Status  *string `json:"status"`
-	Type    *string `json:"type"`
+	Message *string `json:"message,omitempty"`
+	Reason  *string `json:"reason,omitempty"`
+	Status  *string `json:"status,omitempty"`
+	Type    *string `json:"type,omitempty"`
 }
 
 type NodeMetric struct {
 	Metadata  Metadata   `json:"metadata"`
-	Timestamp *string    `json:"timestamp"`
-	Window    *string    `json:"window"`
-	Usage     *NodeUsage `json:"usage"`
+	Timestamp *string    `json:"timestamp,omitempty"`
+	Window    *string    `json:"window,omitempty"`
+	Usage     *NodeUsage `json:"usage,omitempty"`
 }
 
 // a specification for a node pool to be created in this cluster
@@ -1684,15 +1697,15 @@ type NodePool struct {
 	// the type of node to use (usually cloud-specific)
 	InstanceType string `json:"instanceType"`
 	// whether this is a spot pool or not
-	Spot *bool `json:"spot"`
+	Spot *bool `json:"spot,omitempty"`
 	// kubernetes labels to apply to the nodes in this pool, useful for node selectors
-	Labels map[string]interface{} `json:"labels"`
+	Labels map[string]interface{} `json:"labels,omitempty"`
 	// any taints you'd want to apply to a node, for eg preventing scheduling on spot instances
-	Taints []*Taint `json:"taints"`
+	Taints []*Taint `json:"taints,omitempty"`
 	// cloud specific settings for the node groups
-	CloudSettings *NodeCloudSettings `json:"cloudSettings"`
-	InsertedAt    *string            `json:"insertedAt"`
-	UpdatedAt     *string            `json:"updatedAt"`
+	CloudSettings *NodeCloudSettings `json:"cloudSettings,omitempty"`
+	InsertedAt    *string            `json:"insertedAt,omitempty"`
+	UpdatedAt     *string            `json:"updatedAt,omitempty"`
 }
 
 type NodePoolAttributes struct {
@@ -1710,66 +1723,66 @@ type NodePoolCloudAttributes struct {
 }
 
 type NodeSpec struct {
-	PodCidr       *string `json:"podCidr"`
-	ProviderID    *string `json:"providerId"`
-	Unschedulable *bool   `json:"unschedulable"`
+	PodCidr       *string `json:"podCidr,omitempty"`
+	ProviderID    *string `json:"providerId,omitempty"`
+	Unschedulable *bool   `json:"unschedulable,omitempty"`
 }
 
 type NodeStatus struct {
-	Allocatable map[string]interface{} `json:"allocatable"`
-	Capacity    map[string]interface{} `json:"capacity"`
-	Phase       *string                `json:"phase"`
-	Conditions  []*NodeCondition       `json:"conditions"`
+	Allocatable map[string]interface{} `json:"allocatable,omitempty"`
+	Capacity    map[string]interface{} `json:"capacity,omitempty"`
+	Phase       *string                `json:"phase,omitempty"`
+	Conditions  []*NodeCondition       `json:"conditions,omitempty"`
 }
 
 type NodeUsage struct {
-	CPU    *string `json:"cpu"`
-	Memory *string `json:"memory"`
+	CPU    *string `json:"cpu,omitempty"`
+	Memory *string `json:"memory,omitempty"`
 }
 
 type Notification struct {
 	ID          string                 `json:"id"`
 	Title       string                 `json:"title"`
-	Description *string                `json:"description"`
+	Description *string                `json:"description,omitempty"`
 	Fingerprint string                 `json:"fingerprint"`
-	Status      *NotificationStatus    `json:"status"`
-	Labels      map[string]interface{} `json:"labels"`
-	Annotations map[string]interface{} `json:"annotations"`
+	Status      *NotificationStatus    `json:"status,omitempty"`
+	Labels      map[string]interface{} `json:"labels,omitempty"`
+	Annotations map[string]interface{} `json:"annotations,omitempty"`
 	Repository  string                 `json:"repository"`
-	SeenAt      *string                `json:"seenAt"`
-	Severity    *Severity              `json:"severity"`
-	InsertedAt  *string                `json:"insertedAt"`
-	UpdatedAt   *string                `json:"updatedAt"`
+	SeenAt      *string                `json:"seenAt,omitempty"`
+	Severity    *Severity              `json:"severity,omitempty"`
+	InsertedAt  *string                `json:"insertedAt,omitempty"`
+	UpdatedAt   *string                `json:"updatedAt,omitempty"`
 }
 
 type NotificationConnection struct {
 	PageInfo PageInfo            `json:"pageInfo"`
-	Edges    []*NotificationEdge `json:"edges"`
+	Edges    []*NotificationEdge `json:"edges,omitempty"`
 }
 
 type NotificationDelta struct {
-	Delta   *Delta        `json:"delta"`
-	Payload *Notification `json:"payload"`
+	Delta   *Delta        `json:"delta,omitempty"`
+	Payload *Notification `json:"payload,omitempty"`
 }
 
 type NotificationEdge struct {
-	Node   *Notification `json:"node"`
-	Cursor *string       `json:"cursor"`
+	Node   *Notification `json:"node,omitempty"`
+	Cursor *string       `json:"cursor,omitempty"`
 }
 
 type ObjectReference struct {
-	Name      *string `json:"name"`
-	Namespace *string `json:"namespace"`
+	Name      *string `json:"name,omitempty"`
+	Namespace *string `json:"namespace,omitempty"`
 }
 
 type ObjectStore struct {
 	ID         string      `json:"id"`
 	Name       string      `json:"name"`
-	S3         *S3Store    `json:"s3"`
-	Gcs        *GcsStore   `json:"gcs"`
-	Azure      *AzureStore `json:"azure"`
-	InsertedAt *string     `json:"insertedAt"`
-	UpdatedAt  *string     `json:"updatedAt"`
+	S3         *S3Store    `json:"s3,omitempty"`
+	Gcs        *GcsStore   `json:"gcs,omitempty"`
+	Azure      *AzureStore `json:"azure,omitempty"`
+	InsertedAt *string     `json:"insertedAt,omitempty"`
+	UpdatedAt  *string     `json:"updatedAt,omitempty"`
 }
 
 type ObjectStoreAttributes struct {
@@ -1781,16 +1794,16 @@ type ObjectStoreAttributes struct {
 
 type ObjectStoreConnection struct {
 	PageInfo PageInfo           `json:"pageInfo"`
-	Edges    []*ObjectStoreEdge `json:"edges"`
+	Edges    []*ObjectStoreEdge `json:"edges,omitempty"`
 }
 
 type ObjectStoreEdge struct {
-	Node   *ObjectStore `json:"node"`
-	Cursor *string      `json:"cursor"`
+	Node   *ObjectStore `json:"node,omitempty"`
+	Cursor *string      `json:"cursor,omitempty"`
 }
 
 type OverlayUpdate struct {
-	Path []*string `json:"path"`
+	Path []*string `json:"path,omitempty"`
 }
 
 type PageInfo struct {
@@ -1799,13 +1812,13 @@ type PageInfo struct {
 	// When paginating forwards, are there more items?
 	HasNextPage bool `json:"hasNextPage"`
 	// When paginating backwards, the cursor to continue.
-	StartCursor *string `json:"startCursor"`
+	StartCursor *string `json:"startCursor,omitempty"`
 	// When paginating forwards, the cursor to continue.
-	EndCursor *string `json:"endCursor"`
+	EndCursor *string `json:"endCursor,omitempty"`
 }
 
 type PathUpdate struct {
-	Path      []*string `json:"path"`
+	Path      []*string `json:"path,omitempty"`
 	ValueFrom string    `json:"valueFrom"`
 }
 
@@ -1815,11 +1828,11 @@ type Pipeline struct {
 	// the name of the pipeline
 	Name string `json:"name"`
 	// the stages of this pipeline
-	Stages []*PipelineStage `json:"stages"`
+	Stages []*PipelineStage `json:"stages,omitempty"`
 	// edges linking two stages w/in the pipeline in a full DAG
-	Edges      []*PipelineStageEdge `json:"edges"`
-	InsertedAt *string              `json:"insertedAt"`
-	UpdatedAt  *string              `json:"updatedAt"`
+	Edges      []*PipelineStageEdge `json:"edges,omitempty"`
+	InsertedAt *string              `json:"insertedAt,omitempty"`
+	UpdatedAt  *string              `json:"updatedAt,omitempty"`
 }
 
 // the top level input object for creating/deleting pipelines
@@ -1830,12 +1843,12 @@ type PipelineAttributes struct {
 
 type PipelineConnection struct {
 	PageInfo PageInfo        `json:"pageInfo"`
-	Edges    []*PipelineEdge `json:"edges"`
+	Edges    []*PipelineEdge `json:"edges,omitempty"`
 }
 
 type PipelineEdge struct {
-	Node   *Pipeline `json:"node"`
-	Cursor *string   `json:"cursor"`
+	Node   *Pipeline `json:"node,omitempty"`
+	Cursor *string   `json:"cursor,omitempty"`
 }
 
 // specification of an edge between two pipeline stages
@@ -1862,13 +1875,15 @@ type PipelineGate struct {
 	// the current state of this gate
 	State GateState `json:"state"`
 	// more detailed specification for complex gates
-	Spec *GateSpec `json:"spec"`
+	Spec *GateSpec `json:"spec,omitempty"`
+	// the kubernetes job running this gate (should only be fetched lazily as this is a heavy operation)
+	Job *Job `json:"job,omitempty"`
 	// the cluster this gate can run on
-	Cluster *Cluster `json:"cluster"`
+	Cluster *Cluster `json:"cluster,omitempty"`
 	// the last user to approve this gate
-	Approver   *User   `json:"approver"`
-	InsertedAt *string `json:"insertedAt"`
-	UpdatedAt  *string `json:"updatedAt"`
+	Approver   *User   `json:"approver,omitempty"`
+	InsertedAt *string `json:"insertedAt,omitempty"`
+	UpdatedAt  *string `json:"updatedAt,omitempty"`
 }
 
 // will configure a promotion gate for a pipeline
@@ -1885,17 +1900,27 @@ type PipelineGateAttributes struct {
 	Spec *GateSpecAttributes `json:"spec,omitempty"`
 }
 
+type PipelineGateConnection struct {
+	PageInfo PageInfo            `json:"pageInfo"`
+	Edges    []*PipelineGateEdge `json:"edges,omitempty"`
+}
+
+type PipelineGateEdge struct {
+	Node   *PipelineGate `json:"node,omitempty"`
+	Cursor *string       `json:"cursor,omitempty"`
+}
+
 // a representation of an individual pipeline promotion, which is a list of services/revisions and timestamps to determine promotion status
 type PipelinePromotion struct {
 	ID string `json:"id"`
 	// the last time this promotion was updated
-	RevisedAt *string `json:"revisedAt"`
+	RevisedAt *string `json:"revisedAt,omitempty"`
 	// the last time this promotion was fully promoted, it's no longer pending if promoted_at > revised_at
-	PromotedAt *string `json:"promotedAt"`
+	PromotedAt *string `json:"promotedAt,omitempty"`
 	// the services included in this promotion
-	Services   []*PromotionService `json:"services"`
-	InsertedAt *string             `json:"insertedAt"`
-	UpdatedAt  *string             `json:"updatedAt"`
+	Services   []*PromotionService `json:"services,omitempty"`
+	InsertedAt *string             `json:"insertedAt,omitempty"`
+	UpdatedAt  *string             `json:"updatedAt,omitempty"`
 }
 
 // a pipeline stage, has a list of services and potentially a promotion which might be pending
@@ -1904,11 +1929,11 @@ type PipelineStage struct {
 	// the name of this stage (eg dev, prod, staging)
 	Name string `json:"name"`
 	// the services within this stage
-	Services []*StageService `json:"services"`
+	Services []*StageService `json:"services,omitempty"`
 	// a promotion which might be outstanding for this stage
-	Promotion  *PipelinePromotion `json:"promotion"`
-	InsertedAt *string            `json:"insertedAt"`
-	UpdatedAt  *string            `json:"updatedAt"`
+	Promotion  *PipelinePromotion `json:"promotion,omitempty"`
+	InsertedAt *string            `json:"insertedAt,omitempty"`
+	UpdatedAt  *string            `json:"updatedAt,omitempty"`
 }
 
 // specification of a stage of a pipeline
@@ -1921,64 +1946,64 @@ type PipelineStageAttributes struct {
 type PipelineStageEdge struct {
 	ID string `json:"id"`
 	// when the edge was last promoted, if greater than the promotion objects revised at, was successfully promoted
-	PromotedAt *string         `json:"promotedAt"`
+	PromotedAt *string         `json:"promotedAt,omitempty"`
 	From       PipelineStage   `json:"from"`
 	To         PipelineStage   `json:"to"`
-	Gates      []*PipelineGate `json:"gates"`
-	InsertedAt *string         `json:"insertedAt"`
-	UpdatedAt  *string         `json:"updatedAt"`
+	Gates      []*PipelineGate `json:"gates,omitempty"`
+	InsertedAt *string         `json:"insertedAt,omitempty"`
+	UpdatedAt  *string         `json:"updatedAt,omitempty"`
 }
 
 type Plan struct {
-	ID     *string `json:"id"`
-	Name   *string `json:"name"`
-	Period *string `json:"period"`
+	ID     *string `json:"id,omitempty"`
+	Name   *string `json:"name,omitempty"`
+	Period *string `json:"period,omitempty"`
 }
 
 type PluralCluster struct {
 	Status    PluralObjectStatus `json:"status"`
 	Metadata  Metadata           `json:"metadata"`
-	Reference *Cluster           `json:"reference"`
+	Reference *Cluster           `json:"reference,omitempty"`
 	Raw       string             `json:"raw"`
-	Events    []*Event           `json:"events"`
+	Events    []*Event           `json:"events,omitempty"`
 }
 
 type PluralContext struct {
-	Buckets       []*string              `json:"buckets"`
-	Domains       []*string              `json:"domains"`
+	Buckets       []*string              `json:"buckets,omitempty"`
+	Domains       []*string              `json:"domains,omitempty"`
 	Configuration map[string]interface{} `json:"configuration"`
 }
 
 type PluralGitRepository struct {
 	Status    PluralObjectStatus `json:"status"`
 	Metadata  Metadata           `json:"metadata"`
-	Reference *GitRepository     `json:"reference"`
+	Reference *GitRepository     `json:"reference,omitempty"`
 	Raw       string             `json:"raw"`
-	Events    []*Event           `json:"events"`
+	Events    []*Event           `json:"events,omitempty"`
 }
 
 type PluralManifest struct {
-	Network      *ManifestNetwork `json:"network"`
-	BucketPrefix *string          `json:"bucketPrefix"`
-	Cluster      *string          `json:"cluster"`
+	Network      *ManifestNetwork `json:"network,omitempty"`
+	BucketPrefix *string          `json:"bucketPrefix,omitempty"`
+	Cluster      *string          `json:"cluster,omitempty"`
 }
 
 type PluralObjectStatus struct {
-	ID         *string            `json:"id"`
-	Conditions []*StatusCondition `json:"conditions"`
+	ID         *string            `json:"id,omitempty"`
+	Conditions []*StatusCondition `json:"conditions,omitempty"`
 }
 
 type PluralServiceDeployment struct {
 	Status    PluralObjectStatus `json:"status"`
 	Metadata  Metadata           `json:"metadata"`
-	Reference *ServiceDeployment `json:"reference"`
+	Reference *ServiceDeployment `json:"reference,omitempty"`
 	Raw       string             `json:"raw"`
-	Events    []*Event           `json:"events"`
+	Events    []*Event           `json:"events,omitempty"`
 }
 
 type PluralSubscription struct {
-	ID   *string `json:"id"`
-	Plan *Plan   `json:"plan"`
+	ID   *string `json:"id,omitempty"`
+	Plan *Plan   `json:"plan,omitempty"`
 }
 
 type Pod struct {
@@ -1986,56 +2011,56 @@ type Pod struct {
 	Spec     PodSpec   `json:"spec"`
 	Metadata Metadata  `json:"metadata"`
 	Raw      string    `json:"raw"`
-	Logs     []*string `json:"logs"`
-	Events   []*Event  `json:"events"`
+	Logs     []*string `json:"logs,omitempty"`
+	Events   []*Event  `json:"events,omitempty"`
 }
 
 type PodCondition struct {
-	LastProbeTime      *string `json:"lastProbeTime"`
-	LastTransitionTime *string `json:"lastTransitionTime"`
-	Message            *string `json:"message"`
-	Reason             *string `json:"reason"`
-	Status             *string `json:"status"`
-	Type               *string `json:"type"`
+	LastProbeTime      *string `json:"lastProbeTime,omitempty"`
+	LastTransitionTime *string `json:"lastTransitionTime,omitempty"`
+	Message            *string `json:"message,omitempty"`
+	Reason             *string `json:"reason,omitempty"`
+	Status             *string `json:"status,omitempty"`
+	Type               *string `json:"type,omitempty"`
 }
 
 type PodConnection struct {
 	PageInfo PageInfo   `json:"pageInfo"`
-	Edges    []*PodEdge `json:"edges"`
+	Edges    []*PodEdge `json:"edges,omitempty"`
 }
 
 type PodDelta struct {
-	Delta   *Delta `json:"delta"`
-	Payload *Pod   `json:"payload"`
+	Delta   *Delta `json:"delta,omitempty"`
+	Payload *Pod   `json:"payload,omitempty"`
 }
 
 type PodEdge struct {
-	Node   *Pod    `json:"node"`
-	Cursor *string `json:"cursor"`
+	Node   *Pod    `json:"node,omitempty"`
+	Cursor *string `json:"cursor,omitempty"`
 }
 
 type PodSpec struct {
-	ServiceAccountName *string      `json:"serviceAccountName"`
-	NodeName           *string      `json:"nodeName"`
-	Containers         []*Container `json:"containers"`
-	InitContainers     []*Container `json:"initContainers"`
+	ServiceAccountName *string      `json:"serviceAccountName,omitempty"`
+	NodeName           *string      `json:"nodeName,omitempty"`
+	Containers         []*Container `json:"containers,omitempty"`
+	InitContainers     []*Container `json:"initContainers,omitempty"`
 }
 
 type PodStatus struct {
-	Message               *string            `json:"message"`
-	Phase                 *string            `json:"phase"`
-	HostIP                *string            `json:"hostIp"`
-	PodIP                 *string            `json:"podIp"`
-	Reason                *string            `json:"reason"`
-	Conditions            []*PodCondition    `json:"conditions"`
-	ContainerStatuses     []*ContainerStatus `json:"containerStatuses"`
-	InitContainerStatuses []*ContainerStatus `json:"initContainerStatuses"`
+	Message               *string            `json:"message,omitempty"`
+	Phase                 *string            `json:"phase,omitempty"`
+	HostIP                *string            `json:"hostIp,omitempty"`
+	PodIP                 *string            `json:"podIp,omitempty"`
+	Reason                *string            `json:"reason,omitempty"`
+	Conditions            []*PodCondition    `json:"conditions,omitempty"`
+	ContainerStatuses     []*ContainerStatus `json:"containerStatuses,omitempty"`
+	InitContainerStatuses []*ContainerStatus `json:"initContainerStatuses,omitempty"`
 }
 
 type PolicyBinding struct {
-	ID    *string `json:"id"`
-	User  *User   `json:"user"`
-	Group *Group  `json:"group"`
+	ID    *string `json:"id,omitempty"`
+	User  *User   `json:"user,omitempty"`
+	Group *Group  `json:"group,omitempty"`
 }
 
 type PolicyBindingAttributes struct {
@@ -2045,9 +2070,9 @@ type PolicyBindingAttributes struct {
 }
 
 type Port struct {
-	HostPort      *int64  `json:"hostPort"`
-	ContainerPort *int64  `json:"containerPort"`
-	Protocol      *string `json:"protocol"`
+	HostPort      *int64  `json:"hostPort,omitempty"`
+	ContainerPort *int64  `json:"containerPort,omitempty"`
+	Protocol      *string `json:"protocol,omitempty"`
 }
 
 type PostgresInstance struct {
@@ -2055,29 +2080,29 @@ type PostgresInstance struct {
 }
 
 type PostgresSettings struct {
-	Version *string `json:"version"`
+	Version *string `json:"version,omitempty"`
 }
 
 type Postgresql struct {
 	Metadata  Metadata            `json:"metadata"`
 	Spec      PostgresqlSpec      `json:"spec"`
-	Status    *PostgresqlStatus   `json:"status"`
-	Instances []*PostgresInstance `json:"instances"`
+	Status    *PostgresqlStatus   `json:"status,omitempty"`
+	Instances []*PostgresInstance `json:"instances,omitempty"`
 }
 
 type PostgresqlSpec struct {
-	TeamID            *string                `json:"teamId"`
-	Users             map[string]interface{} `json:"users"`
-	Resources         *Resources             `json:"resources"`
-	Postgresql        *PostgresSettings      `json:"postgresql"`
-	NumberOfInstances *int64                 `json:"numberOfInstances"`
-	Databases         map[string]interface{} `json:"databases"`
-	Volume            *DatabaseVolume        `json:"volume"`
-	Pods              []*Pod                 `json:"pods"`
+	TeamID            *string                `json:"teamId,omitempty"`
+	Users             map[string]interface{} `json:"users,omitempty"`
+	Resources         *Resources             `json:"resources,omitempty"`
+	Postgresql        *PostgresSettings      `json:"postgresql,omitempty"`
+	NumberOfInstances *int64                 `json:"numberOfInstances,omitempty"`
+	Databases         map[string]interface{} `json:"databases,omitempty"`
+	Volume            *DatabaseVolume        `json:"volume,omitempty"`
+	Pods              []*Pod                 `json:"pods,omitempty"`
 }
 
 type PostgresqlStatus struct {
-	ClusterStatus *string `json:"clusterStatus"`
+	ClusterStatus *string `json:"clusterStatus,omitempty"`
 }
 
 // a description of how to generate a pr, which can either modify existing files or generate new ones w/in a repo
@@ -2086,30 +2111,37 @@ type PrAutomation struct {
 	// string id for a repository, eg for github, this is {organization}/{repository-name}
 	Identifier string `json:"identifier"`
 	// the name for this automation
-	Name          string        `json:"name"`
-	Documentation *string       `json:"documentation"`
-	Title         string        `json:"title"`
-	Message       string        `json:"message"`
-	Updates       *PrUpdateSpec `json:"updates"`
+	Name string `json:"name"`
+	// An enum describing the high-level responsibility of this pr, eg creating a cluster or service, or upgrading a cluster
+	Role          *PrRole            `json:"role,omitempty"`
+	Documentation *string            `json:"documentation,omitempty"`
+	Title         string             `json:"title"`
+	Message       string             `json:"message"`
+	Updates       *PrUpdateSpec      `json:"updates,omitempty"`
+	Creates       *PrCreateSpec      `json:"creates,omitempty"`
+	Configuration []*PrConfiguration `json:"configuration,omitempty"`
 	// write policy for this pr automation, also propagates to the notifications list for any created PRs
-	WriteBindings []*PolicyBinding `json:"writeBindings"`
+	WriteBindings []*PolicyBinding `json:"writeBindings,omitempty"`
 	// users who can generate prs with this automation
-	CreateBindings []*PolicyBinding `json:"createBindings"`
+	CreateBindings []*PolicyBinding `json:"createBindings,omitempty"`
 	// link to an add-on name if this can update it
-	Addon *string `json:"addon"`
+	Addon *string `json:"addon,omitempty"`
+	// the git repository to use for sourcing external templates
+	Repository *GitRepository `json:"repository,omitempty"`
 	// link to a cluster if this is to perform an upgrade
-	Cluster *Cluster `json:"cluster"`
+	Cluster *Cluster `json:"cluster,omitempty"`
 	// link to a service if this can update its configuration
-	Service *ServiceDeployment `json:"service"`
+	Service *ServiceDeployment `json:"service,omitempty"`
 	// the scm connection to use for pr generation
-	Connection *ScmConnection `json:"connection"`
-	InsertedAt *string        `json:"insertedAt"`
-	UpdatedAt  *string        `json:"updatedAt"`
+	Connection *ScmConnection `json:"connection,omitempty"`
+	InsertedAt *string        `json:"insertedAt,omitempty"`
+	UpdatedAt  *string        `json:"updatedAt,omitempty"`
 }
 
 // A way to create a self-service means of generating PRs against an IaC repo
 type PrAutomationAttributes struct {
 	Name *string `json:"name,omitempty"`
+	Role *PrRole `json:"role,omitempty"`
 	// string id for a repository, eg for github, this is {organization}/{repository-name}
 	Identifier    *string                           `json:"identifier,omitempty"`
 	Documentation *string                           `json:"documentation,omitempty"`
@@ -2117,6 +2149,7 @@ type PrAutomationAttributes struct {
 	Message       *string                           `json:"message,omitempty"`
 	Branch        *string                           `json:"branch,omitempty"`
 	Updates       *PrAutomationUpdateSpecAttributes `json:"updates,omitempty"`
+	Creates       *PrAutomationCreateSpecAttributes `json:"creates,omitempty"`
 	// link to an add-on name if this can update it
 	Addon *string `json:"addon,omitempty"`
 	// link to a cluster if this is to perform an upgrade
@@ -2124,7 +2157,9 @@ type PrAutomationAttributes struct {
 	// link to a service if this can modify its configuration
 	ServiceID *string `json:"serviceId,omitempty"`
 	// the scm connection to use for pr generation
-	ConnectionID  *string                      `json:"connectionId,omitempty"`
+	ConnectionID *string `json:"connectionId,omitempty"`
+	// a git repository to use for create mode prs
+	RepositoryID  *string                      `json:"repositoryId,omitempty"`
 	Configuration []*PrConfigurationAttributes `json:"configuration,omitempty"`
 	// users who can update this automation
 	WriteBindings []*PolicyBindingAttributes `json:"writeBindings,omitempty"`
@@ -2134,12 +2169,26 @@ type PrAutomationAttributes struct {
 
 type PrAutomationConnection struct {
 	PageInfo PageInfo            `json:"pageInfo"`
-	Edges    []*PrAutomationEdge `json:"edges"`
+	Edges    []*PrAutomationEdge `json:"edges,omitempty"`
+}
+
+// Operations to create new templated files within this pr
+type PrAutomationCreateSpecAttributes struct {
+	Git       *GitRefAttributes                 `json:"git,omitempty"`
+	Templates []*PrAutomationTemplateAttributes `json:"templates,omitempty"`
 }
 
 type PrAutomationEdge struct {
-	Node   *PrAutomation `json:"node"`
-	Cursor *string       `json:"cursor"`
+	Node   *PrAutomation `json:"node,omitempty"`
+	Cursor *string       `json:"cursor,omitempty"`
+}
+
+// templates to apply in this pr
+type PrAutomationTemplateAttributes struct {
+	Source      string `json:"source"`
+	Destination string `json:"destination"`
+	// whether the source template is sourced from an external git repo bound to this automation
+	External bool `json:"external"`
 }
 
 // The operations to be performed on the files w/in the pr
@@ -2151,6 +2200,18 @@ type PrAutomationUpdateSpecAttributes struct {
 	ReplaceTemplate   *string                       `json:"replaceTemplate,omitempty"`
 	Yq                *string                       `json:"yq,omitempty"`
 	MatchStrategy     *MatchStrategy                `json:"matchStrategy,omitempty"`
+}
+
+// the a configuration item for creating a new pr, used for templating the ultimate code changes made
+type PrConfiguration struct {
+	Type          ConfigurationType         `json:"type"`
+	Name          string                    `json:"name"`
+	Default       *string                   `json:"default,omitempty"`
+	Documentation *string                   `json:"documentation,omitempty"`
+	Longform      *string                   `json:"longform,omitempty"`
+	Placeholder   *string                   `json:"placeholder,omitempty"`
+	Optional      *bool                     `json:"optional,omitempty"`
+	Condition     *PrConfigurationCondition `json:"condition,omitempty"`
 }
 
 // the a configuration item for creating a new pr
@@ -2165,31 +2226,55 @@ type PrConfigurationAttributes struct {
 	Condition     *ConditionAttributes `json:"condition,omitempty"`
 }
 
+// declaritive spec for whether a config item is relevant given prior config
+type PrConfigurationCondition struct {
+	// a boolean operation to apply
+	Operation Operation `json:"operation"`
+	// the prior field to check
+	Field string `json:"field"`
+	// a fixed value to check against if its a binary operation
+	Value *string `json:"value,omitempty"`
+}
+
+// templated files used to add new files to a given pr
+type PrCreateSpec struct {
+	// pointer within an external git repository to source templates from
+	Git       *GitRef           `json:"git,omitempty"`
+	Templates []*PrTemplateSpec `json:"templates,omitempty"`
+}
+
+// the details of where to find and place a templated file
+type PrTemplateSpec struct {
+	Source      string `json:"source"`
+	Destination string `json:"destination"`
+	External    bool   `json:"external"`
+}
+
 // existing file updates that can be performed in a PR
 type PrUpdateSpec struct {
-	Regexes           []*string           `json:"regexes"`
-	RegexReplacements []*RegexReplacement `json:"regexReplacements"`
-	Files             []*string           `json:"files"`
-	ReplaceTemplate   *string             `json:"replaceTemplate"`
-	Yq                *string             `json:"yq"`
-	MatchStrategy     *MatchStrategy      `json:"matchStrategy"`
+	Regexes           []*string           `json:"regexes,omitempty"`
+	RegexReplacements []*RegexReplacement `json:"regexReplacements,omitempty"`
+	Files             []*string           `json:"files,omitempty"`
+	ReplaceTemplate   *string             `json:"replaceTemplate,omitempty"`
+	Yq                *string             `json:"yq,omitempty"`
+	MatchStrategy     *MatchStrategy      `json:"matchStrategy,omitempty"`
 }
 
 type PrometheusDatasource struct {
 	Query  string  `json:"query"`
-	Format *string `json:"format"`
-	Legend *string `json:"legend"`
+	Format *string `json:"format,omitempty"`
+	Legend *string `json:"legend,omitempty"`
 }
 
 // how a promotion for a service will be performed
 type PromotionCriteria struct {
 	ID string `json:"id"`
 	// the source service in a prior stage to promote settings from
-	Source *ServiceDeployment `json:"source"`
+	Source *ServiceDeployment `json:"source,omitempty"`
 	// whether you want to copy any configuration values from the source service
-	Secrets    []*string `json:"secrets"`
-	InsertedAt *string   `json:"insertedAt"`
-	UpdatedAt  *string   `json:"updatedAt"`
+	Secrets    []*string `json:"secrets,omitempty"`
+	InsertedAt *string   `json:"insertedAt,omitempty"`
+	UpdatedAt  *string   `json:"updatedAt,omitempty"`
 }
 
 // actions to perform if this stage service were promoted
@@ -2208,11 +2293,11 @@ type PromotionCriteriaAttributes struct {
 type PromotionService struct {
 	ID string `json:"id"`
 	// a service to promote
-	Service *ServiceDeployment `json:"service"`
+	Service *ServiceDeployment `json:"service,omitempty"`
 	// the revision of the service to promote
-	Revision   *Revision `json:"revision"`
-	InsertedAt *string   `json:"insertedAt"`
-	UpdatedAt  *string   `json:"updatedAt"`
+	Revision   *Revision `json:"revision,omitempty"`
+	InsertedAt *string   `json:"insertedAt,omitempty"`
+	UpdatedAt  *string   `json:"updatedAt,omitempty"`
 }
 
 // a cloud credential that can be used while creating new clusters
@@ -2221,8 +2306,8 @@ type ProviderCredential struct {
 	Name       string  `json:"name"`
 	Namespace  string  `json:"namespace"`
 	Kind       string  `json:"kind"`
-	InsertedAt *string `json:"insertedAt"`
-	UpdatedAt  *string `json:"updatedAt"`
+	InsertedAt *string `json:"insertedAt,omitempty"`
+	UpdatedAt  *string `json:"updatedAt,omitempty"`
 }
 
 type ProviderCredentialAttributes struct {
@@ -2235,14 +2320,14 @@ type ProviderCredentialAttributes struct {
 type PullRequest struct {
 	ID     string    `json:"id"`
 	URL    string    `json:"url"`
-	Title  *string   `json:"title"`
-	Labels []*string `json:"labels"`
+	Title  *string   `json:"title,omitempty"`
+	Labels []*string `json:"labels,omitempty"`
 	// the cluster this pr is meant to modify
-	Cluster *Cluster `json:"cluster"`
+	Cluster *Cluster `json:"cluster,omitempty"`
 	// the service this pr is meant to modify
-	Service    *ServiceDeployment `json:"service"`
-	InsertedAt *string            `json:"insertedAt"`
-	UpdatedAt  *string            `json:"updatedAt"`
+	Service    *ServiceDeployment `json:"service,omitempty"`
+	InsertedAt *string            `json:"insertedAt,omitempty"`
+	UpdatedAt  *string            `json:"updatedAt,omitempty"`
 }
 
 // attributes for a pull request pointer record
@@ -2259,12 +2344,12 @@ type PullRequestAttributes struct {
 
 type PullRequestConnection struct {
 	PageInfo PageInfo           `json:"pageInfo"`
-	Edges    []*PullRequestEdge `json:"edges"`
+	Edges    []*PullRequestEdge `json:"edges,omitempty"`
 }
 
 type PullRequestEdge struct {
-	Node   *PullRequest `json:"node"`
-	Cursor *string      `json:"cursor"`
+	Node   *PullRequest `json:"node,omitempty"`
+	Cursor *string      `json:"cursor,omitempty"`
 }
 
 type RbacAttributes struct {
@@ -2275,37 +2360,37 @@ type RbacAttributes struct {
 type Recipe struct {
 	ID             string           `json:"id"`
 	Name           string           `json:"name"`
-	Description    *string          `json:"description"`
-	Provider       *string          `json:"provider"`
-	Restricted     *bool            `json:"restricted"`
-	RecipeSections []*RecipeSection `json:"recipeSections"`
-	OidcEnabled    *bool            `json:"oidcEnabled"`
+	Description    *string          `json:"description,omitempty"`
+	Provider       *string          `json:"provider,omitempty"`
+	Restricted     *bool            `json:"restricted,omitempty"`
+	RecipeSections []*RecipeSection `json:"recipeSections,omitempty"`
+	OidcEnabled    *bool            `json:"oidcEnabled,omitempty"`
 }
 
 type RecipeConnection struct {
 	PageInfo PageInfo      `json:"pageInfo"`
-	Edges    []*RecipeEdge `json:"edges"`
+	Edges    []*RecipeEdge `json:"edges,omitempty"`
 }
 
 type RecipeEdge struct {
-	Node   *Recipe `json:"node"`
-	Cursor *string `json:"cursor"`
+	Node   *Recipe `json:"node,omitempty"`
+	Cursor *string `json:"cursor,omitempty"`
 }
 
 type RecipeItem struct {
 	ID            string               `json:"id"`
-	Configuration []*ConfigurationItem `json:"configuration"`
+	Configuration []*ConfigurationItem `json:"configuration,omitempty"`
 }
 
 type RecipeSection struct {
 	ID            string               `json:"id"`
-	Repository    *Repository          `json:"repository"`
-	RecipeItems   []*RecipeItem        `json:"recipeItems"`
-	Configuration []*ConfigurationItem `json:"configuration"`
+	Repository    *Repository          `json:"repository,omitempty"`
+	RecipeItems   []*RecipeItem        `json:"recipeItems,omitempty"`
+	Configuration []*ConfigurationItem `json:"configuration,omitempty"`
 }
 
 type Recommendation struct {
-	ContainerRecommendations []*ContainerRecommendation `json:"containerRecommendations"`
+	ContainerRecommendations []*ContainerRecommendation `json:"containerRecommendations,omitempty"`
 }
 
 // a fully specified regex/replace flow
@@ -2324,36 +2409,36 @@ type RegexReplacementAttributes struct {
 type Repository struct {
 	ID            string         `json:"id"`
 	Name          string         `json:"name"`
-	Description   *string        `json:"description"`
-	Icon          *string        `json:"icon"`
-	Docs          []*FileContent `json:"docs"`
-	Configuration *Configuration `json:"configuration"`
-	GrafanaDNS    *string        `json:"grafanaDns"`
+	Description   *string        `json:"description,omitempty"`
+	Icon          *string        `json:"icon,omitempty"`
+	Docs          []*FileContent `json:"docs,omitempty"`
+	Configuration *Configuration `json:"configuration,omitempty"`
+	GrafanaDNS    *string        `json:"grafanaDns,omitempty"`
 }
 
 type RepositoryConnection struct {
 	PageInfo PageInfo          `json:"pageInfo"`
-	Edges    []*RepositoryEdge `json:"edges"`
+	Edges    []*RepositoryEdge `json:"edges,omitempty"`
 }
 
 type RepositoryContext struct {
 	Repository string                 `json:"repository"`
-	Context    map[string]interface{} `json:"context"`
+	Context    map[string]interface{} `json:"context,omitempty"`
 }
 
 type RepositoryEdge struct {
-	Node   *Repository `json:"node"`
-	Cursor *string     `json:"cursor"`
+	Node   *Repository `json:"node,omitempty"`
+	Cursor *string     `json:"cursor,omitempty"`
 }
 
 type ResourceSpec struct {
-	CPU    *string `json:"cpu"`
-	Memory *string `json:"memory"`
+	CPU    *string `json:"cpu,omitempty"`
+	Memory *string `json:"memory,omitempty"`
 }
 
 type Resources struct {
-	Limits   *ResourceSpec `json:"limits"`
-	Requests *ResourceSpec `json:"requests"`
+	Limits   *ResourceSpec `json:"limits,omitempty"`
+	Requests *ResourceSpec `json:"requests,omitempty"`
 }
 
 type RestoreAttributes struct {
@@ -2367,36 +2452,36 @@ type Revision struct {
 	// the service's semver
 	Version string `json:"version"`
 	// git spec of the prior revision
-	Git *GitRef `json:"git"`
+	Git *GitRef `json:"git,omitempty"`
 	// description of how helm charts should be applied
-	Helm *HelmSpec `json:"helm"`
+	Helm *HelmSpec `json:"helm,omitempty"`
 	// the sha this service was pulled from
-	Sha *string `json:"sha"`
+	Sha *string `json:"sha,omitempty"`
 	// the commit message for this revision
-	Message    *string `json:"message"`
-	InsertedAt *string `json:"insertedAt"`
-	UpdatedAt  *string `json:"updatedAt"`
+	Message    *string `json:"message,omitempty"`
+	InsertedAt *string `json:"insertedAt,omitempty"`
+	UpdatedAt  *string `json:"updatedAt,omitempty"`
 }
 
 type RevisionConnection struct {
 	PageInfo PageInfo        `json:"pageInfo"`
-	Edges    []*RevisionEdge `json:"edges"`
+	Edges    []*RevisionEdge `json:"edges,omitempty"`
 }
 
 type RevisionEdge struct {
-	Node   *Revision `json:"node"`
-	Cursor *string   `json:"cursor"`
+	Node   *Revision `json:"node,omitempty"`
+	Cursor *string   `json:"cursor,omitempty"`
 }
 
 type Role struct {
 	ID           string         `json:"id"`
 	Name         string         `json:"name"`
-	Description  *string        `json:"description"`
-	Repositories []*string      `json:"repositories"`
-	Permissions  []*Permission  `json:"permissions"`
-	RoleBindings []*RoleBinding `json:"roleBindings"`
-	InsertedAt   *string        `json:"insertedAt"`
-	UpdatedAt    *string        `json:"updatedAt"`
+	Description  *string        `json:"description,omitempty"`
+	Repositories []*string      `json:"repositories,omitempty"`
+	Permissions  []*Permission  `json:"permissions,omitempty"`
+	RoleBindings []*RoleBinding `json:"roleBindings,omitempty"`
+	InsertedAt   *string        `json:"insertedAt,omitempty"`
+	UpdatedAt    *string        `json:"updatedAt,omitempty"`
 }
 
 type RoleAttributes struct {
@@ -2409,39 +2494,48 @@ type RoleAttributes struct {
 
 type RoleBinding struct {
 	ID         string  `json:"id"`
-	User       *User   `json:"user"`
-	Group      *Group  `json:"group"`
-	InsertedAt *string `json:"insertedAt"`
-	UpdatedAt  *string `json:"updatedAt"`
+	User       *User   `json:"user,omitempty"`
+	Group      *Group  `json:"group,omitempty"`
+	InsertedAt *string `json:"insertedAt,omitempty"`
+	UpdatedAt  *string `json:"updatedAt,omitempty"`
 }
 
 type RoleConnection struct {
 	PageInfo PageInfo    `json:"pageInfo"`
-	Edges    []*RoleEdge `json:"edges"`
+	Edges    []*RoleEdge `json:"edges,omitempty"`
 }
 
 type RoleEdge struct {
-	Node   *Role   `json:"node"`
-	Cursor *string `json:"cursor"`
+	Node   *Role   `json:"node,omitempty"`
+	Cursor *string `json:"cursor,omitempty"`
 }
 
 type RollingUpdate struct {
-	MaxSurge       *int64 `json:"maxSurge"`
-	MaxUnavailable *int64 `json:"maxUnavailable"`
+	MaxSurge       *int64 `json:"maxSurge,omitempty"`
+	MaxUnavailable *int64 `json:"maxUnavailable,omitempty"`
+}
+
+type RootMutationType struct {
+}
+
+type RootQueryType struct {
+}
+
+type RootSubscriptionType struct {
 }
 
 type Runbook struct {
 	Name       string                      `json:"name"`
 	Spec       RunbookSpec                 `json:"spec"`
-	Status     *RunbookStatus              `json:"status"`
-	Data       []*RunbookData              `json:"data"`
-	Executions *RunbookExecutionConnection `json:"executions"`
+	Status     *RunbookStatus              `json:"status,omitempty"`
+	Data       []*RunbookData              `json:"data,omitempty"`
+	Executions *RunbookExecutionConnection `json:"executions,omitempty"`
 }
 
 type RunbookAction struct {
 	Name          string               `json:"name"`
 	Type          string               `json:"type"`
-	Configuration *ConfigurationAction `json:"configuration"`
+	Configuration *ConfigurationAction `json:"configuration,omitempty"`
 }
 
 type RunbookActionInput struct {
@@ -2450,15 +2544,15 @@ type RunbookActionInput struct {
 }
 
 type RunbookActionResponse struct {
-	RedirectTo *string `json:"redirectTo"`
+	RedirectTo *string `json:"redirectTo,omitempty"`
 }
 
 type RunbookAlertStatus struct {
 	Name        string                 `json:"name"`
-	StartsAt    *string                `json:"startsAt"`
-	Fingerprint *string                `json:"fingerprint"`
-	Annotations map[string]interface{} `json:"annotations"`
-	Labels      map[string]interface{} `json:"labels"`
+	StartsAt    *string                `json:"startsAt,omitempty"`
+	Fingerprint *string                `json:"fingerprint,omitempty"`
+	Annotations map[string]interface{} `json:"annotations,omitempty"`
+	Labels      map[string]interface{} `json:"labels,omitempty"`
 }
 
 type RunbookContext struct {
@@ -2468,17 +2562,17 @@ type RunbookContext struct {
 
 type RunbookData struct {
 	Name       string             `json:"name"`
-	Source     *RunbookDatasource `json:"source"`
-	Kubernetes KubernetesData     `json:"kubernetes"`
-	Prometheus []*MetricResponse  `json:"prometheus"`
-	Nodes      []*Node            `json:"nodes"`
+	Source     *RunbookDatasource `json:"source,omitempty"`
+	Kubernetes KubernetesData     `json:"kubernetes,omitempty"`
+	Prometheus []*MetricResponse  `json:"prometheus,omitempty"`
+	Nodes      []*Node            `json:"nodes,omitempty"`
 }
 
 type RunbookDatasource struct {
 	Name       string                `json:"name"`
 	Type       string                `json:"type"`
-	Prometheus *PrometheusDatasource `json:"prometheus"`
-	Kubernetes *KubernetesDatasource `json:"kubernetes"`
+	Prometheus *PrometheusDatasource `json:"prometheus,omitempty"`
+	Kubernetes *KubernetesDatasource `json:"kubernetes,omitempty"`
 }
 
 type RunbookExecution struct {
@@ -2486,48 +2580,48 @@ type RunbookExecution struct {
 	Name       string                 `json:"name"`
 	Namespace  string                 `json:"namespace"`
 	Context    map[string]interface{} `json:"context"`
-	User       *User                  `json:"user"`
-	InsertedAt *string                `json:"insertedAt"`
-	UpdatedAt  *string                `json:"updatedAt"`
+	User       *User                  `json:"user,omitempty"`
+	InsertedAt *string                `json:"insertedAt,omitempty"`
+	UpdatedAt  *string                `json:"updatedAt,omitempty"`
 }
 
 type RunbookExecutionConnection struct {
 	PageInfo PageInfo                `json:"pageInfo"`
-	Edges    []*RunbookExecutionEdge `json:"edges"`
+	Edges    []*RunbookExecutionEdge `json:"edges,omitempty"`
 }
 
 type RunbookExecutionEdge struct {
-	Node   *RunbookExecution `json:"node"`
-	Cursor *string           `json:"cursor"`
+	Node   *RunbookExecution `json:"node,omitempty"`
+	Cursor *string           `json:"cursor,omitempty"`
 }
 
 type RunbookSpec struct {
 	Name        string                 `json:"name"`
-	Description *string                `json:"description"`
-	Display     map[string]interface{} `json:"display"`
-	Datasources []*RunbookDatasource   `json:"datasources"`
-	Actions     []*RunbookAction       `json:"actions"`
+	Description *string                `json:"description,omitempty"`
+	Display     map[string]interface{} `json:"display,omitempty"`
+	Datasources []*RunbookDatasource   `json:"datasources,omitempty"`
+	Actions     []*RunbookAction       `json:"actions,omitempty"`
 }
 
 type RunbookStatus struct {
-	Alerts []*RunbookAlertStatus `json:"alerts"`
+	Alerts []*RunbookAlertStatus `json:"alerts,omitempty"`
 }
 
 type RunningState struct {
-	StartedAt *string `json:"startedAt"`
+	StartedAt *string `json:"startedAt,omitempty"`
 }
 
 // a full specification of a kubernetes runtime component's requirements
 type RuntimeAddon struct {
 	// an icon to identify this runtime add-on
-	Icon *string `json:"icon"`
+	Icon *string `json:"icon,omitempty"`
 	// the url to the add-ons git repository
-	GitURL *string `json:"gitUrl"`
+	GitURL *string `json:"gitUrl,omitempty"`
 	// the add-on's readme, this is a heavy operation that should not be performed w/in lists
-	Readme *string `json:"readme"`
+	Readme *string `json:"readme,omitempty"`
 	// the release page for a runtime service at a version, this is a heavy operation not suitable for lists
-	ReleaseURL *string         `json:"releaseUrl"`
-	Versions   []*AddonVersion `json:"versions"`
+	ReleaseURL *string         `json:"releaseUrl,omitempty"`
+	Versions   []*AddonVersion `json:"versions,omitempty"`
 }
 
 // a service encapsulating a controller like istio/ingress-nginx/etc that is meant to extend the kubernetes api
@@ -2538,13 +2632,13 @@ type RuntimeService struct {
 	// add-on version, should be semver formatted
 	Version string `json:"version"`
 	// the full specification of this kubernetes add-on
-	Addon *RuntimeAddon `json:"addon"`
+	Addon *RuntimeAddon `json:"addon,omitempty"`
 	// the version of the add-on you've currently deployed
-	AddonVersion *AddonVersion `json:"addonVersion"`
+	AddonVersion *AddonVersion `json:"addonVersion,omitempty"`
 	// the plural service it came from
-	Service    *ServiceDeployment `json:"service"`
-	InsertedAt *string            `json:"insertedAt"`
-	UpdatedAt  *string            `json:"updatedAt"`
+	Service    *ServiceDeployment `json:"service,omitempty"`
+	InsertedAt *string            `json:"insertedAt,omitempty"`
+	UpdatedAt  *string            `json:"updatedAt,omitempty"`
 }
 
 type RuntimeServiceAttributes struct {
@@ -2554,8 +2648,8 @@ type RuntimeServiceAttributes struct {
 
 type S3Store struct {
 	Bucket      string  `json:"bucket"`
-	Region      *string `json:"region"`
-	Endpoint    *string `json:"endpoint"`
+	Region      *string `json:"region,omitempty"`
+	Endpoint    *string `json:"endpoint,omitempty"`
 	AccessKeyID string  `json:"accessKeyId"`
 }
 
@@ -2572,13 +2666,13 @@ type ScmConnection struct {
 	ID       string  `json:"id"`
 	Name     string  `json:"name"`
 	Type     ScmType `json:"type"`
-	Username *string `json:"username"`
+	Username *string `json:"username,omitempty"`
 	// base url for git clones for self-hosted versions
-	BaseURL *string `json:"baseUrl"`
+	BaseURL *string `json:"baseUrl,omitempty"`
 	// base url for HTTP apis for self-hosted versions if different from base url
-	APIURL     *string `json:"apiUrl"`
-	InsertedAt *string `json:"insertedAt"`
-	UpdatedAt  *string `json:"updatedAt"`
+	APIURL     *string `json:"apiUrl,omitempty"`
+	InsertedAt *string `json:"insertedAt,omitempty"`
+	UpdatedAt  *string `json:"updatedAt,omitempty"`
 }
 
 // an object representing a means to authenticate to a source control provider like Github
@@ -2589,16 +2683,18 @@ type ScmConnectionAttributes struct {
 	Token    *string `json:"token,omitempty"`
 	BaseURL  *string `json:"baseUrl,omitempty"`
 	APIURL   *string `json:"apiUrl,omitempty"`
+	// a ssh private key to be used for commit signing
+	SigningPrivateKey *string `json:"signingPrivateKey,omitempty"`
 }
 
 type ScmConnectionConnection struct {
 	PageInfo PageInfo             `json:"pageInfo"`
-	Edges    []*ScmConnectionEdge `json:"edges"`
+	Edges    []*ScmConnectionEdge `json:"edges,omitempty"`
 }
 
 type ScmConnectionEdge struct {
-	Node   *ScmConnection `json:"node"`
-	Cursor *string        `json:"cursor"`
+	Node   *ScmConnection `json:"node,omitempty"`
+	Cursor *string        `json:"cursor,omitempty"`
 }
 
 type ScopeAttributes struct {
@@ -2610,22 +2706,22 @@ type ScopeAttributes struct {
 
 type Secret struct {
 	Metadata Metadata               `json:"metadata"`
-	Type     *string                `json:"type"`
+	Type     *string                `json:"type,omitempty"`
 	Data     map[string]interface{} `json:"data"`
 }
 
 type SecretKeySelector struct {
 	Name string  `json:"name"`
-	Key  *string `json:"key"`
+	Key  *string `json:"key,omitempty"`
 }
 
 type Service struct {
 	Metadata Metadata      `json:"metadata"`
 	Status   ServiceStatus `json:"status"`
 	Spec     ServiceSpec   `json:"spec"`
-	Pods     []*Pod        `json:"pods"`
+	Pods     []*Pod        `json:"pods,omitempty"`
 	Raw      string        `json:"raw"`
-	Events   []*Event      `json:"events"`
+	Events   []*Event      `json:"events,omitempty"`
 }
 
 type ServiceAccountAttributes struct {
@@ -2646,25 +2742,25 @@ type ServiceComponent struct {
 	// internal id
 	ID string `json:"id"`
 	// kubernetes component health enum
-	State *ComponentState `json:"state"`
+	State *ComponentState `json:"state,omitempty"`
 	// whether this component has been applied to the k8s api
 	Synced bool `json:"synced"`
 	// api group of this resource
-	Group *string `json:"group"`
+	Group *string `json:"group,omitempty"`
 	// api version of this resource
-	Version *string `json:"version"`
+	Version *string `json:"version,omitempty"`
 	// api kind of this resource
 	Kind string `json:"kind"`
 	// kubernetes namespace of this resource
-	Namespace *string `json:"namespace"`
+	Namespace *string `json:"namespace,omitempty"`
 	// kubernetes name of this resource
 	Name string `json:"name"`
 	// the live and desired states of this service component
-	Content *ComponentContent `json:"content"`
+	Content *ComponentContent `json:"content,omitempty"`
 	// the service this component belongs to
-	Service *ServiceDeployment `json:"service"`
+	Service *ServiceDeployment `json:"service,omitempty"`
 	// any api deprecations discovered from this component
-	APIDeprecations []*APIDeprecation `json:"apiDeprecations"`
+	APIDeprecations []*APIDeprecation `json:"apiDeprecations,omitempty"`
 }
 
 // a configuration item k/v pair
@@ -2677,10 +2773,10 @@ type ServiceConfiguration struct {
 type ServiceContext struct {
 	ID            string                  `json:"id"`
 	Name          string                  `json:"name"`
-	Configuration map[string]interface{}  `json:"configuration"`
-	Secrets       []*ServiceConfiguration `json:"secrets"`
-	InsertedAt    *string                 `json:"insertedAt"`
-	UpdatedAt     *string                 `json:"updatedAt"`
+	Configuration map[string]interface{}  `json:"configuration,omitempty"`
+	Secrets       []*ServiceConfiguration `json:"secrets,omitempty"`
+	InsertedAt    *string                 `json:"insertedAt,omitempty"`
+	UpdatedAt     *string                 `json:"updatedAt,omitempty"`
 }
 
 // A reusable configuration context, useful for plumbing data from external tools like terraform/pulumi/etc
@@ -2702,62 +2798,62 @@ type ServiceDeployment struct {
 	// semver of this service
 	Version string `json:"version"`
 	// the desired sync interval for this service
-	Interval *string `json:"interval"`
+	Interval *string `json:"interval,omitempty"`
 	// description on where in git the service's manifests should be fetched
-	Git *GitRef `json:"git"`
+	Git *GitRef `json:"git,omitempty"`
 	// description of how helm charts should be applied
-	Helm *HelmSpec `json:"helm"`
+	Helm *HelmSpec `json:"helm,omitempty"`
 	// how you'd like to perform a canary promotion
-	Promotion *ServicePromotion `json:"promotion"`
+	Promotion *ServicePromotion `json:"promotion,omitempty"`
 	// if true, deletion of this service is not allowed
-	Protect *bool `json:"protect"`
+	Protect *bool `json:"protect,omitempty"`
 	// latest git sha we pulled from
-	Sha *string `json:"sha"`
+	Sha *string `json:"sha,omitempty"`
 	// https url to fetch the latest tarball of kubernetes manifests
-	Tarball *string `json:"tarball"`
+	Tarball *string `json:"tarball,omitempty"`
 	// a n / m representation of the number of healthy components of this service
-	ComponentStatus *string `json:"componentStatus"`
+	ComponentStatus *string `json:"componentStatus,omitempty"`
 	// settings for advanced tuning of the sync process
-	SyncConfig *SyncConfig `json:"syncConfig"`
+	SyncConfig *SyncConfig `json:"syncConfig,omitempty"`
 	// kustomize related service metadata
-	Kustomize *Kustomize `json:"kustomize"`
+	Kustomize *Kustomize `json:"kustomize,omitempty"`
 	// the commit message currently in use
-	Message *string `json:"message"`
+	Message *string `json:"message,omitempty"`
 	// the time this service was scheduled for deletion
-	DeletedAt *string `json:"deletedAt"`
+	DeletedAt *string `json:"deletedAt,omitempty"`
 	// whether this service should not actively reconcile state and instead simply report pending changes
-	DryRun *bool `json:"dryRun"`
+	DryRun *bool `json:"dryRun,omitempty"`
 	// fetches the /docs directory within this services git tree.  This is a heavy operation and should NOT be used in list queries
-	Docs []*GitFile `json:"docs"`
+	Docs []*GitFile `json:"docs,omitempty"`
 	// the git repo of this service
-	Repository     *GitRepository  `json:"repository"`
-	HelmRepository *HelmRepository `json:"helmRepository"`
+	Repository     *GitRepository  `json:"repository,omitempty"`
+	HelmRepository *HelmRepository `json:"helmRepository,omitempty"`
 	// read policy for this service
-	ReadBindings []*PolicyBinding `json:"readBindings"`
+	ReadBindings []*PolicyBinding `json:"readBindings,omitempty"`
 	// write policy of this service
-	WriteBindings []*PolicyBinding `json:"writeBindings"`
+	WriteBindings []*PolicyBinding `json:"writeBindings,omitempty"`
 	// a list of errors generated by the deployment operator
-	Errors []*ServiceError `json:"errors"`
+	Errors []*ServiceError `json:"errors,omitempty"`
 	// the cluster this service is deployed into
-	Cluster *Cluster `json:"cluster"`
+	Cluster *Cluster `json:"cluster,omitempty"`
 	// the current revision of this service
-	Revision *Revision `json:"revision"`
+	Revision *Revision `json:"revision,omitempty"`
 	// possibly secret configuration used to template the manifests of this service
-	Configuration []*ServiceConfiguration `json:"configuration"`
+	Configuration []*ServiceConfiguration `json:"configuration,omitempty"`
 	// the kubernetes component of a service
-	Components []*ServiceComponent `json:"components"`
+	Components []*ServiceComponent `json:"components,omitempty"`
 	// the global service this service is the source for
-	GlobalService *GlobalService `json:"globalService"`
+	GlobalService *GlobalService `json:"globalService,omitempty"`
 	// whether this service is controlled by a global service
-	Owner *GlobalService `json:"owner"`
+	Owner *GlobalService `json:"owner,omitempty"`
 	// bound contexts for this service
-	Contexts []*ServiceContext `json:"contexts"`
+	Contexts []*ServiceContext `json:"contexts,omitempty"`
 	// a relay connection of all revisions of this service, these are periodically pruned up to a history limit
-	Revisions *RevisionConnection `json:"revisions"`
+	Revisions *RevisionConnection `json:"revisions,omitempty"`
 	// whether this service is editable
-	Editable   *bool   `json:"editable"`
-	InsertedAt *string `json:"insertedAt"`
-	UpdatedAt  *string `json:"updatedAt"`
+	Editable   *bool   `json:"editable,omitempty"`
+	InsertedAt *string `json:"insertedAt,omitempty"`
+	UpdatedAt  *string `json:"updatedAt,omitempty"`
 }
 
 type ServiceDeploymentAttributes struct {
@@ -2781,12 +2877,12 @@ type ServiceDeploymentAttributes struct {
 
 type ServiceDeploymentConnection struct {
 	PageInfo PageInfo                 `json:"pageInfo"`
-	Edges    []*ServiceDeploymentEdge `json:"edges"`
+	Edges    []*ServiceDeploymentEdge `json:"edges,omitempty"`
 }
 
 type ServiceDeploymentEdge struct {
-	Node   *ServiceDeployment `json:"node"`
-	Cursor *string            `json:"cursor"`
+	Node   *ServiceDeployment `json:"node,omitempty"`
+	Cursor *string            `json:"cursor,omitempty"`
 }
 
 // an error sent from the deploy operator about sync progress
@@ -2801,21 +2897,21 @@ type ServiceErrorAttributes struct {
 }
 
 type ServicePort struct {
-	Name       *string `json:"name"`
-	Protocol   *string `json:"protocol"`
-	Port       *int64  `json:"port"`
-	TargetPort *string `json:"targetPort"`
+	Name       *string `json:"name,omitempty"`
+	Protocol   *string `json:"protocol,omitempty"`
+	Port       *int64  `json:"port,omitempty"`
+	TargetPort *string `json:"targetPort,omitempty"`
 }
 
 type ServiceSpec struct {
-	Type      *string                `json:"type"`
-	ClusterIP *string                `json:"clusterIp"`
-	Selector  map[string]interface{} `json:"selector"`
-	Ports     []*ServicePort         `json:"ports"`
+	Type      *string                `json:"type,omitempty"`
+	ClusterIP *string                `json:"clusterIp,omitempty"`
+	Selector  map[string]interface{} `json:"selector,omitempty"`
+	Ports     []*ServicePort         `json:"ports,omitempty"`
 }
 
 type ServiceStatus struct {
-	LoadBalancer *LoadBalancerStatus `json:"loadBalancer"`
+	LoadBalancer *LoadBalancerStatus `json:"loadBalancer,omitempty"`
 }
 
 // a rollup count of the statuses of services in a query
@@ -2839,11 +2935,11 @@ type ServiceUpdateAttributes struct {
 }
 
 type SMTP struct {
-	Server   *string `json:"server"`
-	Port     *int64  `json:"port"`
-	Password *string `json:"password"`
-	Sender   *string `json:"sender"`
-	User     *string `json:"user"`
+	Server   *string `json:"server,omitempty"`
+	Port     *int64  `json:"port,omitempty"`
+	Password *string `json:"password,omitempty"`
+	Sender   *string `json:"sender,omitempty"`
+	User     *string `json:"user,omitempty"`
 }
 
 type SMTPInput struct {
@@ -2857,21 +2953,21 @@ type SMTPInput struct {
 type Stack struct {
 	ID         string           `json:"id"`
 	Name       string           `json:"name"`
-	Bundles    []*Recipe        `json:"bundles"`
-	Sections   []*RecipeSection `json:"sections"`
-	InsertedAt *string          `json:"insertedAt"`
-	UpdatedAt  *string          `json:"updatedAt"`
+	Bundles    []*Recipe        `json:"bundles,omitempty"`
+	Sections   []*RecipeSection `json:"sections,omitempty"`
+	InsertedAt *string          `json:"insertedAt,omitempty"`
+	UpdatedAt  *string          `json:"updatedAt,omitempty"`
 }
 
 // the configuration of a service within a pipeline stage, including optional promotion criteria
 type StageService struct {
 	ID string `json:"id"`
 	// a pointer to a service
-	Service *ServiceDeployment `json:"service"`
+	Service *ServiceDeployment `json:"service,omitempty"`
 	// criteria for how a promotion of this service shall be performed
-	Criteria   *PromotionCriteria `json:"criteria"`
-	InsertedAt *string            `json:"insertedAt"`
-	UpdatedAt  *string            `json:"updatedAt"`
+	Criteria   *PromotionCriteria `json:"criteria,omitempty"`
+	InsertedAt *string            `json:"insertedAt,omitempty"`
+	UpdatedAt  *string            `json:"updatedAt,omitempty"`
 }
 
 // the attributes of a service w/in a specific stage
@@ -2889,27 +2985,27 @@ type StatefulSet struct {
 	Metadata Metadata          `json:"metadata"`
 	Status   StatefulSetStatus `json:"status"`
 	Spec     StatefulSetSpec   `json:"spec"`
-	Pods     []*Pod            `json:"pods"`
+	Pods     []*Pod            `json:"pods,omitempty"`
 	Raw      string            `json:"raw"`
-	Events   []*Event          `json:"events"`
+	Events   []*Event          `json:"events,omitempty"`
 }
 
 func (StatefulSet) IsKubernetesData() {}
 
 type StatefulSetSpec struct {
-	Replicas    *int64  `json:"replicas"`
-	ServiceName *string `json:"serviceName"`
+	Replicas    *int64  `json:"replicas,omitempty"`
+	ServiceName *string `json:"serviceName,omitempty"`
 }
 
 type StatefulSetStatus struct {
-	CurrentReplicas *int64 `json:"currentReplicas"`
-	Replicas        *int64 `json:"replicas"`
-	ReadyReplicas   *int64 `json:"readyReplicas"`
-	UpdatedReplicas *int64 `json:"updatedReplicas"`
+	CurrentReplicas *int64 `json:"currentReplicas,omitempty"`
+	Replicas        *int64 `json:"replicas,omitempty"`
+	ReadyReplicas   *int64 `json:"readyReplicas,omitempty"`
+	UpdatedReplicas *int64 `json:"updatedReplicas,omitempty"`
 }
 
 type StatusComponent struct {
-	Group  *string `json:"group"`
+	Group  *string `json:"group,omitempty"`
 	Kind   string  `json:"kind"`
 	Name   string  `json:"name"`
 	Status string  `json:"status"`
@@ -2924,7 +3020,7 @@ type StatusCondition struct {
 
 // Advanced configuration of how to sync resources
 type SyncConfig struct {
-	NamespaceMetadata *NamespaceMetadata `json:"namespaceMetadata"`
+	NamespaceMetadata *NamespaceMetadata `json:"namespaceMetadata,omitempty"`
 }
 
 type SyncConfigAttributes struct {
@@ -2944,12 +3040,12 @@ type TagAttributes struct {
 
 type TagConnection struct {
 	PageInfo PageInfo   `json:"pageInfo"`
-	Edges    []*TagEdge `json:"edges"`
+	Edges    []*TagEdge `json:"edges,omitempty"`
 }
 
 type TagEdge struct {
-	Node   *Tag    `json:"node"`
-	Cursor *string `json:"cursor"`
+	Node   *Tag    `json:"node,omitempty"`
+	Cursor *string `json:"cursor,omitempty"`
 }
 
 type TagInput struct {
@@ -2976,48 +3072,48 @@ type TaintAttributes struct {
 }
 
 type TargetRef struct {
-	APIVersion *string `json:"apiVersion"`
-	Kind       *string `json:"kind"`
-	Name       *string `json:"name"`
+	APIVersion *string `json:"apiVersion,omitempty"`
+	Kind       *string `json:"kind,omitempty"`
+	Name       *string `json:"name,omitempty"`
 }
 
 type TerminatedState struct {
-	ExitCode   *int64  `json:"exitCode"`
-	FinishedAt *string `json:"finishedAt"`
-	StartedAt  *string `json:"startedAt"`
-	Message    *string `json:"message"`
-	Reason     *string `json:"reason"`
+	ExitCode   *int64  `json:"exitCode,omitempty"`
+	FinishedAt *string `json:"finishedAt,omitempty"`
+	StartedAt  *string `json:"startedAt,omitempty"`
+	Message    *string `json:"message,omitempty"`
+	Reason     *string `json:"reason,omitempty"`
 }
 
 type UpgradePlan struct {
 	Metadata Metadata          `json:"metadata"`
 	Status   UpgradePlanStatus `json:"status"`
 	Spec     UpgradePlanSpec   `json:"spec"`
-	Pods     []*Pod            `json:"pods"`
+	Pods     []*Pod            `json:"pods,omitempty"`
 	Raw      string            `json:"raw"`
-	Events   []*Event          `json:"events"`
+	Events   []*Event          `json:"events,omitempty"`
 }
 
 type UpgradePlanSpec struct {
-	Version     *string `json:"version"`
-	Cordon      *bool   `json:"cordon"`
-	Concurrency *int64  `json:"concurrency"`
+	Version     *string `json:"version,omitempty"`
+	Cordon      *bool   `json:"cordon,omitempty"`
+	Concurrency *int64  `json:"concurrency,omitempty"`
 }
 
 type UpgradePlanStatus struct {
-	Conditions []*StatusCondition `json:"conditions"`
+	Conditions []*StatusCondition `json:"conditions,omitempty"`
 }
 
 type UpgradePolicy struct {
 	ID           string            `json:"id"`
 	Name         string            `json:"name"`
-	Description  *string           `json:"description"`
-	Repositories []*string         `json:"repositories"`
+	Description  *string           `json:"description,omitempty"`
+	Repositories []*string         `json:"repositories,omitempty"`
 	Type         UpgradePolicyType `json:"type"`
 	Target       string            `json:"target"`
-	Weight       *int64            `json:"weight"`
-	InsertedAt   *string           `json:"insertedAt"`
-	UpdatedAt    *string           `json:"updatedAt"`
+	Weight       *int64            `json:"weight,omitempty"`
+	InsertedAt   *string           `json:"insertedAt,omitempty"`
+	UpdatedAt    *string           `json:"updatedAt,omitempty"`
 }
 
 type UpgradePolicyAttributes struct {
@@ -3033,37 +3129,38 @@ type User struct {
 	ID                  string           `json:"id"`
 	Name                string           `json:"name"`
 	Email               string           `json:"email"`
-	DeletedAt           *string          `json:"deletedAt"`
-	Profile             *string          `json:"profile"`
-	PluralID            *string          `json:"pluralId"`
-	Roles               *UserRoles       `json:"roles"`
-	ReadTimestamp       *string          `json:"readTimestamp"`
-	BuildTimestamp      *string          `json:"buildTimestamp"`
-	AssumeBindings      []*PolicyBinding `json:"assumeBindings"`
-	Groups              []*Group         `json:"groups"`
-	BoundRoles          []*Role          `json:"boundRoles"`
-	Jwt                 *string          `json:"jwt"`
-	UnreadNotifications *int64           `json:"unreadNotifications"`
-	BackgroundColor     *string          `json:"backgroundColor"`
-	InsertedAt          *string          `json:"insertedAt"`
-	UpdatedAt           *string          `json:"updatedAt"`
+	DeletedAt           *string          `json:"deletedAt,omitempty"`
+	Profile             *string          `json:"profile,omitempty"`
+	PluralID            *string          `json:"pluralId,omitempty"`
+	Roles               *UserRoles       `json:"roles,omitempty"`
+	ReadTimestamp       *string          `json:"readTimestamp,omitempty"`
+	BuildTimestamp      *string          `json:"buildTimestamp,omitempty"`
+	AssumeBindings      []*PolicyBinding `json:"assumeBindings,omitempty"`
+	Groups              []*Group         `json:"groups,omitempty"`
+	BoundRoles          []*Role          `json:"boundRoles,omitempty"`
+	Jwt                 *string          `json:"jwt,omitempty"`
+	UnreadNotifications *int64           `json:"unreadNotifications,omitempty"`
+	BackgroundColor     *string          `json:"backgroundColor,omitempty"`
+	InsertedAt          *string          `json:"insertedAt,omitempty"`
+	UpdatedAt           *string          `json:"updatedAt,omitempty"`
 }
 
 type UserAttributes struct {
-	Name     *string             `json:"name,omitempty"`
-	Email    *string             `json:"email,omitempty"`
-	Password *string             `json:"password,omitempty"`
-	Roles    *UserRoleAttributes `json:"roles,omitempty"`
+	Name              *string             `json:"name,omitempty"`
+	Email             *string             `json:"email,omitempty"`
+	Password          *string             `json:"password,omitempty"`
+	Roles             *UserRoleAttributes `json:"roles,omitempty"`
+	SigningPrivateKey *string             `json:"signingPrivateKey,omitempty"`
 }
 
 type UserConnection struct {
 	PageInfo PageInfo    `json:"pageInfo"`
-	Edges    []*UserEdge `json:"edges"`
+	Edges    []*UserEdge `json:"edges,omitempty"`
 }
 
 type UserEdge struct {
-	Node   *User   `json:"node"`
-	Cursor *string `json:"cursor"`
+	Node   *User   `json:"node,omitempty"`
+	Cursor *string `json:"cursor,omitempty"`
 }
 
 type UserRoleAttributes struct {
@@ -3071,7 +3168,7 @@ type UserRoleAttributes struct {
 }
 
 type UserRoles struct {
-	Admin *bool `json:"admin"`
+	Admin *bool `json:"admin,omitempty"`
 }
 
 // a shortform reference to an addon by version
@@ -3083,7 +3180,7 @@ type VersionReference struct {
 type VerticalPodAutoscaler struct {
 	Metadata Metadata                     `json:"metadata"`
 	Spec     VerticalPodAutoscalerSpec    `json:"spec"`
-	Status   *VerticalPodAutoscalerStatus `json:"status"`
+	Status   *VerticalPodAutoscalerStatus `json:"status,omitempty"`
 }
 
 type VerticalPodAutoscalerSpec struct {
@@ -3092,16 +3189,16 @@ type VerticalPodAutoscalerSpec struct {
 }
 
 type VerticalPodAutoscalerStatus struct {
-	Recommendation *Recommendation `json:"recommendation"`
+	Recommendation *Recommendation `json:"recommendation,omitempty"`
 }
 
 type VerticalPodAutoscalerUpdatePolicy struct {
-	UpdateMode *string `json:"updateMode"`
+	UpdateMode *string `json:"updateMode,omitempty"`
 }
 
 type WaitingState struct {
-	Message *string `json:"message"`
-	Reason  *string `json:"reason"`
+	Message *string `json:"message,omitempty"`
+	Reason  *string `json:"reason,omitempty"`
 }
 
 type Webhook struct {
@@ -3109,8 +3206,8 @@ type Webhook struct {
 	URL        string        `json:"url"`
 	Health     WebhookHealth `json:"health"`
 	Type       WebhookType   `json:"type"`
-	InsertedAt *string       `json:"insertedAt"`
-	UpdatedAt  *string       `json:"updatedAt"`
+	InsertedAt *string       `json:"insertedAt,omitempty"`
+	UpdatedAt  *string       `json:"updatedAt,omitempty"`
 }
 
 type WebhookAttributes struct {
@@ -3119,32 +3216,32 @@ type WebhookAttributes struct {
 
 type WebhookConnection struct {
 	PageInfo PageInfo       `json:"pageInfo"`
-	Edges    []*WebhookEdge `json:"edges"`
+	Edges    []*WebhookEdge `json:"edges,omitempty"`
 }
 
 type WebhookEdge struct {
-	Node   *Webhook `json:"node"`
-	Cursor *string  `json:"cursor"`
+	Node   *Webhook `json:"node,omitempty"`
+	Cursor *string  `json:"cursor,omitempty"`
 }
 
 type WireguardPeer struct {
 	Metadata Metadata             `json:"metadata"`
-	Status   *WireguardPeerStatus `json:"status"`
+	Status   *WireguardPeerStatus `json:"status,omitempty"`
 	Spec     WireguardPeerSpec    `json:"spec"`
-	Config   *string              `json:"config"`
-	User     *User                `json:"user"`
+	Config   *string              `json:"config,omitempty"`
+	User     *User                `json:"user,omitempty"`
 	Raw      string               `json:"raw"`
 }
 
 type WireguardPeerSpec struct {
-	WireguardRef *string `json:"wireguardRef"`
-	Address      *string `json:"address"`
-	PublicKey    *string `json:"publicKey"`
+	WireguardRef *string `json:"wireguardRef,omitempty"`
+	Address      *string `json:"address,omitempty"`
+	PublicKey    *string `json:"publicKey,omitempty"`
 }
 
 type WireguardPeerStatus struct {
-	Ready      *bool              `json:"ready"`
-	Conditions []*StatusCondition `json:"conditions"`
+	Ready      *bool              `json:"ready,omitempty"`
+	Conditions []*StatusCondition `json:"conditions,omitempty"`
 }
 
 type AuditAction string
@@ -3214,6 +3311,8 @@ const (
 	AuditTypeProviderCredential AuditType = "PROVIDER_CREDENTIAL"
 	AuditTypePipeline           AuditType = "PIPELINE"
 	AuditTypeGlobal             AuditType = "GLOBAL"
+	AuditTypeObjectStore        AuditType = "OBJECT_STORE"
+	AuditTypeClusterRestore     AuditType = "CLUSTER_RESTORE"
 )
 
 var AllAuditType = []AuditType{
@@ -3234,11 +3333,13 @@ var AllAuditType = []AuditType{
 	AuditTypeProviderCredential,
 	AuditTypePipeline,
 	AuditTypeGlobal,
+	AuditTypeObjectStore,
+	AuditTypeClusterRestore,
 }
 
 func (e AuditType) IsValid() bool {
 	switch e {
-	case AuditTypeBuild, AuditTypePod, AuditTypeConfiguration, AuditTypeUser, AuditTypeGroup, AuditTypeRole, AuditTypeGroupMember, AuditTypePolicy, AuditTypeTempToken, AuditTypeService, AuditTypeCluster, AuditTypeClusterProvider, AuditTypeGitRepository, AuditTypeDeploymentSettings, AuditTypeProviderCredential, AuditTypePipeline, AuditTypeGlobal:
+	case AuditTypeBuild, AuditTypePod, AuditTypeConfiguration, AuditTypeUser, AuditTypeGroup, AuditTypeRole, AuditTypeGroupMember, AuditTypePolicy, AuditTypeTempToken, AuditTypeService, AuditTypeCluster, AuditTypeClusterProvider, AuditTypeGitRepository, AuditTypeDeploymentSettings, AuditTypeProviderCredential, AuditTypePipeline, AuditTypeGlobal, AuditTypeObjectStore, AuditTypeClusterRestore:
 		return true
 	}
 	return false
@@ -3935,6 +4036,53 @@ func (e *Permission) UnmarshalGQL(v interface{}) error {
 }
 
 func (e Permission) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type PrRole string
+
+const (
+	PrRoleCluster  PrRole = "CLUSTER"
+	PrRoleService  PrRole = "SERVICE"
+	PrRolePipeline PrRole = "PIPELINE"
+	PrRoleUpdate   PrRole = "UPDATE"
+	PrRoleUpgrade  PrRole = "UPGRADE"
+)
+
+var AllPrRole = []PrRole{
+	PrRoleCluster,
+	PrRoleService,
+	PrRolePipeline,
+	PrRoleUpdate,
+	PrRoleUpgrade,
+}
+
+func (e PrRole) IsValid() bool {
+	switch e {
+	case PrRoleCluster, PrRoleService, PrRolePipeline, PrRoleUpdate, PrRoleUpgrade:
+		return true
+	}
+	return false
+}
+
+func (e PrRole) String() string {
+	return string(e)
+}
+
+func (e *PrRole) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = PrRole(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid PrRole", str)
+	}
+	return nil
+}
+
+func (e PrRole) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

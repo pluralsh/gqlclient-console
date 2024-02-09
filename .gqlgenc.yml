@@ -1,10 +1,11 @@
 generate:
-  client: true
+  clientV2: true
+  clientInterfaceName: "ConsoleClient"
+  query: false
+  mutation: false
 model:
-  package: gqlclient
   filename: models_gen.go # https://github.com/99designs/gqlgen/tree/master/plugin/modelgen
 client:
-  package: gqlclient
   filename: client.go # Where should any generated client go?
 models:
   Int:

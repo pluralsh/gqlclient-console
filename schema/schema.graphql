@@ -177,7 +177,7 @@ type RootQueryType {
 
   prAutomation(id: ID, name: String): PrAutomation
 
-  pullRequests(after: String, first: Int, before: String, last: Int, clusterId: ID, serviceId: ID): PullRequestConnection
+  pullRequests(after: String, first: Int, before: String, last: Int, clusterId: ID, serviceId: ID, q: String): PullRequestConnection
 
   "exchanges a kubeconfig token for user info"
   tokenExchange(token: String!): User
@@ -254,10 +254,16 @@ type RootQueryType {
 
   pipeline(id: ID!): Pipeline
 
+  pipelineGate(id: ID!): PipelineGate
+
+  clusterBackup(id: ID, clusterId: ID, namespace: String, name: String): ClusterBackup
+
   objectStores(after: String, first: Int, before: String, last: Int): ObjectStoreConnection
 
   "the services deployed in the current cluster, to be polled by the deploy operator"
   clusterServices: [ServiceDeployment]
+
+  pagedClusterServices(after: String, first: Int, before: String, last: Int): ServiceDeploymentConnection
 
   "fetches details of this service deployment, and can be called by the deploy operator"
   serviceDeployment(
@@ -273,6 +279,8 @@ type RootQueryType {
   myCluster: Cluster
 
   clusterGates: [PipelineGate]
+
+  pagedClusterGates(after: String, first: Int, before: String, last: Int): PipelineGateConnection
 
   clusterGate(id: ID!): PipelineGate
 
@@ -525,6 +533,8 @@ type RootMutationType {
 
   deleteObjectStore(id: ID!): ObjectStore
 
+  configureBackups(clusterId: ID!, storeId: ID!): Cluster
+
   createClusterRestore(backupId: ID!): ClusterRestore
 
   "a regular status ping to be sent by the deploy operator"
@@ -538,6 +548,7 @@ type RootMutationType {
 
   updateGate(id: ID!, attributes: GateUpdateAttributes!): PipelineGate
 
+  "upserts a cluster backup resource"
   createClusterBackup(attributes: BackupAttributes!): ClusterBackup
 
   updateClusterRestore(id: ID!, attributes: RestoreAttributes!): ClusterRestore
@@ -588,6 +599,9 @@ type DeploymentSettings {
   "the way we can connect to your prometheus instance"
   prometheusConnection: HttpConnection
 
+  "custom helm values to apply to all agents (useful for things like adding customary annotations\/labels)"
+  agentHelmValues: String
+
   "the repo to fetch CAPI manifests from, for both providers and clusters"
   artifactRepository: GitRepository
 
@@ -626,6 +640,9 @@ input DeploymentSettingsAttributes {
   artifactRepositoryId: ID
 
   deployerRepositoryId: ID
+
+  "custom helm values to apply to all agents (useful for things like adding customary annotations\/labels)"
+  agentHelmValues: String
 
   "connection details for a prometheus instance to use"
   prometheusConnection: HttpConnectionAttributes
@@ -673,6 +690,8 @@ input ObjectStoreAttributes {
 
 input BackupAttributes {
   name: String!
+  namespace: String!
+  garbageCollected: Boolean
 }
 
 input RestoreAttributes {
@@ -715,6 +734,8 @@ type ObjectStore {
 type ClusterBackup {
   id: ID!
   name: String!
+  namespace: String!
+  garbageCollected: Boolean
   cluster: Cluster
   insertedAt: DateTime
   updatedAt: DateTime
@@ -966,6 +987,9 @@ type PipelineGate {
   "more detailed specification for complex gates"
   spec: GateSpec
 
+  "the kubernetes job running this gate (should only be fetched lazily as this is a heavy operation)"
+  job: Job
+
   "the cluster this gate can run on"
   cluster: Cluster
 
@@ -1089,6 +1113,11 @@ type PromotionService {
 type PipelineConnection {
   pageInfo: PageInfo!
   edges: [PipelineEdge]
+}
+
+type PipelineGateConnection {
+  pageInfo: PageInfo!
+  edges: [PipelineGateEdge]
 }
 
 enum ComponentState {
@@ -1898,6 +1927,12 @@ type Cluster {
   "pr automations that are relevant to managing this cluster"
   prAutomations: [PrAutomation]
 
+  "the active restore for this cluster"
+  restore: ClusterRestore
+
+  "the object store connection bound to this cluster for backup\/restore"
+  objectStore: ObjectStore
+
   "list cached nodes for a cluster, this can be stale up to 5m"
   nodes: [Node]
 
@@ -2194,6 +2229,14 @@ enum MatchStrategy {
   RECURSIVE
 }
 
+enum PrRole {
+  CLUSTER
+  SERVICE
+  PIPELINE
+  UPDATE
+  UPGRADE
+}
+
 enum ConfigurationType {
   STRING
   INT
@@ -2245,16 +2288,26 @@ input GitAttributes {
 "an object representing a means to authenticate to a source control provider like Github"
 input ScmConnectionAttributes {
   name: String!
+
   type: ScmType!
+
   username: String
+
   token: String
+
   baseUrl: String
+
   apiUrl: String
+
+  "a ssh private key to be used for commit signing"
+  signingPrivateKey: String
 }
 
 "A way to create a self-service means of generating PRs against an IaC repo"
 input PrAutomationAttributes {
   name: String
+
+  role: PrRole
 
   "string id for a repository, eg for github, this is {organization}\/{repository-name}"
   identifier: String
@@ -2269,6 +2322,8 @@ input PrAutomationAttributes {
 
   updates: PrAutomationUpdateSpecAttributes
 
+  creates: PrAutomationCreateSpecAttributes
+
   "link to an add-on name if this can update it"
   addon: String
 
@@ -2280,6 +2335,9 @@ input PrAutomationAttributes {
 
   "the scm connection to use for pr generation"
   connectionId: ID
+
+  "a git repository to use for create mode prs"
+  repositoryId: ID
 
   configuration: [PrConfigurationAttributes]
 
@@ -2325,10 +2383,26 @@ input PrAutomationUpdateSpecAttributes {
   matchStrategy: MatchStrategy
 }
 
+"Operations to create new templated files within this pr"
+input PrAutomationCreateSpecAttributes {
+  git: GitRefAttributes
+  templates: [PrAutomationTemplateAttributes]
+}
+
 "a fully specify regex\/replace flow"
 input RegexReplacementAttributes {
   regex: String!
   replacement: String!
+}
+
+"templates to apply in this pr"
+input PrAutomationTemplateAttributes {
+  source: String!
+
+  destination: String!
+
+  "whether the source template is sourced from an external git repo bound to this automation"
+  external: Boolean!
 }
 
 "attributes for a pull request pointer record"
@@ -2466,6 +2540,9 @@ type PrAutomation {
   "the name for this automation"
   name: String!
 
+  "An enum describing the high-level responsibility of this pr, eg creating a cluster or service, or upgrading a cluster"
+  role: PrRole
+
   documentation: String
 
   title: String!
@@ -2473,6 +2550,10 @@ type PrAutomation {
   message: String!
 
   updates: PrUpdateSpec
+
+  creates: PrCreateSpec
+
+  configuration: [PrConfiguration]
 
   "write policy for this pr automation, also propagates to the notifications list for any created PRs"
   writeBindings: [PolicyBinding]
@@ -2482,6 +2563,9 @@ type PrAutomation {
 
   "link to an add-on name if this can update it"
   addon: String
+
+  "the git repository to use for sourcing external templates"
+  repository: GitRepository
 
   "link to a cluster if this is to perform an upgrade"
   cluster: Cluster
@@ -2507,12 +2591,51 @@ type PrUpdateSpec {
   matchStrategy: MatchStrategy
 }
 
+"templated files used to add new files to a given pr"
+type PrCreateSpec {
+  "pointer within an external git repository to source templates from"
+  git: GitRef
+
+  templates: [PrTemplateSpec]
+}
+
+"the details of where to find and place a templated file"
+type PrTemplateSpec {
+  source: String!
+  destination: String!
+  external: Boolean!
+}
+
 "a fully specified regex\/replace flow"
 type RegexReplacement {
   regex: String!
 
   "template string to replace any match with"
   replacement: String!
+}
+
+"the a configuration item for creating a new pr, used for templating the ultimate code changes made"
+type PrConfiguration {
+  type: ConfigurationType!
+  name: String!
+  default: String
+  documentation: String
+  longform: String
+  placeholder: String
+  optional: Boolean
+  condition: PrConfigurationCondition
+}
+
+"declaritive spec for whether a config item is relevant given prior config"
+type PrConfigurationCondition {
+  "a boolean operation to apply"
+  operation: Operation!
+
+  "the prior field to check"
+  field: String!
+
+  "a fixed value to check against if its a binary operation"
+  value: String
 }
 
 "A reference to a pull request for your kubernetes related IaC"
@@ -2913,6 +3036,8 @@ enum AuditType {
   PROVIDER_CREDENTIAL
   PIPELINE
   GLOBAL
+  OBJECT_STORE
+  CLUSTER_RESTORE
 }
 
 enum AuditAction {
@@ -3298,6 +3423,7 @@ type Job {
   raw: String!
   events: [Event]
   pods: [Pod]
+  logs(container: String!, sinceSeconds: Int!): [String]
 }
 
 type JobStatus {
@@ -3750,6 +3876,7 @@ input UserAttributes {
   email: String
   password: String
   roles: UserRoleAttributes
+  signingPrivateKey: String
 }
 
 input ServiceAccountAttributes {
@@ -3886,7 +4013,7 @@ type AccessToken {
 }
 
 type AccessTokenScope {
-  api: String!
+  api: String
   apis: [String!]
   identifier: String
   ids: [String!]
@@ -4242,6 +4369,11 @@ type RevisionEdge {
 
 type ServiceDeploymentEdge {
   node: ServiceDeployment
+  cursor: String
+}
+
+type PipelineGateEdge {
+  node: PipelineGate
   cursor: String
 }
 
