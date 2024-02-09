@@ -11,6 +11,7 @@ import (
 
 type ConsoleClient interface {
 	CreateClusterBackup(ctx context.Context, attributes BackupAttributes, interceptors ...clientv2.RequestInterceptor) (*CreateClusterBackup, error)
+	GetClusterBackup(ctx context.Context, id *string, clusterID *string, namespace *string, name *string, interceptors ...clientv2.RequestInterceptor) (*GetClusterBackup, error)
 	UpdateClusterRestore(ctx context.Context, id string, attributes RestoreAttributes, interceptors ...clientv2.RequestInterceptor) (*UpdateClusterRestore, error)
 	CreateClusterRestore(ctx context.Context, backupID string, interceptors ...clientv2.RequestInterceptor) (*CreateClusterRestore, error)
 	GetClusterRestore(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*GetClusterRestore, error)
@@ -53,6 +54,9 @@ type ConsoleClient interface {
 	GetServiceDeploymentByHandle(ctx context.Context, cluster string, name string, interceptors ...clientv2.RequestInterceptor) (*GetServiceDeploymentByHandle, error)
 	ListServiceDeployment(ctx context.Context, after *string, before *string, last *int64, clusterID *string, interceptors ...clientv2.RequestInterceptor) (*ListServiceDeployment, error)
 	ListServiceDeploymentByHandle(ctx context.Context, after *string, before *string, last *int64, cluster *string, interceptors ...clientv2.RequestInterceptor) (*ListServiceDeploymentByHandle, error)
+	GetServiceContext(ctx context.Context, name string, interceptors ...clientv2.RequestInterceptor) (*GetServiceContext, error)
+	SaveServiceContext(ctx context.Context, name string, attributes ServiceContextAttributes, interceptors ...clientv2.RequestInterceptor) (*SaveServiceContext, error)
+	DeleteServiceContext(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DeleteServiceContext, error)
 	CreateGlobalService(ctx context.Context, attributes GlobalServiceAttributes, interceptors ...clientv2.RequestInterceptor) (*CreateGlobalService, error)
 	UpdateGlobalService(ctx context.Context, id string, attributes GlobalServiceAttributes, interceptors ...clientv2.RequestInterceptor) (*UpdateGlobalService, error)
 	DeleteGlobalService(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DeleteGlobalService, error)
@@ -308,6 +312,24 @@ func (t *ServiceDeploymentBaseFragment) GetRepository() *GitRepositoryFragment {
 	return t.Repository
 }
 
+type ServiceContextFragment struct {
+	ID            string                 "json:\"id\" graphql:\"id\""
+	Configuration map[string]interface{} "json:\"configuration,omitempty\" graphql:\"configuration\""
+}
+
+func (t *ServiceContextFragment) GetID() string {
+	if t == nil {
+		t = &ServiceContextFragment{}
+	}
+	return t.ID
+}
+func (t *ServiceContextFragment) GetConfiguration() map[string]interface{} {
+	if t == nil {
+		t = &ServiceContextFragment{}
+	}
+	return t.Configuration
+}
+
 type ComponentContentFragment struct {
 	ID      string  "json:\"id\" graphql:\"id\""
 	Live    *string "json:\"live,omitempty\" graphql:\"live\""
@@ -446,6 +468,7 @@ type ServiceDeploymentExtended struct {
 	Cluster       *BaseClusterFragment                                                 "json:\"cluster,omitempty\" graphql:\"cluster\""
 	Errors        []*ErrorFragment                                                     "json:\"errors,omitempty\" graphql:\"errors\""
 	Revision      *RevisionFragment                                                    "json:\"revision,omitempty\" graphql:\"revision\""
+	Contexts      []*ServiceContextFragment                                            "json:\"contexts,omitempty\" graphql:\"contexts\""
 	ID            string                                                               "json:\"id\" graphql:\"id\""
 	Name          string                                                               "json:\"name\" graphql:\"name\""
 	Namespace     string                                                               "json:\"namespace\" graphql:\"namespace\""
@@ -480,6 +503,12 @@ func (t *ServiceDeploymentExtended) GetRevision() *RevisionFragment {
 		t = &ServiceDeploymentExtended{}
 	}
 	return t.Revision
+}
+func (t *ServiceDeploymentExtended) GetContexts() []*ServiceContextFragment {
+	if t == nil {
+		t = &ServiceDeploymentExtended{}
+	}
+	return t.Contexts
 }
 func (t *ServiceDeploymentExtended) GetID() string {
 	if t == nil {
@@ -1597,9 +1626,10 @@ func (t *GlobalServiceFragment) GetTags() []*ClusterTags {
 }
 
 type ClusterBackupFragment struct {
-	ID      string                         "json:\"id\" graphql:\"id\""
-	Name    string                         "json:\"name\" graphql:\"name\""
-	Cluster *ClusterBackupFragment_Cluster "json:\"cluster,omitempty\" graphql:\"cluster\""
+	ID               string                         "json:\"id\" graphql:\"id\""
+	Name             string                         "json:\"name\" graphql:\"name\""
+	Cluster          *ClusterBackupFragment_Cluster "json:\"cluster,omitempty\" graphql:\"cluster\""
+	GarbageCollected *bool                          "json:\"garbageCollected,omitempty\" graphql:\"garbageCollected\""
 }
 
 func (t *ClusterBackupFragment) GetID() string {
@@ -1619,6 +1649,12 @@ func (t *ClusterBackupFragment) GetCluster() *ClusterBackupFragment_Cluster {
 		t = &ClusterBackupFragment{}
 	}
 	return t.Cluster
+}
+func (t *ClusterBackupFragment) GetGarbageCollected() *bool {
+	if t == nil {
+		t = &ClusterBackupFragment{}
+	}
+	return t.GarbageCollected
 }
 
 type ClusterRestoreFragment struct {
@@ -2938,6 +2974,17 @@ type CreateClusterBackup_CreateClusterBackup_ClusterBackupFragment_Cluster struc
 func (t *CreateClusterBackup_CreateClusterBackup_ClusterBackupFragment_Cluster) GetID() string {
 	if t == nil {
 		t = &CreateClusterBackup_CreateClusterBackup_ClusterBackupFragment_Cluster{}
+	}
+	return t.ID
+}
+
+type GetClusterBackup_ClusterBackup_ClusterBackupFragment_Cluster struct {
+	ID string "json:\"id\" graphql:\"id\""
+}
+
+func (t *GetClusterBackup_ClusterBackup_ClusterBackupFragment_Cluster) GetID() string {
+	if t == nil {
+		t = &GetClusterBackup_ClusterBackup_ClusterBackupFragment_Cluster{}
 	}
 	return t.ID
 }
@@ -4462,9 +4509,21 @@ func (t *ListServiceDeployments_ServiceDeployments) GetEdges() []*ListServiceDep
 	return t.Edges
 }
 
+type MyCluster_MyCluster__Restore_ClusterRestoreFragment_Backup_ClusterBackupFragment_Cluster struct {
+	ID string "json:\"id\" graphql:\"id\""
+}
+
+func (t *MyCluster_MyCluster__Restore_ClusterRestoreFragment_Backup_ClusterBackupFragment_Cluster) GetID() string {
+	if t == nil {
+		t = &MyCluster_MyCluster__Restore_ClusterRestoreFragment_Backup_ClusterBackupFragment_Cluster{}
+	}
+	return t.ID
+}
+
 type MyCluster_MyCluster_ struct {
-	ID   string "json:\"id\" graphql:\"id\""
-	Name string "json:\"name\" graphql:\"name\""
+	ID      string                  "json:\"id\" graphql:\"id\""
+	Name    string                  "json:\"name\" graphql:\"name\""
+	Restore *ClusterRestoreFragment "json:\"restore,omitempty\" graphql:\"restore\""
 }
 
 func (t *MyCluster_MyCluster_) GetID() string {
@@ -4478,6 +4537,12 @@ func (t *MyCluster_MyCluster_) GetName() string {
 		t = &MyCluster_MyCluster_{}
 	}
 	return t.Name
+}
+func (t *MyCluster_MyCluster_) GetRestore() *ClusterRestoreFragment {
+	if t == nil {
+		t = &MyCluster_MyCluster_{}
+	}
+	return t.Restore
 }
 
 type GetGlobalServiceDeployment_GlobalService_GlobalServiceFragment_Provider struct {
@@ -6775,6 +6840,17 @@ func (t *CreateClusterBackup) GetCreateClusterBackup() *ClusterBackupFragment {
 	return t.CreateClusterBackup
 }
 
+type GetClusterBackup struct {
+	ClusterBackup *ClusterBackupFragment "json:\"clusterBackup,omitempty\" graphql:\"clusterBackup\""
+}
+
+func (t *GetClusterBackup) GetClusterBackup() *ClusterBackupFragment {
+	if t == nil {
+		t = &GetClusterBackup{}
+	}
+	return t.ClusterBackup
+}
+
 type UpdateClusterRestore struct {
 	UpdateClusterRestore *ClusterRestoreFragment "json:\"updateClusterRestore,omitempty\" graphql:\"updateClusterRestore\""
 }
@@ -7237,6 +7313,39 @@ func (t *ListServiceDeploymentByHandle) GetServiceDeployments() *ListServiceDepl
 	return t.ServiceDeployments
 }
 
+type GetServiceContext struct {
+	ServiceContext *ServiceContextFragment "json:\"serviceContext,omitempty\" graphql:\"serviceContext\""
+}
+
+func (t *GetServiceContext) GetServiceContext() *ServiceContextFragment {
+	if t == nil {
+		t = &GetServiceContext{}
+	}
+	return t.ServiceContext
+}
+
+type SaveServiceContext struct {
+	SaveServiceContext *ServiceContextFragment "json:\"saveServiceContext,omitempty\" graphql:\"saveServiceContext\""
+}
+
+func (t *SaveServiceContext) GetSaveServiceContext() *ServiceContextFragment {
+	if t == nil {
+		t = &SaveServiceContext{}
+	}
+	return t.SaveServiceContext
+}
+
+type DeleteServiceContext struct {
+	DeleteServiceContext *ServiceContextFragment "json:\"deleteServiceContext,omitempty\" graphql:\"deleteServiceContext\""
+}
+
+func (t *DeleteServiceContext) GetDeleteServiceContext() *ServiceContextFragment {
+	if t == nil {
+		t = &DeleteServiceContext{}
+	}
+	return t.DeleteServiceContext
+}
+
 type CreateGlobalService struct {
 	CreateGlobalService *GlobalServiceFragment "json:\"createGlobalService,omitempty\" graphql:\"createGlobalService\""
 }
@@ -7677,6 +7786,7 @@ fragment ClusterBackupFragment on ClusterBackup {
 	cluster {
 		id
 	}
+	garbageCollected
 }
 `
 
@@ -7687,6 +7797,41 @@ func (c *Client) CreateClusterBackup(ctx context.Context, attributes BackupAttri
 
 	var res CreateClusterBackup
 	if err := c.Client.Post(ctx, "CreateClusterBackup", CreateClusterBackupDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const GetClusterBackupDocument = `query GetClusterBackup ($id: ID, $clusterId: ID, $namespace: String, $name: String) {
+	clusterBackup(id: $id, clusterId: $clusterId, namespace: $namespace, name: $name) {
+		... ClusterBackupFragment
+	}
+}
+fragment ClusterBackupFragment on ClusterBackup {
+	id
+	name
+	cluster {
+		id
+	}
+	garbageCollected
+}
+`
+
+func (c *Client) GetClusterBackup(ctx context.Context, id *string, clusterID *string, namespace *string, name *string, interceptors ...clientv2.RequestInterceptor) (*GetClusterBackup, error) {
+	vars := map[string]interface{}{
+		"id":        id,
+		"clusterId": clusterID,
+		"namespace": namespace,
+		"name":      name,
+	}
+
+	var res GetClusterBackup
+	if err := c.Client.Post(ctx, "GetClusterBackup", GetClusterBackupDocument, &res, vars, interceptors...); err != nil {
 		if c.Client.ParseDataWhenErrors {
 			return &res, err
 		}
@@ -7715,6 +7860,7 @@ fragment ClusterBackupFragment on ClusterBackup {
 	cluster {
 		id
 	}
+	garbageCollected
 }
 `
 
@@ -7754,6 +7900,7 @@ fragment ClusterBackupFragment on ClusterBackup {
 	cluster {
 		id
 	}
+	garbageCollected
 }
 `
 
@@ -7792,6 +7939,7 @@ fragment ClusterBackupFragment on ClusterBackup {
 	cluster {
 		id
 	}
+	garbageCollected
 }
 `
 
@@ -10022,8 +10170,26 @@ const MyClusterDocument = `query MyCluster {
 		... {
 			id
 			name
+			restore {
+				... ClusterRestoreFragment
+			}
 		}
 	}
+}
+fragment ClusterRestoreFragment on ClusterRestore {
+	id
+	status
+	backup {
+		... ClusterBackupFragment
+	}
+}
+fragment ClusterBackupFragment on ClusterBackup {
+	id
+	name
+	cluster {
+		id
+	}
+	garbageCollected
 }
 `
 
@@ -10227,6 +10393,9 @@ fragment ServiceDeploymentExtended on ServiceDeployment {
 	revision {
 		... RevisionFragment
 	}
+	contexts {
+		... ServiceContextFragment
+	}
 	... ServiceDeploymentFragment
 }
 fragment BaseClusterFragment on Cluster {
@@ -10299,6 +10468,10 @@ fragment RevisionFragment on Revision {
 		ref
 		folder
 	}
+}
+fragment ServiceContextFragment on ServiceContext {
+	id
+	configuration
 }
 fragment ServiceDeploymentFragment on ServiceDeployment {
 	... ServiceDeploymentBaseFragment
@@ -10393,6 +10566,9 @@ fragment ServiceDeploymentExtended on ServiceDeployment {
 	revision {
 		... RevisionFragment
 	}
+	contexts {
+		... ServiceContextFragment
+	}
 	... ServiceDeploymentFragment
 }
 fragment BaseClusterFragment on Cluster {
@@ -10465,6 +10641,10 @@ fragment RevisionFragment on Revision {
 		ref
 		folder
 	}
+}
+fragment ServiceContextFragment on ServiceContext {
+	id
+	configuration
 }
 fragment ServiceDeploymentFragment on ServiceDeployment {
 	... ServiceDeploymentBaseFragment
@@ -10649,6 +10829,9 @@ fragment ServiceDeploymentExtended on ServiceDeployment {
 	revision {
 		... RevisionFragment
 	}
+	contexts {
+		... ServiceContextFragment
+	}
 	... ServiceDeploymentFragment
 }
 fragment BaseClusterFragment on Cluster {
@@ -10721,6 +10904,10 @@ fragment RevisionFragment on Revision {
 		ref
 		folder
 	}
+}
+fragment ServiceContextFragment on ServiceContext {
+	id
+	configuration
 }
 fragment ServiceDeploymentFragment on ServiceDeployment {
 	... ServiceDeploymentBaseFragment
@@ -10815,6 +11002,9 @@ fragment ServiceDeploymentExtended on ServiceDeployment {
 	revision {
 		... RevisionFragment
 	}
+	contexts {
+		... ServiceContextFragment
+	}
 	... ServiceDeploymentFragment
 }
 fragment BaseClusterFragment on Cluster {
@@ -10887,6 +11077,10 @@ fragment RevisionFragment on Revision {
 		ref
 		folder
 	}
+}
+fragment ServiceContextFragment on ServiceContext {
+	id
+	configuration
 }
 fragment ServiceDeploymentFragment on ServiceDeployment {
 	... ServiceDeploymentBaseFragment
@@ -11579,6 +11773,9 @@ fragment ServiceDeploymentExtended on ServiceDeployment {
 	revision {
 		... RevisionFragment
 	}
+	contexts {
+		... ServiceContextFragment
+	}
 	... ServiceDeploymentFragment
 }
 fragment BaseClusterFragment on Cluster {
@@ -11651,6 +11848,10 @@ fragment RevisionFragment on Revision {
 		ref
 		folder
 	}
+}
+fragment ServiceContextFragment on ServiceContext {
+	id
+	configuration
 }
 fragment ServiceDeploymentFragment on ServiceDeployment {
 	... ServiceDeploymentBaseFragment
@@ -11794,6 +11995,9 @@ fragment ServiceDeploymentExtended on ServiceDeployment {
 	revision {
 		... RevisionFragment
 	}
+	contexts {
+		... ServiceContextFragment
+	}
 	... ServiceDeploymentFragment
 }
 fragment BaseClusterFragment on Cluster {
@@ -11866,6 +12070,10 @@ fragment RevisionFragment on Revision {
 		ref
 		folder
 	}
+}
+fragment ServiceContextFragment on ServiceContext {
+	id
+	configuration
 }
 fragment ServiceDeploymentFragment on ServiceDeployment {
 	... ServiceDeploymentBaseFragment
@@ -12075,6 +12283,91 @@ func (c *Client) ListServiceDeploymentByHandle(ctx context.Context, after *strin
 
 	var res ListServiceDeploymentByHandle
 	if err := c.Client.Post(ctx, "ListServiceDeploymentByHandle", ListServiceDeploymentByHandleDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const GetServiceContextDocument = `query GetServiceContext ($name: String!) {
+	serviceContext(name: $name) {
+		... ServiceContextFragment
+	}
+}
+fragment ServiceContextFragment on ServiceContext {
+	id
+	configuration
+}
+`
+
+func (c *Client) GetServiceContext(ctx context.Context, name string, interceptors ...clientv2.RequestInterceptor) (*GetServiceContext, error) {
+	vars := map[string]interface{}{
+		"name": name,
+	}
+
+	var res GetServiceContext
+	if err := c.Client.Post(ctx, "GetServiceContext", GetServiceContextDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const SaveServiceContextDocument = `mutation SaveServiceContext ($name: String!, $attributes: ServiceContextAttributes!) {
+	saveServiceContext(name: $name, attributes: $attributes) {
+		... ServiceContextFragment
+	}
+}
+fragment ServiceContextFragment on ServiceContext {
+	id
+	configuration
+}
+`
+
+func (c *Client) SaveServiceContext(ctx context.Context, name string, attributes ServiceContextAttributes, interceptors ...clientv2.RequestInterceptor) (*SaveServiceContext, error) {
+	vars := map[string]interface{}{
+		"name":       name,
+		"attributes": attributes,
+	}
+
+	var res SaveServiceContext
+	if err := c.Client.Post(ctx, "SaveServiceContext", SaveServiceContextDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const DeleteServiceContextDocument = `mutation DeleteServiceContext ($id: ID!) {
+	deleteServiceContext(id: $id) {
+		... ServiceContextFragment
+	}
+}
+fragment ServiceContextFragment on ServiceContext {
+	id
+	configuration
+}
+`
+
+func (c *Client) DeleteServiceContext(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DeleteServiceContext, error) {
+	vars := map[string]interface{}{
+		"id": id,
+	}
+
+	var res DeleteServiceContext
+	if err := c.Client.Post(ctx, "DeleteServiceContext", DeleteServiceContextDocument, &res, vars, interceptors...); err != nil {
 		if c.Client.ParseDataWhenErrors {
 			return &res, err
 		}
@@ -13804,6 +14097,7 @@ func (c *Client) DeleteGroupMember(ctx context.Context, userID string, groupID s
 
 var DocumentOperationNames = map[string]string{
 	CreateClusterBackupDocument:               "CreateClusterBackup",
+	GetClusterBackupDocument:                  "GetClusterBackup",
 	UpdateClusterRestoreDocument:              "UpdateClusterRestore",
 	CreateClusterRestoreDocument:              "CreateClusterRestore",
 	GetClusterRestoreDocument:                 "GetClusterRestore",
@@ -13846,6 +14140,9 @@ var DocumentOperationNames = map[string]string{
 	GetServiceDeploymentByHandleDocument:      "GetServiceDeploymentByHandle",
 	ListServiceDeploymentDocument:             "ListServiceDeployment",
 	ListServiceDeploymentByHandleDocument:     "ListServiceDeploymentByHandle",
+	GetServiceContextDocument:                 "GetServiceContext",
+	SaveServiceContextDocument:                "SaveServiceContext",
+	DeleteServiceContextDocument:              "DeleteServiceContext",
 	CreateGlobalServiceDocument:               "CreateGlobalService",
 	UpdateGlobalServiceDocument:               "UpdateGlobalService",
 	DeleteGlobalServiceDocument:               "DeleteGlobalService",

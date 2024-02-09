@@ -4,9 +4,11 @@ generate:
   query: false
   mutation: false
 model:
-  filename: models_gen.go # https://github.com/99designs/gqlgen/tree/master/plugin/modelgen
+  package: gqlclient
+  filename: ./models_gen.go # https://github.com/99designs/gqlgen/tree/master/plugin/modelgen
 client:
-  filename: client.go # Where should any generated client go?
+  package: gqlclient
+  filename: ./client.go # Where should any generated client go?
 models:
   Int:
     model: github.com/99designs/gqlgen/graphql.Int64

@@ -254,8 +254,6 @@ type RootQueryType {
 
   pipeline(id: ID!): Pipeline
 
-  clusterBackup(id: ID, clusterId: ID, namespace: String, name: String): ClusterBackup
-
   pipelineGate(id: ID!): PipelineGate
 
   clusterBackup(id: ID, clusterId: ID, namespace: String, name: String): ClusterBackup
@@ -2295,7 +2293,7 @@ input ScmConnectionAttributes {
 
   username: String
 
-  token: String!
+  token: String
 
   baseUrl: String
 
