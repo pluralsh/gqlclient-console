@@ -62,6 +62,7 @@ type ConsoleClient interface {
 	DeleteGlobalService(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DeleteGlobalService, error)
 	GetClusterGates(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*GetClusterGates, error)
 	UpdateGate(ctx context.Context, id string, attributes GateUpdateAttributes, interceptors ...clientv2.RequestInterceptor) (*UpdateGate, error)
+	GetClusterGate(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*GetClusterGate, error)
 	CreateGitRepository(ctx context.Context, attributes GitAttributes, interceptors ...clientv2.RequestInterceptor) (*CreateGitRepository, error)
 	UpdateGitRepository(ctx context.Context, id string, attributes GitAttributes, interceptors ...clientv2.RequestInterceptor) (*UpdateGitRepository, error)
 	DeleteGitRepository(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DeleteGitRepository, error)
@@ -6102,6 +6103,42 @@ func (t *UpdateGate_UpdateGate_PipelineGateFragment_Spec_GateSpecFragment_Job_Jo
 	return t.Secret
 }
 
+type GetClusterGate_ClusterGate_PipelineGateFragment_Spec_GateSpecFragment_Job_JobSpecFragment_Containers_ContainerSpecFragment_Env struct {
+	Name  string "json:\"name\" graphql:\"name\""
+	Value string "json:\"value\" graphql:\"value\""
+}
+
+func (t *GetClusterGate_ClusterGate_PipelineGateFragment_Spec_GateSpecFragment_Job_JobSpecFragment_Containers_ContainerSpecFragment_Env) GetName() string {
+	if t == nil {
+		t = &GetClusterGate_ClusterGate_PipelineGateFragment_Spec_GateSpecFragment_Job_JobSpecFragment_Containers_ContainerSpecFragment_Env{}
+	}
+	return t.Name
+}
+func (t *GetClusterGate_ClusterGate_PipelineGateFragment_Spec_GateSpecFragment_Job_JobSpecFragment_Containers_ContainerSpecFragment_Env) GetValue() string {
+	if t == nil {
+		t = &GetClusterGate_ClusterGate_PipelineGateFragment_Spec_GateSpecFragment_Job_JobSpecFragment_Containers_ContainerSpecFragment_Env{}
+	}
+	return t.Value
+}
+
+type GetClusterGate_ClusterGate_PipelineGateFragment_Spec_GateSpecFragment_Job_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom struct {
+	ConfigMap string "json:\"configMap\" graphql:\"configMap\""
+	Secret    string "json:\"secret\" graphql:\"secret\""
+}
+
+func (t *GetClusterGate_ClusterGate_PipelineGateFragment_Spec_GateSpecFragment_Job_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetConfigMap() string {
+	if t == nil {
+		t = &GetClusterGate_ClusterGate_PipelineGateFragment_Spec_GateSpecFragment_Job_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
+	}
+	return t.ConfigMap
+}
+func (t *GetClusterGate_ClusterGate_PipelineGateFragment_Spec_GateSpecFragment_Job_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetSecret() string {
+	if t == nil {
+		t = &GetClusterGate_ClusterGate_PipelineGateFragment_Spec_GateSpecFragment_Job_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
+	}
+	return t.Secret
+}
+
 type ListGitRepositories_GitRepositories struct {
 	Edges []*GitRepositoryEdgeFragment "json:\"edges,omitempty\" graphql:\"edges\""
 }
@@ -7399,6 +7436,17 @@ func (t *UpdateGate) GetUpdateGate() *PipelineGateFragment {
 		t = &UpdateGate{}
 	}
 	return t.UpdateGate
+}
+
+type GetClusterGate struct {
+	ClusterGate *PipelineGateFragment "json:\"clusterGate,omitempty\" graphql:\"clusterGate\""
+}
+
+func (t *GetClusterGate) GetClusterGate() *PipelineGateFragment {
+	if t == nil {
+		t = &GetClusterGate{}
+	}
+	return t.ClusterGate
 }
 
 type CreateGitRepository struct {
@@ -12626,6 +12674,67 @@ func (c *Client) UpdateGate(ctx context.Context, id string, attributes GateUpdat
 	return &res, nil
 }
 
+const GetClusterGateDocument = `query GetClusterGate ($id: ID!) {
+	clusterGate(id: $id) {
+		... PipelineGateFragment
+	}
+}
+fragment PipelineGateFragment on PipelineGate {
+	id
+	name
+	type
+	state
+	updatedAt
+	spec {
+		... GateSpecFragment
+	}
+}
+fragment GateSpecFragment on GateSpec {
+	job {
+		... JobSpecFragment
+	}
+}
+fragment JobSpecFragment on JobGateSpec {
+	namespace
+	raw
+	containers {
+		... ContainerSpecFragment
+	}
+	labels
+	annotations
+	serviceAccount
+}
+fragment ContainerSpecFragment on ContainerSpec {
+	image
+	args
+	env {
+		name
+		value
+	}
+	envFrom {
+		configMap
+		secret
+	}
+}
+`
+
+func (c *Client) GetClusterGate(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*GetClusterGate, error) {
+	vars := map[string]interface{}{
+		"id": id,
+	}
+
+	var res GetClusterGate
+	if err := c.Client.Post(ctx, "GetClusterGate", GetClusterGateDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
 const CreateGitRepositoryDocument = `mutation CreateGitRepository ($attributes: GitAttributes!) {
 	createGitRepository(attributes: $attributes) {
 		... GitRepositoryFragment
@@ -14148,6 +14257,7 @@ var DocumentOperationNames = map[string]string{
 	DeleteGlobalServiceDocument:               "DeleteGlobalService",
 	GetClusterGatesDocument:                   "GetClusterGates",
 	UpdateGateDocument:                        "updateGate",
+	GetClusterGateDocument:                    "GetClusterGate",
 	CreateGitRepositoryDocument:               "CreateGitRepository",
 	UpdateGitRepositoryDocument:               "UpdateGitRepository",
 	DeleteGitRepositoryDocument:               "DeleteGitRepository",
