@@ -121,12 +121,15 @@ type RootQueryType struct {
 	ServiceContext          *ServiceContext              "json:\"serviceContext\" graphql:\"serviceContext\""
 	Pipelines               *PipelineConnection          "json:\"pipelines\" graphql:\"pipelines\""
 	Pipeline                *Pipeline                    "json:\"pipeline\" graphql:\"pipeline\""
+	PipelineGate            *PipelineGate                "json:\"pipelineGate\" graphql:\"pipelineGate\""
 	ClusterBackup           *ClusterBackup               "json:\"clusterBackup\" graphql:\"clusterBackup\""
 	ObjectStores            *ObjectStoreConnection       "json:\"objectStores\" graphql:\"objectStores\""
 	ClusterServices         []*ServiceDeployment         "json:\"clusterServices\" graphql:\"clusterServices\""
+	PagedClusterServices    *ServiceDeploymentConnection "json:\"pagedClusterServices\" graphql:\"pagedClusterServices\""
 	ServiceDeployment       *ServiceDeployment           "json:\"serviceDeployment\" graphql:\"serviceDeployment\""
 	MyCluster               *Cluster                     "json:\"myCluster\" graphql:\"myCluster\""
 	ClusterGates            []*PipelineGate              "json:\"clusterGates\" graphql:\"clusterGates\""
+	PagedClusterGates       *PipelineGateConnection      "json:\"pagedClusterGates\" graphql:\"pagedClusterGates\""
 	ClusterGate             *PipelineGate                "json:\"clusterGate\" graphql:\"clusterGate\""
 	ClusterRestore          *ClusterRestore              "json:\"clusterRestore\" graphql:\"clusterRestore\""
 	DeploymentSettings      *DeploymentSettings          "json:\"deploymentSettings\" graphql:\"deploymentSettings\""
@@ -711,6 +714,9 @@ type GetClusterBackup struct {
 }
 type GetClusterByHandle struct {
 	Cluster *ClusterFragment "json:\"cluster\" graphql:\"cluster\""
+}
+type GetClusterGate struct {
+	ClusterGate *PipelineGateFragment "json:\"clusterGate\" graphql:\"clusterGate\""
 }
 type GetClusterGates struct {
 	ClusterGates []*PipelineGateFragment "json:\"clusterGates\" graphql:\"clusterGates\""
@@ -3417,6 +3423,63 @@ func (c *Client) GetClusterByHandle(ctx context.Context, handle *string, httpReq
 
 	var res GetClusterByHandle
 	if err := c.Client.Post(ctx, "GetClusterByHandle", GetClusterByHandleDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const GetClusterGateDocument = `query GetClusterGate ($id: ID!) {
+	clusterGate(id: $id) {
+		... PipelineGateFragment
+	}
+}
+fragment ContainerSpecFragment on ContainerSpec {
+	image
+	args
+	env {
+		name
+		value
+	}
+	envFrom {
+		configMap
+		secret
+	}
+}
+fragment GateSpecFragment on GateSpec {
+	job {
+		... JobSpecFragment
+	}
+}
+fragment JobSpecFragment on JobGateSpec {
+	namespace
+	raw
+	containers {
+		... ContainerSpecFragment
+	}
+	labels
+	annotations
+	serviceAccount
+}
+fragment PipelineGateFragment on PipelineGate {
+	id
+	name
+	type
+	state
+	updatedAt
+	spec {
+		... GateSpecFragment
+	}
+}
+`
+
+func (c *Client) GetClusterGate(ctx context.Context, id string, httpRequestOptions ...client.HTTPRequestOption) (*GetClusterGate, error) {
+	vars := map[string]interface{}{
+		"id": id,
+	}
+
+	var res GetClusterGate
+	if err := c.Client.Post(ctx, "GetClusterGate", GetClusterGateDocument, &res, vars, httpRequestOptions...); err != nil {
 		return nil, err
 	}
 
