@@ -100,6 +100,38 @@ query GetServiceDeployment($id: ID!) {
     }
 }
 
+query GetServiceDeploymentForAgent($id: ID!) {
+    serviceDeployment(id: $id) {
+        id
+        name
+        namespace
+        version
+        tarball
+        deletedAt
+        dryRun
+        cluster {
+            id
+            name
+            handle
+            self
+            version
+            pingedAt
+            currentVersion
+            kasUrl
+        }
+        kustomize {
+            path
+        }
+        helm {
+            valuesFiles
+        }
+        configuration {
+            name
+            value
+        }
+    }
+}
+
 query GetServiceDeploymentByHandle($cluster: String!, $name: String!) {
     serviceDeployment(cluster: $cluster, name: $name) {
         ...ServiceDeploymentExtended
