@@ -53,6 +53,7 @@ type ConsoleClient interface {
 	GetServiceDeploymentForAgent(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*GetServiceDeploymentForAgent, error)
 	GetServiceDeploymentByHandle(ctx context.Context, cluster string, name string, interceptors ...clientv2.RequestInterceptor) (*GetServiceDeploymentByHandle, error)
 	ListServiceDeployment(ctx context.Context, after *string, before *string, last *int64, clusterID *string, interceptors ...clientv2.RequestInterceptor) (*ListServiceDeployment, error)
+	PagedClusterServices(ctx context.Context, after *string, first *int64, before *string, last *int64, interceptors ...clientv2.RequestInterceptor) (*PagedClusterServices, error)
 	ListServiceDeploymentByHandle(ctx context.Context, after *string, before *string, last *int64, cluster *string, interceptors ...clientv2.RequestInterceptor) (*ListServiceDeploymentByHandle, error)
 	GetServiceContext(ctx context.Context, name string, interceptors ...clientv2.RequestInterceptor) (*GetServiceContext, error)
 	SaveServiceContext(ctx context.Context, name string, attributes ServiceContextAttributes, interceptors ...clientv2.RequestInterceptor) (*SaveServiceContext, error)
@@ -61,6 +62,7 @@ type ConsoleClient interface {
 	UpdateGlobalService(ctx context.Context, id string, attributes GlobalServiceAttributes, interceptors ...clientv2.RequestInterceptor) (*UpdateGlobalService, error)
 	DeleteGlobalService(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DeleteGlobalService, error)
 	GetClusterGates(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*GetClusterGates, error)
+	PagedClusterGates(ctx context.Context, after *string, first *int64, before *string, last *int64, interceptors ...clientv2.RequestInterceptor) (*PagedClusterGates, error)
 	UpdateGate(ctx context.Context, id string, attributes GateUpdateAttributes, interceptors ...clientv2.RequestInterceptor) (*UpdateGate, error)
 	GetClusterGate(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*GetClusterGate, error)
 	CreateGitRepository(ctx context.Context, attributes GitAttributes, interceptors ...clientv2.RequestInterceptor) (*CreateGitRepository, error)
@@ -105,6 +107,17 @@ type Client struct {
 
 func NewClient(cli *http.Client, baseURL string, options *clientv2.Options, interceptors ...clientv2.RequestInterceptor) ConsoleClient {
 	return &Client{Client: clientv2.NewClient(cli, baseURL, options, interceptors...)}
+}
+
+type PipelineGateEdgeFragment struct {
+	Node *PipelineGateFragment "json:\"node,omitempty\" graphql:\"node\""
+}
+
+func (t *PipelineGateEdgeFragment) GetNode() *PipelineGateFragment {
+	if t == nil {
+		t = &PipelineGateEdgeFragment{}
+	}
+	return t.Node
 }
 
 type PipelineGateFragment struct {
@@ -1801,6 +1814,60 @@ func (t *PrAutomationFragment) GetUpdatedAt() *string {
 		t = &PrAutomationFragment{}
 	}
 	return t.UpdatedAt
+}
+
+type PageInfoFragment struct {
+	HasNextPage bool    "json:\"hasNextPage\" graphql:\"hasNextPage\""
+	EndCursor   *string "json:\"endCursor,omitempty\" graphql:\"endCursor\""
+}
+
+func (t *PageInfoFragment) GetHasNextPage() bool {
+	if t == nil {
+		t = &PageInfoFragment{}
+	}
+	return t.HasNextPage
+}
+func (t *PageInfoFragment) GetEndCursor() *string {
+	if t == nil {
+		t = &PageInfoFragment{}
+	}
+	return t.EndCursor
+}
+
+type PipelineGateEdgeFragment_Node_PipelineGateFragment_Spec_GateSpecFragment_Job_JobSpecFragment_Containers_ContainerSpecFragment_Env struct {
+	Name  string "json:\"name\" graphql:\"name\""
+	Value string "json:\"value\" graphql:\"value\""
+}
+
+func (t *PipelineGateEdgeFragment_Node_PipelineGateFragment_Spec_GateSpecFragment_Job_JobSpecFragment_Containers_ContainerSpecFragment_Env) GetName() string {
+	if t == nil {
+		t = &PipelineGateEdgeFragment_Node_PipelineGateFragment_Spec_GateSpecFragment_Job_JobSpecFragment_Containers_ContainerSpecFragment_Env{}
+	}
+	return t.Name
+}
+func (t *PipelineGateEdgeFragment_Node_PipelineGateFragment_Spec_GateSpecFragment_Job_JobSpecFragment_Containers_ContainerSpecFragment_Env) GetValue() string {
+	if t == nil {
+		t = &PipelineGateEdgeFragment_Node_PipelineGateFragment_Spec_GateSpecFragment_Job_JobSpecFragment_Containers_ContainerSpecFragment_Env{}
+	}
+	return t.Value
+}
+
+type PipelineGateEdgeFragment_Node_PipelineGateFragment_Spec_GateSpecFragment_Job_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom struct {
+	ConfigMap string "json:\"configMap\" graphql:\"configMap\""
+	Secret    string "json:\"secret\" graphql:\"secret\""
+}
+
+func (t *PipelineGateEdgeFragment_Node_PipelineGateFragment_Spec_GateSpecFragment_Job_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetConfigMap() string {
+	if t == nil {
+		t = &PipelineGateEdgeFragment_Node_PipelineGateFragment_Spec_GateSpecFragment_Job_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
+	}
+	return t.ConfigMap
+}
+func (t *PipelineGateEdgeFragment_Node_PipelineGateFragment_Spec_GateSpecFragment_Job_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetSecret() string {
+	if t == nil {
+		t = &PipelineGateEdgeFragment_Node_PipelineGateFragment_Spec_GateSpecFragment_Job_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
+	}
+	return t.Secret
 }
 
 type PipelineGateFragment_Spec_GateSpecFragment_Job_JobSpecFragment_Containers_ContainerSpecFragment_Env struct {
@@ -5954,6 +6021,24 @@ func (t *ListServiceDeployment_ServiceDeployments) GetEdges() []*ServiceDeployme
 	return t.Edges
 }
 
+type PagedClusterServices_PagedClusterServices struct {
+	PageInfo *PageInfoFragment                "json:\"pageInfo\" graphql:\"pageInfo\""
+	Edges    []*ServiceDeploymentEdgeFragment "json:\"edges,omitempty\" graphql:\"edges\""
+}
+
+func (t *PagedClusterServices_PagedClusterServices) GetPageInfo() *PageInfoFragment {
+	if t == nil {
+		t = &PagedClusterServices_PagedClusterServices{}
+	}
+	return t.PageInfo
+}
+func (t *PagedClusterServices_PagedClusterServices) GetEdges() []*ServiceDeploymentEdgeFragment {
+	if t == nil {
+		t = &PagedClusterServices_PagedClusterServices{}
+	}
+	return t.Edges
+}
+
 type ListServiceDeploymentByHandle_ServiceDeployments struct {
 	Edges []*ServiceDeploymentEdgeFragment "json:\"edges,omitempty\" graphql:\"edges\""
 }
@@ -6065,6 +6150,60 @@ func (t *GetClusterGates_ClusterGates_PipelineGateFragment_Spec_GateSpecFragment
 		t = &GetClusterGates_ClusterGates_PipelineGateFragment_Spec_GateSpecFragment_Job_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
 	}
 	return t.Secret
+}
+
+type PagedClusterGates_PagedClusterGates_Edges_PipelineGateEdgeFragment_Node_PipelineGateFragment_Spec_GateSpecFragment_Job_JobSpecFragment_Containers_ContainerSpecFragment_Env struct {
+	Name  string "json:\"name\" graphql:\"name\""
+	Value string "json:\"value\" graphql:\"value\""
+}
+
+func (t *PagedClusterGates_PagedClusterGates_Edges_PipelineGateEdgeFragment_Node_PipelineGateFragment_Spec_GateSpecFragment_Job_JobSpecFragment_Containers_ContainerSpecFragment_Env) GetName() string {
+	if t == nil {
+		t = &PagedClusterGates_PagedClusterGates_Edges_PipelineGateEdgeFragment_Node_PipelineGateFragment_Spec_GateSpecFragment_Job_JobSpecFragment_Containers_ContainerSpecFragment_Env{}
+	}
+	return t.Name
+}
+func (t *PagedClusterGates_PagedClusterGates_Edges_PipelineGateEdgeFragment_Node_PipelineGateFragment_Spec_GateSpecFragment_Job_JobSpecFragment_Containers_ContainerSpecFragment_Env) GetValue() string {
+	if t == nil {
+		t = &PagedClusterGates_PagedClusterGates_Edges_PipelineGateEdgeFragment_Node_PipelineGateFragment_Spec_GateSpecFragment_Job_JobSpecFragment_Containers_ContainerSpecFragment_Env{}
+	}
+	return t.Value
+}
+
+type PagedClusterGates_PagedClusterGates_Edges_PipelineGateEdgeFragment_Node_PipelineGateFragment_Spec_GateSpecFragment_Job_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom struct {
+	ConfigMap string "json:\"configMap\" graphql:\"configMap\""
+	Secret    string "json:\"secret\" graphql:\"secret\""
+}
+
+func (t *PagedClusterGates_PagedClusterGates_Edges_PipelineGateEdgeFragment_Node_PipelineGateFragment_Spec_GateSpecFragment_Job_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetConfigMap() string {
+	if t == nil {
+		t = &PagedClusterGates_PagedClusterGates_Edges_PipelineGateEdgeFragment_Node_PipelineGateFragment_Spec_GateSpecFragment_Job_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
+	}
+	return t.ConfigMap
+}
+func (t *PagedClusterGates_PagedClusterGates_Edges_PipelineGateEdgeFragment_Node_PipelineGateFragment_Spec_GateSpecFragment_Job_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetSecret() string {
+	if t == nil {
+		t = &PagedClusterGates_PagedClusterGates_Edges_PipelineGateEdgeFragment_Node_PipelineGateFragment_Spec_GateSpecFragment_Job_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
+	}
+	return t.Secret
+}
+
+type PagedClusterGates_PagedClusterGates struct {
+	PageInfo *PageInfoFragment           "json:\"pageInfo\" graphql:\"pageInfo\""
+	Edges    []*PipelineGateEdgeFragment "json:\"edges,omitempty\" graphql:\"edges\""
+}
+
+func (t *PagedClusterGates_PagedClusterGates) GetPageInfo() *PageInfoFragment {
+	if t == nil {
+		t = &PagedClusterGates_PagedClusterGates{}
+	}
+	return t.PageInfo
+}
+func (t *PagedClusterGates_PagedClusterGates) GetEdges() []*PipelineGateEdgeFragment {
+	if t == nil {
+		t = &PagedClusterGates_PagedClusterGates{}
+	}
+	return t.Edges
 }
 
 type UpdateGate_UpdateGate_PipelineGateFragment_Spec_GateSpecFragment_Job_JobSpecFragment_Containers_ContainerSpecFragment_Env struct {
@@ -7339,6 +7478,17 @@ func (t *ListServiceDeployment) GetServiceDeployments() *ListServiceDeployment_S
 	return t.ServiceDeployments
 }
 
+type PagedClusterServices struct {
+	PagedClusterServices *PagedClusterServices_PagedClusterServices "json:\"pagedClusterServices,omitempty\" graphql:\"pagedClusterServices\""
+}
+
+func (t *PagedClusterServices) GetPagedClusterServices() *PagedClusterServices_PagedClusterServices {
+	if t == nil {
+		t = &PagedClusterServices{}
+	}
+	return t.PagedClusterServices
+}
+
 type ListServiceDeploymentByHandle struct {
 	ServiceDeployments *ListServiceDeploymentByHandle_ServiceDeployments "json:\"serviceDeployments,omitempty\" graphql:\"serviceDeployments\""
 }
@@ -7425,6 +7575,17 @@ func (t *GetClusterGates) GetClusterGates() []*PipelineGateFragment {
 		t = &GetClusterGates{}
 	}
 	return t.ClusterGates
+}
+
+type PagedClusterGates struct {
+	PagedClusterGates *PagedClusterGates_PagedClusterGates "json:\"pagedClusterGates,omitempty\" graphql:\"pagedClusterGates\""
+}
+
+func (t *PagedClusterGates) GetPagedClusterGates() *PagedClusterGates_PagedClusterGates {
+	if t == nil {
+		t = &PagedClusterGates{}
+	}
+	return t.PagedClusterGates
 }
 
 type UpdateGate struct {
@@ -12271,6 +12432,83 @@ func (c *Client) ListServiceDeployment(ctx context.Context, after *string, befor
 	return &res, nil
 }
 
+const PagedClusterServicesDocument = `query PagedClusterServices ($after: String, $first: Int, $before: String, $last: Int) {
+	pagedClusterServices(after: $after, first: $first, before: $before, last: $last) {
+		pageInfo {
+			... PageInfoFragment
+		}
+		edges {
+			... ServiceDeploymentEdgeFragment
+		}
+	}
+}
+fragment PageInfoFragment on PageInfo {
+	hasNextPage
+	endCursor
+}
+fragment ServiceDeploymentEdgeFragment on ServiceDeploymentEdge {
+	node {
+		... ServiceDeploymentBaseFragment
+	}
+}
+fragment ServiceDeploymentBaseFragment on ServiceDeployment {
+	id
+	name
+	namespace
+	version
+	kustomize {
+		... KustomizeFragment
+	}
+	git {
+		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+}
+fragment KustomizeFragment on Kustomize {
+	path
+}
+fragment GitRefFragment on GitRef {
+	folder
+	ref
+}
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
+fragment GitRepositoryFragment on GitRepository {
+	id
+	error
+	health
+	authMethod
+	url
+	decrypt
+}
+`
+
+func (c *Client) PagedClusterServices(ctx context.Context, after *string, first *int64, before *string, last *int64, interceptors ...clientv2.RequestInterceptor) (*PagedClusterServices, error) {
+	vars := map[string]interface{}{
+		"after":  after,
+		"first":  first,
+		"before": before,
+		"last":   last,
+	}
+
+	var res PagedClusterServices
+	if err := c.Client.Post(ctx, "PagedClusterServices", PagedClusterServicesDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
 const ListServiceDeploymentByHandleDocument = `query ListServiceDeploymentByHandle ($after: String, $before: String, $last: Int, $cluster: String) {
 	serviceDeployments(after: $after, first: 100, before: $before, last: $last, cluster: $cluster) {
 		edges {
@@ -12602,6 +12840,84 @@ func (c *Client) GetClusterGates(ctx context.Context, interceptors ...clientv2.R
 
 	var res GetClusterGates
 	if err := c.Client.Post(ctx, "GetClusterGates", GetClusterGatesDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const PagedClusterGatesDocument = `query PagedClusterGates ($after: String, $first: Int, $before: String, $last: Int) {
+	pagedClusterGates(after: $after, first: $first, before: $before, last: $last) {
+		pageInfo {
+			... PageInfoFragment
+		}
+		edges {
+			... PipelineGateEdgeFragment
+		}
+	}
+}
+fragment PageInfoFragment on PageInfo {
+	hasNextPage
+	endCursor
+}
+fragment PipelineGateEdgeFragment on PipelineGateEdge {
+	node {
+		... PipelineGateFragment
+	}
+}
+fragment PipelineGateFragment on PipelineGate {
+	id
+	name
+	type
+	state
+	updatedAt
+	spec {
+		... GateSpecFragment
+	}
+}
+fragment GateSpecFragment on GateSpec {
+	job {
+		... JobSpecFragment
+	}
+}
+fragment JobSpecFragment on JobGateSpec {
+	namespace
+	raw
+	containers {
+		... ContainerSpecFragment
+	}
+	labels
+	annotations
+	serviceAccount
+}
+fragment ContainerSpecFragment on ContainerSpec {
+	image
+	args
+	env {
+		name
+		value
+	}
+	envFrom {
+		configMap
+		secret
+	}
+}
+`
+
+func (c *Client) PagedClusterGates(ctx context.Context, after *string, first *int64, before *string, last *int64, interceptors ...clientv2.RequestInterceptor) (*PagedClusterGates, error) {
+	vars := map[string]interface{}{
+		"after":  after,
+		"first":  first,
+		"before": before,
+		"last":   last,
+	}
+
+	var res PagedClusterGates
+	if err := c.Client.Post(ctx, "PagedClusterGates", PagedClusterGatesDocument, &res, vars, interceptors...); err != nil {
 		if c.Client.ParseDataWhenErrors {
 			return &res, err
 		}
@@ -14248,6 +14564,7 @@ var DocumentOperationNames = map[string]string{
 	GetServiceDeploymentForAgentDocument:      "GetServiceDeploymentForAgent",
 	GetServiceDeploymentByHandleDocument:      "GetServiceDeploymentByHandle",
 	ListServiceDeploymentDocument:             "ListServiceDeployment",
+	PagedClusterServicesDocument:              "PagedClusterServices",
 	ListServiceDeploymentByHandleDocument:     "ListServiceDeploymentByHandle",
 	GetServiceContextDocument:                 "GetServiceContext",
 	SaveServiceContextDocument:                "SaveServiceContext",
@@ -14256,6 +14573,7 @@ var DocumentOperationNames = map[string]string{
 	UpdateGlobalServiceDocument:               "UpdateGlobalService",
 	DeleteGlobalServiceDocument:               "DeleteGlobalService",
 	GetClusterGatesDocument:                   "GetClusterGates",
+	PagedClusterGatesDocument:                 "PagedClusterGates",
 	UpdateGateDocument:                        "updateGate",
 	GetClusterGateDocument:                    "GetClusterGate",
 	CreateGitRepositoryDocument:               "CreateGitRepository",

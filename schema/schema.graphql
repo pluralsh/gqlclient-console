@@ -179,6 +179,8 @@ type RootQueryType {
 
   pullRequests(after: String, first: Int, before: String, last: Int, clusterId: ID, serviceId: ID, q: String): PullRequestConnection
 
+  scmWebhooks(after: String, first: Int, before: String, last: Int): ScmWebhookConnection
+
   "exchanges a kubeconfig token for user info"
   tokenExchange(token: String!): User
 
@@ -250,7 +252,13 @@ type RootQueryType {
 
   serviceContext(name: String!): ServiceContext
 
-  pipelines(after: String, first: Int, before: String, last: Int): PipelineConnection
+  "renders a full hierarchy of resources recursively owned by this component (useful for CRD views)"
+  componentTree(
+    "the id of the service component for the tree view"
+    id: ID!
+  ): ComponentTree
+
+  pipelines(after: String, first: Int, before: String, last: Int, q: String): PipelineConnection
 
   pipeline(id: ID!): Pipeline
 
@@ -393,6 +401,9 @@ type RootMutationType {
   updatePrAutomation(id: ID!, attributes: PrAutomationAttributes!): PrAutomation
 
   deletePrAutomation(id: ID!): PrAutomation
+
+  "creates the service to enable self-hosted renovate in one pass"
+  setupRenovate(connectionId: ID!, repos: [String]): ServiceDeployment
 
   createPullRequest(
     "the id of the PR automation instance to use"
@@ -1587,6 +1598,26 @@ type ServiceContext {
   updatedAt: DateTime
 }
 
+"A tree view of the kubernetes object hierarchy beneath a component"
+type ComponentTree {
+  deployments: [Deployment]
+  statefulsets: [StatefulSet]
+  daemonsets: [DaemonSet]
+  services: [Service]
+  ingresses: [Ingress]
+  cronjobs: [CronJob]
+  configmaps: [ConfigMap]
+  secrets: [Secret]
+  certificates: [Certificate]
+  edges: [ResourceEdge]
+}
+
+"an edge representing mapping from kubernetes object metadata.uid -> metadata.uid"
+type ResourceEdge {
+  from: String!
+  to: String!
+}
+
 type ServiceDeploymentConnection {
   pageInfo: PageInfo!
   edges: [ServiceDeploymentEdge]
@@ -2291,6 +2322,9 @@ input ScmConnectionAttributes {
 
   type: ScmType!
 
+  "the owning entity in this scm provider, eg a github organization"
+  owner: String
+
   username: String
 
   token: String
@@ -2659,6 +2693,24 @@ type PullRequest {
   updatedAt: DateTime
 }
 
+type ScmWebhook {
+  id: ID!
+
+  type: ScmType!
+
+  owner: String!
+
+  "the url for this specific webhook"
+  url: String!
+
+  "the name in your SCM provider for this webhook"
+  name: String!
+
+  insertedAt: DateTime
+
+  updatedAt: DateTime
+}
+
 type GitRepositoryConnection {
   pageInfo: PageInfo!
   edges: [GitRepositoryEdge]
@@ -2677,6 +2729,11 @@ type PrAutomationConnection {
 type PullRequestConnection {
   pageInfo: PageInfo!
   edges: [PullRequestEdge]
+}
+
+type ScmWebhookConnection {
+  pageInfo: PageInfo!
+  edges: [ScmWebhookEdge]
 }
 
 input CloneAttributes {
@@ -3134,6 +3191,7 @@ type Metadata {
   name: String!
   namespace: String
   creationTimestamp: String
+  uid: String
 }
 
 type SecretKeySelector {
@@ -4324,6 +4382,11 @@ type RunbookExecutionEdge {
 
 type WebhookEdge {
   node: Webhook
+  cursor: String
+}
+
+type ScmWebhookEdge {
+  node: ScmWebhook
   cursor: String
 }
 

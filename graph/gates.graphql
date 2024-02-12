@@ -4,6 +4,19 @@ query GetClusterGates {
   }
 }
 
+query PagedClusterGates($after: String, $first: Int, $before: String, $last: Int){
+    pagedClusterGates(after: $after, first: $first, before: $before, last: $last) {
+        pageInfo { ...PageInfoFragment}
+        edges {
+            ...PipelineGateEdgeFragment
+        }
+    }
+}
+
+fragment PipelineGateEdgeFragment on PipelineGateEdge {
+    node { ...PipelineGateFragment }
+}
+
 fragment PipelineGateFragment on PipelineGate {
     id
     name

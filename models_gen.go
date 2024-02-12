@@ -742,6 +742,20 @@ type ComponentContentAttributes struct {
 	Live    *string `json:"live,omitempty"`
 }
 
+// A tree view of the kubernetes object hierarchy beneath a component
+type ComponentTree struct {
+	Deployments  []*Deployment   `json:"deployments,omitempty"`
+	Statefulsets []*StatefulSet  `json:"statefulsets,omitempty"`
+	Daemonsets   []*DaemonSet    `json:"daemonsets,omitempty"`
+	Services     []*Service      `json:"services,omitempty"`
+	Ingresses    []*Ingress      `json:"ingresses,omitempty"`
+	Cronjobs     []*CronJob      `json:"cronjobs,omitempty"`
+	Configmaps   []*ConfigMap    `json:"configmaps,omitempty"`
+	Secrets      []*Secret       `json:"secrets,omitempty"`
+	Certificates []*Certificate  `json:"certificates,omitempty"`
+	Edges        []*ResourceEdge `json:"edges,omitempty"`
+}
+
 // attributes for declaratively specifying whether a config item is relevant given prior config
 type ConditionAttributes struct {
 	Operation Operation `json:"operation"`
@@ -1612,6 +1626,7 @@ type Metadata struct {
 	Name              string       `json:"name"`
 	Namespace         *string      `json:"namespace,omitempty"`
 	CreationTimestamp *string      `json:"creationTimestamp,omitempty"`
+	UID               *string      `json:"uid,omitempty"`
 }
 
 type MetadataAttributes struct {
@@ -2431,6 +2446,12 @@ type RepositoryEdge struct {
 	Cursor *string     `json:"cursor,omitempty"`
 }
 
+// an edge representing mapping from kubernetes object metadata.uid -> metadata.uid
+type ResourceEdge struct {
+	From string `json:"from"`
+	To   string `json:"to"`
+}
+
 type ResourceSpec struct {
 	CPU    *string `json:"cpu,omitempty"`
 	Memory *string `json:"memory,omitempty"`
@@ -2677,8 +2698,10 @@ type ScmConnection struct {
 
 // an object representing a means to authenticate to a source control provider like Github
 type ScmConnectionAttributes struct {
-	Name     string  `json:"name"`
-	Type     ScmType `json:"type"`
+	Name string  `json:"name"`
+	Type ScmType `json:"type"`
+	// the owning entity in this scm provider, eg a github organization
+	Owner    *string `json:"owner,omitempty"`
 	Username *string `json:"username,omitempty"`
 	Token    *string `json:"token,omitempty"`
 	BaseURL  *string `json:"baseUrl,omitempty"`
@@ -2695,6 +2718,28 @@ type ScmConnectionConnection struct {
 type ScmConnectionEdge struct {
 	Node   *ScmConnection `json:"node,omitempty"`
 	Cursor *string        `json:"cursor,omitempty"`
+}
+
+type ScmWebhook struct {
+	ID    string  `json:"id"`
+	Type  ScmType `json:"type"`
+	Owner string  `json:"owner"`
+	// the url for this specific webhook
+	URL string `json:"url"`
+	// the name in your SCM provider for this webhook
+	Name       string  `json:"name"`
+	InsertedAt *string `json:"insertedAt,omitempty"`
+	UpdatedAt  *string `json:"updatedAt,omitempty"`
+}
+
+type ScmWebhookConnection struct {
+	PageInfo PageInfo          `json:"pageInfo"`
+	Edges    []*ScmWebhookEdge `json:"edges,omitempty"`
+}
+
+type ScmWebhookEdge struct {
+	Node   *ScmWebhook `json:"node,omitempty"`
+	Cursor *string     `json:"cursor,omitempty"`
 }
 
 type ScopeAttributes struct {

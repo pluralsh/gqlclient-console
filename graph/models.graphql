@@ -352,3 +352,8 @@ fragment PrAutomationFragment on PrAutomation {
     insertedAt
     updatedAt
 }
+
+fragment PageInfoFragment on PageInfo {
+    hasNextPage
+    endCursor
+}
