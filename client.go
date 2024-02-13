@@ -5826,6 +5826,24 @@ func (t *GetServiceDeploymentForAgent_ServiceDeployment_Configuration) GetValue(
 	return t.Value
 }
 
+type GetServiceDeploymentForAgent_ServiceDeployment_Contexts struct {
+	Name          string                 "json:\"name\" graphql:\"name\""
+	Configuration map[string]interface{} "json:\"configuration,omitempty\" graphql:\"configuration\""
+}
+
+func (t *GetServiceDeploymentForAgent_ServiceDeployment_Contexts) GetName() string {
+	if t == nil {
+		t = &GetServiceDeploymentForAgent_ServiceDeployment_Contexts{}
+	}
+	return t.Name
+}
+func (t *GetServiceDeploymentForAgent_ServiceDeployment_Contexts) GetConfiguration() map[string]interface{} {
+	if t == nil {
+		t = &GetServiceDeploymentForAgent_ServiceDeployment_Contexts{}
+	}
+	return t.Configuration
+}
+
 type GetServiceDeploymentForAgent_ServiceDeployment struct {
 	ID            string                                                          "json:\"id\" graphql:\"id\""
 	Name          string                                                          "json:\"name\" graphql:\"name\""
@@ -5838,6 +5856,7 @@ type GetServiceDeploymentForAgent_ServiceDeployment struct {
 	Kustomize     *GetServiceDeploymentForAgent_ServiceDeployment_Kustomize       "json:\"kustomize,omitempty\" graphql:\"kustomize\""
 	Helm          *GetServiceDeploymentForAgent_ServiceDeployment_Helm            "json:\"helm,omitempty\" graphql:\"helm\""
 	Configuration []*GetServiceDeploymentForAgent_ServiceDeployment_Configuration "json:\"configuration,omitempty\" graphql:\"configuration\""
+	Contexts      []*GetServiceDeploymentForAgent_ServiceDeployment_Contexts      "json:\"contexts,omitempty\" graphql:\"contexts\""
 }
 
 func (t *GetServiceDeploymentForAgent_ServiceDeployment) GetID() string {
@@ -5905,6 +5924,12 @@ func (t *GetServiceDeploymentForAgent_ServiceDeployment) GetConfiguration() []*G
 		t = &GetServiceDeploymentForAgent_ServiceDeployment{}
 	}
 	return t.Configuration
+}
+func (t *GetServiceDeploymentForAgent_ServiceDeployment) GetContexts() []*GetServiceDeploymentForAgent_ServiceDeployment_Contexts {
+	if t == nil {
+		t = &GetServiceDeploymentForAgent_ServiceDeployment{}
+	}
+	return t.Contexts
 }
 
 type GetServiceDeploymentByHandle_ServiceDeployment_ServiceDeploymentExtended_Revision_RevisionFragment_Git struct {
@@ -12167,6 +12192,10 @@ const GetServiceDeploymentForAgentDocument = `query GetServiceDeploymentForAgent
 		configuration {
 			name
 			value
+		}
+		contexts {
+			name
+			configuration
 		}
 	}
 }

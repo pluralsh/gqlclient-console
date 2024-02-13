@@ -551,6 +551,16 @@ type ClusterBackup struct {
 	UpdatedAt        *string  `json:"updatedAt,omitempty"`
 }
 
+type ClusterBackupConnection struct {
+	PageInfo PageInfo             `json:"pageInfo"`
+	Edges    []*ClusterBackupEdge `json:"edges,omitempty"`
+}
+
+type ClusterBackupEdge struct {
+	Node   *ClusterBackup `json:"node,omitempty"`
+	Cursor *string        `json:"cursor,omitempty"`
+}
+
 // a single condition struct for various phases of the cluster provisionining process
 type ClusterCondition struct {
 	LastTransitionTime *string `json:"lastTransitionTime,omitempty"`
@@ -645,6 +655,16 @@ type ClusterRestore struct {
 	Backup     *ClusterBackup `json:"backup,omitempty"`
 	InsertedAt *string        `json:"insertedAt,omitempty"`
 	UpdatedAt  *string        `json:"updatedAt,omitempty"`
+}
+
+type ClusterRestoreConnection struct {
+	PageInfo PageInfo              `json:"pageInfo"`
+	Edges    []*ClusterRestoreEdge `json:"edges,omitempty"`
+}
+
+type ClusterRestoreEdge struct {
+	Node   *ClusterRestore `json:"node,omitempty"`
+	Cursor *string         `json:"cursor,omitempty"`
 }
 
 type ClusterServiceAttributes struct {
@@ -746,6 +766,7 @@ type ComponentContentAttributes struct {
 type ComponentTree struct {
 	Deployments  []*Deployment   `json:"deployments,omitempty"`
 	Statefulsets []*StatefulSet  `json:"statefulsets,omitempty"`
+	Replicasets  []*ReplicaSet   `json:"replicasets,omitempty"`
 	Daemonsets   []*DaemonSet    `json:"daemonsets,omitempty"`
 	Services     []*Service      `json:"services,omitempty"`
 	Ingresses    []*Ingress      `json:"ingresses,omitempty"`
@@ -2419,6 +2440,26 @@ type RegexReplacement struct {
 type RegexReplacementAttributes struct {
 	Regex       string `json:"regex"`
 	Replacement string `json:"replacement"`
+}
+
+type ReplicaSet struct {
+	Metadata Metadata         `json:"metadata"`
+	Spec     ReplicaSetSpec   `json:"spec"`
+	Status   ReplicaSetStatus `json:"status"`
+	Pods     []*Pod           `json:"pods,omitempty"`
+	Raw      string           `json:"raw"`
+}
+
+type ReplicaSetSpec struct {
+	Replicas *int64 `json:"replicas,omitempty"`
+}
+
+type ReplicaSetStatus struct {
+	AvailableReplicas    *int64             `json:"availableReplicas,omitempty"`
+	Conditions           []*StatusCondition `json:"conditions,omitempty"`
+	Replicas             *int64             `json:"replicas,omitempty"`
+	ReadyReplicas        *int64             `json:"readyReplicas,omitempty"`
+	FullyLabeledReplicas *int64             `json:"fullyLabeledReplicas,omitempty"`
 }
 
 type Repository struct {

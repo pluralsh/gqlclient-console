@@ -129,6 +129,10 @@ query GetServiceDeploymentForAgent($id: ID!) {
             name
             value
         }
+        contexts {
+            name
+            configuration
+        }
     }
 }
 
