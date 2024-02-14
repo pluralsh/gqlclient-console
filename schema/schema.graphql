@@ -400,6 +400,8 @@ type RootMutationType {
 
   deleteScmConnection(id: ID!): ScmConnection
 
+  createScmWebhook(connectionId: ID!, owner: String!): ScmWebhook
+
   createPrAutomation(attributes: PrAutomationAttributes!): PrAutomation
 
   updatePrAutomation(id: ID!, attributes: PrAutomationAttributes!): PrAutomation
@@ -407,7 +409,17 @@ type RootMutationType {
   deletePrAutomation(id: ID!): PrAutomation
 
   "creates the service to enable self-hosted renovate in one pass"
-  setupRenovate(connectionId: ID!, repos: [String]): ServiceDeployment
+  setupRenovate(
+    connectionId: ID!
+
+    repos: [String]
+
+    "the name of the owning service"
+    name: String
+
+    "the namespace of the owning service"
+    namespace: String
+  ): ServiceDeployment
 
   createPullRequest(
     "the id of the PR automation instance to use"
@@ -952,6 +964,8 @@ type Pipeline {
   "the stages of this pipeline"
   stages: [PipelineStage]
 
+  status: PipelineStatus
+
   "edges linking two stages w\/in the pipeline in a full DAG"
   edges: [PipelineStageEdge]
 
@@ -1133,6 +1147,15 @@ type PromotionService {
   insertedAt: DateTime
 
   updatedAt: DateTime
+}
+
+"a report of gate statuses within a pipeline to gauge its health"
+type PipelineStatus {
+  "if > 0, consider the pipeline running"
+  pending: Int
+
+  "if > 0, consider the pipeline stopped"
+  closed: Int
 }
 
 type PipelineConnection {
@@ -2283,6 +2306,12 @@ enum PrRole {
   UPGRADE
 }
 
+enum PrStatus {
+  OPEN
+  MERGED
+  CLOSED
+}
+
 enum ConfigurationType {
   STRING
   INT
@@ -2690,6 +2719,8 @@ type PrConfigurationCondition {
 "A reference to a pull request for your kubernetes related IaC"
 type PullRequest {
   id: ID!
+
+  status: PrStatus!
 
   url: String!
 
