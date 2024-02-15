@@ -1865,6 +1865,7 @@ type Pipeline struct {
 	Name string `json:"name"`
 	// the stages of this pipeline
 	Stages []*PipelineStage `json:"stages,omitempty"`
+	Status *PipelineStatus  `json:"status,omitempty"`
 	// edges linking two stages w/in the pipeline in a full DAG
 	Edges      []*PipelineStageEdge `json:"edges,omitempty"`
 	InsertedAt *string              `json:"insertedAt,omitempty"`
@@ -1988,6 +1989,14 @@ type PipelineStageEdge struct {
 	Gates      []*PipelineGate `json:"gates,omitempty"`
 	InsertedAt *string         `json:"insertedAt,omitempty"`
 	UpdatedAt  *string         `json:"updatedAt,omitempty"`
+}
+
+// a report of gate statuses within a pipeline to gauge its health
+type PipelineStatus struct {
+	// if > 0, consider the pipeline running
+	Pending *int64 `json:"pending,omitempty"`
+	// if > 0, consider the pipeline stopped
+	Closed *int64 `json:"closed,omitempty"`
 }
 
 type Plan struct {
@@ -2355,6 +2364,7 @@ type ProviderCredentialAttributes struct {
 // A reference to a pull request for your kubernetes related IaC
 type PullRequest struct {
 	ID     string    `json:"id"`
+	Status PrStatus  `json:"status"`
 	URL    string    `json:"url"`
 	Title  *string   `json:"title,omitempty"`
 	Labels []*string `json:"labels,omitempty"`
@@ -4169,6 +4179,49 @@ func (e *PrRole) UnmarshalGQL(v interface{}) error {
 }
 
 func (e PrRole) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type PrStatus string
+
+const (
+	PrStatusOpen   PrStatus = "OPEN"
+	PrStatusMerged PrStatus = "MERGED"
+	PrStatusClosed PrStatus = "CLOSED"
+)
+
+var AllPrStatus = []PrStatus{
+	PrStatusOpen,
+	PrStatusMerged,
+	PrStatusClosed,
+}
+
+func (e PrStatus) IsValid() bool {
+	switch e {
+	case PrStatusOpen, PrStatusMerged, PrStatusClosed:
+		return true
+	}
+	return false
+}
+
+func (e PrStatus) String() string {
+	return string(e)
+}
+
+func (e *PrStatus) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = PrStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid PrStatus", str)
+	}
+	return nil
+}
+
+func (e PrStatus) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
