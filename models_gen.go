@@ -275,6 +275,7 @@ type AzureStore struct {
 	StorageAccount string `json:"storageAccount"`
 	Container      string `json:"container"`
 	SubscriptionID string `json:"subscriptionId"`
+	ResourceGroup  string `json:"resourceGroup"`
 	TenantID       string `json:"tenantId"`
 	ClientID       string `json:"clientId"`
 }
@@ -283,6 +284,7 @@ type AzureStoreAttributes struct {
 	StorageAccount string `json:"storageAccount"`
 	Container      string `json:"container"`
 	SubscriptionID string `json:"subscriptionId"`
+	ResourceGroup  string `json:"resourceGroup"`
 	TenantID       string `json:"tenantId"`
 	ClientID       string `json:"clientId"`
 	ClientSecret   string `json:"clientSecret"`
@@ -764,17 +766,18 @@ type ComponentContentAttributes struct {
 
 // A tree view of the kubernetes object hierarchy beneath a component
 type ComponentTree struct {
-	Deployments  []*Deployment   `json:"deployments,omitempty"`
-	Statefulsets []*StatefulSet  `json:"statefulsets,omitempty"`
-	Replicasets  []*ReplicaSet   `json:"replicasets,omitempty"`
-	Daemonsets   []*DaemonSet    `json:"daemonsets,omitempty"`
-	Services     []*Service      `json:"services,omitempty"`
-	Ingresses    []*Ingress      `json:"ingresses,omitempty"`
-	Cronjobs     []*CronJob      `json:"cronjobs,omitempty"`
-	Configmaps   []*ConfigMap    `json:"configmaps,omitempty"`
-	Secrets      []*Secret       `json:"secrets,omitempty"`
-	Certificates []*Certificate  `json:"certificates,omitempty"`
-	Edges        []*ResourceEdge `json:"edges,omitempty"`
+	Root         *KubernetesUnstructured `json:"root,omitempty"`
+	Deployments  []*Deployment           `json:"deployments,omitempty"`
+	Statefulsets []*StatefulSet          `json:"statefulsets,omitempty"`
+	Replicasets  []*ReplicaSet           `json:"replicasets,omitempty"`
+	Daemonsets   []*DaemonSet            `json:"daemonsets,omitempty"`
+	Services     []*Service              `json:"services,omitempty"`
+	Ingresses    []*Ingress              `json:"ingresses,omitempty"`
+	Cronjobs     []*CronJob              `json:"cronjobs,omitempty"`
+	Configmaps   []*ConfigMap            `json:"configmaps,omitempty"`
+	Secrets      []*Secret               `json:"secrets,omitempty"`
+	Certificates []*Certificate          `json:"certificates,omitempty"`
+	Edges        []*ResourceEdge         `json:"edges,omitempty"`
 }
 
 // attributes for declaratively specifying whether a config item is relevant given prior config
@@ -1023,6 +1026,25 @@ type DatabaseVolume struct {
 	Size *string `json:"size,omitempty"`
 }
 
+// A representation to a service which configures renovate for a scm connection
+type DependencyManagementService struct {
+	ID         string             `json:"id"`
+	Connection *ScmConnection     `json:"connection,omitempty"`
+	Service    *ServiceDeployment `json:"service,omitempty"`
+	InsertedAt *string            `json:"insertedAt,omitempty"`
+	UpdatedAt  *string            `json:"updatedAt,omitempty"`
+}
+
+type DependencyManagementServiceConnection struct {
+	PageInfo PageInfo                           `json:"pageInfo"`
+	Edges    []*DependencyManagementServiceEdge `json:"edges,omitempty"`
+}
+
+type DependencyManagementServiceEdge struct {
+	Node   *DependencyManagementService `json:"node,omitempty"`
+	Cursor *string                      `json:"cursor,omitempty"`
+}
+
 type Deployment struct {
 	Metadata Metadata         `json:"metadata"`
 	Status   DeploymentStatus `json:"status"`
@@ -1170,14 +1192,14 @@ type GcpSettingsAttributes struct {
 }
 
 type GcsStore struct {
-	Bucket string `json:"bucket"`
-	Region string `json:"region"`
+	Bucket string  `json:"bucket"`
+	Region *string `json:"region,omitempty"`
 }
 
 type GcsStoreAttributes struct {
-	Bucket                 string `json:"bucket"`
-	Region                 string `json:"region"`
-	ApplicationCredentials string `json:"applicationCredentials"`
+	Bucket                 string  `json:"bucket"`
+	Region                 *string `json:"region,omitempty"`
+	ApplicationCredentials string  `json:"applicationCredentials"`
 }
 
 type GitAttributes struct {
@@ -1867,9 +1889,11 @@ type Pipeline struct {
 	Stages []*PipelineStage `json:"stages,omitempty"`
 	Status *PipelineStatus  `json:"status,omitempty"`
 	// edges linking two stages w/in the pipeline in a full DAG
-	Edges      []*PipelineStageEdge `json:"edges,omitempty"`
-	InsertedAt *string              `json:"insertedAt,omitempty"`
-	UpdatedAt  *string              `json:"updatedAt,omitempty"`
+	Edges []*PipelineStageEdge `json:"edges,omitempty"`
+	// lists the contexts applied to a pipeline
+	Contexts   *PipelineContextConnection `json:"contexts,omitempty"`
+	InsertedAt *string                    `json:"insertedAt,omitempty"`
+	UpdatedAt  *string                    `json:"updatedAt,omitempty"`
 }
 
 // the top level input object for creating/deleting pipelines
@@ -1881,6 +1905,33 @@ type PipelineAttributes struct {
 type PipelineConnection struct {
 	PageInfo PageInfo        `json:"pageInfo"`
 	Edges    []*PipelineEdge `json:"edges,omitempty"`
+}
+
+// A variable context that can be used to generate pull requests as a pipeline progresses
+type PipelineContext struct {
+	ID string `json:"id"`
+	// the context map that will be passed to the pipeline
+	Context  map[string]interface{} `json:"context"`
+	Pipeline *Pipeline              `json:"pipeline,omitempty"`
+	// a history of pull requests created by this context thus far
+	PullRequests []*PullRequest `json:"pullRequests,omitempty"`
+	InsertedAt   *string        `json:"insertedAt,omitempty"`
+	UpdatedAt    *string        `json:"updatedAt,omitempty"`
+}
+
+// attributes needed to create a new pipeline context
+type PipelineContextAttributes struct {
+	Context string `json:"context"`
+}
+
+type PipelineContextConnection struct {
+	PageInfo PageInfo               `json:"pageInfo"`
+	Edges    []*PipelineContextEdge `json:"edges,omitempty"`
+}
+
+type PipelineContextEdge struct {
+	Node   *PipelineContext `json:"node,omitempty"`
+	Cursor *string          `json:"cursor,omitempty"`
 }
 
 type PipelineEdge struct {
@@ -1967,6 +2018,8 @@ type PipelineStage struct {
 	Name string `json:"name"`
 	// the services within this stage
 	Services []*StageService `json:"services,omitempty"`
+	// the context that is to be applied to this stage for PR promotions
+	Context *PipelineContext `json:"context,omitempty"`
 	// a promotion which might be outstanding for this stage
 	Promotion  *PipelinePromotion `json:"promotion,omitempty"`
 	InsertedAt *string            `json:"insertedAt,omitempty"`
@@ -2363,11 +2416,12 @@ type ProviderCredentialAttributes struct {
 
 // A reference to a pull request for your kubernetes related IaC
 type PullRequest struct {
-	ID     string    `json:"id"`
-	Status PrStatus  `json:"status"`
-	URL    string    `json:"url"`
-	Title  *string   `json:"title,omitempty"`
-	Labels []*string `json:"labels,omitempty"`
+	ID      string    `json:"id"`
+	Status  PrStatus  `json:"status"`
+	URL     string    `json:"url"`
+	Title   *string   `json:"title,omitempty"`
+	Creator *string   `json:"creator,omitempty"`
+	Labels  []*string `json:"labels,omitempty"`
 	// the cluster this pr is meant to modify
 	Cluster *Cluster `json:"cluster,omitempty"`
 	// the service this pr is meant to modify
@@ -2901,6 +2955,8 @@ type ServiceDeployment struct {
 	Helm *HelmSpec `json:"helm,omitempty"`
 	// how you'd like to perform a canary promotion
 	Promotion *ServicePromotion `json:"promotion,omitempty"`
+	// if you should apply liquid templating to raw yaml files, defaults to true
+	Templated *bool `json:"templated,omitempty"`
 	// if true, deletion of this service is not allowed
 	Protect *bool `json:"protect,omitempty"`
 	// latest git sha we pulled from
@@ -2953,15 +3009,17 @@ type ServiceDeployment struct {
 }
 
 type ServiceDeploymentAttributes struct {
-	Name            string                      `json:"name"`
-	Namespace       string                      `json:"namespace"`
-	Version         *string                     `json:"version,omitempty"`
-	DocsPath        *string                     `json:"docsPath,omitempty"`
-	SyncConfig      *SyncConfigAttributes       `json:"syncConfig,omitempty"`
-	Protect         *bool                       `json:"protect,omitempty"`
-	RepositoryID    *string                     `json:"repositoryId,omitempty"`
-	DryRun          *bool                       `json:"dryRun,omitempty"`
-	Interval        *string                     `json:"interval,omitempty"`
+	Name         string                `json:"name"`
+	Namespace    string                `json:"namespace"`
+	Version      *string               `json:"version,omitempty"`
+	DocsPath     *string               `json:"docsPath,omitempty"`
+	SyncConfig   *SyncConfigAttributes `json:"syncConfig,omitempty"`
+	Protect      *bool                 `json:"protect,omitempty"`
+	RepositoryID *string               `json:"repositoryId,omitempty"`
+	DryRun       *bool                 `json:"dryRun,omitempty"`
+	Interval     *string               `json:"interval,omitempty"`
+	// if you should apply liquid templating to raw yaml files, defaults to true
+	Templated       *bool                       `json:"templated,omitempty"`
 	Git             *GitRefAttributes           `json:"git,omitempty"`
 	Helm            *HelmConfigAttributes       `json:"helm,omitempty"`
 	Kustomize       *KustomizeAttributes        `json:"kustomize,omitempty"`
@@ -3017,10 +3075,12 @@ type ServiceStatusCount struct {
 }
 
 type ServiceUpdateAttributes struct {
-	Version         *string                     `json:"version,omitempty"`
-	Protect         *bool                       `json:"protect,omitempty"`
-	DryRun          *bool                       `json:"dryRun,omitempty"`
-	Interval        *string                     `json:"interval,omitempty"`
+	Version  *string `json:"version,omitempty"`
+	Protect  *bool   `json:"protect,omitempty"`
+	DryRun   *bool   `json:"dryRun,omitempty"`
+	Interval *string `json:"interval,omitempty"`
+	// if you should apply liquid templating to raw yaml files, defaults to true
+	Templated       *bool                       `json:"templated,omitempty"`
 	Git             *GitRefAttributes           `json:"git,omitempty"`
 	Helm            *HelmConfigAttributes       `json:"helm,omitempty"`
 	Configuration   []*ConfigAttributes         `json:"configuration,omitempty"`

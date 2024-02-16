@@ -181,6 +181,8 @@ type RootQueryType {
 
   scmWebhooks(after: String, first: Int, before: String, last: Int): ScmWebhookConnection
 
+  dependencyManagementServices(after: String, first: Int, before: String, last: Int): DependencyManagementServiceConnection
+
   "exchanges a kubeconfig token for user info"
   tokenExchange(token: String!): User
 
@@ -263,6 +265,8 @@ type RootQueryType {
   pipeline(id: ID!): Pipeline
 
   pipelineGate(id: ID!): PipelineGate
+
+  pipelineContext(id: ID!): PipelineContext
 
   clusterBackup(id: ID, clusterId: ID, namespace: String, name: String): ClusterBackup
 
@@ -421,6 +425,8 @@ type RootMutationType {
     namespace: String
   ): ServiceDeployment
 
+  reconfigureRenovate(repos: [String], serviceId: ID!): ServiceDeployment
+
   createPullRequest(
     "the id of the PR automation instance to use"
     id: ID!
@@ -510,6 +516,15 @@ type RootMutationType {
     attributes: ServiceCloneAttributes!
   ): ServiceDeployment
 
+  kickService(
+    serviceId: ID
+
+    "the handle of the cluster for this service"
+    cluster: String
+
+    name: String
+  ): ServiceDeployment
+
   selfManage(values: String!): ServiceDeployment
 
   "marks a service as being able to proceed to the next stage of a canary rollout"
@@ -546,6 +561,9 @@ type RootMutationType {
   "upserts a pipeline with a given name"
   savePipeline(name: String!, attributes: PipelineAttributes!): Pipeline
 
+  "creates a new pipeline context and binds it to the beginning stage"
+  createPipelineContext(pipelineId: ID!, attributes: PipelineContextAttributes!): PipelineContext
+
   deletePipeline(id: ID!): Pipeline
 
   "approves an approval pipeline gate"
@@ -561,6 +579,8 @@ type RootMutationType {
   deleteObjectStore(id: ID!): ObjectStore
 
   configureBackups(clusterId: ID!, storeId: ID!): Cluster
+
+  delinkBackups(clusterId: ID!): Cluster
 
   createClusterRestore(backupId: ID!): ClusterRestore
 
@@ -735,7 +755,7 @@ input S3StoreAttributes {
 
 input GcsStoreAttributes {
   bucket: String!
-  region: String!
+  region: String
   applicationCredentials: String!
 }
 
@@ -743,6 +763,7 @@ input AzureStoreAttributes {
   storageAccount: String!
   container: String!
   subscriptionId: String!
+  resourceGroup: String!
   tenantId: String!
   clientId: String!
   clientSecret: String!
@@ -785,13 +806,14 @@ type S3Store {
 
 type GcsStore {
   bucket: String!
-  region: String!
+  region: String
 }
 
 type AzureStore {
   storageAccount: String!
   container: String!
   subscriptionId: String!
+  resourceGroup: String!
   tenantId: String!
   clientId: String!
 }
@@ -869,6 +891,11 @@ input PipelineGateAttributes {
 
   "a specification for more complex gate types"
   spec: GateSpecAttributes
+}
+
+"attributes needed to create a new pipeline context"
+input PipelineContextAttributes {
+  context: Json!
 }
 
 "the allowed inputs for a deployment agent gate update"
@@ -969,6 +996,26 @@ type Pipeline {
   "edges linking two stages w\/in the pipeline in a full DAG"
   edges: [PipelineStageEdge]
 
+  "lists the contexts applied to a pipeline"
+  contexts(after: String, first: Int, before: String, last: Int): PipelineContextConnection
+
+  insertedAt: DateTime
+
+  updatedAt: DateTime
+}
+
+"A variable context that can be used to generate pull requests as a pipeline progresses"
+type PipelineContext {
+  id: ID!
+
+  "the context map that will be passed to the pipeline"
+  context: Map!
+
+  pipeline: Pipeline
+
+  "a history of pull requests created by this context thus far"
+  pullRequests: [PullRequest]
+
   insertedAt: DateTime
 
   updatedAt: DateTime
@@ -983,6 +1030,9 @@ type PipelineStage {
 
   "the services within this stage"
   services: [StageService]
+
+  "the context that is to be applied to this stage for PR promotions"
+  context: PipelineContext
 
   "a promotion which might be outstanding for this stage"
   promotion: PipelinePromotion
@@ -1168,6 +1218,11 @@ type PipelineGateConnection {
   edges: [PipelineGateEdge]
 }
 
+type PipelineContextConnection {
+  pageInfo: PageInfo!
+  edges: [PipelineContextEdge]
+}
+
 enum ComponentState {
   RUNNING
   PENDING
@@ -1191,20 +1246,38 @@ enum ServicePromotion {
 
 input ServiceDeploymentAttributes {
   name: String!
+
   namespace: String!
+
   version: String
+
   docsPath: String
+
   syncConfig: SyncConfigAttributes
+
   protect: Boolean
+
   repositoryId: ID
+
   dryRun: Boolean
+
   interval: String
+
+  "if you should apply liquid templating to raw yaml files, defaults to true"
+  templated: Boolean
+
   git: GitRefAttributes
+
   helm: HelmConfigAttributes
+
   kustomize: KustomizeAttributes
+
   configuration: [ConfigAttributes]
+
   readBindings: [PolicyBindingAttributes]
+
   writeBindings: [PolicyBindingAttributes]
+
   contextBindings: [ContextBindingAttributes]
 }
 
@@ -1236,15 +1309,28 @@ input HelmValueAttributes {
 
 input ServiceUpdateAttributes {
   version: String
+
   protect: Boolean
+
   dryRun: Boolean
+
   interval: String
+
+  "if you should apply liquid templating to raw yaml files, defaults to true"
+  templated: Boolean
+
   git: GitRefAttributes
+
   helm: HelmConfigAttributes
+
   configuration: [ConfigAttributes]
+
   kustomize: KustomizeAttributes
+
   readBindings: [PolicyBindingAttributes]
+
   writeBindings: [PolicyBindingAttributes]
+
   contextBindings: [ContextBindingAttributes]
 }
 
@@ -1347,6 +1433,9 @@ type ServiceDeployment {
 
   "how you'd like to perform a canary promotion"
   promotion: ServicePromotion
+
+  "if you should apply liquid templating to raw yaml files, defaults to true"
+  templated: Boolean
 
   "if true, deletion of this service is not allowed"
   protect: Boolean
@@ -1637,6 +1726,7 @@ type ServiceContext {
 
 "A tree view of the kubernetes object hierarchy beneath a component"
 type ComponentTree {
+  root: KubernetesUnstructured
   deployments: [Deployment]
   statefulsets: [StatefulSet]
   replicasets: [ReplicaSet]
@@ -2726,6 +2816,8 @@ type PullRequest {
 
   title: String
 
+  creator: String
+
   labels: [String]
 
   "the cluster this pr is meant to modify"
@@ -2757,6 +2849,15 @@ type ScmWebhook {
   updatedAt: DateTime
 }
 
+"A representation to a service which configures renovate for a scm connection"
+type DependencyManagementService {
+  id: ID!
+  connection: ScmConnection
+  service: ServiceDeployment
+  insertedAt: DateTime
+  updatedAt: DateTime
+}
+
 type GitRepositoryConnection {
   pageInfo: PageInfo!
   edges: [GitRepositoryEdge]
@@ -2780,6 +2881,11 @@ type PullRequestConnection {
 type ScmWebhookConnection {
   pageInfo: PageInfo!
   edges: [ScmWebhookEdge]
+}
+
+type DependencyManagementServiceConnection {
+  pageInfo: PageInfo!
+  edges: [DependencyManagementServiceEdge]
 }
 
 input CloneAttributes {
@@ -4451,6 +4557,11 @@ type WebhookEdge {
   cursor: String
 }
 
+type DependencyManagementServiceEdge {
+  node: DependencyManagementService
+  cursor: String
+}
+
 type ScmWebhookEdge {
   node: ScmWebhook
   cursor: String
@@ -4498,6 +4609,11 @@ type RevisionEdge {
 
 type ServiceDeploymentEdge {
   node: ServiceDeployment
+  cursor: String
+}
+
+type PipelineContextEdge {
+  node: PipelineContext
   cursor: String
 }
 
