@@ -6048,6 +6048,7 @@ type GetServiceDeploymentForAgent_ServiceDeployment struct {
 	Tarball       *string                                                         "json:\"tarball,omitempty\" graphql:\"tarball\""
 	DeletedAt     *string                                                         "json:\"deletedAt,omitempty\" graphql:\"deletedAt\""
 	DryRun        *bool                                                           "json:\"dryRun,omitempty\" graphql:\"dryRun\""
+	Templated     *bool                                                           "json:\"templated,omitempty\" graphql:\"templated\""
 	Cluster       *GetServiceDeploymentForAgent_ServiceDeployment_Cluster         "json:\"cluster,omitempty\" graphql:\"cluster\""
 	Kustomize     *GetServiceDeploymentForAgent_ServiceDeployment_Kustomize       "json:\"kustomize,omitempty\" graphql:\"kustomize\""
 	Helm          *GetServiceDeploymentForAgent_ServiceDeployment_Helm            "json:\"helm,omitempty\" graphql:\"helm\""
@@ -6096,6 +6097,12 @@ func (t *GetServiceDeploymentForAgent_ServiceDeployment) GetDryRun() *bool {
 		t = &GetServiceDeploymentForAgent_ServiceDeployment{}
 	}
 	return t.DryRun
+}
+func (t *GetServiceDeploymentForAgent_ServiceDeployment) GetTemplated() *bool {
+	if t == nil {
+		t = &GetServiceDeploymentForAgent_ServiceDeployment{}
+	}
+	return t.Templated
 }
 func (t *GetServiceDeploymentForAgent_ServiceDeployment) GetCluster() *GetServiceDeploymentForAgent_ServiceDeployment_Cluster {
 	if t == nil {
@@ -12597,6 +12604,7 @@ const GetServiceDeploymentForAgentDocument = `query GetServiceDeploymentForAgent
 		tarball
 		deletedAt
 		dryRun
+		templated
 		cluster {
 			id
 			name

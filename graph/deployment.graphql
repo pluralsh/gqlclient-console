@@ -109,6 +109,7 @@ query GetServiceDeploymentForAgent($id: ID!) {
         tarball
         deletedAt
         dryRun
+        templated
         cluster {
             id
             name
