@@ -42,6 +42,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
     sha
     tarball
     dryRun
+    templated
     configuration { name value }
 }
 

@@ -409,6 +409,7 @@ type ServiceDeploymentFragment struct {
 	Sha           *string                                    "json:\"sha,omitempty\" graphql:\"sha\""
 	Tarball       *string                                    "json:\"tarball,omitempty\" graphql:\"tarball\""
 	DryRun        *bool                                      "json:\"dryRun,omitempty\" graphql:\"dryRun\""
+	Templated     *bool                                      "json:\"templated,omitempty\" graphql:\"templated\""
 	Configuration []*ServiceDeploymentFragment_Configuration "json:\"configuration,omitempty\" graphql:\"configuration\""
 }
 
@@ -496,6 +497,12 @@ func (t *ServiceDeploymentFragment) GetDryRun() *bool {
 	}
 	return t.DryRun
 }
+func (t *ServiceDeploymentFragment) GetTemplated() *bool {
+	if t == nil {
+		t = &ServiceDeploymentFragment{}
+	}
+	return t.Templated
+}
 func (t *ServiceDeploymentFragment) GetConfiguration() []*ServiceDeploymentFragment_Configuration {
 	if t == nil {
 		t = &ServiceDeploymentFragment{}
@@ -522,6 +529,7 @@ type ServiceDeploymentExtended struct {
 	Sha           *string                                                              "json:\"sha,omitempty\" graphql:\"sha\""
 	Tarball       *string                                                              "json:\"tarball,omitempty\" graphql:\"tarball\""
 	DryRun        *bool                                                                "json:\"dryRun,omitempty\" graphql:\"dryRun\""
+	Templated     *bool                                                                "json:\"templated,omitempty\" graphql:\"templated\""
 	Configuration []*ServiceDeploymentExtended_ServiceDeploymentFragment_Configuration "json:\"configuration,omitempty\" graphql:\"configuration\""
 }
 
@@ -632,6 +640,12 @@ func (t *ServiceDeploymentExtended) GetDryRun() *bool {
 		t = &ServiceDeploymentExtended{}
 	}
 	return t.DryRun
+}
+func (t *ServiceDeploymentExtended) GetTemplated() *bool {
+	if t == nil {
+		t = &ServiceDeploymentExtended{}
+	}
+	return t.Templated
 }
 func (t *ServiceDeploymentExtended) GetConfiguration() []*ServiceDeploymentExtended_ServiceDeploymentFragment_Configuration {
 	if t == nil {
@@ -8714,6 +8728,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	sha
 	tarball
 	dryRun
+	templated
 	configuration {
 		name
 		value
@@ -8892,6 +8907,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	sha
 	tarball
 	dryRun
+	templated
 	configuration {
 		name
 		value
@@ -9071,6 +9087,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	sha
 	tarball
 	dryRun
+	templated
 	configuration {
 		name
 		value
@@ -9249,6 +9266,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	sha
 	tarball
 	dryRun
+	templated
 	configuration {
 		name
 		value
@@ -9389,6 +9407,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	sha
 	tarball
 	dryRun
+	templated
 	configuration {
 		name
 		value
@@ -9502,6 +9521,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	sha
 	tarball
 	dryRun
+	templated
 	configuration {
 		name
 		value
@@ -9616,6 +9636,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	sha
 	tarball
 	dryRun
+	templated
 	configuration {
 		name
 		value
@@ -9822,6 +9843,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	sha
 	tarball
 	dryRun
+	templated
 	configuration {
 		name
 		value
@@ -10002,6 +10024,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	sha
 	tarball
 	dryRun
+	templated
 	configuration {
 		name
 		value
@@ -10181,6 +10204,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	sha
 	tarball
 	dryRun
+	templated
 	configuration {
 		name
 		value
@@ -10360,6 +10384,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	sha
 	tarball
 	dryRun
+	templated
 	configuration {
 		name
 		value
@@ -10500,6 +10525,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	sha
 	tarball
 	dryRun
+	templated
 	configuration {
 		name
 		value
@@ -10613,6 +10639,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	sha
 	tarball
 	dryRun
+	templated
 	configuration {
 		name
 		value
@@ -10763,6 +10790,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	sha
 	tarball
 	dryRun
+	templated
 	configuration {
 		name
 		value
@@ -11158,6 +11186,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	sha
 	tarball
 	dryRun
+	templated
 	configuration {
 		name
 		value
@@ -11331,6 +11360,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	sha
 	tarball
 	dryRun
+	templated
 	configuration {
 		name
 		value
@@ -11414,6 +11444,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	sha
 	tarball
 	dryRun
+	templated
 	configuration {
 		name
 		value
@@ -11594,6 +11625,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	sha
 	tarball
 	dryRun
+	templated
 	configuration {
 		name
 		value
@@ -11767,6 +11799,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	sha
 	tarball
 	dryRun
+	templated
 	configuration {
 		name
 		value
@@ -11851,6 +11884,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	sha
 	tarball
 	dryRun
+	templated
 	configuration {
 		name
 		value
@@ -11943,6 +11977,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	sha
 	tarball
 	dryRun
+	templated
 	configuration {
 		name
 		value
@@ -12036,6 +12071,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	sha
 	tarball
 	dryRun
+	templated
 	configuration {
 		name
 		value
@@ -12127,6 +12163,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	sha
 	tarball
 	dryRun
+	templated
 	configuration {
 		name
 		value
@@ -12219,6 +12256,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	sha
 	tarball
 	dryRun
+	templated
 	configuration {
 		name
 		value
@@ -12538,6 +12576,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	sha
 	tarball
 	dryRun
+	templated
 	configuration {
 		name
 		value
@@ -12765,6 +12804,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	sha
 	tarball
 	dryRun
+	templated
 	configuration {
 		name
 		value
@@ -14677,6 +14717,7 @@ fragment ServiceDeploymentFragment on ServiceDeployment {
 	sha
 	tarball
 	dryRun
+	templated
 	configuration {
 		name
 		value
