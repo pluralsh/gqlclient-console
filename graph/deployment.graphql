@@ -203,3 +203,15 @@ mutation DeleteGlobalService($id: ID!) {
         ...GlobalServiceFragment
     }
 }
+
+mutation KickService($id: ID!) {
+    kickService(serviceId: $id) {
+        ...ServiceDeploymentExtended
+    }
+}
+
+mutation KickServiceByHandle($cluster: String!, $name: String!) {
+    kickService(cluster: $cluster, name: $name) {
+        ...ServiceDeploymentExtended
+    }
+}

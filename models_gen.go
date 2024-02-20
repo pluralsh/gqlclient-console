@@ -1880,6 +1880,88 @@ type PathUpdate struct {
 	ValueFrom string    `json:"valueFrom"`
 }
 
+type Persona struct {
+	ID string `json:"id"`
+	// the name for this persona
+	Name string `json:"name"`
+	// longform description of this persona
+	Description *string `json:"description,omitempty"`
+	// the ui configuration for this persona (additive across personas)
+	Configuration *PersonaConfiguration `json:"configuration,omitempty"`
+	// the group bindings for this persona
+	Bindings   []*PolicyBinding `json:"bindings,omitempty"`
+	InsertedAt *string          `json:"insertedAt,omitempty"`
+	UpdatedAt  *string          `json:"updatedAt,omitempty"`
+}
+
+type PersonaAttributes struct {
+	Name *string `json:"name,omitempty"`
+	// longform description of this persona
+	Description   *string                         `json:"description,omitempty"`
+	Configuration *PersonaConfigurationAttributes `json:"configuration,omitempty"`
+	Bindings      []*BindingAttributes            `json:"bindings,omitempty"`
+}
+
+type PersonaConfiguration struct {
+	// enable full ui for this persona
+	All *bool `json:"all,omitempty"`
+	// enable individual parts of the deployments views
+	Deployments *PersonaDeployment `json:"deployments,omitempty"`
+	// enable individual aspects of the sidebar
+	Sidebar *PersonaSidebar `json:"sidebar,omitempty"`
+}
+
+type PersonaConfigurationAttributes struct {
+	// enable full ui for this persona
+	All *bool `json:"all,omitempty"`
+	// enable individual parts of the deployments views
+	Deployments *PersonaDeploymentAttributes `json:"deployments,omitempty"`
+	// enable individual aspects of the sidebar
+	Sidebar *PersonaSidebarAttributes `json:"sidebar,omitempty"`
+}
+
+type PersonaConnection struct {
+	PageInfo PageInfo       `json:"pageInfo"`
+	Edges    []*PersonaEdge `json:"edges,omitempty"`
+}
+
+type PersonaDeployment struct {
+	Clusters    *bool `json:"clusters,omitempty"`
+	Deployments *bool `json:"deployments,omitempty"`
+	Services    *bool `json:"services,omitempty"`
+	Pipelines   *bool `json:"pipelines,omitempty"`
+	Providers   *bool `json:"providers,omitempty"`
+	AddOns      *bool `json:"addOns,omitempty"`
+}
+
+type PersonaDeploymentAttributes struct {
+	Clusters    *bool `json:"clusters,omitempty"`
+	Deployments *bool `json:"deployments,omitempty"`
+	Services    *bool `json:"services,omitempty"`
+	Pipelines   *bool `json:"pipelines,omitempty"`
+	Providers   *bool `json:"providers,omitempty"`
+	AddOns      *bool `json:"addOns,omitempty"`
+}
+
+type PersonaEdge struct {
+	Node   *Persona `json:"node,omitempty"`
+	Cursor *string  `json:"cursor,omitempty"`
+}
+
+type PersonaSidebar struct {
+	Audits       *bool `json:"audits,omitempty"`
+	Kubernetes   *bool `json:"kubernetes,omitempty"`
+	PullRequests *bool `json:"pullRequests,omitempty"`
+	Settings     *bool `json:"settings,omitempty"`
+}
+
+type PersonaSidebarAttributes struct {
+	Audits       *bool `json:"audits,omitempty"`
+	Kubernetes   *bool `json:"kubernetes,omitempty"`
+	PullRequests *bool `json:"pullRequests,omitempty"`
+	Settings     *bool `json:"settings,omitempty"`
+}
+
 // a release pipeline, composed of multiple stages each with potentially multiple services
 type Pipeline struct {
 	ID string `json:"id"`
@@ -3293,6 +3375,7 @@ type User struct {
 	BuildTimestamp      *string          `json:"buildTimestamp,omitempty"`
 	AssumeBindings      []*PolicyBinding `json:"assumeBindings,omitempty"`
 	Groups              []*Group         `json:"groups,omitempty"`
+	Personas            []*Persona       `json:"personas,omitempty"`
 	BoundRoles          []*Role          `json:"boundRoles,omitempty"`
 	Jwt                 *string          `json:"jwt,omitempty"`
 	UnreadNotifications *int64           `json:"unreadNotifications,omitempty"`

@@ -61,6 +61,8 @@ type ConsoleClient interface {
 	CreateGlobalService(ctx context.Context, attributes GlobalServiceAttributes, interceptors ...clientv2.RequestInterceptor) (*CreateGlobalService, error)
 	UpdateGlobalService(ctx context.Context, id string, attributes GlobalServiceAttributes, interceptors ...clientv2.RequestInterceptor) (*UpdateGlobalService, error)
 	DeleteGlobalService(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DeleteGlobalService, error)
+	KickService(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*KickService, error)
+	KickServiceByHandle(ctx context.Context, cluster string, name string, interceptors ...clientv2.RequestInterceptor) (*KickServiceByHandle, error)
 	GetClusterGates(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*GetClusterGates, error)
 	PagedClusterGates(ctx context.Context, after *string, first *int64, before *string, last *int64, interceptors ...clientv2.RequestInterceptor) (*PagedClusterGates, error)
 	UpdateGate(ctx context.Context, id string, attributes GateUpdateAttributes, interceptors ...clientv2.RequestInterceptor) (*UpdateGate, error)
@@ -6358,6 +6360,212 @@ func (t *DeleteGlobalService_DeleteGlobalService_GlobalServiceFragment_Service) 
 	return t.ID
 }
 
+type KickService_KickService_ServiceDeploymentExtended_Revision_RevisionFragment_Git struct {
+	Ref    string "json:\"ref\" graphql:\"ref\""
+	Folder string "json:\"folder\" graphql:\"folder\""
+}
+
+func (t *KickService_KickService_ServiceDeploymentExtended_Revision_RevisionFragment_Git) GetRef() string {
+	if t == nil {
+		t = &KickService_KickService_ServiceDeploymentExtended_Revision_RevisionFragment_Git{}
+	}
+	return t.Ref
+}
+func (t *KickService_KickService_ServiceDeploymentExtended_Revision_RevisionFragment_Git) GetFolder() string {
+	if t == nil {
+		t = &KickService_KickService_ServiceDeploymentExtended_Revision_RevisionFragment_Git{}
+	}
+	return t.Folder
+}
+
+type KickService_KickService_ServiceDeploymentExtended_ServiceDeploymentFragment_Components struct {
+	ID        string                    "json:\"id\" graphql:\"id\""
+	Name      string                    "json:\"name\" graphql:\"name\""
+	Group     *string                   "json:\"group,omitempty\" graphql:\"group\""
+	Kind      string                    "json:\"kind\" graphql:\"kind\""
+	Namespace *string                   "json:\"namespace,omitempty\" graphql:\"namespace\""
+	State     *ComponentState           "json:\"state,omitempty\" graphql:\"state\""
+	Synced    bool                      "json:\"synced\" graphql:\"synced\""
+	Version   *string                   "json:\"version,omitempty\" graphql:\"version\""
+	Content   *ComponentContentFragment "json:\"content,omitempty\" graphql:\"content\""
+}
+
+func (t *KickService_KickService_ServiceDeploymentExtended_ServiceDeploymentFragment_Components) GetID() string {
+	if t == nil {
+		t = &KickService_KickService_ServiceDeploymentExtended_ServiceDeploymentFragment_Components{}
+	}
+	return t.ID
+}
+func (t *KickService_KickService_ServiceDeploymentExtended_ServiceDeploymentFragment_Components) GetName() string {
+	if t == nil {
+		t = &KickService_KickService_ServiceDeploymentExtended_ServiceDeploymentFragment_Components{}
+	}
+	return t.Name
+}
+func (t *KickService_KickService_ServiceDeploymentExtended_ServiceDeploymentFragment_Components) GetGroup() *string {
+	if t == nil {
+		t = &KickService_KickService_ServiceDeploymentExtended_ServiceDeploymentFragment_Components{}
+	}
+	return t.Group
+}
+func (t *KickService_KickService_ServiceDeploymentExtended_ServiceDeploymentFragment_Components) GetKind() string {
+	if t == nil {
+		t = &KickService_KickService_ServiceDeploymentExtended_ServiceDeploymentFragment_Components{}
+	}
+	return t.Kind
+}
+func (t *KickService_KickService_ServiceDeploymentExtended_ServiceDeploymentFragment_Components) GetNamespace() *string {
+	if t == nil {
+		t = &KickService_KickService_ServiceDeploymentExtended_ServiceDeploymentFragment_Components{}
+	}
+	return t.Namespace
+}
+func (t *KickService_KickService_ServiceDeploymentExtended_ServiceDeploymentFragment_Components) GetState() *ComponentState {
+	if t == nil {
+		t = &KickService_KickService_ServiceDeploymentExtended_ServiceDeploymentFragment_Components{}
+	}
+	return t.State
+}
+func (t *KickService_KickService_ServiceDeploymentExtended_ServiceDeploymentFragment_Components) GetSynced() bool {
+	if t == nil {
+		t = &KickService_KickService_ServiceDeploymentExtended_ServiceDeploymentFragment_Components{}
+	}
+	return t.Synced
+}
+func (t *KickService_KickService_ServiceDeploymentExtended_ServiceDeploymentFragment_Components) GetVersion() *string {
+	if t == nil {
+		t = &KickService_KickService_ServiceDeploymentExtended_ServiceDeploymentFragment_Components{}
+	}
+	return t.Version
+}
+func (t *KickService_KickService_ServiceDeploymentExtended_ServiceDeploymentFragment_Components) GetContent() *ComponentContentFragment {
+	if t == nil {
+		t = &KickService_KickService_ServiceDeploymentExtended_ServiceDeploymentFragment_Components{}
+	}
+	return t.Content
+}
+
+type KickService_KickService_ServiceDeploymentExtended_ServiceDeploymentFragment_Configuration struct {
+	Name  string "json:\"name\" graphql:\"name\""
+	Value string "json:\"value\" graphql:\"value\""
+}
+
+func (t *KickService_KickService_ServiceDeploymentExtended_ServiceDeploymentFragment_Configuration) GetName() string {
+	if t == nil {
+		t = &KickService_KickService_ServiceDeploymentExtended_ServiceDeploymentFragment_Configuration{}
+	}
+	return t.Name
+}
+func (t *KickService_KickService_ServiceDeploymentExtended_ServiceDeploymentFragment_Configuration) GetValue() string {
+	if t == nil {
+		t = &KickService_KickService_ServiceDeploymentExtended_ServiceDeploymentFragment_Configuration{}
+	}
+	return t.Value
+}
+
+type KickServiceByHandle_KickService_ServiceDeploymentExtended_Revision_RevisionFragment_Git struct {
+	Ref    string "json:\"ref\" graphql:\"ref\""
+	Folder string "json:\"folder\" graphql:\"folder\""
+}
+
+func (t *KickServiceByHandle_KickService_ServiceDeploymentExtended_Revision_RevisionFragment_Git) GetRef() string {
+	if t == nil {
+		t = &KickServiceByHandle_KickService_ServiceDeploymentExtended_Revision_RevisionFragment_Git{}
+	}
+	return t.Ref
+}
+func (t *KickServiceByHandle_KickService_ServiceDeploymentExtended_Revision_RevisionFragment_Git) GetFolder() string {
+	if t == nil {
+		t = &KickServiceByHandle_KickService_ServiceDeploymentExtended_Revision_RevisionFragment_Git{}
+	}
+	return t.Folder
+}
+
+type KickServiceByHandle_KickService_ServiceDeploymentExtended_ServiceDeploymentFragment_Components struct {
+	ID        string                    "json:\"id\" graphql:\"id\""
+	Name      string                    "json:\"name\" graphql:\"name\""
+	Group     *string                   "json:\"group,omitempty\" graphql:\"group\""
+	Kind      string                    "json:\"kind\" graphql:\"kind\""
+	Namespace *string                   "json:\"namespace,omitempty\" graphql:\"namespace\""
+	State     *ComponentState           "json:\"state,omitempty\" graphql:\"state\""
+	Synced    bool                      "json:\"synced\" graphql:\"synced\""
+	Version   *string                   "json:\"version,omitempty\" graphql:\"version\""
+	Content   *ComponentContentFragment "json:\"content,omitempty\" graphql:\"content\""
+}
+
+func (t *KickServiceByHandle_KickService_ServiceDeploymentExtended_ServiceDeploymentFragment_Components) GetID() string {
+	if t == nil {
+		t = &KickServiceByHandle_KickService_ServiceDeploymentExtended_ServiceDeploymentFragment_Components{}
+	}
+	return t.ID
+}
+func (t *KickServiceByHandle_KickService_ServiceDeploymentExtended_ServiceDeploymentFragment_Components) GetName() string {
+	if t == nil {
+		t = &KickServiceByHandle_KickService_ServiceDeploymentExtended_ServiceDeploymentFragment_Components{}
+	}
+	return t.Name
+}
+func (t *KickServiceByHandle_KickService_ServiceDeploymentExtended_ServiceDeploymentFragment_Components) GetGroup() *string {
+	if t == nil {
+		t = &KickServiceByHandle_KickService_ServiceDeploymentExtended_ServiceDeploymentFragment_Components{}
+	}
+	return t.Group
+}
+func (t *KickServiceByHandle_KickService_ServiceDeploymentExtended_ServiceDeploymentFragment_Components) GetKind() string {
+	if t == nil {
+		t = &KickServiceByHandle_KickService_ServiceDeploymentExtended_ServiceDeploymentFragment_Components{}
+	}
+	return t.Kind
+}
+func (t *KickServiceByHandle_KickService_ServiceDeploymentExtended_ServiceDeploymentFragment_Components) GetNamespace() *string {
+	if t == nil {
+		t = &KickServiceByHandle_KickService_ServiceDeploymentExtended_ServiceDeploymentFragment_Components{}
+	}
+	return t.Namespace
+}
+func (t *KickServiceByHandle_KickService_ServiceDeploymentExtended_ServiceDeploymentFragment_Components) GetState() *ComponentState {
+	if t == nil {
+		t = &KickServiceByHandle_KickService_ServiceDeploymentExtended_ServiceDeploymentFragment_Components{}
+	}
+	return t.State
+}
+func (t *KickServiceByHandle_KickService_ServiceDeploymentExtended_ServiceDeploymentFragment_Components) GetSynced() bool {
+	if t == nil {
+		t = &KickServiceByHandle_KickService_ServiceDeploymentExtended_ServiceDeploymentFragment_Components{}
+	}
+	return t.Synced
+}
+func (t *KickServiceByHandle_KickService_ServiceDeploymentExtended_ServiceDeploymentFragment_Components) GetVersion() *string {
+	if t == nil {
+		t = &KickServiceByHandle_KickService_ServiceDeploymentExtended_ServiceDeploymentFragment_Components{}
+	}
+	return t.Version
+}
+func (t *KickServiceByHandle_KickService_ServiceDeploymentExtended_ServiceDeploymentFragment_Components) GetContent() *ComponentContentFragment {
+	if t == nil {
+		t = &KickServiceByHandle_KickService_ServiceDeploymentExtended_ServiceDeploymentFragment_Components{}
+	}
+	return t.Content
+}
+
+type KickServiceByHandle_KickService_ServiceDeploymentExtended_ServiceDeploymentFragment_Configuration struct {
+	Name  string "json:\"name\" graphql:\"name\""
+	Value string "json:\"value\" graphql:\"value\""
+}
+
+func (t *KickServiceByHandle_KickService_ServiceDeploymentExtended_ServiceDeploymentFragment_Configuration) GetName() string {
+	if t == nil {
+		t = &KickServiceByHandle_KickService_ServiceDeploymentExtended_ServiceDeploymentFragment_Configuration{}
+	}
+	return t.Name
+}
+func (t *KickServiceByHandle_KickService_ServiceDeploymentExtended_ServiceDeploymentFragment_Configuration) GetValue() string {
+	if t == nil {
+		t = &KickServiceByHandle_KickService_ServiceDeploymentExtended_ServiceDeploymentFragment_Configuration{}
+	}
+	return t.Value
+}
+
 type GetClusterGates_ClusterGates_PipelineGateFragment_Spec_GateSpecFragment_Job_JobSpecFragment_Containers_ContainerSpecFragment_Env struct {
 	Name  string "json:\"name\" graphql:\"name\""
 	Value string "json:\"value\" graphql:\"value\""
@@ -8034,6 +8242,28 @@ func (t *DeleteGlobalService) GetDeleteGlobalService() *GlobalServiceFragment {
 		t = &DeleteGlobalService{}
 	}
 	return t.DeleteGlobalService
+}
+
+type KickService struct {
+	KickService *ServiceDeploymentExtended "json:\"kickService,omitempty\" graphql:\"kickService\""
+}
+
+func (t *KickService) GetKickService() *ServiceDeploymentExtended {
+	if t == nil {
+		t = &KickService{}
+	}
+	return t.KickService
+}
+
+type KickServiceByHandle struct {
+	KickService *ServiceDeploymentExtended "json:\"kickService,omitempty\" graphql:\"kickService\""
+}
+
+func (t *KickServiceByHandle) GetKickService() *ServiceDeploymentExtended {
+	if t == nil {
+		t = &KickServiceByHandle{}
+	}
+	return t.KickService
 }
 
 type GetClusterGates struct {
@@ -13292,6 +13522,353 @@ func (c *Client) DeleteGlobalService(ctx context.Context, id string, interceptor
 	return &res, nil
 }
 
+const KickServiceDocument = `mutation KickService ($id: ID!) {
+	kickService(serviceId: $id) {
+		... ServiceDeploymentExtended
+	}
+}
+fragment ServiceDeploymentExtended on ServiceDeployment {
+	cluster {
+		... BaseClusterFragment
+	}
+	errors {
+		... ErrorFragment
+	}
+	revision {
+		... RevisionFragment
+	}
+	contexts {
+		... ServiceContextFragment
+	}
+	... ServiceDeploymentFragment
+}
+fragment BaseClusterFragment on Cluster {
+	id
+	name
+	handle
+	self
+	version
+	pingedAt
+	currentVersion
+	kasUrl
+	credential {
+		... ProviderCredentialFragment
+	}
+	provider {
+		... BaseClusterProviderFragment
+	}
+	nodePools {
+		... NodePoolFragment
+	}
+}
+fragment ProviderCredentialFragment on ProviderCredential {
+	id
+	name
+	namespace
+	kind
+}
+fragment BaseClusterProviderFragment on ClusterProvider {
+	id
+	name
+	namespace
+	cloud
+	editable
+	repository {
+		... GitRepositoryFragment
+	}
+}
+fragment GitRepositoryFragment on GitRepository {
+	id
+	error
+	health
+	authMethod
+	url
+	decrypt
+}
+fragment NodePoolFragment on NodePool {
+	id
+	name
+	minSize
+	maxSize
+	instanceType
+	labels
+	taints {
+		... NodePoolTaintFragment
+	}
+}
+fragment NodePoolTaintFragment on Taint {
+	key
+	value
+	effect
+}
+fragment ErrorFragment on ServiceError {
+	source
+	message
+}
+fragment RevisionFragment on Revision {
+	id
+	sha
+	git {
+		ref
+		folder
+	}
+}
+fragment ServiceContextFragment on ServiceContext {
+	id
+	configuration
+}
+fragment ServiceDeploymentFragment on ServiceDeployment {
+	... ServiceDeploymentBaseFragment
+	components {
+		id
+		name
+		group
+		kind
+		namespace
+		state
+		synced
+		version
+		content {
+			... ComponentContentFragment
+		}
+	}
+	protect
+	deletedAt
+	sha
+	tarball
+	dryRun
+	templated
+	configuration {
+		name
+		value
+	}
+}
+fragment ServiceDeploymentBaseFragment on ServiceDeployment {
+	id
+	name
+	namespace
+	version
+	kustomize {
+		... KustomizeFragment
+	}
+	git {
+		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+}
+fragment KustomizeFragment on Kustomize {
+	path
+}
+fragment GitRefFragment on GitRef {
+	folder
+	ref
+}
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
+fragment ComponentContentFragment on ComponentContent {
+	id
+	live
+	desired
+}
+`
+
+func (c *Client) KickService(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*KickService, error) {
+	vars := map[string]interface{}{
+		"id": id,
+	}
+
+	var res KickService
+	if err := c.Client.Post(ctx, "KickService", KickServiceDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const KickServiceByHandleDocument = `mutation KickServiceByHandle ($cluster: String!, $name: String!) {
+	kickService(cluster: $cluster, name: $name) {
+		... ServiceDeploymentExtended
+	}
+}
+fragment ServiceDeploymentExtended on ServiceDeployment {
+	cluster {
+		... BaseClusterFragment
+	}
+	errors {
+		... ErrorFragment
+	}
+	revision {
+		... RevisionFragment
+	}
+	contexts {
+		... ServiceContextFragment
+	}
+	... ServiceDeploymentFragment
+}
+fragment BaseClusterFragment on Cluster {
+	id
+	name
+	handle
+	self
+	version
+	pingedAt
+	currentVersion
+	kasUrl
+	credential {
+		... ProviderCredentialFragment
+	}
+	provider {
+		... BaseClusterProviderFragment
+	}
+	nodePools {
+		... NodePoolFragment
+	}
+}
+fragment ProviderCredentialFragment on ProviderCredential {
+	id
+	name
+	namespace
+	kind
+}
+fragment BaseClusterProviderFragment on ClusterProvider {
+	id
+	name
+	namespace
+	cloud
+	editable
+	repository {
+		... GitRepositoryFragment
+	}
+}
+fragment GitRepositoryFragment on GitRepository {
+	id
+	error
+	health
+	authMethod
+	url
+	decrypt
+}
+fragment NodePoolFragment on NodePool {
+	id
+	name
+	minSize
+	maxSize
+	instanceType
+	labels
+	taints {
+		... NodePoolTaintFragment
+	}
+}
+fragment NodePoolTaintFragment on Taint {
+	key
+	value
+	effect
+}
+fragment ErrorFragment on ServiceError {
+	source
+	message
+}
+fragment RevisionFragment on Revision {
+	id
+	sha
+	git {
+		ref
+		folder
+	}
+}
+fragment ServiceContextFragment on ServiceContext {
+	id
+	configuration
+}
+fragment ServiceDeploymentFragment on ServiceDeployment {
+	... ServiceDeploymentBaseFragment
+	components {
+		id
+		name
+		group
+		kind
+		namespace
+		state
+		synced
+		version
+		content {
+			... ComponentContentFragment
+		}
+	}
+	protect
+	deletedAt
+	sha
+	tarball
+	dryRun
+	templated
+	configuration {
+		name
+		value
+	}
+}
+fragment ServiceDeploymentBaseFragment on ServiceDeployment {
+	id
+	name
+	namespace
+	version
+	kustomize {
+		... KustomizeFragment
+	}
+	git {
+		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+}
+fragment KustomizeFragment on Kustomize {
+	path
+}
+fragment GitRefFragment on GitRef {
+	folder
+	ref
+}
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
+fragment ComponentContentFragment on ComponentContent {
+	id
+	live
+	desired
+}
+`
+
+func (c *Client) KickServiceByHandle(ctx context.Context, cluster string, name string, interceptors ...clientv2.RequestInterceptor) (*KickServiceByHandle, error) {
+	vars := map[string]interface{}{
+		"cluster": cluster,
+		"name":    name,
+	}
+
+	var res KickServiceByHandle
+	if err := c.Client.Post(ctx, "KickServiceByHandle", KickServiceByHandleDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
 const GetClusterGatesDocument = `query GetClusterGates {
 	clusterGates {
 		... PipelineGateFragment
@@ -15138,6 +15715,8 @@ var DocumentOperationNames = map[string]string{
 	CreateGlobalServiceDocument:               "CreateGlobalService",
 	UpdateGlobalServiceDocument:               "UpdateGlobalService",
 	DeleteGlobalServiceDocument:               "DeleteGlobalService",
+	KickServiceDocument:                       "KickService",
+	KickServiceByHandleDocument:               "KickServiceByHandle",
 	GetClusterGatesDocument:                   "GetClusterGates",
 	PagedClusterGatesDocument:                 "PagedClusterGates",
 	UpdateGateDocument:                        "updateGate",
