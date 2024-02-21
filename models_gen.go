@@ -2465,6 +2465,8 @@ type PromotionCriteriaAttributes struct {
 	Name *string `json:"name,omitempty"`
 	// the id of the service to promote from
 	SourceID *string `json:"sourceId,omitempty"`
+	// the id of a pr automation to update this service
+	PrAutomationID *string `json:"prAutomationId,omitempty"`
 	// the secrets to copy over in a promotion
 	Secrets []*string `json:"secrets,omitempty"`
 }

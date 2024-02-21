@@ -19,3 +19,15 @@ query GetPipelines($after: String) {
         edges { ...PipelineEdgeFragment }
     }
 }
+
+mutation CreatePipelineContext($pipelineId: ID!, $attributes: PipelineContextAttributes!) {
+    createPipelineContext(pipelineId: $pipelineId, attributes: $attributes) {
+        ...PipelineContextFragment
+    }
+}
+
+query GetPipelineContext($id: ID!) {
+    pipelineContext(id: $id) {
+        ...PipelineContextFragment
+    }
+}

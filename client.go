@@ -88,6 +88,8 @@ type ConsoleClient interface {
 	DeletePipeline(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DeletePipeline, error)
 	GetPipeline(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*GetPipeline, error)
 	GetPipelines(ctx context.Context, after *string, interceptors ...clientv2.RequestInterceptor) (*GetPipelines, error)
+	CreatePipelineContext(ctx context.Context, pipelineID string, attributes PipelineContextAttributes, interceptors ...clientv2.RequestInterceptor) (*CreatePipelineContext, error)
+	GetPipelineContext(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*GetPipelineContext, error)
 	CreateProviderCredential(ctx context.Context, attributes ProviderCredentialAttributes, name string, interceptors ...clientv2.RequestInterceptor) (*CreateProviderCredential, error)
 	DeleteProviderCredential(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DeleteProviderCredential, error)
 	ListProviders(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*ListProviders, error)
@@ -1873,6 +1875,24 @@ func (t *PageInfoFragment) GetEndCursor() *string {
 		t = &PageInfoFragment{}
 	}
 	return t.EndCursor
+}
+
+type PipelineContextFragment struct {
+	ID      string                 "json:\"id\" graphql:\"id\""
+	Context map[string]interface{} "json:\"context\" graphql:\"context\""
+}
+
+func (t *PipelineContextFragment) GetID() string {
+	if t == nil {
+		t = &PipelineContextFragment{}
+	}
+	return t.ID
+}
+func (t *PipelineContextFragment) GetContext() map[string]interface{} {
+	if t == nil {
+		t = &PipelineContextFragment{}
+	}
+	return t.Context
 }
 
 type PipelineGateEdgeFragment_Node_PipelineGateFragment_Spec_GateSpecFragment_Job_JobSpecFragment_Containers_ContainerSpecFragment_Env struct {
@@ -8541,6 +8561,28 @@ func (t *GetPipelines) GetPipelines() *GetPipelines_Pipelines {
 	return t.Pipelines
 }
 
+type CreatePipelineContext struct {
+	CreatePipelineContext *PipelineContextFragment "json:\"createPipelineContext,omitempty\" graphql:\"createPipelineContext\""
+}
+
+func (t *CreatePipelineContext) GetCreatePipelineContext() *PipelineContextFragment {
+	if t == nil {
+		t = &CreatePipelineContext{}
+	}
+	return t.CreatePipelineContext
+}
+
+type GetPipelineContext struct {
+	PipelineContext *PipelineContextFragment "json:\"pipelineContext,omitempty\" graphql:\"pipelineContext\""
+}
+
+func (t *GetPipelineContext) GetPipelineContext() *PipelineContextFragment {
+	if t == nil {
+		t = &GetPipelineContext{}
+	}
+	return t.PipelineContext
+}
+
 type CreateProviderCredential struct {
 	CreateProviderCredential *ProviderCredentialFragment "json:\"createProviderCredential,omitempty\" graphql:\"createProviderCredential\""
 }
@@ -15173,6 +15215,63 @@ func (c *Client) GetPipelines(ctx context.Context, after *string, interceptors .
 	return &res, nil
 }
 
+const CreatePipelineContextDocument = `mutation CreatePipelineContext ($pipelineId: ID!, $attributes: PipelineContextAttributes!) {
+	createPipelineContext(pipelineId: $pipelineId, attributes: $attributes) {
+		... PipelineContextFragment
+	}
+}
+fragment PipelineContextFragment on PipelineContext {
+	id
+	context
+}
+`
+
+func (c *Client) CreatePipelineContext(ctx context.Context, pipelineID string, attributes PipelineContextAttributes, interceptors ...clientv2.RequestInterceptor) (*CreatePipelineContext, error) {
+	vars := map[string]interface{}{
+		"pipelineId": pipelineID,
+		"attributes": attributes,
+	}
+
+	var res CreatePipelineContext
+	if err := c.Client.Post(ctx, "CreatePipelineContext", CreatePipelineContextDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const GetPipelineContextDocument = `query GetPipelineContext ($id: ID!) {
+	pipelineContext(id: $id) {
+		... PipelineContextFragment
+	}
+}
+fragment PipelineContextFragment on PipelineContext {
+	id
+	context
+}
+`
+
+func (c *Client) GetPipelineContext(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*GetPipelineContext, error) {
+	vars := map[string]interface{}{
+		"id": id,
+	}
+
+	var res GetPipelineContext
+	if err := c.Client.Post(ctx, "GetPipelineContext", GetPipelineContextDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
 const CreateProviderCredentialDocument = `mutation CreateProviderCredential ($attributes: ProviderCredentialAttributes!, $name: String!) {
 	createProviderCredential(attributes: $attributes, name: $name) {
 		... ProviderCredentialFragment
@@ -15742,6 +15841,8 @@ var DocumentOperationNames = map[string]string{
 	DeletePipelineDocument:                    "DeletePipeline",
 	GetPipelineDocument:                       "GetPipeline",
 	GetPipelinesDocument:                      "GetPipelines",
+	CreatePipelineContextDocument:             "CreatePipelineContext",
+	GetPipelineContextDocument:                "GetPipelineContext",
 	CreateProviderCredentialDocument:          "CreateProviderCredential",
 	DeleteProviderCredentialDocument:          "DeleteProviderCredential",
 	ListProvidersDocument:                     "ListProviders",

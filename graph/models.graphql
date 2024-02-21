@@ -358,3 +358,8 @@ fragment PageInfoFragment on PageInfo {
     hasNextPage
     endCursor
 }
+
+fragment PipelineContextFragment on PipelineContext {
+    id
+    context
+}
