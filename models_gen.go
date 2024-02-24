@@ -1170,6 +1170,11 @@ type GateSpecAttributes struct {
 	Job *GateJobAttributes `json:"job,omitempty"`
 }
 
+// state delineating the current status of this gate
+type GateStatus struct {
+	JobRef *JobReference `json:"jobRef,omitempty"`
+}
+
 type GateStatusAttributes struct {
 	JobRef *NamespacedName `json:"jobRef,omitempty"`
 }
@@ -1834,6 +1839,69 @@ type NotificationEdge struct {
 	Cursor *string       `json:"cursor,omitempty"`
 }
 
+type NotificationFilter struct {
+	ID       string    `json:"id"`
+	Service  *Service  `json:"service,omitempty"`
+	Cluster  *Cluster  `json:"cluster,omitempty"`
+	Pipeline *Pipeline `json:"pipeline,omitempty"`
+}
+
+type NotificationRouter struct {
+	ID string `json:"id"`
+	// name of this router
+	Name string `json:"name"`
+	// events this router subscribes to, use * for all
+	Events []string `json:"events,omitempty"`
+	// resource-based filters to select events for services, clusters, pipelines
+	Filters []*NotificationFilter `json:"filters,omitempty"`
+	// sinks to deliver notifications to
+	Sinks      []*NotificationSink `json:"sinks,omitempty"`
+	InsertedAt *string             `json:"insertedAt,omitempty"`
+	UpdatedAt  *string             `json:"updatedAt,omitempty"`
+}
+
+type NotificationRouterAttributes struct {
+	// the name of this router
+	Name string `json:"name"`
+	// the events to trigger, or use * for any
+	Events []string `json:"events,omitempty"`
+	// filters by object type
+	Filters []*RouterFilterAttributes `json:"filters,omitempty"`
+	// sinks to deliver notifications to
+	RouterSinks []*RouterSinkAttributes `json:"routerSinks,omitempty"`
+}
+
+type NotificationSink struct {
+	ID string `json:"id"`
+	// the name of the sink
+	Name string `json:"name"`
+	// the channel type of the sink, eg slack or teams
+	Type SinkType `json:"type"`
+	// type specific sink configuration
+	Configuration SinkConfiguration `json:"configuration"`
+	InsertedAt    *string           `json:"insertedAt,omitempty"`
+	UpdatedAt     *string           `json:"updatedAt,omitempty"`
+}
+
+type NotificationSinkAttributes struct {
+	// the name of this sink
+	Name string `json:"name"`
+	// the channel type of this sink
+	Type SinkType `json:"type"`
+	// configuration for the specific type
+	Configuration SinkConfigurationAttributes `json:"configuration"`
+}
+
+type NotificationSinkConnection struct {
+	PageInfo PageInfo                `json:"pageInfo"`
+	Edges    []*NotificationSinkEdge `json:"edges,omitempty"`
+}
+
+type NotificationSinkEdge struct {
+	Node   *NotificationSink `json:"node,omitempty"`
+	Cursor *string           `json:"cursor,omitempty"`
+}
+
 type ObjectReference struct {
 	Name      *string `json:"name,omitempty"`
 	Namespace *string `json:"namespace,omitempty"`
@@ -2052,6 +2120,8 @@ type PipelineGate struct {
 	State GateState `json:"state"`
 	// more detailed specification for complex gates
 	Spec *GateSpec `json:"spec,omitempty"`
+	// state related to the current status of this job
+	Status *GateStatus `json:"status,omitempty"`
 	// the kubernetes job running this gate (should only be fetched lazily as this is a heavy operation)
 	Job *Job `json:"job,omitempty"`
 	// the cluster this gate can run on
@@ -2750,6 +2820,19 @@ type RootQueryType struct {
 type RootSubscriptionType struct {
 }
 
+type RouterFilterAttributes struct {
+	// whether to enable delivery for events associated with this service
+	ServiceID *string `json:"serviceId,omitempty"`
+	// whether to enable delivery for events associated with this cluster
+	ClusterID *string `json:"clusterId,omitempty"`
+	// whether to enable delivery for events associated with this pipeline
+	PipelineID *string `json:"pipelineId,omitempty"`
+}
+
+type RouterSinkAttributes struct {
+	SinkID string `json:"sinkId"`
+}
+
 type Runbook struct {
 	Name       string                      `json:"name"`
 	Spec       RunbookSpec                 `json:"spec"`
@@ -3190,6 +3273,17 @@ type ServiceUpdateAttributes struct {
 	ContextBindings []*ContextBindingAttributes `json:"contextBindings,omitempty"`
 }
 
+type SinkConfiguration struct {
+	ID    string                `json:"id"`
+	Slack *URLSinkConfiguration `json:"slack,omitempty"`
+	Teams *URLSinkConfiguration `json:"teams,omitempty"`
+}
+
+type SinkConfigurationAttributes struct {
+	Slack *URLSinkAttributes `json:"slack,omitempty"`
+	Teams *URLSinkAttributes `json:"teams,omitempty"`
+}
+
 type SMTP struct {
 	Server   *string `json:"server,omitempty"`
 	Port     *int64  `json:"port,omitempty"`
@@ -3379,6 +3473,16 @@ type UpgradePolicyAttributes struct {
 	Type         UpgradePolicyType `json:"type"`
 	Repositories []*string         `json:"repositories,omitempty"`
 	Weight       *int64            `json:"weight,omitempty"`
+}
+
+type URLSinkAttributes struct {
+	URL string `json:"url"`
+}
+
+// A notification sink based off slack incoming webhook urls
+type URLSinkConfiguration struct {
+	// incoming webhook url to deliver to
+	URL string `json:"url"`
 }
 
 type User struct {
@@ -4647,6 +4751,47 @@ func (e *Severity) UnmarshalGQL(v interface{}) error {
 }
 
 func (e Severity) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type SinkType string
+
+const (
+	SinkTypeSLACk SinkType = "SLACK"
+	SinkTypeTeams SinkType = "TEAMS"
+)
+
+var AllSinkType = []SinkType{
+	SinkTypeSLACk,
+	SinkTypeTeams,
+}
+
+func (e SinkType) IsValid() bool {
+	switch e {
+	case SinkTypeSLACk, SinkTypeTeams:
+		return true
+	}
+	return false
+}
+
+func (e SinkType) String() string {
+	return string(e)
+}
+
+func (e *SinkType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = SinkType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid SinkType", str)
+	}
+	return nil
+}
+
+func (e SinkType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

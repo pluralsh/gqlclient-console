@@ -24,10 +24,15 @@ fragment PipelineGateFragment on PipelineGate {
     state
     updatedAt
     spec { ...GateSpecFragment }
+    status { ...GateStatusFragment }
 }
 
 fragment GateSpecFragment on GateSpec {
     job { ...JobSpecFragment }
+}
+
+fragment GateStatusFragment on GateStatus {
+  jobRef { ...JobReferenceFragment }
 }
 
 fragment JobSpecFragment on JobGateSpec {
@@ -37,6 +42,11 @@ fragment JobSpecFragment on JobGateSpec {
     labels
     annotations
     serviceAccount
+}
+
+fragment JobReferenceFragment on JobReference {
+  name
+  namespace
 }
 
 fragment ContainerSpecFragment on ContainerSpec {
