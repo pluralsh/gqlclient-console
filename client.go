@@ -131,7 +131,6 @@ type PipelineGateFragment struct {
 	State     GateState         "json:\"state\" graphql:\"state\""
 	UpdatedAt *string           "json:\"updatedAt,omitempty\" graphql:\"updatedAt\""
 	Spec      *GateSpecFragment "json:\"spec,omitempty\" graphql:\"spec\""
-	Job       *JobFragment      "json:\"job,omitempty\" graphql:\"job\""
 }
 
 func (t *PipelineGateFragment) GetID() string {
@@ -169,30 +168,6 @@ func (t *PipelineGateFragment) GetSpec() *GateSpecFragment {
 		t = &PipelineGateFragment{}
 	}
 	return t.Spec
-}
-func (t *PipelineGateFragment) GetJob() *JobFragment {
-	if t == nil {
-		t = &PipelineGateFragment{}
-	}
-	return t.Job
-}
-
-type JobFragment struct {
-	Metadata JobFragment_Metadata "json:\"metadata\" graphql:\"metadata\""
-	Status   JobFragment_Status   "json:\"status\" graphql:\"status\""
-}
-
-func (t *JobFragment) GetMetadata() *JobFragment_Metadata {
-	if t == nil {
-		t = &JobFragment{}
-	}
-	return &t.Metadata
-}
-func (t *JobFragment) GetStatus() *JobFragment_Status {
-	if t == nil {
-		t = &JobFragment{}
-	}
-	return &t.Status
 }
 
 type GateSpecFragment struct {
@@ -1931,63 +1906,6 @@ func (t *PipelineGateEdgeFragment_Node_PipelineGateFragment_Spec_GateSpecFragmen
 	return t.Secret
 }
 
-type PipelineGateEdgeFragment_Node_PipelineGateFragment_Job_JobFragment_Metadata struct {
-	Name      string  "json:\"name\" graphql:\"name\""
-	Namespace *string "json:\"namespace,omitempty\" graphql:\"namespace\""
-}
-
-func (t *PipelineGateEdgeFragment_Node_PipelineGateFragment_Job_JobFragment_Metadata) GetName() string {
-	if t == nil {
-		t = &PipelineGateEdgeFragment_Node_PipelineGateFragment_Job_JobFragment_Metadata{}
-	}
-	return t.Name
-}
-func (t *PipelineGateEdgeFragment_Node_PipelineGateFragment_Job_JobFragment_Metadata) GetNamespace() *string {
-	if t == nil {
-		t = &PipelineGateEdgeFragment_Node_PipelineGateFragment_Job_JobFragment_Metadata{}
-	}
-	return t.Namespace
-}
-
-type PipelineGateEdgeFragment_Node_PipelineGateFragment_Job_JobFragment_Status struct {
-	Active         *int64  "json:\"active,omitempty\" graphql:\"active\""
-	CompletionTime *string "json:\"completionTime,omitempty\" graphql:\"completionTime\""
-	StartTime      *string "json:\"startTime,omitempty\" graphql:\"startTime\""
-	Succeeded      *int64  "json:\"succeeded,omitempty\" graphql:\"succeeded\""
-	Failed         *int64  "json:\"failed,omitempty\" graphql:\"failed\""
-}
-
-func (t *PipelineGateEdgeFragment_Node_PipelineGateFragment_Job_JobFragment_Status) GetActive() *int64 {
-	if t == nil {
-		t = &PipelineGateEdgeFragment_Node_PipelineGateFragment_Job_JobFragment_Status{}
-	}
-	return t.Active
-}
-func (t *PipelineGateEdgeFragment_Node_PipelineGateFragment_Job_JobFragment_Status) GetCompletionTime() *string {
-	if t == nil {
-		t = &PipelineGateEdgeFragment_Node_PipelineGateFragment_Job_JobFragment_Status{}
-	}
-	return t.CompletionTime
-}
-func (t *PipelineGateEdgeFragment_Node_PipelineGateFragment_Job_JobFragment_Status) GetStartTime() *string {
-	if t == nil {
-		t = &PipelineGateEdgeFragment_Node_PipelineGateFragment_Job_JobFragment_Status{}
-	}
-	return t.StartTime
-}
-func (t *PipelineGateEdgeFragment_Node_PipelineGateFragment_Job_JobFragment_Status) GetSucceeded() *int64 {
-	if t == nil {
-		t = &PipelineGateEdgeFragment_Node_PipelineGateFragment_Job_JobFragment_Status{}
-	}
-	return t.Succeeded
-}
-func (t *PipelineGateEdgeFragment_Node_PipelineGateFragment_Job_JobFragment_Status) GetFailed() *int64 {
-	if t == nil {
-		t = &PipelineGateEdgeFragment_Node_PipelineGateFragment_Job_JobFragment_Status{}
-	}
-	return t.Failed
-}
-
 type PipelineGateFragment_Spec_GateSpecFragment_Job_JobSpecFragment_Containers_ContainerSpecFragment_Env struct {
 	Name  string "json:\"name\" graphql:\"name\""
 	Value string "json:\"value\" graphql:\"value\""
@@ -2022,120 +1940,6 @@ func (t *PipelineGateFragment_Spec_GateSpecFragment_Job_JobSpecFragment_Containe
 		t = &PipelineGateFragment_Spec_GateSpecFragment_Job_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
 	}
 	return t.Secret
-}
-
-type PipelineGateFragment_Job_JobFragment_Metadata struct {
-	Name      string  "json:\"name\" graphql:\"name\""
-	Namespace *string "json:\"namespace,omitempty\" graphql:\"namespace\""
-}
-
-func (t *PipelineGateFragment_Job_JobFragment_Metadata) GetName() string {
-	if t == nil {
-		t = &PipelineGateFragment_Job_JobFragment_Metadata{}
-	}
-	return t.Name
-}
-func (t *PipelineGateFragment_Job_JobFragment_Metadata) GetNamespace() *string {
-	if t == nil {
-		t = &PipelineGateFragment_Job_JobFragment_Metadata{}
-	}
-	return t.Namespace
-}
-
-type PipelineGateFragment_Job_JobFragment_Status struct {
-	Active         *int64  "json:\"active,omitempty\" graphql:\"active\""
-	CompletionTime *string "json:\"completionTime,omitempty\" graphql:\"completionTime\""
-	StartTime      *string "json:\"startTime,omitempty\" graphql:\"startTime\""
-	Succeeded      *int64  "json:\"succeeded,omitempty\" graphql:\"succeeded\""
-	Failed         *int64  "json:\"failed,omitempty\" graphql:\"failed\""
-}
-
-func (t *PipelineGateFragment_Job_JobFragment_Status) GetActive() *int64 {
-	if t == nil {
-		t = &PipelineGateFragment_Job_JobFragment_Status{}
-	}
-	return t.Active
-}
-func (t *PipelineGateFragment_Job_JobFragment_Status) GetCompletionTime() *string {
-	if t == nil {
-		t = &PipelineGateFragment_Job_JobFragment_Status{}
-	}
-	return t.CompletionTime
-}
-func (t *PipelineGateFragment_Job_JobFragment_Status) GetStartTime() *string {
-	if t == nil {
-		t = &PipelineGateFragment_Job_JobFragment_Status{}
-	}
-	return t.StartTime
-}
-func (t *PipelineGateFragment_Job_JobFragment_Status) GetSucceeded() *int64 {
-	if t == nil {
-		t = &PipelineGateFragment_Job_JobFragment_Status{}
-	}
-	return t.Succeeded
-}
-func (t *PipelineGateFragment_Job_JobFragment_Status) GetFailed() *int64 {
-	if t == nil {
-		t = &PipelineGateFragment_Job_JobFragment_Status{}
-	}
-	return t.Failed
-}
-
-type JobFragment_Metadata struct {
-	Name      string  "json:\"name\" graphql:\"name\""
-	Namespace *string "json:\"namespace,omitempty\" graphql:\"namespace\""
-}
-
-func (t *JobFragment_Metadata) GetName() string {
-	if t == nil {
-		t = &JobFragment_Metadata{}
-	}
-	return t.Name
-}
-func (t *JobFragment_Metadata) GetNamespace() *string {
-	if t == nil {
-		t = &JobFragment_Metadata{}
-	}
-	return t.Namespace
-}
-
-type JobFragment_Status struct {
-	Active         *int64  "json:\"active,omitempty\" graphql:\"active\""
-	CompletionTime *string "json:\"completionTime,omitempty\" graphql:\"completionTime\""
-	StartTime      *string "json:\"startTime,omitempty\" graphql:\"startTime\""
-	Succeeded      *int64  "json:\"succeeded,omitempty\" graphql:\"succeeded\""
-	Failed         *int64  "json:\"failed,omitempty\" graphql:\"failed\""
-}
-
-func (t *JobFragment_Status) GetActive() *int64 {
-	if t == nil {
-		t = &JobFragment_Status{}
-	}
-	return t.Active
-}
-func (t *JobFragment_Status) GetCompletionTime() *string {
-	if t == nil {
-		t = &JobFragment_Status{}
-	}
-	return t.CompletionTime
-}
-func (t *JobFragment_Status) GetStartTime() *string {
-	if t == nil {
-		t = &JobFragment_Status{}
-	}
-	return t.StartTime
-}
-func (t *JobFragment_Status) GetSucceeded() *int64 {
-	if t == nil {
-		t = &JobFragment_Status{}
-	}
-	return t.Succeeded
-}
-func (t *JobFragment_Status) GetFailed() *int64 {
-	if t == nil {
-		t = &JobFragment_Status{}
-	}
-	return t.Failed
 }
 
 type GateSpecFragment_Job_JobSpecFragment_Containers_ContainerSpecFragment_Env struct {
@@ -6622,63 +6426,6 @@ func (t *GetClusterGates_ClusterGates_PipelineGateFragment_Spec_GateSpecFragment
 	return t.Secret
 }
 
-type GetClusterGates_ClusterGates_PipelineGateFragment_Job_JobFragment_Metadata struct {
-	Name      string  "json:\"name\" graphql:\"name\""
-	Namespace *string "json:\"namespace,omitempty\" graphql:\"namespace\""
-}
-
-func (t *GetClusterGates_ClusterGates_PipelineGateFragment_Job_JobFragment_Metadata) GetName() string {
-	if t == nil {
-		t = &GetClusterGates_ClusterGates_PipelineGateFragment_Job_JobFragment_Metadata{}
-	}
-	return t.Name
-}
-func (t *GetClusterGates_ClusterGates_PipelineGateFragment_Job_JobFragment_Metadata) GetNamespace() *string {
-	if t == nil {
-		t = &GetClusterGates_ClusterGates_PipelineGateFragment_Job_JobFragment_Metadata{}
-	}
-	return t.Namespace
-}
-
-type GetClusterGates_ClusterGates_PipelineGateFragment_Job_JobFragment_Status struct {
-	Active         *int64  "json:\"active,omitempty\" graphql:\"active\""
-	CompletionTime *string "json:\"completionTime,omitempty\" graphql:\"completionTime\""
-	StartTime      *string "json:\"startTime,omitempty\" graphql:\"startTime\""
-	Succeeded      *int64  "json:\"succeeded,omitempty\" graphql:\"succeeded\""
-	Failed         *int64  "json:\"failed,omitempty\" graphql:\"failed\""
-}
-
-func (t *GetClusterGates_ClusterGates_PipelineGateFragment_Job_JobFragment_Status) GetActive() *int64 {
-	if t == nil {
-		t = &GetClusterGates_ClusterGates_PipelineGateFragment_Job_JobFragment_Status{}
-	}
-	return t.Active
-}
-func (t *GetClusterGates_ClusterGates_PipelineGateFragment_Job_JobFragment_Status) GetCompletionTime() *string {
-	if t == nil {
-		t = &GetClusterGates_ClusterGates_PipelineGateFragment_Job_JobFragment_Status{}
-	}
-	return t.CompletionTime
-}
-func (t *GetClusterGates_ClusterGates_PipelineGateFragment_Job_JobFragment_Status) GetStartTime() *string {
-	if t == nil {
-		t = &GetClusterGates_ClusterGates_PipelineGateFragment_Job_JobFragment_Status{}
-	}
-	return t.StartTime
-}
-func (t *GetClusterGates_ClusterGates_PipelineGateFragment_Job_JobFragment_Status) GetSucceeded() *int64 {
-	if t == nil {
-		t = &GetClusterGates_ClusterGates_PipelineGateFragment_Job_JobFragment_Status{}
-	}
-	return t.Succeeded
-}
-func (t *GetClusterGates_ClusterGates_PipelineGateFragment_Job_JobFragment_Status) GetFailed() *int64 {
-	if t == nil {
-		t = &GetClusterGates_ClusterGates_PipelineGateFragment_Job_JobFragment_Status{}
-	}
-	return t.Failed
-}
-
 type PagedClusterGates_PagedClusterGates_Edges_PipelineGateEdgeFragment_Node_PipelineGateFragment_Spec_GateSpecFragment_Job_JobSpecFragment_Containers_ContainerSpecFragment_Env struct {
 	Name  string "json:\"name\" graphql:\"name\""
 	Value string "json:\"value\" graphql:\"value\""
@@ -6713,63 +6460,6 @@ func (t *PagedClusterGates_PagedClusterGates_Edges_PipelineGateEdgeFragment_Node
 		t = &PagedClusterGates_PagedClusterGates_Edges_PipelineGateEdgeFragment_Node_PipelineGateFragment_Spec_GateSpecFragment_Job_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
 	}
 	return t.Secret
-}
-
-type PagedClusterGates_PagedClusterGates_Edges_PipelineGateEdgeFragment_Node_PipelineGateFragment_Job_JobFragment_Metadata struct {
-	Name      string  "json:\"name\" graphql:\"name\""
-	Namespace *string "json:\"namespace,omitempty\" graphql:\"namespace\""
-}
-
-func (t *PagedClusterGates_PagedClusterGates_Edges_PipelineGateEdgeFragment_Node_PipelineGateFragment_Job_JobFragment_Metadata) GetName() string {
-	if t == nil {
-		t = &PagedClusterGates_PagedClusterGates_Edges_PipelineGateEdgeFragment_Node_PipelineGateFragment_Job_JobFragment_Metadata{}
-	}
-	return t.Name
-}
-func (t *PagedClusterGates_PagedClusterGates_Edges_PipelineGateEdgeFragment_Node_PipelineGateFragment_Job_JobFragment_Metadata) GetNamespace() *string {
-	if t == nil {
-		t = &PagedClusterGates_PagedClusterGates_Edges_PipelineGateEdgeFragment_Node_PipelineGateFragment_Job_JobFragment_Metadata{}
-	}
-	return t.Namespace
-}
-
-type PagedClusterGates_PagedClusterGates_Edges_PipelineGateEdgeFragment_Node_PipelineGateFragment_Job_JobFragment_Status struct {
-	Active         *int64  "json:\"active,omitempty\" graphql:\"active\""
-	CompletionTime *string "json:\"completionTime,omitempty\" graphql:\"completionTime\""
-	StartTime      *string "json:\"startTime,omitempty\" graphql:\"startTime\""
-	Succeeded      *int64  "json:\"succeeded,omitempty\" graphql:\"succeeded\""
-	Failed         *int64  "json:\"failed,omitempty\" graphql:\"failed\""
-}
-
-func (t *PagedClusterGates_PagedClusterGates_Edges_PipelineGateEdgeFragment_Node_PipelineGateFragment_Job_JobFragment_Status) GetActive() *int64 {
-	if t == nil {
-		t = &PagedClusterGates_PagedClusterGates_Edges_PipelineGateEdgeFragment_Node_PipelineGateFragment_Job_JobFragment_Status{}
-	}
-	return t.Active
-}
-func (t *PagedClusterGates_PagedClusterGates_Edges_PipelineGateEdgeFragment_Node_PipelineGateFragment_Job_JobFragment_Status) GetCompletionTime() *string {
-	if t == nil {
-		t = &PagedClusterGates_PagedClusterGates_Edges_PipelineGateEdgeFragment_Node_PipelineGateFragment_Job_JobFragment_Status{}
-	}
-	return t.CompletionTime
-}
-func (t *PagedClusterGates_PagedClusterGates_Edges_PipelineGateEdgeFragment_Node_PipelineGateFragment_Job_JobFragment_Status) GetStartTime() *string {
-	if t == nil {
-		t = &PagedClusterGates_PagedClusterGates_Edges_PipelineGateEdgeFragment_Node_PipelineGateFragment_Job_JobFragment_Status{}
-	}
-	return t.StartTime
-}
-func (t *PagedClusterGates_PagedClusterGates_Edges_PipelineGateEdgeFragment_Node_PipelineGateFragment_Job_JobFragment_Status) GetSucceeded() *int64 {
-	if t == nil {
-		t = &PagedClusterGates_PagedClusterGates_Edges_PipelineGateEdgeFragment_Node_PipelineGateFragment_Job_JobFragment_Status{}
-	}
-	return t.Succeeded
-}
-func (t *PagedClusterGates_PagedClusterGates_Edges_PipelineGateEdgeFragment_Node_PipelineGateFragment_Job_JobFragment_Status) GetFailed() *int64 {
-	if t == nil {
-		t = &PagedClusterGates_PagedClusterGates_Edges_PipelineGateEdgeFragment_Node_PipelineGateFragment_Job_JobFragment_Status{}
-	}
-	return t.Failed
 }
 
 type PagedClusterGates_PagedClusterGates struct {
@@ -6826,63 +6516,6 @@ func (t *UpdateGate_UpdateGate_PipelineGateFragment_Spec_GateSpecFragment_Job_Jo
 	return t.Secret
 }
 
-type UpdateGate_UpdateGate_PipelineGateFragment_Job_JobFragment_Metadata struct {
-	Name      string  "json:\"name\" graphql:\"name\""
-	Namespace *string "json:\"namespace,omitempty\" graphql:\"namespace\""
-}
-
-func (t *UpdateGate_UpdateGate_PipelineGateFragment_Job_JobFragment_Metadata) GetName() string {
-	if t == nil {
-		t = &UpdateGate_UpdateGate_PipelineGateFragment_Job_JobFragment_Metadata{}
-	}
-	return t.Name
-}
-func (t *UpdateGate_UpdateGate_PipelineGateFragment_Job_JobFragment_Metadata) GetNamespace() *string {
-	if t == nil {
-		t = &UpdateGate_UpdateGate_PipelineGateFragment_Job_JobFragment_Metadata{}
-	}
-	return t.Namespace
-}
-
-type UpdateGate_UpdateGate_PipelineGateFragment_Job_JobFragment_Status struct {
-	Active         *int64  "json:\"active,omitempty\" graphql:\"active\""
-	CompletionTime *string "json:\"completionTime,omitempty\" graphql:\"completionTime\""
-	StartTime      *string "json:\"startTime,omitempty\" graphql:\"startTime\""
-	Succeeded      *int64  "json:\"succeeded,omitempty\" graphql:\"succeeded\""
-	Failed         *int64  "json:\"failed,omitempty\" graphql:\"failed\""
-}
-
-func (t *UpdateGate_UpdateGate_PipelineGateFragment_Job_JobFragment_Status) GetActive() *int64 {
-	if t == nil {
-		t = &UpdateGate_UpdateGate_PipelineGateFragment_Job_JobFragment_Status{}
-	}
-	return t.Active
-}
-func (t *UpdateGate_UpdateGate_PipelineGateFragment_Job_JobFragment_Status) GetCompletionTime() *string {
-	if t == nil {
-		t = &UpdateGate_UpdateGate_PipelineGateFragment_Job_JobFragment_Status{}
-	}
-	return t.CompletionTime
-}
-func (t *UpdateGate_UpdateGate_PipelineGateFragment_Job_JobFragment_Status) GetStartTime() *string {
-	if t == nil {
-		t = &UpdateGate_UpdateGate_PipelineGateFragment_Job_JobFragment_Status{}
-	}
-	return t.StartTime
-}
-func (t *UpdateGate_UpdateGate_PipelineGateFragment_Job_JobFragment_Status) GetSucceeded() *int64 {
-	if t == nil {
-		t = &UpdateGate_UpdateGate_PipelineGateFragment_Job_JobFragment_Status{}
-	}
-	return t.Succeeded
-}
-func (t *UpdateGate_UpdateGate_PipelineGateFragment_Job_JobFragment_Status) GetFailed() *int64 {
-	if t == nil {
-		t = &UpdateGate_UpdateGate_PipelineGateFragment_Job_JobFragment_Status{}
-	}
-	return t.Failed
-}
-
 type GetClusterGate_ClusterGate_PipelineGateFragment_Spec_GateSpecFragment_Job_JobSpecFragment_Containers_ContainerSpecFragment_Env struct {
 	Name  string "json:\"name\" graphql:\"name\""
 	Value string "json:\"value\" graphql:\"value\""
@@ -6917,63 +6550,6 @@ func (t *GetClusterGate_ClusterGate_PipelineGateFragment_Spec_GateSpecFragment_J
 		t = &GetClusterGate_ClusterGate_PipelineGateFragment_Spec_GateSpecFragment_Job_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
 	}
 	return t.Secret
-}
-
-type GetClusterGate_ClusterGate_PipelineGateFragment_Job_JobFragment_Metadata struct {
-	Name      string  "json:\"name\" graphql:\"name\""
-	Namespace *string "json:\"namespace,omitempty\" graphql:\"namespace\""
-}
-
-func (t *GetClusterGate_ClusterGate_PipelineGateFragment_Job_JobFragment_Metadata) GetName() string {
-	if t == nil {
-		t = &GetClusterGate_ClusterGate_PipelineGateFragment_Job_JobFragment_Metadata{}
-	}
-	return t.Name
-}
-func (t *GetClusterGate_ClusterGate_PipelineGateFragment_Job_JobFragment_Metadata) GetNamespace() *string {
-	if t == nil {
-		t = &GetClusterGate_ClusterGate_PipelineGateFragment_Job_JobFragment_Metadata{}
-	}
-	return t.Namespace
-}
-
-type GetClusterGate_ClusterGate_PipelineGateFragment_Job_JobFragment_Status struct {
-	Active         *int64  "json:\"active,omitempty\" graphql:\"active\""
-	CompletionTime *string "json:\"completionTime,omitempty\" graphql:\"completionTime\""
-	StartTime      *string "json:\"startTime,omitempty\" graphql:\"startTime\""
-	Succeeded      *int64  "json:\"succeeded,omitempty\" graphql:\"succeeded\""
-	Failed         *int64  "json:\"failed,omitempty\" graphql:\"failed\""
-}
-
-func (t *GetClusterGate_ClusterGate_PipelineGateFragment_Job_JobFragment_Status) GetActive() *int64 {
-	if t == nil {
-		t = &GetClusterGate_ClusterGate_PipelineGateFragment_Job_JobFragment_Status{}
-	}
-	return t.Active
-}
-func (t *GetClusterGate_ClusterGate_PipelineGateFragment_Job_JobFragment_Status) GetCompletionTime() *string {
-	if t == nil {
-		t = &GetClusterGate_ClusterGate_PipelineGateFragment_Job_JobFragment_Status{}
-	}
-	return t.CompletionTime
-}
-func (t *GetClusterGate_ClusterGate_PipelineGateFragment_Job_JobFragment_Status) GetStartTime() *string {
-	if t == nil {
-		t = &GetClusterGate_ClusterGate_PipelineGateFragment_Job_JobFragment_Status{}
-	}
-	return t.StartTime
-}
-func (t *GetClusterGate_ClusterGate_PipelineGateFragment_Job_JobFragment_Status) GetSucceeded() *int64 {
-	if t == nil {
-		t = &GetClusterGate_ClusterGate_PipelineGateFragment_Job_JobFragment_Status{}
-	}
-	return t.Succeeded
-}
-func (t *GetClusterGate_ClusterGate_PipelineGateFragment_Job_JobFragment_Status) GetFailed() *int64 {
-	if t == nil {
-		t = &GetClusterGate_ClusterGate_PipelineGateFragment_Job_JobFragment_Status{}
-	}
-	return t.Failed
 }
 
 type ListGitRepositories_GitRepositories struct {
@@ -13925,9 +13501,6 @@ fragment PipelineGateFragment on PipelineGate {
 	spec {
 		... GateSpecFragment
 	}
-	job {
-		... JobFragment
-	}
 }
 fragment GateSpecFragment on GateSpec {
 	job {
@@ -13954,19 +13527,6 @@ fragment ContainerSpecFragment on ContainerSpec {
 	envFrom {
 		configMap
 		secret
-	}
-}
-fragment JobFragment on Job {
-	metadata {
-		name
-		namespace
-	}
-	status {
-		active
-		completionTime
-		startTime
-		succeeded
-		failed
 	}
 }
 `
@@ -14014,9 +13574,6 @@ fragment PipelineGateFragment on PipelineGate {
 	spec {
 		... GateSpecFragment
 	}
-	job {
-		... JobFragment
-	}
 }
 fragment GateSpecFragment on GateSpec {
 	job {
@@ -14043,19 +13600,6 @@ fragment ContainerSpecFragment on ContainerSpec {
 	envFrom {
 		configMap
 		secret
-	}
-}
-fragment JobFragment on Job {
-	metadata {
-		name
-		namespace
-	}
-	status {
-		active
-		completionTime
-		startTime
-		succeeded
-		failed
 	}
 }
 `
@@ -14094,9 +13638,6 @@ fragment PipelineGateFragment on PipelineGate {
 	spec {
 		... GateSpecFragment
 	}
-	job {
-		... JobFragment
-	}
 }
 fragment GateSpecFragment on GateSpec {
 	job {
@@ -14123,19 +13664,6 @@ fragment ContainerSpecFragment on ContainerSpec {
 	envFrom {
 		configMap
 		secret
-	}
-}
-fragment JobFragment on Job {
-	metadata {
-		name
-		namespace
-	}
-	status {
-		active
-		completionTime
-		startTime
-		succeeded
-		failed
 	}
 }
 `
@@ -14172,9 +13700,6 @@ fragment PipelineGateFragment on PipelineGate {
 	spec {
 		... GateSpecFragment
 	}
-	job {
-		... JobFragment
-	}
 }
 fragment GateSpecFragment on GateSpec {
 	job {
@@ -14201,19 +13726,6 @@ fragment ContainerSpecFragment on ContainerSpec {
 	envFrom {
 		configMap
 		secret
-	}
-}
-fragment JobFragment on Job {
-	metadata {
-		name
-		namespace
-	}
-	status {
-		active
-		completionTime
-		startTime
-		succeeded
-		failed
 	}
 }
 `

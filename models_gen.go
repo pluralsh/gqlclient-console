@@ -291,9 +291,12 @@ type AzureStoreAttributes struct {
 }
 
 type BackupAttributes struct {
-	Name             string `json:"name"`
-	Namespace        string `json:"namespace"`
-	GarbageCollected *bool  `json:"garbageCollected,omitempty"`
+	Name             string                      `json:"name"`
+	Namespace        string                      `json:"namespace"`
+	GarbageCollected *bool                       `json:"garbageCollected,omitempty"`
+	TTL              *string                     `json:"ttl,omitempty"`
+	Namespaces       *ResourceSelectorAttributes `json:"namespaces,omitempty"`
+	Resources        *ResourceSelectorAttributes `json:"resources,omitempty"`
 }
 
 type BindingAttributes struct {
@@ -544,13 +547,16 @@ type ClusterAttributes struct {
 }
 
 type ClusterBackup struct {
-	ID               string   `json:"id"`
-	Name             string   `json:"name"`
-	Namespace        string   `json:"namespace"`
-	GarbageCollected *bool    `json:"garbageCollected,omitempty"`
-	Cluster          *Cluster `json:"cluster,omitempty"`
-	InsertedAt       *string  `json:"insertedAt,omitempty"`
-	UpdatedAt        *string  `json:"updatedAt,omitempty"`
+	ID               string            `json:"id"`
+	Name             string            `json:"name"`
+	Namespace        string            `json:"namespace"`
+	TTL              *string           `json:"ttl,omitempty"`
+	GarbageCollected *bool             `json:"garbageCollected,omitempty"`
+	Namespaces       *ResourceSelector `json:"namespaces,omitempty"`
+	Resources        *ResourceSelector `json:"resources,omitempty"`
+	Cluster          *Cluster          `json:"cluster,omitempty"`
+	InsertedAt       *string           `json:"insertedAt,omitempty"`
+	UpdatedAt        *string           `json:"updatedAt,omitempty"`
 }
 
 type ClusterBackupConnection struct {
@@ -2501,7 +2507,7 @@ type ProviderCredentialAttributes struct {
 // A reference to a pull request for your kubernetes related IaC
 type PullRequest struct {
 	ID      string    `json:"id"`
-	Status  PrStatus  `json:"status"`
+	Status  *PrStatus `json:"status,omitempty"`
 	URL     string    `json:"url"`
 	Title   *string   `json:"title,omitempty"`
 	Creator *string   `json:"creator,omitempty"`
@@ -2639,6 +2645,16 @@ type RepositoryEdge struct {
 type ResourceEdge struct {
 	From string `json:"from"`
 	To   string `json:"to"`
+}
+
+type ResourceSelector struct {
+	Included []*string `json:"included,omitempty"`
+	Excluded []*string `json:"excluded,omitempty"`
+}
+
+type ResourceSelectorAttributes struct {
+	Included []*string `json:"included,omitempty"`
+	Excluded []*string `json:"excluded,omitempty"`
 }
 
 type ResourceSpec struct {

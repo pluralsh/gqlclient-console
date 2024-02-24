@@ -24,21 +24,6 @@ fragment PipelineGateFragment on PipelineGate {
     state
     updatedAt
     spec { ...GateSpecFragment }
-    job { ...JobFragment }
-}
-
-fragment JobFragment on Job {
-  metadata {
-    name
-    namespace
-  }
-  status {
-    active
-    completionTime
-    startTime
-    succeeded
-    failed
-  }
 }
 
 fragment GateSpecFragment on GateSpec {
