@@ -125,12 +125,13 @@ func (t *PipelineGateEdgeFragment) GetNode() *PipelineGateFragment {
 }
 
 type PipelineGateFragment struct {
-	ID        string            "json:\"id\" graphql:\"id\""
-	Name      string            "json:\"name\" graphql:\"name\""
-	Type      GateType          "json:\"type\" graphql:\"type\""
-	State     GateState         "json:\"state\" graphql:\"state\""
-	UpdatedAt *string           "json:\"updatedAt,omitempty\" graphql:\"updatedAt\""
-	Spec      *GateSpecFragment "json:\"spec,omitempty\" graphql:\"spec\""
+	ID        string              "json:\"id\" graphql:\"id\""
+	Name      string              "json:\"name\" graphql:\"name\""
+	Type      GateType            "json:\"type\" graphql:\"type\""
+	State     GateState           "json:\"state\" graphql:\"state\""
+	UpdatedAt *string             "json:\"updatedAt,omitempty\" graphql:\"updatedAt\""
+	Spec      *GateSpecFragment   "json:\"spec,omitempty\" graphql:\"spec\""
+	Status    *GateStatusFragment "json:\"status,omitempty\" graphql:\"status\""
 }
 
 func (t *PipelineGateFragment) GetID() string {
@@ -169,6 +170,12 @@ func (t *PipelineGateFragment) GetSpec() *GateSpecFragment {
 	}
 	return t.Spec
 }
+func (t *PipelineGateFragment) GetStatus() *GateStatusFragment {
+	if t == nil {
+		t = &PipelineGateFragment{}
+	}
+	return t.Status
+}
 
 type GateSpecFragment struct {
 	Job *JobSpecFragment "json:\"job,omitempty\" graphql:\"job\""
@@ -179,6 +186,17 @@ func (t *GateSpecFragment) GetJob() *JobSpecFragment {
 		t = &GateSpecFragment{}
 	}
 	return t.Job
+}
+
+type GateStatusFragment struct {
+	JobRef *JobReferenceFragment "json:\"jobRef,omitempty\" graphql:\"jobRef\""
+}
+
+func (t *GateStatusFragment) GetJobRef() *JobReferenceFragment {
+	if t == nil {
+		t = &GateStatusFragment{}
+	}
+	return t.JobRef
 }
 
 type JobSpecFragment struct {
@@ -225,6 +243,24 @@ func (t *JobSpecFragment) GetServiceAccount() *string {
 		t = &JobSpecFragment{}
 	}
 	return t.ServiceAccount
+}
+
+type JobReferenceFragment struct {
+	Name      string "json:\"name\" graphql:\"name\""
+	Namespace string "json:\"namespace\" graphql:\"namespace\""
+}
+
+func (t *JobReferenceFragment) GetName() string {
+	if t == nil {
+		t = &JobReferenceFragment{}
+	}
+	return t.Name
+}
+func (t *JobReferenceFragment) GetNamespace() string {
+	if t == nil {
+		t = &JobReferenceFragment{}
+	}
+	return t.Namespace
 }
 
 type ContainerSpecFragment struct {
@@ -13501,6 +13537,9 @@ fragment PipelineGateFragment on PipelineGate {
 	spec {
 		... GateSpecFragment
 	}
+	status {
+		... GateStatusFragment
+	}
 }
 fragment GateSpecFragment on GateSpec {
 	job {
@@ -13528,6 +13567,15 @@ fragment ContainerSpecFragment on ContainerSpec {
 		configMap
 		secret
 	}
+}
+fragment GateStatusFragment on GateStatus {
+	jobRef {
+		... JobReferenceFragment
+	}
+}
+fragment JobReferenceFragment on JobReference {
+	name
+	namespace
 }
 `
 
@@ -13574,6 +13622,9 @@ fragment PipelineGateFragment on PipelineGate {
 	spec {
 		... GateSpecFragment
 	}
+	status {
+		... GateStatusFragment
+	}
 }
 fragment GateSpecFragment on GateSpec {
 	job {
@@ -13601,6 +13652,15 @@ fragment ContainerSpecFragment on ContainerSpec {
 		configMap
 		secret
 	}
+}
+fragment GateStatusFragment on GateStatus {
+	jobRef {
+		... JobReferenceFragment
+	}
+}
+fragment JobReferenceFragment on JobReference {
+	name
+	namespace
 }
 `
 
@@ -13638,6 +13698,9 @@ fragment PipelineGateFragment on PipelineGate {
 	spec {
 		... GateSpecFragment
 	}
+	status {
+		... GateStatusFragment
+	}
 }
 fragment GateSpecFragment on GateSpec {
 	job {
@@ -13665,6 +13728,15 @@ fragment ContainerSpecFragment on ContainerSpec {
 		configMap
 		secret
 	}
+}
+fragment GateStatusFragment on GateStatus {
+	jobRef {
+		... JobReferenceFragment
+	}
+}
+fragment JobReferenceFragment on JobReference {
+	name
+	namespace
 }
 `
 
@@ -13700,6 +13772,9 @@ fragment PipelineGateFragment on PipelineGate {
 	spec {
 		... GateSpecFragment
 	}
+	status {
+		... GateStatusFragment
+	}
 }
 fragment GateSpecFragment on GateSpec {
 	job {
@@ -13727,6 +13802,15 @@ fragment ContainerSpecFragment on ContainerSpec {
 		configMap
 		secret
 	}
+}
+fragment GateStatusFragment on GateStatus {
+	jobRef {
+		... JobReferenceFragment
+	}
+}
+fragment JobReferenceFragment on JobReference {
+	name
+	namespace
 }
 `
 
