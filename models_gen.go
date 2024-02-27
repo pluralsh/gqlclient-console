@@ -2656,14 +2656,22 @@ type Recommendation struct {
 // a fully specified regex/replace flow
 type RegexReplacement struct {
 	Regex string `json:"regex"`
+	// the file to apply this replacement on
+	File string `json:"file"`
 	// template string to replace any match with
 	Replacement string `json:"replacement"`
+	// Whether to apply liquid templating before compiling this regex
+	Templated *bool `json:"templated,omitempty"`
 }
 
 // a fully specify regex/replace flow
 type RegexReplacementAttributes struct {
 	Regex       string `json:"regex"`
 	Replacement string `json:"replacement"`
+	// the filename to apply this regex on
+	File string `json:"file"`
+	// whether you want to apply liquid templating on the regex before compiling
+	Templated *bool `json:"templated,omitempty"`
 }
 
 type ReplicaSet struct {
