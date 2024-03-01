@@ -363,3 +363,11 @@ fragment PipelineContextFragment on PipelineContext {
     id
     context
 }
+
+fragment PullRequestFragment on PullRequest {
+    id
+    status
+    url
+    title
+    creator
+}

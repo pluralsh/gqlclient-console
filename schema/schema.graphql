@@ -49,6 +49,10 @@ type RootQueryType {
 
   personas(after: String, first: Int, before: String, last: Int): PersonaConnection
 
+  refreshTokens(after: String, first: Int, before: String, last: Int): RefreshTokenConnection
+
+  refresh(token: String!): User
+
   dashboards(repo: String!): [Dashboard]
 
   dashboard(repo: String!, name: String!, step: String, offset: Int, labels: [LabelInput]): Dashboard
@@ -327,6 +331,8 @@ type RootMutationType {
   approveBuild(id: ID!): Build
 
   signIn(email: String!, password: String!): User
+
+  logout: User
 
   loginLink(key: String!): User
 
@@ -787,6 +793,9 @@ input NotificationRouterAttributes {
 }
 
 input RouterFilterAttributes {
+  "a regex for filtering by things like pr url"
+  regex: String
+
   "whether to enable delivery for events associated with this service"
   serviceId: ID
 
@@ -840,6 +849,7 @@ type NotificationRouter {
 
 type NotificationFilter {
   id: ID!
+  regex: String
   service: Service
   cluster: Cluster
   pipeline: Pipeline
@@ -1176,6 +1186,9 @@ type PipelineContext {
   "a history of pull requests created by this context thus far"
   pullRequests: [PullRequest]
 
+  "a list of pipeline-specific PRs for this context"
+  pipelinePullRequests: [PipelinePullRequest]
+
   insertedAt: DateTime
 
   updatedAt: DateTime
@@ -1374,6 +1387,13 @@ type PipelineStatus {
 
   "if > 0, consider the pipeline stopped"
   closed: Int
+}
+
+"A pull request created in the course of executing a pipeline"
+type PipelinePullRequest {
+  id: ID!
+  service: ServiceDeployment
+  pullRequest: PullRequest
 }
 
 type PipelineConnection {
@@ -4356,6 +4376,7 @@ input PersonaConfigurationAttributes {
 input PersonaDeploymentAttributes {
   clusters: Boolean
   deployments: Boolean
+  repositories: Boolean
   services: Boolean
   pipelines: Boolean
   providers: Boolean
@@ -4367,6 +4388,8 @@ input PersonaSidebarAttributes {
   kubernetes: Boolean
   pullRequests: Boolean
   settings: Boolean
+  backups: Boolean
+  stacks: Boolean
 }
 
 type User {
@@ -4387,6 +4410,17 @@ type User {
   unreadNotifications: Int
   backgroundColor: String
   insertedAt: DateTime
+  updatedAt: DateTime
+}
+
+type RefreshToken {
+  id: ID!
+
+  "the token to use to request a refresh"
+  token: String!
+
+  insertedAt: DateTime
+
   updatedAt: DateTime
 }
 
@@ -4436,6 +4470,7 @@ type RoleBinding {
 
 type LoginInfo {
   oidcUri: String
+  external: Boolean
 }
 
 type Notification {
@@ -4516,6 +4551,7 @@ type PersonaConfiguration {
 type PersonaDeployment {
   clusters: Boolean
   deployments: Boolean
+  repositories: Boolean
   services: Boolean
   pipelines: Boolean
   providers: Boolean
@@ -4527,6 +4563,8 @@ type PersonaSidebar {
   kubernetes: Boolean
   pullRequests: Boolean
   settings: Boolean
+  backups: Boolean
+  stacks: Boolean
 }
 
 type UserConnection {
@@ -4567,6 +4605,11 @@ type AccessTokenAuditConnection {
 type PersonaConnection {
   pageInfo: PageInfo!
   edges: [PersonaEdge]
+}
+
+type RefreshTokenConnection {
+  pageInfo: PageInfo!
+  edges: [RefreshTokenEdge]
 }
 
 type NotificationDelta {
@@ -4756,6 +4799,11 @@ type CommandEdge {
 
 type BuildEdge {
   node: Build
+  cursor: String
+}
+
+type RefreshTokenEdge {
+  node: RefreshToken
   cursor: String
 }
 

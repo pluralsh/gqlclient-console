@@ -84,6 +84,7 @@ type ConsoleClient interface {
 	CreatePrAutomation(ctx context.Context, attributes PrAutomationAttributes, interceptors ...clientv2.RequestInterceptor) (*CreatePrAutomation, error)
 	UpdatePrAutomation(ctx context.Context, id string, attributes PrAutomationAttributes, interceptors ...clientv2.RequestInterceptor) (*UpdatePrAutomation, error)
 	DeletePrAutomation(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DeletePrAutomation, error)
+	CreatePullRequest(ctx context.Context, id string, branch *string, context *string, interceptors ...clientv2.RequestInterceptor) (*CreatePullRequest, error)
 	SavePipeline(ctx context.Context, name string, attributes PipelineAttributes, interceptors ...clientv2.RequestInterceptor) (*SavePipeline, error)
 	DeletePipeline(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DeletePipeline, error)
 	GetPipeline(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*GetPipeline, error)
@@ -1904,6 +1905,45 @@ func (t *PipelineContextFragment) GetContext() map[string]interface{} {
 		t = &PipelineContextFragment{}
 	}
 	return t.Context
+}
+
+type PullRequestFragment struct {
+	ID      string    "json:\"id\" graphql:\"id\""
+	Status  *PrStatus "json:\"status,omitempty\" graphql:\"status\""
+	URL     string    "json:\"url\" graphql:\"url\""
+	Title   *string   "json:\"title,omitempty\" graphql:\"title\""
+	Creator *string   "json:\"creator,omitempty\" graphql:\"creator\""
+}
+
+func (t *PullRequestFragment) GetID() string {
+	if t == nil {
+		t = &PullRequestFragment{}
+	}
+	return t.ID
+}
+func (t *PullRequestFragment) GetStatus() *PrStatus {
+	if t == nil {
+		t = &PullRequestFragment{}
+	}
+	return t.Status
+}
+func (t *PullRequestFragment) GetURL() string {
+	if t == nil {
+		t = &PullRequestFragment{}
+	}
+	return t.URL
+}
+func (t *PullRequestFragment) GetTitle() *string {
+	if t == nil {
+		t = &PullRequestFragment{}
+	}
+	return t.Title
+}
+func (t *PullRequestFragment) GetCreator() *string {
+	if t == nil {
+		t = &PullRequestFragment{}
+	}
+	return t.Creator
 }
 
 type PipelineGateEdgeFragment_Node_PipelineGateFragment_Spec_GateSpecFragment_Job_JobSpecFragment_Containers_ContainerSpecFragment_Env struct {
@@ -8127,6 +8167,17 @@ func (t *DeletePrAutomation) GetDeletePrAutomation() *PrAutomationFragment {
 		t = &DeletePrAutomation{}
 	}
 	return t.DeletePrAutomation
+}
+
+type CreatePullRequest struct {
+	CreatePullRequest *PullRequestFragment "json:\"createPullRequest,omitempty\" graphql:\"createPullRequest\""
+}
+
+func (t *CreatePullRequest) GetCreatePullRequest() *PullRequestFragment {
+	if t == nil {
+		t = &CreatePullRequest{}
+	}
+	return t.CreatePullRequest
 }
 
 type SavePipeline struct {
@@ -14427,6 +14478,39 @@ func (c *Client) DeletePrAutomation(ctx context.Context, id string, interceptors
 	return &res, nil
 }
 
+const CreatePullRequestDocument = `mutation CreatePullRequest ($id: ID!, $branch: String, $context: Json) {
+	createPullRequest(id: $id, branch: $branch, context: $context) {
+		... PullRequestFragment
+	}
+}
+fragment PullRequestFragment on PullRequest {
+	id
+	status
+	url
+	title
+	creator
+}
+`
+
+func (c *Client) CreatePullRequest(ctx context.Context, id string, branch *string, context *string, interceptors ...clientv2.RequestInterceptor) (*CreatePullRequest, error) {
+	vars := map[string]interface{}{
+		"id":      id,
+		"branch":  branch,
+		"context": context,
+	}
+
+	var res CreatePullRequest
+	if err := c.Client.Post(ctx, "CreatePullRequest", CreatePullRequestDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
 const SavePipelineDocument = `mutation SavePipeline ($name: String!, $attributes: PipelineAttributes!) {
 	savePipeline(name: $name, attributes: $attributes) {
 		... PipelineFragment
@@ -15433,6 +15517,7 @@ var DocumentOperationNames = map[string]string{
 	CreatePrAutomationDocument:                "CreatePrAutomation",
 	UpdatePrAutomationDocument:                "UpdatePrAutomation",
 	DeletePrAutomationDocument:                "DeletePrAutomation",
+	CreatePullRequestDocument:                 "CreatePullRequest",
 	SavePipelineDocument:                      "SavePipeline",
 	DeletePipelineDocument:                    "DeletePipeline",
 	GetPipelineDocument:                       "GetPipeline",

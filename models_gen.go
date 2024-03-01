@@ -1666,7 +1666,8 @@ type LogStream struct {
 }
 
 type LoginInfo struct {
-	OidcURI *string `json:"oidcUri,omitempty"`
+	OidcURI  *string `json:"oidcUri,omitempty"`
+	External *bool   `json:"external,omitempty"`
 }
 
 type ManifestNetwork struct {
@@ -1841,6 +1842,7 @@ type NotificationEdge struct {
 
 type NotificationFilter struct {
 	ID       string    `json:"id"`
+	Regex    *string   `json:"regex,omitempty"`
 	Service  *Service  `json:"service,omitempty"`
 	Cluster  *Cluster  `json:"cluster,omitempty"`
 	Pipeline *Pipeline `json:"pipeline,omitempty"`
@@ -2000,21 +2002,23 @@ type PersonaConnection struct {
 }
 
 type PersonaDeployment struct {
-	Clusters    *bool `json:"clusters,omitempty"`
-	Deployments *bool `json:"deployments,omitempty"`
-	Services    *bool `json:"services,omitempty"`
-	Pipelines   *bool `json:"pipelines,omitempty"`
-	Providers   *bool `json:"providers,omitempty"`
-	AddOns      *bool `json:"addOns,omitempty"`
+	Clusters     *bool `json:"clusters,omitempty"`
+	Deployments  *bool `json:"deployments,omitempty"`
+	Repositories *bool `json:"repositories,omitempty"`
+	Services     *bool `json:"services,omitempty"`
+	Pipelines    *bool `json:"pipelines,omitempty"`
+	Providers    *bool `json:"providers,omitempty"`
+	AddOns       *bool `json:"addOns,omitempty"`
 }
 
 type PersonaDeploymentAttributes struct {
-	Clusters    *bool `json:"clusters,omitempty"`
-	Deployments *bool `json:"deployments,omitempty"`
-	Services    *bool `json:"services,omitempty"`
-	Pipelines   *bool `json:"pipelines,omitempty"`
-	Providers   *bool `json:"providers,omitempty"`
-	AddOns      *bool `json:"addOns,omitempty"`
+	Clusters     *bool `json:"clusters,omitempty"`
+	Deployments  *bool `json:"deployments,omitempty"`
+	Repositories *bool `json:"repositories,omitempty"`
+	Services     *bool `json:"services,omitempty"`
+	Pipelines    *bool `json:"pipelines,omitempty"`
+	Providers    *bool `json:"providers,omitempty"`
+	AddOns       *bool `json:"addOns,omitempty"`
 }
 
 type PersonaEdge struct {
@@ -2027,6 +2031,8 @@ type PersonaSidebar struct {
 	Kubernetes   *bool `json:"kubernetes,omitempty"`
 	PullRequests *bool `json:"pullRequests,omitempty"`
 	Settings     *bool `json:"settings,omitempty"`
+	Backups      *bool `json:"backups,omitempty"`
+	Stacks       *bool `json:"stacks,omitempty"`
 }
 
 type PersonaSidebarAttributes struct {
@@ -2034,6 +2040,8 @@ type PersonaSidebarAttributes struct {
 	Kubernetes   *bool `json:"kubernetes,omitempty"`
 	PullRequests *bool `json:"pullRequests,omitempty"`
 	Settings     *bool `json:"settings,omitempty"`
+	Backups      *bool `json:"backups,omitempty"`
+	Stacks       *bool `json:"stacks,omitempty"`
 }
 
 // a release pipeline, composed of multiple stages each with potentially multiple services
@@ -2071,8 +2079,10 @@ type PipelineContext struct {
 	Pipeline *Pipeline              `json:"pipeline,omitempty"`
 	// a history of pull requests created by this context thus far
 	PullRequests []*PullRequest `json:"pullRequests,omitempty"`
-	InsertedAt   *string        `json:"insertedAt,omitempty"`
-	UpdatedAt    *string        `json:"updatedAt,omitempty"`
+	// a list of pipeline-specific PRs for this context
+	PipelinePullRequests []*PipelinePullRequest `json:"pipelinePullRequests,omitempty"`
+	InsertedAt           *string                `json:"insertedAt,omitempty"`
+	UpdatedAt            *string                `json:"updatedAt,omitempty"`
 }
 
 // attributes needed to create a new pipeline context
@@ -2167,6 +2177,13 @@ type PipelinePromotion struct {
 	Services   []*PromotionService `json:"services,omitempty"`
 	InsertedAt *string             `json:"insertedAt,omitempty"`
 	UpdatedAt  *string             `json:"updatedAt,omitempty"`
+}
+
+// A pull request created in the course of executing a pipeline
+type PipelinePullRequest struct {
+	ID          string             `json:"id"`
+	Service     *ServiceDeployment `json:"service,omitempty"`
+	PullRequest *PullRequest       `json:"pullRequest,omitempty"`
 }
 
 // a pipeline stage, has a list of services and potentially a promotion which might be pending
@@ -2653,6 +2670,24 @@ type Recommendation struct {
 	ContainerRecommendations []*ContainerRecommendation `json:"containerRecommendations,omitempty"`
 }
 
+type RefreshToken struct {
+	ID string `json:"id"`
+	// the token to use to request a refresh
+	Token      string  `json:"token"`
+	InsertedAt *string `json:"insertedAt,omitempty"`
+	UpdatedAt  *string `json:"updatedAt,omitempty"`
+}
+
+type RefreshTokenConnection struct {
+	PageInfo PageInfo            `json:"pageInfo"`
+	Edges    []*RefreshTokenEdge `json:"edges,omitempty"`
+}
+
+type RefreshTokenEdge struct {
+	Node   *RefreshToken `json:"node,omitempty"`
+	Cursor *string       `json:"cursor,omitempty"`
+}
+
 // a fully specified regex/replace flow
 type RegexReplacement struct {
 	Regex string `json:"regex"`
@@ -2829,6 +2864,8 @@ type RootSubscriptionType struct {
 }
 
 type RouterFilterAttributes struct {
+	// a regex for filtering by things like pr url
+	Regex *string `json:"regex,omitempty"`
 	// whether to enable delivery for events associated with this service
 	ServiceID *string `json:"serviceId,omitempty"`
 	// whether to enable delivery for events associated with this cluster
