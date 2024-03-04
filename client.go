@@ -85,6 +85,10 @@ type ConsoleClient interface {
 	UpdatePrAutomation(ctx context.Context, id string, attributes PrAutomationAttributes, interceptors ...clientv2.RequestInterceptor) (*UpdatePrAutomation, error)
 	DeletePrAutomation(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DeletePrAutomation, error)
 	CreatePullRequest(ctx context.Context, id string, branch *string, context *string, interceptors ...clientv2.RequestInterceptor) (*CreatePullRequest, error)
+	UpsertNotificationSink(ctx context.Context, attributes NotificationSinkAttributes, interceptors ...clientv2.RequestInterceptor) (*UpsertNotificationSink, error)
+	DeleteNotificationSink(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DeleteNotificationSink, error)
+	GetNotificationSink(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*GetNotificationSink, error)
+	GetNotificationSinkByName(ctx context.Context, name *string, interceptors ...clientv2.RequestInterceptor) (*GetNotificationSinkByName, error)
 	SavePipeline(ctx context.Context, name string, attributes PipelineAttributes, interceptors ...clientv2.RequestInterceptor) (*SavePipeline, error)
 	DeletePipeline(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DeletePipeline, error)
 	GetPipeline(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*GetPipeline, error)
@@ -1944,6 +1948,74 @@ func (t *PullRequestFragment) GetCreator() *string {
 		t = &PullRequestFragment{}
 	}
 	return t.Creator
+}
+
+type NotificationSinkFragment struct {
+	ID            string                     "json:\"id\" graphql:\"id\""
+	Name          string                     "json:\"name\" graphql:\"name\""
+	Type          SinkType                   "json:\"type\" graphql:\"type\""
+	Configuration *SinkConfigurationFragment "json:\"configuration\" graphql:\"configuration\""
+}
+
+func (t *NotificationSinkFragment) GetID() string {
+	if t == nil {
+		t = &NotificationSinkFragment{}
+	}
+	return t.ID
+}
+func (t *NotificationSinkFragment) GetName() string {
+	if t == nil {
+		t = &NotificationSinkFragment{}
+	}
+	return t.Name
+}
+func (t *NotificationSinkFragment) GetType() *SinkType {
+	if t == nil {
+		t = &NotificationSinkFragment{}
+	}
+	return &t.Type
+}
+func (t *NotificationSinkFragment) GetConfiguration() *SinkConfigurationFragment {
+	if t == nil {
+		t = &NotificationSinkFragment{}
+	}
+	return t.Configuration
+}
+
+type SinkConfigurationFragment struct {
+	ID    string                        "json:\"id\" graphql:\"id\""
+	Slack *URLSinkConfigurationFragment "json:\"slack,omitempty\" graphql:\"slack\""
+	Teams *URLSinkConfigurationFragment "json:\"teams,omitempty\" graphql:\"teams\""
+}
+
+func (t *SinkConfigurationFragment) GetID() string {
+	if t == nil {
+		t = &SinkConfigurationFragment{}
+	}
+	return t.ID
+}
+func (t *SinkConfigurationFragment) GetSlack() *URLSinkConfigurationFragment {
+	if t == nil {
+		t = &SinkConfigurationFragment{}
+	}
+	return t.Slack
+}
+func (t *SinkConfigurationFragment) GetTeams() *URLSinkConfigurationFragment {
+	if t == nil {
+		t = &SinkConfigurationFragment{}
+	}
+	return t.Teams
+}
+
+type URLSinkConfigurationFragment struct {
+	URL string "json:\"url\" graphql:\"url\""
+}
+
+func (t *URLSinkConfigurationFragment) GetURL() string {
+	if t == nil {
+		t = &URLSinkConfigurationFragment{}
+	}
+	return t.URL
 }
 
 type PipelineGateEdgeFragment_Node_PipelineGateFragment_Spec_GateSpecFragment_Job_JobSpecFragment_Containers_ContainerSpecFragment_Env struct {
@@ -8178,6 +8250,50 @@ func (t *CreatePullRequest) GetCreatePullRequest() *PullRequestFragment {
 		t = &CreatePullRequest{}
 	}
 	return t.CreatePullRequest
+}
+
+type UpsertNotificationSink struct {
+	UpsertNotificationSink *NotificationSinkFragment "json:\"upsertNotificationSink,omitempty\" graphql:\"upsertNotificationSink\""
+}
+
+func (t *UpsertNotificationSink) GetUpsertNotificationSink() *NotificationSinkFragment {
+	if t == nil {
+		t = &UpsertNotificationSink{}
+	}
+	return t.UpsertNotificationSink
+}
+
+type DeleteNotificationSink struct {
+	DeleteNotificationSink *NotificationSinkFragment "json:\"deleteNotificationSink,omitempty\" graphql:\"deleteNotificationSink\""
+}
+
+func (t *DeleteNotificationSink) GetDeleteNotificationSink() *NotificationSinkFragment {
+	if t == nil {
+		t = &DeleteNotificationSink{}
+	}
+	return t.DeleteNotificationSink
+}
+
+type GetNotificationSink struct {
+	NotificationSink *NotificationSinkFragment "json:\"notificationSink,omitempty\" graphql:\"notificationSink\""
+}
+
+func (t *GetNotificationSink) GetNotificationSink() *NotificationSinkFragment {
+	if t == nil {
+		t = &GetNotificationSink{}
+	}
+	return t.NotificationSink
+}
+
+type GetNotificationSinkByName struct {
+	NotificationSink *NotificationSinkFragment "json:\"notificationSink,omitempty\" graphql:\"notificationSink\""
+}
+
+func (t *GetNotificationSinkByName) GetNotificationSink() *NotificationSinkFragment {
+	if t == nil {
+		t = &GetNotificationSinkByName{}
+	}
+	return t.NotificationSink
 }
 
 type SavePipeline struct {
@@ -14511,6 +14627,182 @@ func (c *Client) CreatePullRequest(ctx context.Context, id string, branch *strin
 	return &res, nil
 }
 
+const UpsertNotificationSinkDocument = `mutation UpsertNotificationSink ($attributes: NotificationSinkAttributes!) {
+	upsertNotificationSink(attributes: $attributes) {
+		... NotificationSinkFragment
+	}
+}
+fragment NotificationSinkFragment on NotificationSink {
+	id
+	name
+	type
+	configuration {
+		... SinkConfigurationFragment
+	}
+}
+fragment SinkConfigurationFragment on SinkConfiguration {
+	id
+	slack {
+		... UrlSinkConfigurationFragment
+	}
+	teams {
+		... UrlSinkConfigurationFragment
+	}
+}
+fragment UrlSinkConfigurationFragment on UrlSinkConfiguration {
+	url
+}
+`
+
+func (c *Client) UpsertNotificationSink(ctx context.Context, attributes NotificationSinkAttributes, interceptors ...clientv2.RequestInterceptor) (*UpsertNotificationSink, error) {
+	vars := map[string]interface{}{
+		"attributes": attributes,
+	}
+
+	var res UpsertNotificationSink
+	if err := c.Client.Post(ctx, "UpsertNotificationSink", UpsertNotificationSinkDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const DeleteNotificationSinkDocument = `mutation DeleteNotificationSink ($id: ID!) {
+	deleteNotificationSink(id: $id) {
+		... NotificationSinkFragment
+	}
+}
+fragment NotificationSinkFragment on NotificationSink {
+	id
+	name
+	type
+	configuration {
+		... SinkConfigurationFragment
+	}
+}
+fragment SinkConfigurationFragment on SinkConfiguration {
+	id
+	slack {
+		... UrlSinkConfigurationFragment
+	}
+	teams {
+		... UrlSinkConfigurationFragment
+	}
+}
+fragment UrlSinkConfigurationFragment on UrlSinkConfiguration {
+	url
+}
+`
+
+func (c *Client) DeleteNotificationSink(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DeleteNotificationSink, error) {
+	vars := map[string]interface{}{
+		"id": id,
+	}
+
+	var res DeleteNotificationSink
+	if err := c.Client.Post(ctx, "DeleteNotificationSink", DeleteNotificationSinkDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const GetNotificationSinkDocument = `query GetNotificationSink ($id: ID!) {
+	notificationSink(id: $id) {
+		... NotificationSinkFragment
+	}
+}
+fragment NotificationSinkFragment on NotificationSink {
+	id
+	name
+	type
+	configuration {
+		... SinkConfigurationFragment
+	}
+}
+fragment SinkConfigurationFragment on SinkConfiguration {
+	id
+	slack {
+		... UrlSinkConfigurationFragment
+	}
+	teams {
+		... UrlSinkConfigurationFragment
+	}
+}
+fragment UrlSinkConfigurationFragment on UrlSinkConfiguration {
+	url
+}
+`
+
+func (c *Client) GetNotificationSink(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*GetNotificationSink, error) {
+	vars := map[string]interface{}{
+		"id": id,
+	}
+
+	var res GetNotificationSink
+	if err := c.Client.Post(ctx, "GetNotificationSink", GetNotificationSinkDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const GetNotificationSinkByNameDocument = `query GetNotificationSinkByName ($name: String) {
+	notificationSink(name: $name) {
+		... NotificationSinkFragment
+	}
+}
+fragment NotificationSinkFragment on NotificationSink {
+	id
+	name
+	type
+	configuration {
+		... SinkConfigurationFragment
+	}
+}
+fragment SinkConfigurationFragment on SinkConfiguration {
+	id
+	slack {
+		... UrlSinkConfigurationFragment
+	}
+	teams {
+		... UrlSinkConfigurationFragment
+	}
+}
+fragment UrlSinkConfigurationFragment on UrlSinkConfiguration {
+	url
+}
+`
+
+func (c *Client) GetNotificationSinkByName(ctx context.Context, name *string, interceptors ...clientv2.RequestInterceptor) (*GetNotificationSinkByName, error) {
+	vars := map[string]interface{}{
+		"name": name,
+	}
+
+	var res GetNotificationSinkByName
+	if err := c.Client.Post(ctx, "GetNotificationSinkByName", GetNotificationSinkByNameDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
 const SavePipelineDocument = `mutation SavePipeline ($name: String!, $attributes: PipelineAttributes!) {
 	savePipeline(name: $name, attributes: $attributes) {
 		... PipelineFragment
@@ -15518,6 +15810,10 @@ var DocumentOperationNames = map[string]string{
 	UpdatePrAutomationDocument:                "UpdatePrAutomation",
 	DeletePrAutomationDocument:                "DeletePrAutomation",
 	CreatePullRequestDocument:                 "CreatePullRequest",
+	UpsertNotificationSinkDocument:            "UpsertNotificationSink",
+	DeleteNotificationSinkDocument:            "DeleteNotificationSink",
+	GetNotificationSinkDocument:               "GetNotificationSink",
+	GetNotificationSinkByNameDocument:         "GetNotificationSinkByName",
 	SavePipelineDocument:                      "SavePipeline",
 	DeletePipelineDocument:                    "DeletePipeline",
 	GetPipelineDocument:                       "GetPipeline",
