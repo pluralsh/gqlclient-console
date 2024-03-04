@@ -22,6 +22,18 @@ query GetNotificationSinkByName($name: String) {
     }
 }
 
+query ListNotificationSinks($after: String, $first: Int, $before: String, $last: Int) {
+    notificationSinks(after: $after, first: $first, before: $before, last: $last) {
+        pageInfo { ...PageInfoFragment }
+        edges { ...NotificationSinkEdgeFragment }
+    }
+}
+
+fragment NotificationSinkEdgeFragment on NotificationSinkEdge {
+    cursor
+    node { ...NotificationSinkFragment }
+}
+
 fragment NotificationSinkFragment on NotificationSink {
     id
     name
