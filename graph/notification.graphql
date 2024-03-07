@@ -58,28 +58,6 @@ fragment NotificationRouterFragment on NotificationRouter {
     name
     sinks { ...NotificationSinkFragment }
     events
-    filters { ...NotificationFilterFragment }
-}
-
-fragment NotificationFilterFragment on NotificationFilter {
-    id
-    regex
-    service {
-        metadata {
-            name
-            namespace
-        }
-    }
-    cluster {
-        id
-        name
-        handle
-        version
-    }
-    pipeline {
-        id
-        name
-    }
 }
 
 fragment NotificationSinkEdgeFragment on NotificationSinkEdge {

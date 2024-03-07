@@ -1956,11 +1956,10 @@ func (t *PullRequestFragment) GetCreator() *string {
 }
 
 type NotificationRouterFragment struct {
-	ID      string                        "json:\"id\" graphql:\"id\""
-	Name    string                        "json:\"name\" graphql:\"name\""
-	Sinks   []*NotificationSinkFragment   "json:\"sinks,omitempty\" graphql:\"sinks\""
-	Events  []string                      "json:\"events,omitempty\" graphql:\"events\""
-	Filters []*NotificationFilterFragment "json:\"filters,omitempty\" graphql:\"filters\""
+	ID     string                      "json:\"id\" graphql:\"id\""
+	Name   string                      "json:\"name\" graphql:\"name\""
+	Sinks  []*NotificationSinkFragment "json:\"sinks,omitempty\" graphql:\"sinks\""
+	Events []string                    "json:\"events,omitempty\" graphql:\"events\""
 }
 
 func (t *NotificationRouterFragment) GetID() string {
@@ -1986,51 +1985,6 @@ func (t *NotificationRouterFragment) GetEvents() []string {
 		t = &NotificationRouterFragment{}
 	}
 	return t.Events
-}
-func (t *NotificationRouterFragment) GetFilters() []*NotificationFilterFragment {
-	if t == nil {
-		t = &NotificationRouterFragment{}
-	}
-	return t.Filters
-}
-
-type NotificationFilterFragment struct {
-	ID       string                               "json:\"id\" graphql:\"id\""
-	Regex    *string                              "json:\"regex,omitempty\" graphql:\"regex\""
-	Service  *NotificationFilterFragment_Service  "json:\"service,omitempty\" graphql:\"service\""
-	Cluster  *NotificationFilterFragment_Cluster  "json:\"cluster,omitempty\" graphql:\"cluster\""
-	Pipeline *NotificationFilterFragment_Pipeline "json:\"pipeline,omitempty\" graphql:\"pipeline\""
-}
-
-func (t *NotificationFilterFragment) GetID() string {
-	if t == nil {
-		t = &NotificationFilterFragment{}
-	}
-	return t.ID
-}
-func (t *NotificationFilterFragment) GetRegex() *string {
-	if t == nil {
-		t = &NotificationFilterFragment{}
-	}
-	return t.Regex
-}
-func (t *NotificationFilterFragment) GetService() *NotificationFilterFragment_Service {
-	if t == nil {
-		t = &NotificationFilterFragment{}
-	}
-	return t.Service
-}
-func (t *NotificationFilterFragment) GetCluster() *NotificationFilterFragment_Cluster {
-	if t == nil {
-		t = &NotificationFilterFragment{}
-	}
-	return t.Cluster
-}
-func (t *NotificationFilterFragment) GetPipeline() *NotificationFilterFragment_Pipeline {
-	if t == nil {
-		t = &NotificationFilterFragment{}
-	}
-	return t.Pipeline
 }
 
 type NotificationSinkEdgeFragment struct {
@@ -3318,164 +3272,6 @@ func (t *ClusterRestoreFragment_Backup_ClusterBackupFragment_Cluster) GetID() st
 		t = &ClusterRestoreFragment_Backup_ClusterBackupFragment_Cluster{}
 	}
 	return t.ID
-}
-
-type NotificationRouterFragment_Filters_NotificationFilterFragment_Service_Metadata struct {
-	Name      string  "json:\"name\" graphql:\"name\""
-	Namespace *string "json:\"namespace,omitempty\" graphql:\"namespace\""
-}
-
-func (t *NotificationRouterFragment_Filters_NotificationFilterFragment_Service_Metadata) GetName() string {
-	if t == nil {
-		t = &NotificationRouterFragment_Filters_NotificationFilterFragment_Service_Metadata{}
-	}
-	return t.Name
-}
-func (t *NotificationRouterFragment_Filters_NotificationFilterFragment_Service_Metadata) GetNamespace() *string {
-	if t == nil {
-		t = &NotificationRouterFragment_Filters_NotificationFilterFragment_Service_Metadata{}
-	}
-	return t.Namespace
-}
-
-type NotificationRouterFragment_Filters_NotificationFilterFragment_Service struct {
-	Metadata NotificationRouterFragment_Filters_NotificationFilterFragment_Service_Metadata "json:\"metadata\" graphql:\"metadata\""
-}
-
-func (t *NotificationRouterFragment_Filters_NotificationFilterFragment_Service) GetMetadata() *NotificationRouterFragment_Filters_NotificationFilterFragment_Service_Metadata {
-	if t == nil {
-		t = &NotificationRouterFragment_Filters_NotificationFilterFragment_Service{}
-	}
-	return &t.Metadata
-}
-
-type NotificationRouterFragment_Filters_NotificationFilterFragment_Cluster struct {
-	ID      string  "json:\"id\" graphql:\"id\""
-	Name    string  "json:\"name\" graphql:\"name\""
-	Handle  *string "json:\"handle,omitempty\" graphql:\"handle\""
-	Version *string "json:\"version,omitempty\" graphql:\"version\""
-}
-
-func (t *NotificationRouterFragment_Filters_NotificationFilterFragment_Cluster) GetID() string {
-	if t == nil {
-		t = &NotificationRouterFragment_Filters_NotificationFilterFragment_Cluster{}
-	}
-	return t.ID
-}
-func (t *NotificationRouterFragment_Filters_NotificationFilterFragment_Cluster) GetName() string {
-	if t == nil {
-		t = &NotificationRouterFragment_Filters_NotificationFilterFragment_Cluster{}
-	}
-	return t.Name
-}
-func (t *NotificationRouterFragment_Filters_NotificationFilterFragment_Cluster) GetHandle() *string {
-	if t == nil {
-		t = &NotificationRouterFragment_Filters_NotificationFilterFragment_Cluster{}
-	}
-	return t.Handle
-}
-func (t *NotificationRouterFragment_Filters_NotificationFilterFragment_Cluster) GetVersion() *string {
-	if t == nil {
-		t = &NotificationRouterFragment_Filters_NotificationFilterFragment_Cluster{}
-	}
-	return t.Version
-}
-
-type NotificationRouterFragment_Filters_NotificationFilterFragment_Pipeline struct {
-	ID   string "json:\"id\" graphql:\"id\""
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *NotificationRouterFragment_Filters_NotificationFilterFragment_Pipeline) GetID() string {
-	if t == nil {
-		t = &NotificationRouterFragment_Filters_NotificationFilterFragment_Pipeline{}
-	}
-	return t.ID
-}
-func (t *NotificationRouterFragment_Filters_NotificationFilterFragment_Pipeline) GetName() string {
-	if t == nil {
-		t = &NotificationRouterFragment_Filters_NotificationFilterFragment_Pipeline{}
-	}
-	return t.Name
-}
-
-type NotificationFilterFragment_Service_Metadata struct {
-	Name      string  "json:\"name\" graphql:\"name\""
-	Namespace *string "json:\"namespace,omitempty\" graphql:\"namespace\""
-}
-
-func (t *NotificationFilterFragment_Service_Metadata) GetName() string {
-	if t == nil {
-		t = &NotificationFilterFragment_Service_Metadata{}
-	}
-	return t.Name
-}
-func (t *NotificationFilterFragment_Service_Metadata) GetNamespace() *string {
-	if t == nil {
-		t = &NotificationFilterFragment_Service_Metadata{}
-	}
-	return t.Namespace
-}
-
-type NotificationFilterFragment_Service struct {
-	Metadata NotificationFilterFragment_Service_Metadata "json:\"metadata\" graphql:\"metadata\""
-}
-
-func (t *NotificationFilterFragment_Service) GetMetadata() *NotificationFilterFragment_Service_Metadata {
-	if t == nil {
-		t = &NotificationFilterFragment_Service{}
-	}
-	return &t.Metadata
-}
-
-type NotificationFilterFragment_Cluster struct {
-	ID      string  "json:\"id\" graphql:\"id\""
-	Name    string  "json:\"name\" graphql:\"name\""
-	Handle  *string "json:\"handle,omitempty\" graphql:\"handle\""
-	Version *string "json:\"version,omitempty\" graphql:\"version\""
-}
-
-func (t *NotificationFilterFragment_Cluster) GetID() string {
-	if t == nil {
-		t = &NotificationFilterFragment_Cluster{}
-	}
-	return t.ID
-}
-func (t *NotificationFilterFragment_Cluster) GetName() string {
-	if t == nil {
-		t = &NotificationFilterFragment_Cluster{}
-	}
-	return t.Name
-}
-func (t *NotificationFilterFragment_Cluster) GetHandle() *string {
-	if t == nil {
-		t = &NotificationFilterFragment_Cluster{}
-	}
-	return t.Handle
-}
-func (t *NotificationFilterFragment_Cluster) GetVersion() *string {
-	if t == nil {
-		t = &NotificationFilterFragment_Cluster{}
-	}
-	return t.Version
-}
-
-type NotificationFilterFragment_Pipeline struct {
-	ID   string "json:\"id\" graphql:\"id\""
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *NotificationFilterFragment_Pipeline) GetID() string {
-	if t == nil {
-		t = &NotificationFilterFragment_Pipeline{}
-	}
-	return t.ID
-}
-func (t *NotificationFilterFragment_Pipeline) GetName() string {
-	if t == nil {
-		t = &NotificationFilterFragment_Pipeline{}
-	}
-	return t.Name
 }
 
 type CreateClusterBackup_CreateClusterBackup_ClusterBackupFragment_Cluster struct {
@@ -7044,322 +6840,6 @@ func (t *ListNotificationSinks_NotificationSinks) GetEdges() []*NotificationSink
 		t = &ListNotificationSinks_NotificationSinks{}
 	}
 	return t.Edges
-}
-
-type GetNotificationRouter_NotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Service_Metadata struct {
-	Name      string  "json:\"name\" graphql:\"name\""
-	Namespace *string "json:\"namespace,omitempty\" graphql:\"namespace\""
-}
-
-func (t *GetNotificationRouter_NotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Service_Metadata) GetName() string {
-	if t == nil {
-		t = &GetNotificationRouter_NotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Service_Metadata{}
-	}
-	return t.Name
-}
-func (t *GetNotificationRouter_NotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Service_Metadata) GetNamespace() *string {
-	if t == nil {
-		t = &GetNotificationRouter_NotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Service_Metadata{}
-	}
-	return t.Namespace
-}
-
-type GetNotificationRouter_NotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Service struct {
-	Metadata GetNotificationRouter_NotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Service_Metadata "json:\"metadata\" graphql:\"metadata\""
-}
-
-func (t *GetNotificationRouter_NotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Service) GetMetadata() *GetNotificationRouter_NotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Service_Metadata {
-	if t == nil {
-		t = &GetNotificationRouter_NotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Service{}
-	}
-	return &t.Metadata
-}
-
-type GetNotificationRouter_NotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Cluster struct {
-	ID      string  "json:\"id\" graphql:\"id\""
-	Name    string  "json:\"name\" graphql:\"name\""
-	Handle  *string "json:\"handle,omitempty\" graphql:\"handle\""
-	Version *string "json:\"version,omitempty\" graphql:\"version\""
-}
-
-func (t *GetNotificationRouter_NotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Cluster) GetID() string {
-	if t == nil {
-		t = &GetNotificationRouter_NotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Cluster{}
-	}
-	return t.ID
-}
-func (t *GetNotificationRouter_NotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Cluster) GetName() string {
-	if t == nil {
-		t = &GetNotificationRouter_NotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Cluster{}
-	}
-	return t.Name
-}
-func (t *GetNotificationRouter_NotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Cluster) GetHandle() *string {
-	if t == nil {
-		t = &GetNotificationRouter_NotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Cluster{}
-	}
-	return t.Handle
-}
-func (t *GetNotificationRouter_NotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Cluster) GetVersion() *string {
-	if t == nil {
-		t = &GetNotificationRouter_NotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Cluster{}
-	}
-	return t.Version
-}
-
-type GetNotificationRouter_NotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Pipeline struct {
-	ID   string "json:\"id\" graphql:\"id\""
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *GetNotificationRouter_NotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Pipeline) GetID() string {
-	if t == nil {
-		t = &GetNotificationRouter_NotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Pipeline{}
-	}
-	return t.ID
-}
-func (t *GetNotificationRouter_NotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Pipeline) GetName() string {
-	if t == nil {
-		t = &GetNotificationRouter_NotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Pipeline{}
-	}
-	return t.Name
-}
-
-type GetNotificationRouterByName_NotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Service_Metadata struct {
-	Name      string  "json:\"name\" graphql:\"name\""
-	Namespace *string "json:\"namespace,omitempty\" graphql:\"namespace\""
-}
-
-func (t *GetNotificationRouterByName_NotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Service_Metadata) GetName() string {
-	if t == nil {
-		t = &GetNotificationRouterByName_NotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Service_Metadata{}
-	}
-	return t.Name
-}
-func (t *GetNotificationRouterByName_NotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Service_Metadata) GetNamespace() *string {
-	if t == nil {
-		t = &GetNotificationRouterByName_NotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Service_Metadata{}
-	}
-	return t.Namespace
-}
-
-type GetNotificationRouterByName_NotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Service struct {
-	Metadata GetNotificationRouterByName_NotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Service_Metadata "json:\"metadata\" graphql:\"metadata\""
-}
-
-func (t *GetNotificationRouterByName_NotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Service) GetMetadata() *GetNotificationRouterByName_NotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Service_Metadata {
-	if t == nil {
-		t = &GetNotificationRouterByName_NotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Service{}
-	}
-	return &t.Metadata
-}
-
-type GetNotificationRouterByName_NotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Cluster struct {
-	ID      string  "json:\"id\" graphql:\"id\""
-	Name    string  "json:\"name\" graphql:\"name\""
-	Handle  *string "json:\"handle,omitempty\" graphql:\"handle\""
-	Version *string "json:\"version,omitempty\" graphql:\"version\""
-}
-
-func (t *GetNotificationRouterByName_NotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Cluster) GetID() string {
-	if t == nil {
-		t = &GetNotificationRouterByName_NotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Cluster{}
-	}
-	return t.ID
-}
-func (t *GetNotificationRouterByName_NotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Cluster) GetName() string {
-	if t == nil {
-		t = &GetNotificationRouterByName_NotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Cluster{}
-	}
-	return t.Name
-}
-func (t *GetNotificationRouterByName_NotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Cluster) GetHandle() *string {
-	if t == nil {
-		t = &GetNotificationRouterByName_NotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Cluster{}
-	}
-	return t.Handle
-}
-func (t *GetNotificationRouterByName_NotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Cluster) GetVersion() *string {
-	if t == nil {
-		t = &GetNotificationRouterByName_NotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Cluster{}
-	}
-	return t.Version
-}
-
-type GetNotificationRouterByName_NotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Pipeline struct {
-	ID   string "json:\"id\" graphql:\"id\""
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *GetNotificationRouterByName_NotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Pipeline) GetID() string {
-	if t == nil {
-		t = &GetNotificationRouterByName_NotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Pipeline{}
-	}
-	return t.ID
-}
-func (t *GetNotificationRouterByName_NotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Pipeline) GetName() string {
-	if t == nil {
-		t = &GetNotificationRouterByName_NotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Pipeline{}
-	}
-	return t.Name
-}
-
-type DeleteNotificationRouter_DeleteNotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Service_Metadata struct {
-	Name      string  "json:\"name\" graphql:\"name\""
-	Namespace *string "json:\"namespace,omitempty\" graphql:\"namespace\""
-}
-
-func (t *DeleteNotificationRouter_DeleteNotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Service_Metadata) GetName() string {
-	if t == nil {
-		t = &DeleteNotificationRouter_DeleteNotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Service_Metadata{}
-	}
-	return t.Name
-}
-func (t *DeleteNotificationRouter_DeleteNotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Service_Metadata) GetNamespace() *string {
-	if t == nil {
-		t = &DeleteNotificationRouter_DeleteNotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Service_Metadata{}
-	}
-	return t.Namespace
-}
-
-type DeleteNotificationRouter_DeleteNotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Service struct {
-	Metadata DeleteNotificationRouter_DeleteNotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Service_Metadata "json:\"metadata\" graphql:\"metadata\""
-}
-
-func (t *DeleteNotificationRouter_DeleteNotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Service) GetMetadata() *DeleteNotificationRouter_DeleteNotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Service_Metadata {
-	if t == nil {
-		t = &DeleteNotificationRouter_DeleteNotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Service{}
-	}
-	return &t.Metadata
-}
-
-type DeleteNotificationRouter_DeleteNotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Cluster struct {
-	ID      string  "json:\"id\" graphql:\"id\""
-	Name    string  "json:\"name\" graphql:\"name\""
-	Handle  *string "json:\"handle,omitempty\" graphql:\"handle\""
-	Version *string "json:\"version,omitempty\" graphql:\"version\""
-}
-
-func (t *DeleteNotificationRouter_DeleteNotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Cluster) GetID() string {
-	if t == nil {
-		t = &DeleteNotificationRouter_DeleteNotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Cluster{}
-	}
-	return t.ID
-}
-func (t *DeleteNotificationRouter_DeleteNotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Cluster) GetName() string {
-	if t == nil {
-		t = &DeleteNotificationRouter_DeleteNotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Cluster{}
-	}
-	return t.Name
-}
-func (t *DeleteNotificationRouter_DeleteNotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Cluster) GetHandle() *string {
-	if t == nil {
-		t = &DeleteNotificationRouter_DeleteNotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Cluster{}
-	}
-	return t.Handle
-}
-func (t *DeleteNotificationRouter_DeleteNotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Cluster) GetVersion() *string {
-	if t == nil {
-		t = &DeleteNotificationRouter_DeleteNotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Cluster{}
-	}
-	return t.Version
-}
-
-type DeleteNotificationRouter_DeleteNotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Pipeline struct {
-	ID   string "json:\"id\" graphql:\"id\""
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *DeleteNotificationRouter_DeleteNotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Pipeline) GetID() string {
-	if t == nil {
-		t = &DeleteNotificationRouter_DeleteNotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Pipeline{}
-	}
-	return t.ID
-}
-func (t *DeleteNotificationRouter_DeleteNotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Pipeline) GetName() string {
-	if t == nil {
-		t = &DeleteNotificationRouter_DeleteNotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Pipeline{}
-	}
-	return t.Name
-}
-
-type UpsertNotificationRouter_UpsertNotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Service_Metadata struct {
-	Name      string  "json:\"name\" graphql:\"name\""
-	Namespace *string "json:\"namespace,omitempty\" graphql:\"namespace\""
-}
-
-func (t *UpsertNotificationRouter_UpsertNotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Service_Metadata) GetName() string {
-	if t == nil {
-		t = &UpsertNotificationRouter_UpsertNotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Service_Metadata{}
-	}
-	return t.Name
-}
-func (t *UpsertNotificationRouter_UpsertNotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Service_Metadata) GetNamespace() *string {
-	if t == nil {
-		t = &UpsertNotificationRouter_UpsertNotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Service_Metadata{}
-	}
-	return t.Namespace
-}
-
-type UpsertNotificationRouter_UpsertNotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Service struct {
-	Metadata UpsertNotificationRouter_UpsertNotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Service_Metadata "json:\"metadata\" graphql:\"metadata\""
-}
-
-func (t *UpsertNotificationRouter_UpsertNotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Service) GetMetadata() *UpsertNotificationRouter_UpsertNotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Service_Metadata {
-	if t == nil {
-		t = &UpsertNotificationRouter_UpsertNotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Service{}
-	}
-	return &t.Metadata
-}
-
-type UpsertNotificationRouter_UpsertNotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Cluster struct {
-	ID      string  "json:\"id\" graphql:\"id\""
-	Name    string  "json:\"name\" graphql:\"name\""
-	Handle  *string "json:\"handle,omitempty\" graphql:\"handle\""
-	Version *string "json:\"version,omitempty\" graphql:\"version\""
-}
-
-func (t *UpsertNotificationRouter_UpsertNotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Cluster) GetID() string {
-	if t == nil {
-		t = &UpsertNotificationRouter_UpsertNotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Cluster{}
-	}
-	return t.ID
-}
-func (t *UpsertNotificationRouter_UpsertNotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Cluster) GetName() string {
-	if t == nil {
-		t = &UpsertNotificationRouter_UpsertNotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Cluster{}
-	}
-	return t.Name
-}
-func (t *UpsertNotificationRouter_UpsertNotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Cluster) GetHandle() *string {
-	if t == nil {
-		t = &UpsertNotificationRouter_UpsertNotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Cluster{}
-	}
-	return t.Handle
-}
-func (t *UpsertNotificationRouter_UpsertNotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Cluster) GetVersion() *string {
-	if t == nil {
-		t = &UpsertNotificationRouter_UpsertNotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Cluster{}
-	}
-	return t.Version
-}
-
-type UpsertNotificationRouter_UpsertNotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Pipeline struct {
-	ID   string "json:\"id\" graphql:\"id\""
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *UpsertNotificationRouter_UpsertNotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Pipeline) GetID() string {
-	if t == nil {
-		t = &UpsertNotificationRouter_UpsertNotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Pipeline{}
-	}
-	return t.ID
-}
-func (t *UpsertNotificationRouter_UpsertNotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Pipeline) GetName() string {
-	if t == nil {
-		t = &UpsertNotificationRouter_UpsertNotificationRouter_NotificationRouterFragment_Filters_NotificationFilterFragment_Pipeline{}
-	}
-	return t.Name
 }
 
 type SavePipeline_SavePipeline_PipelineFragment_Stages_PipelineStageFragment_Services_Criteria struct {
@@ -15525,9 +15005,6 @@ fragment NotificationRouterFragment on NotificationRouter {
 		... NotificationSinkFragment
 	}
 	events
-	filters {
-		... NotificationFilterFragment
-	}
 }
 fragment NotificationSinkFragment on NotificationSink {
 	id
@@ -15548,26 +15025,6 @@ fragment SinkConfigurationFragment on SinkConfiguration {
 }
 fragment UrlSinkConfigurationFragment on UrlSinkConfiguration {
 	url
-}
-fragment NotificationFilterFragment on NotificationFilter {
-	id
-	regex
-	service {
-		metadata {
-			name
-			namespace
-		}
-	}
-	cluster {
-		id
-		name
-		handle
-		version
-	}
-	pipeline {
-		id
-		name
-	}
 }
 `
 
@@ -15600,9 +15057,6 @@ fragment NotificationRouterFragment on NotificationRouter {
 		... NotificationSinkFragment
 	}
 	events
-	filters {
-		... NotificationFilterFragment
-	}
 }
 fragment NotificationSinkFragment on NotificationSink {
 	id
@@ -15623,26 +15077,6 @@ fragment SinkConfigurationFragment on SinkConfiguration {
 }
 fragment UrlSinkConfigurationFragment on UrlSinkConfiguration {
 	url
-}
-fragment NotificationFilterFragment on NotificationFilter {
-	id
-	regex
-	service {
-		metadata {
-			name
-			namespace
-		}
-	}
-	cluster {
-		id
-		name
-		handle
-		version
-	}
-	pipeline {
-		id
-		name
-	}
 }
 `
 
@@ -15675,9 +15109,6 @@ fragment NotificationRouterFragment on NotificationRouter {
 		... NotificationSinkFragment
 	}
 	events
-	filters {
-		... NotificationFilterFragment
-	}
 }
 fragment NotificationSinkFragment on NotificationSink {
 	id
@@ -15698,26 +15129,6 @@ fragment SinkConfigurationFragment on SinkConfiguration {
 }
 fragment UrlSinkConfigurationFragment on UrlSinkConfiguration {
 	url
-}
-fragment NotificationFilterFragment on NotificationFilter {
-	id
-	regex
-	service {
-		metadata {
-			name
-			namespace
-		}
-	}
-	cluster {
-		id
-		name
-		handle
-		version
-	}
-	pipeline {
-		id
-		name
-	}
 }
 `
 
@@ -15750,9 +15161,6 @@ fragment NotificationRouterFragment on NotificationRouter {
 		... NotificationSinkFragment
 	}
 	events
-	filters {
-		... NotificationFilterFragment
-	}
 }
 fragment NotificationSinkFragment on NotificationSink {
 	id
@@ -15773,26 +15181,6 @@ fragment SinkConfigurationFragment on SinkConfiguration {
 }
 fragment UrlSinkConfigurationFragment on UrlSinkConfiguration {
 	url
-}
-fragment NotificationFilterFragment on NotificationFilter {
-	id
-	regex
-	service {
-		metadata {
-			name
-			namespace
-		}
-	}
-	cluster {
-		id
-		name
-		handle
-		version
-	}
-	pipeline {
-		id
-		name
-	}
 }
 `
 
