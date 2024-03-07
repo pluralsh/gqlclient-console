@@ -1873,6 +1873,16 @@ type NotificationRouterAttributes struct {
 	RouterSinks []*RouterSinkAttributes `json:"routerSinks,omitempty"`
 }
 
+type NotificationRouterConnection struct {
+	PageInfo PageInfo                  `json:"pageInfo"`
+	Edges    []*NotificationRouterEdge `json:"edges,omitempty"`
+}
+
+type NotificationRouterEdge struct {
+	Node   *NotificationRouter `json:"node,omitempty"`
+	Cursor *string             `json:"cursor,omitempty"`
+}
+
 type NotificationSink struct {
 	ID string `json:"id"`
 	// the name of the sink
