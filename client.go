@@ -94,6 +94,9 @@ type ConsoleClient interface {
 	GetNotificationRouterByName(ctx context.Context, name *string, interceptors ...clientv2.RequestInterceptor) (*GetNotificationRouterByName, error)
 	DeleteNotificationRouter(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DeleteNotificationRouter, error)
 	UpsertNotificationRouter(ctx context.Context, attributes NotificationRouterAttributes, interceptors ...clientv2.RequestInterceptor) (*UpsertNotificationRouter, error)
+	UpsertPolicyConstraints(ctx context.Context, constraints []*PolicyConstraintAttributes, interceptors ...clientv2.RequestInterceptor) (*UpsertPolicyConstraints, error)
+	ListPolicyConstraints(ctx context.Context, after *string, first *int64, before *string, last *int64, namespace *string, kind *string, q *string, interceptors ...clientv2.RequestInterceptor) (*ListPolicyConstraints, error)
+	ListViolationStatistics(ctx context.Context, field ConstraintViolationField, interceptors ...clientv2.RequestInterceptor) (*ListViolationStatistics, error)
 	SavePipeline(ctx context.Context, name string, attributes PipelineAttributes, interceptors ...clientv2.RequestInterceptor) (*SavePipeline, error)
 	DeletePipeline(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DeletePipeline, error)
 	GetPipeline(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*GetPipeline, error)
@@ -2071,6 +2074,191 @@ func (t *URLSinkConfigurationFragment) GetURL() string {
 		t = &URLSinkConfigurationFragment{}
 	}
 	return t.URL
+}
+
+type PolicyConstraintConnectionFragment struct {
+	PageInfo *PageInfoFragment               "json:\"pageInfo\" graphql:\"pageInfo\""
+	Edges    []*PolicyConstraintEdgeFragment "json:\"edges,omitempty\" graphql:\"edges\""
+}
+
+func (t *PolicyConstraintConnectionFragment) GetPageInfo() *PageInfoFragment {
+	if t == nil {
+		t = &PolicyConstraintConnectionFragment{}
+	}
+	return t.PageInfo
+}
+func (t *PolicyConstraintConnectionFragment) GetEdges() []*PolicyConstraintEdgeFragment {
+	if t == nil {
+		t = &PolicyConstraintConnectionFragment{}
+	}
+	return t.Edges
+}
+
+type PolicyConstraintEdgeFragment struct {
+	Cursor *string                   "json:\"cursor,omitempty\" graphql:\"cursor\""
+	Node   *PolicyConstraintFragment "json:\"node,omitempty\" graphql:\"node\""
+}
+
+func (t *PolicyConstraintEdgeFragment) GetCursor() *string {
+	if t == nil {
+		t = &PolicyConstraintEdgeFragment{}
+	}
+	return t.Cursor
+}
+func (t *PolicyConstraintEdgeFragment) GetNode() *PolicyConstraintFragment {
+	if t == nil {
+		t = &PolicyConstraintEdgeFragment{}
+	}
+	return t.Node
+}
+
+type PolicyConstraintFragment struct {
+	ID             string                 "json:\"id\" graphql:\"id\""
+	Name           string                 "json:\"name\" graphql:\"name\""
+	Description    *string                "json:\"description,omitempty\" graphql:\"description\""
+	Recommendation *string                "json:\"recommendation,omitempty\" graphql:\"recommendation\""
+	ViolationCount *int64                 "json:\"violationCount,omitempty\" graphql:\"violationCount\""
+	Ref            *ConstraintRefFragment "json:\"ref,omitempty\" graphql:\"ref\""
+	Violations     []*ViolationFragment   "json:\"violations,omitempty\" graphql:\"violations\""
+}
+
+func (t *PolicyConstraintFragment) GetID() string {
+	if t == nil {
+		t = &PolicyConstraintFragment{}
+	}
+	return t.ID
+}
+func (t *PolicyConstraintFragment) GetName() string {
+	if t == nil {
+		t = &PolicyConstraintFragment{}
+	}
+	return t.Name
+}
+func (t *PolicyConstraintFragment) GetDescription() *string {
+	if t == nil {
+		t = &PolicyConstraintFragment{}
+	}
+	return t.Description
+}
+func (t *PolicyConstraintFragment) GetRecommendation() *string {
+	if t == nil {
+		t = &PolicyConstraintFragment{}
+	}
+	return t.Recommendation
+}
+func (t *PolicyConstraintFragment) GetViolationCount() *int64 {
+	if t == nil {
+		t = &PolicyConstraintFragment{}
+	}
+	return t.ViolationCount
+}
+func (t *PolicyConstraintFragment) GetRef() *ConstraintRefFragment {
+	if t == nil {
+		t = &PolicyConstraintFragment{}
+	}
+	return t.Ref
+}
+func (t *PolicyConstraintFragment) GetViolations() []*ViolationFragment {
+	if t == nil {
+		t = &PolicyConstraintFragment{}
+	}
+	return t.Violations
+}
+
+type ConstraintRefFragment struct {
+	Kind string "json:\"kind\" graphql:\"kind\""
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ConstraintRefFragment) GetKind() string {
+	if t == nil {
+		t = &ConstraintRefFragment{}
+	}
+	return t.Kind
+}
+func (t *ConstraintRefFragment) GetName() string {
+	if t == nil {
+		t = &ConstraintRefFragment{}
+	}
+	return t.Name
+}
+
+type ViolationFragment struct {
+	ID        string  "json:\"id\" graphql:\"id\""
+	Group     *string "json:\"group,omitempty\" graphql:\"group\""
+	Version   *string "json:\"version,omitempty\" graphql:\"version\""
+	Kind      *string "json:\"kind,omitempty\" graphql:\"kind\""
+	Namespace *string "json:\"namespace,omitempty\" graphql:\"namespace\""
+	Name      *string "json:\"name,omitempty\" graphql:\"name\""
+	Message   *string "json:\"message,omitempty\" graphql:\"message\""
+}
+
+func (t *ViolationFragment) GetID() string {
+	if t == nil {
+		t = &ViolationFragment{}
+	}
+	return t.ID
+}
+func (t *ViolationFragment) GetGroup() *string {
+	if t == nil {
+		t = &ViolationFragment{}
+	}
+	return t.Group
+}
+func (t *ViolationFragment) GetVersion() *string {
+	if t == nil {
+		t = &ViolationFragment{}
+	}
+	return t.Version
+}
+func (t *ViolationFragment) GetKind() *string {
+	if t == nil {
+		t = &ViolationFragment{}
+	}
+	return t.Kind
+}
+func (t *ViolationFragment) GetNamespace() *string {
+	if t == nil {
+		t = &ViolationFragment{}
+	}
+	return t.Namespace
+}
+func (t *ViolationFragment) GetName() *string {
+	if t == nil {
+		t = &ViolationFragment{}
+	}
+	return t.Name
+}
+func (t *ViolationFragment) GetMessage() *string {
+	if t == nil {
+		t = &ViolationFragment{}
+	}
+	return t.Message
+}
+
+type ViolationStatisticFragment struct {
+	Value      string "json:\"value\" graphql:\"value\""
+	Violations *int64 "json:\"violations,omitempty\" graphql:\"violations\""
+	Count      *int64 "json:\"count,omitempty\" graphql:\"count\""
+}
+
+func (t *ViolationStatisticFragment) GetValue() string {
+	if t == nil {
+		t = &ViolationStatisticFragment{}
+	}
+	return t.Value
+}
+func (t *ViolationStatisticFragment) GetViolations() *int64 {
+	if t == nil {
+		t = &ViolationStatisticFragment{}
+	}
+	return t.Violations
+}
+func (t *ViolationStatisticFragment) GetCount() *int64 {
+	if t == nil {
+		t = &ViolationStatisticFragment{}
+	}
+	return t.Count
 }
 
 type PipelineGateEdgeFragment_Node_PipelineGateFragment_Spec_GateSpecFragment_Job_JobSpecFragment_Containers_ContainerSpecFragment_Env struct {
@@ -8422,6 +8610,39 @@ func (t *UpsertNotificationRouter) GetUpsertNotificationRouter() *NotificationRo
 		t = &UpsertNotificationRouter{}
 	}
 	return t.UpsertNotificationRouter
+}
+
+type UpsertPolicyConstraints struct {
+	UpsertPolicyConstraints *int64 "json:\"upsertPolicyConstraints,omitempty\" graphql:\"upsertPolicyConstraints\""
+}
+
+func (t *UpsertPolicyConstraints) GetUpsertPolicyConstraints() *int64 {
+	if t == nil {
+		t = &UpsertPolicyConstraints{}
+	}
+	return t.UpsertPolicyConstraints
+}
+
+type ListPolicyConstraints struct {
+	PolicyConstraints *PolicyConstraintConnectionFragment "json:\"policyConstraints,omitempty\" graphql:\"policyConstraints\""
+}
+
+func (t *ListPolicyConstraints) GetPolicyConstraints() *PolicyConstraintConnectionFragment {
+	if t == nil {
+		t = &ListPolicyConstraints{}
+	}
+	return t.PolicyConstraints
+}
+
+type ListViolationStatistics struct {
+	ViolationStatistics []*ViolationStatisticFragment "json:\"violationStatistics,omitempty\" graphql:\"violationStatistics\""
+}
+
+func (t *ListViolationStatistics) GetViolationStatistics() []*ViolationStatisticFragment {
+	if t == nil {
+		t = &ListViolationStatistics{}
+	}
+	return t.ViolationStatistics
 }
 
 type SavePipeline struct {
@@ -15201,6 +15422,131 @@ func (c *Client) UpsertNotificationRouter(ctx context.Context, attributes Notifi
 	return &res, nil
 }
 
+const UpsertPolicyConstraintsDocument = `mutation UpsertPolicyConstraints ($constraints: [PolicyConstraintAttributes!]) {
+	upsertPolicyConstraints(constraints: $constraints)
+}
+`
+
+func (c *Client) UpsertPolicyConstraints(ctx context.Context, constraints []*PolicyConstraintAttributes, interceptors ...clientv2.RequestInterceptor) (*UpsertPolicyConstraints, error) {
+	vars := map[string]interface{}{
+		"constraints": constraints,
+	}
+
+	var res UpsertPolicyConstraints
+	if err := c.Client.Post(ctx, "UpsertPolicyConstraints", UpsertPolicyConstraintsDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const ListPolicyConstraintsDocument = `query ListPolicyConstraints ($after: String, $first: Int, $before: String, $last: Int, $namespace: String, $kind: String, $q: String) {
+	policyConstraints(after: $after, first: $first, before: $before, last: $last, namespace: $namespace, kind: $kind, q: $q) {
+		... PolicyConstraintConnectionFragment
+	}
+}
+fragment PolicyConstraintConnectionFragment on PolicyConstraintConnection {
+	pageInfo {
+		... PageInfoFragment
+	}
+	edges {
+		... PolicyConstraintEdgeFragment
+	}
+}
+fragment PageInfoFragment on PageInfo {
+	hasNextPage
+	endCursor
+}
+fragment PolicyConstraintEdgeFragment on PolicyConstraintEdge {
+	cursor
+	node {
+		... PolicyConstraintFragment
+	}
+}
+fragment PolicyConstraintFragment on PolicyConstraint {
+	id
+	name
+	description
+	recommendation
+	violationCount
+	ref {
+		... ConstraintRefFragment
+	}
+	violations {
+		... ViolationFragment
+	}
+}
+fragment ConstraintRefFragment on ConstraintRef {
+	kind
+	name
+}
+fragment ViolationFragment on Violation {
+	id
+	group
+	version
+	kind
+	namespace
+	name
+	message
+}
+`
+
+func (c *Client) ListPolicyConstraints(ctx context.Context, after *string, first *int64, before *string, last *int64, namespace *string, kind *string, q *string, interceptors ...clientv2.RequestInterceptor) (*ListPolicyConstraints, error) {
+	vars := map[string]interface{}{
+		"after":     after,
+		"first":     first,
+		"before":    before,
+		"last":      last,
+		"namespace": namespace,
+		"kind":      kind,
+		"q":         q,
+	}
+
+	var res ListPolicyConstraints
+	if err := c.Client.Post(ctx, "ListPolicyConstraints", ListPolicyConstraintsDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const ListViolationStatisticsDocument = `query ListViolationStatistics ($field: ConstraintViolationField!) {
+	violationStatistics(field: $field) {
+		... ViolationStatisticFragment
+	}
+}
+fragment ViolationStatisticFragment on ViolationStatistic {
+	value
+	violations
+	count
+}
+`
+
+func (c *Client) ListViolationStatistics(ctx context.Context, field ConstraintViolationField, interceptors ...clientv2.RequestInterceptor) (*ListViolationStatistics, error) {
+	vars := map[string]interface{}{
+		"field": field,
+	}
+
+	var res ListViolationStatistics
+	if err := c.Client.Post(ctx, "ListViolationStatistics", ListViolationStatisticsDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
 const SavePipelineDocument = `mutation SavePipeline ($name: String!, $attributes: PipelineAttributes!) {
 	savePipeline(name: $name, attributes: $attributes) {
 		... PipelineFragment
@@ -16217,6 +16563,9 @@ var DocumentOperationNames = map[string]string{
 	GetNotificationRouterByNameDocument:       "GetNotificationRouterByName",
 	DeleteNotificationRouterDocument:          "DeleteNotificationRouter",
 	UpsertNotificationRouterDocument:          "UpsertNotificationRouter",
+	UpsertPolicyConstraintsDocument:           "UpsertPolicyConstraints",
+	ListPolicyConstraintsDocument:             "ListPolicyConstraints",
+	ListViolationStatisticsDocument:           "ListViolationStatistics",
 	SavePipelineDocument:                      "SavePipeline",
 	DeletePipelineDocument:                    "DeletePipeline",
 	GetPipelineDocument:                       "GetPipeline",

@@ -508,8 +508,14 @@ type Cluster struct {
 	NodeMetrics []*NodeMetric `json:"nodeMetrics,omitempty"`
 	// the status of the cluster as seen from the CAPI operator, since some clusters can be provisioned without CAPI, this can be null
 	Status *ClusterStatus `json:"status,omitempty"`
-	// a relay connection of all revisions of this service, these are periodically pruned up to a history limit
-	Revisions *RevisionConnection `json:"revisions,omitempty"`
+	// a relay connection of all revisions of this cluster, these are periodically pruned up to a history limit
+	Revisions *ClusterRevisionConnection `json:"revisions,omitempty"`
+	// lists OPA constraints registered in this cluster
+	PolicyConstraints *PolicyConstraintConnection `json:"policyConstraints,omitempty"`
+	// Computes a list of statistics for OPA constraint violations w/in this cluster
+	ViolationStatistics []*ViolationStatistic `json:"violationStatistics,omitempty"`
+	// Queries logs for a cluster out of loki
+	Logs []*LogStream `json:"logs,omitempty"`
 	// fetches a list of runtime services found in this cluster, this is an expensive operation that should not be done in list queries
 	RuntimeServices []*RuntimeService `json:"runtimeServices,omitempty"`
 	// whether the current user can edit this cluster
@@ -673,6 +679,25 @@ type ClusterRestoreConnection struct {
 type ClusterRestoreEdge struct {
 	Node   *ClusterRestore `json:"node,omitempty"`
 	Cursor *string         `json:"cursor,omitempty"`
+}
+
+// a historical revision of a cluster, including version, cloud and node group configuration
+type ClusterRevision struct {
+	ID         string      `json:"id"`
+	Version    *string     `json:"version,omitempty"`
+	NodePools  []*NodePool `json:"nodePools,omitempty"`
+	InsertedAt *string     `json:"insertedAt,omitempty"`
+	UpdatedAt  *string     `json:"updatedAt,omitempty"`
+}
+
+type ClusterRevisionConnection struct {
+	PageInfo PageInfo               `json:"pageInfo"`
+	Edges    []*ClusterRevisionEdge `json:"edges,omitempty"`
+}
+
+type ClusterRevisionEdge struct {
+	Node   *ClusterRevision `json:"node,omitempty"`
+	Cursor *string          `json:"cursor,omitempty"`
 }
 
 type ClusterServiceAttributes struct {
@@ -862,6 +887,16 @@ type ConsoleConfiguration struct {
 	Features      *AvailableFeatures `json:"features,omitempty"`
 	Manifest      *PluralManifest    `json:"manifest,omitempty"`
 	GitStatus     *GitStatus         `json:"gitStatus,omitempty"`
+}
+
+type ConstraintRef struct {
+	Kind string `json:"kind"`
+	Name string `json:"name"`
+}
+
+type ConstraintRefAttributes struct {
+	Kind string `json:"kind"`
+	Name string `json:"name"`
 }
 
 type Container struct {
@@ -1307,9 +1342,10 @@ type GlobalService struct {
 	// the service to replicate across clusters
 	Service *ServiceDeployment `json:"service,omitempty"`
 	// whether to only apply to clusters with this provider
-	Provider   *ClusterProvider `json:"provider,omitempty"`
-	InsertedAt *string          `json:"insertedAt,omitempty"`
-	UpdatedAt  *string          `json:"updatedAt,omitempty"`
+	Provider   *ClusterProvider             `json:"provider,omitempty"`
+	Services   *ServiceDeploymentConnection `json:"services,omitempty"`
+	InsertedAt *string                      `json:"insertedAt,omitempty"`
+	UpdatedAt  *string                      `json:"updatedAt,omitempty"`
 }
 
 // A reference for a globalized service, which targets clusters based on the configured criteria
@@ -1322,6 +1358,16 @@ type GlobalServiceAttributes struct {
 	Distro *ClusterDistro `json:"distro,omitempty"`
 	// cluster api provider to target
 	ProviderID *string `json:"providerId,omitempty"`
+}
+
+type GlobalServiceConnection struct {
+	PageInfo PageInfo             `json:"pageInfo"`
+	Edges    []*GlobalServiceEdge `json:"edges,omitempty"`
+}
+
+type GlobalServiceEdge struct {
+	Node   *GlobalService `json:"node,omitempty"`
+	Cursor *string        `json:"cursor,omitempty"`
 }
 
 type Group struct {
@@ -1670,6 +1716,25 @@ type LoginInfo struct {
 	External *bool   `json:"external,omitempty"`
 }
 
+type LokiLabelFilter struct {
+	Name  string `json:"name"`
+	Value string `json:"value"`
+	// whether to apply a regex match for this label
+	Regex *bool `json:"regex,omitempty"`
+}
+
+type LokiLineFilter struct {
+	// the string to filter for (eg what is put in our search ui)
+	Text *string `json:"text,omitempty"`
+	// whether to treat this string as a regex match
+	Regex *bool `json:"regex,omitempty"`
+}
+
+type LokiQuery struct {
+	Labels []*LokiLabelFilter `json:"labels,omitempty"`
+	Filter *LokiLineFilter    `json:"filter,omitempty"`
+}
+
 type ManifestNetwork struct {
 	PluralDNS *bool   `json:"pluralDns,omitempty"`
 	Subdomain *string `json:"subdomain,omitempty"`
@@ -1841,11 +1906,11 @@ type NotificationEdge struct {
 }
 
 type NotificationFilter struct {
-	ID       string    `json:"id"`
-	Regex    *string   `json:"regex,omitempty"`
-	Service  *Service  `json:"service,omitempty"`
-	Cluster  *Cluster  `json:"cluster,omitempty"`
-	Pipeline *Pipeline `json:"pipeline,omitempty"`
+	ID       string             `json:"id"`
+	Regex    *string            `json:"regex,omitempty"`
+	Service  *ServiceDeployment `json:"service,omitempty"`
+	Cluster  *Cluster           `json:"cluster,omitempty"`
+	Pipeline *Pipeline          `json:"pipeline,omitempty"`
 }
 
 type NotificationRouter struct {
@@ -2350,6 +2415,43 @@ type PolicyBindingAttributes struct {
 	ID      *string `json:"id,omitempty"`
 	UserID  *string `json:"userId,omitempty"`
 	GroupID *string `json:"groupId,omitempty"`
+}
+
+// A OPA Gatekeeper Constraint reference
+type PolicyConstraint struct {
+	ID             string  `json:"id"`
+	Name           string  `json:"name"`
+	Description    *string `json:"description,omitempty"`
+	Recommendation *string `json:"recommendation,omitempty"`
+	ViolationCount *int64  `json:"violationCount,omitempty"`
+	// Fetches the live constraint object from K8s, this is an expensive query and should not be done in list endpoints
+	Object *KubernetesUnstructured `json:"object,omitempty"`
+	// pointer to the kubernetes resource itself
+	Ref        *ConstraintRef `json:"ref,omitempty"`
+	Violations []*Violation   `json:"violations,omitempty"`
+	InsertedAt *string        `json:"insertedAt,omitempty"`
+	UpdatedAt  *string        `json:"updatedAt,omitempty"`
+}
+
+// inputs to add constraint data from an OPA gatekeeper constraint CRD
+type PolicyConstraintAttributes struct {
+	Name           string  `json:"name"`
+	Description    *string `json:"description,omitempty"`
+	Recommendation *string `json:"recommendation,omitempty"`
+	ViolationCount *int64  `json:"violationCount,omitempty"`
+	// pointer to the group/name for the CR
+	Ref        *ConstraintRefAttributes `json:"ref,omitempty"`
+	Violations []*ViolationAttributes   `json:"violations,omitempty"`
+}
+
+type PolicyConstraintConnection struct {
+	PageInfo PageInfo                `json:"pageInfo"`
+	Edges    []*PolicyConstraintEdge `json:"edges,omitempty"`
+}
+
+type PolicyConstraintEdge struct {
+	Node   *PolicyConstraint `json:"node,omitempty"`
+	Cursor *string           `json:"cursor,omitempty"`
 }
 
 type Port struct {
@@ -3218,6 +3320,8 @@ type ServiceDeployment struct {
 	// the git repo of this service
 	Repository     *GitRepository  `json:"repository,omitempty"`
 	HelmRepository *HelmRepository `json:"helmRepository,omitempty"`
+	// Queries logs for a service out of loki
+	Logs []*LogStream `json:"logs,omitempty"`
 	// read policy for this service
 	ReadBindings []*PolicyBinding `json:"readBindings,omitempty"`
 	// write policy of this service
@@ -3550,6 +3654,7 @@ type User struct {
 	Roles               *UserRoles       `json:"roles,omitempty"`
 	ReadTimestamp       *string          `json:"readTimestamp,omitempty"`
 	BuildTimestamp      *string          `json:"buildTimestamp,omitempty"`
+	RefreshToken        *RefreshToken    `json:"refreshToken,omitempty"`
 	AssumeBindings      []*PolicyBinding `json:"assumeBindings,omitempty"`
 	Groups              []*Group         `json:"groups,omitempty"`
 	Personas            []*Persona       `json:"personas,omitempty"`
@@ -3610,6 +3715,38 @@ type VerticalPodAutoscalerStatus struct {
 
 type VerticalPodAutoscalerUpdatePolicy struct {
 	UpdateMode *string `json:"updateMode,omitempty"`
+}
+
+// A violation of a given OPA Gatekeeper constraint
+type Violation struct {
+	ID         string  `json:"id"`
+	Group      *string `json:"group,omitempty"`
+	Version    *string `json:"version,omitempty"`
+	Kind       *string `json:"kind,omitempty"`
+	Namespace  *string `json:"namespace,omitempty"`
+	Name       *string `json:"name,omitempty"`
+	Message    *string `json:"message,omitempty"`
+	InsertedAt *string `json:"insertedAt,omitempty"`
+	UpdatedAt  *string `json:"updatedAt,omitempty"`
+}
+
+type ViolationAttributes struct {
+	Group     *string `json:"group,omitempty"`
+	Version   *string `json:"version,omitempty"`
+	Kind      *string `json:"kind,omitempty"`
+	Namespace *string `json:"namespace,omitempty"`
+	Name      *string `json:"name,omitempty"`
+	Message   *string `json:"message,omitempty"`
+}
+
+// A summary of statistics for violations w/in a specific column
+type ViolationStatistic struct {
+	// the value of this field being aggregated
+	Value string `json:"value"`
+	// the total number of violations found
+	Violations *int64 `json:"violations,omitempty"`
+	// the total number of policy constraints
+	Count *int64 `json:"count,omitempty"`
 }
 
 type WaitingState struct {
@@ -4100,6 +4237,47 @@ func (e *Conjunction) UnmarshalGQL(v interface{}) error {
 }
 
 func (e Conjunction) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type ConstraintViolationField string
+
+const (
+	ConstraintViolationFieldNamespace ConstraintViolationField = "NAMESPACE"
+	ConstraintViolationFieldKind      ConstraintViolationField = "KIND"
+)
+
+var AllConstraintViolationField = []ConstraintViolationField{
+	ConstraintViolationFieldNamespace,
+	ConstraintViolationFieldKind,
+}
+
+func (e ConstraintViolationField) IsValid() bool {
+	switch e {
+	case ConstraintViolationFieldNamespace, ConstraintViolationFieldKind:
+		return true
+	}
+	return false
+}
+
+func (e ConstraintViolationField) String() string {
+	return string(e)
+}
+
+func (e *ConstraintViolationField) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ConstraintViolationField(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ConstraintViolationField", str)
+	}
+	return nil
+}
+
+func (e ConstraintViolationField) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
