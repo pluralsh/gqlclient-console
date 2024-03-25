@@ -721,6 +721,22 @@ type ClusterStatusInfo struct {
 	Count   *int64 `json:"count,omitempty"`
 }
 
+// A spec for targeting clusters
+type ClusterTarget struct {
+	// the cluster tags to target
+	Tags *string `json:"tags,omitempty"`
+	// kubernetes distribution to target
+	Distro *ClusterDistro `json:"distro,omitempty"`
+}
+
+// A spec for targeting clusters
+type ClusterTargetAttributes struct {
+	// the cluster tags to target
+	Tags *string `json:"tags,omitempty"`
+	// kubernetes distribution to target
+	Distro *ClusterDistro `json:"distro,omitempty"`
+}
+
 type ClusterUpdateAttributes struct {
 	Version *string `json:"version,omitempty"`
 	// a short, unique human readable name used to identify this cluster and does not necessarily map to the cloud resource name
@@ -884,6 +900,7 @@ type ConsoleConfiguration struct {
 	PluralLogin   *bool              `json:"pluralLogin,omitempty"`
 	VpnEnabled    *bool              `json:"vpnEnabled,omitempty"`
 	Byok          *bool              `json:"byok,omitempty"`
+	ExternalOidc  *bool              `json:"externalOidc,omitempty"`
 	Features      *AvailableFeatures `json:"features,omitempty"`
 	Manifest      *PluralManifest    `json:"manifest,omitempty"`
 	GitStatus     *GitStatus         `json:"gitStatus,omitempty"`
@@ -1735,6 +1752,55 @@ type LokiQuery struct {
 	Filter *LokiLineFilter    `json:"filter,omitempty"`
 }
 
+// A representation of a managed namespace, which is k8s namespace configuration + a service spec to define a namespace runtime
+type ManagedNamespace struct {
+	ID string `json:"id"`
+	// the name of this namespace once its placed on a cluster
+	Name string `json:"name"`
+	// A short description of the purpose of this namespace
+	Description *string `json:"description,omitempty"`
+	// labels for this namespace
+	Labels map[string]interface{} `json:"labels,omitempty"`
+	// annotations for this namespace
+	Annotations map[string]interface{} `json:"annotations,omitempty"`
+	// a list of pull secrets to attach to this namespace
+	PullSecrets []*string `json:"pullSecrets,omitempty"`
+	// A template for creating the core service for this namespace
+	Service *ServiceTemplate `json:"service,omitempty"`
+	// The targeting criteria to select clusters this namespace is bound to
+	Target *ClusterTarget `json:"target,omitempty"`
+	// the timestamp this namespace was deleted at, indicating it's currently draining
+	DeletedAt  *string `json:"deletedAt,omitempty"`
+	InsertedAt *string `json:"insertedAt,omitempty"`
+	UpdatedAt  *string `json:"updatedAt,omitempty"`
+}
+
+// Attributes for configuring a managed namespace
+type ManagedNamespaceAttributes struct {
+	// the name of this namespace once its placed on a cluster
+	Name string `json:"name"`
+	// A short description of the purpose of this namespace
+	Description *string `json:"description,omitempty"`
+	// labels for this namespace
+	Labels *string `json:"labels,omitempty"`
+	// annotations for this namespace
+	Annotations *string `json:"annotations,omitempty"`
+	// a list of pull secrets to attach to this namespace
+	PullSecrets []*string                  `json:"pullSecrets,omitempty"`
+	Service     *ServiceTemplateAttributes `json:"service,omitempty"`
+	Target      *ClusterTargetAttributes   `json:"target,omitempty"`
+}
+
+type ManagedNamespaceConnection struct {
+	PageInfo PageInfo                `json:"pageInfo"`
+	Edges    []*ManagedNamespaceEdge `json:"edges,omitempty"`
+}
+
+type ManagedNamespaceEdge struct {
+	Node   *ManagedNamespace `json:"node,omitempty"`
+	Cursor *string           `json:"cursor,omitempty"`
+}
+
 type ManifestNetwork struct {
 	PluralDNS *bool   `json:"pluralDns,omitempty"`
 	Subdomain *string `json:"subdomain,omitempty"`
@@ -2296,10 +2362,12 @@ type PipelineStageEdge struct {
 
 // a report of gate statuses within a pipeline to gauge its health
 type PipelineStatus struct {
-	// if > 0, consider the pipeline running
+	// if > 0, consider the pipeline pending
 	Pending *int64 `json:"pending,omitempty"`
 	// if > 0, consider the pipeline stopped
 	Closed *int64 `json:"closed,omitempty"`
+	// if > 0, consider the pipeline runnning
+	Running *int64 `json:"running,omitempty"`
 }
 
 type Plan struct {
@@ -3416,6 +3484,36 @@ type ServiceStatusCount struct {
 	Count  int64                   `json:"count"`
 }
 
+// Attributes for configuring a service in something like a managed namespace
+type ServiceTemplate struct {
+	Templated *bool `json:"templated,omitempty"`
+	// the id of a repository to source manifests for this service
+	RepositoryID *string `json:"repositoryId,omitempty"`
+	// a list of context ids to add to this service
+	Contexts []*string `json:"contexts,omitempty"`
+	// settings to configure git for a service
+	Git *GitRef `json:"git,omitempty"`
+	// settings to configure helm for a service
+	Helm *HelmSpec `json:"helm,omitempty"`
+	// settings for service kustomization
+	Kustomize *Kustomize `json:"kustomize,omitempty"`
+}
+
+// Attributes for configuring a service in something like a managed namespace
+type ServiceTemplateAttributes struct {
+	Templated *bool `json:"templated,omitempty"`
+	// the id of a repository to source manifests for this service
+	RepositoryID *string `json:"repositoryId,omitempty"`
+	// a list of context ids to add to this service
+	Contexts []*string `json:"contexts,omitempty"`
+	// settings to configure git for a service
+	Git *GitRefAttributes `json:"git,omitempty"`
+	// settings to configure helm for a service
+	Helm *HelmConfigAttributes `json:"helm,omitempty"`
+	// settings for service kustomization
+	Kustomize *KustomizeAttributes `json:"kustomize,omitempty"`
+}
+
 type ServiceUpdateAttributes struct {
 	Version  *string `json:"version,omitempty"`
 	Protect  *bool   `json:"protect,omitempty"`
@@ -3529,10 +3627,13 @@ type StatusCondition struct {
 
 // Advanced configuration of how to sync resources
 type SyncConfig struct {
+	// whether the agent should auto-create the namespace for this service
+	CreateNamespace   *bool              `json:"createNamespace,omitempty"`
 	NamespaceMetadata *NamespaceMetadata `json:"namespaceMetadata,omitempty"`
 }
 
 type SyncConfigAttributes struct {
+	CreateNamespace   *bool               `json:"createNamespace,omitempty"`
 	NamespaceMetadata *MetadataAttributes `json:"namespaceMetadata,omitempty"`
 }
 
@@ -4330,17 +4431,19 @@ const (
 	GateStatePending GateState = "PENDING"
 	GateStateOpen    GateState = "OPEN"
 	GateStateClosed  GateState = "CLOSED"
+	GateStateRunning GateState = "RUNNING"
 )
 
 var AllGateState = []GateState{
 	GateStatePending,
 	GateStateOpen,
 	GateStateClosed,
+	GateStateRunning,
 }
 
 func (e GateState) IsValid() bool {
 	switch e {
-	case GateStatePending, GateStateOpen, GateStateClosed:
+	case GateStatePending, GateStateOpen, GateStateClosed, GateStateRunning:
 		return true
 	}
 	return false
