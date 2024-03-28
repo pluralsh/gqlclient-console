@@ -85,6 +85,8 @@ type ConsoleClient interface {
 	UpdatePrAutomation(ctx context.Context, id string, attributes PrAutomationAttributes, interceptors ...clientv2.RequestInterceptor) (*UpdatePrAutomation, error)
 	DeletePrAutomation(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DeletePrAutomation, error)
 	CreatePullRequest(ctx context.Context, id string, branch *string, context *string, interceptors ...clientv2.RequestInterceptor) (*CreatePullRequest, error)
+	ListNamespaces(ctx context.Context, after *string, first *int64, before *string, last *int64, interceptors ...clientv2.RequestInterceptor) (*ListNamespaces, error)
+	GetNamespace(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*GetNamespace, error)
 	UpsertNotificationSink(ctx context.Context, attributes NotificationSinkAttributes, interceptors ...clientv2.RequestInterceptor) (*UpsertNotificationSink, error)
 	DeleteNotificationSink(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DeleteNotificationSink, error)
 	GetNotificationSink(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*GetNotificationSink, error)
@@ -1956,6 +1958,237 @@ func (t *PullRequestFragment) GetCreator() *string {
 		t = &PullRequestFragment{}
 	}
 	return t.Creator
+}
+
+type SyncConfigFragment struct {
+	CreateNamespace   *bool                      "json:\"createNamespace,omitempty\" graphql:\"createNamespace\""
+	NamespaceMetadata *NamespaceMetadataFragment "json:\"namespaceMetadata,omitempty\" graphql:\"namespaceMetadata\""
+}
+
+func (t *SyncConfigFragment) GetCreateNamespace() *bool {
+	if t == nil {
+		t = &SyncConfigFragment{}
+	}
+	return t.CreateNamespace
+}
+func (t *SyncConfigFragment) GetNamespaceMetadata() *NamespaceMetadataFragment {
+	if t == nil {
+		t = &SyncConfigFragment{}
+	}
+	return t.NamespaceMetadata
+}
+
+type NamespaceMetadataFragment struct {
+	Labels      map[string]interface{} "json:\"labels,omitempty\" graphql:\"labels\""
+	Annotations map[string]interface{} "json:\"annotations,omitempty\" graphql:\"annotations\""
+}
+
+func (t *NamespaceMetadataFragment) GetLabels() map[string]interface{} {
+	if t == nil {
+		t = &NamespaceMetadataFragment{}
+	}
+	return t.Labels
+}
+func (t *NamespaceMetadataFragment) GetAnnotations() map[string]interface{} {
+	if t == nil {
+		t = &NamespaceMetadataFragment{}
+	}
+	return t.Annotations
+}
+
+type ClusterTargetFragment struct {
+	Tags   *string        "json:\"tags,omitempty\" graphql:\"tags\""
+	Distro *ClusterDistro "json:\"distro,omitempty\" graphql:\"distro\""
+}
+
+func (t *ClusterTargetFragment) GetTags() *string {
+	if t == nil {
+		t = &ClusterTargetFragment{}
+	}
+	return t.Tags
+}
+func (t *ClusterTargetFragment) GetDistro() *ClusterDistro {
+	if t == nil {
+		t = &ClusterTargetFragment{}
+	}
+	return t.Distro
+}
+
+type ManagedNamespaceEdgeFragment struct {
+	Cursor *string                          "json:\"cursor,omitempty\" graphql:\"cursor\""
+	Node   *ManagedNamespaceMinimalFragment "json:\"node,omitempty\" graphql:\"node\""
+}
+
+func (t *ManagedNamespaceEdgeFragment) GetCursor() *string {
+	if t == nil {
+		t = &ManagedNamespaceEdgeFragment{}
+	}
+	return t.Cursor
+}
+func (t *ManagedNamespaceEdgeFragment) GetNode() *ManagedNamespaceMinimalFragment {
+	if t == nil {
+		t = &ManagedNamespaceEdgeFragment{}
+	}
+	return t.Node
+}
+
+type ManagedNamespaceMinimalFragment struct {
+	ID          string  "json:\"id\" graphql:\"id\""
+	Name        string  "json:\"name\" graphql:\"name\""
+	Description *string "json:\"description,omitempty\" graphql:\"description\""
+}
+
+func (t *ManagedNamespaceMinimalFragment) GetID() string {
+	if t == nil {
+		t = &ManagedNamespaceMinimalFragment{}
+	}
+	return t.ID
+}
+func (t *ManagedNamespaceMinimalFragment) GetName() string {
+	if t == nil {
+		t = &ManagedNamespaceMinimalFragment{}
+	}
+	return t.Name
+}
+func (t *ManagedNamespaceMinimalFragment) GetDescription() *string {
+	if t == nil {
+		t = &ManagedNamespaceMinimalFragment{}
+	}
+	return t.Description
+}
+
+type ManagedNamespaceFragment struct {
+	ID          string                   "json:\"id\" graphql:\"id\""
+	Name        string                   "json:\"name\" graphql:\"name\""
+	Description *string                  "json:\"description,omitempty\" graphql:\"description\""
+	Labels      map[string]interface{}   "json:\"labels,omitempty\" graphql:\"labels\""
+	Annotations map[string]interface{}   "json:\"annotations,omitempty\" graphql:\"annotations\""
+	PullSecrets []*string                "json:\"pullSecrets,omitempty\" graphql:\"pullSecrets\""
+	Service     *ServiceTemplateFragment "json:\"service,omitempty\" graphql:\"service\""
+	Target      *ClusterTargetFragment   "json:\"target,omitempty\" graphql:\"target\""
+	DeletedAt   *string                  "json:\"deletedAt,omitempty\" graphql:\"deletedAt\""
+}
+
+func (t *ManagedNamespaceFragment) GetID() string {
+	if t == nil {
+		t = &ManagedNamespaceFragment{}
+	}
+	return t.ID
+}
+func (t *ManagedNamespaceFragment) GetName() string {
+	if t == nil {
+		t = &ManagedNamespaceFragment{}
+	}
+	return t.Name
+}
+func (t *ManagedNamespaceFragment) GetDescription() *string {
+	if t == nil {
+		t = &ManagedNamespaceFragment{}
+	}
+	return t.Description
+}
+func (t *ManagedNamespaceFragment) GetLabels() map[string]interface{} {
+	if t == nil {
+		t = &ManagedNamespaceFragment{}
+	}
+	return t.Labels
+}
+func (t *ManagedNamespaceFragment) GetAnnotations() map[string]interface{} {
+	if t == nil {
+		t = &ManagedNamespaceFragment{}
+	}
+	return t.Annotations
+}
+func (t *ManagedNamespaceFragment) GetPullSecrets() []*string {
+	if t == nil {
+		t = &ManagedNamespaceFragment{}
+	}
+	return t.PullSecrets
+}
+func (t *ManagedNamespaceFragment) GetService() *ServiceTemplateFragment {
+	if t == nil {
+		t = &ManagedNamespaceFragment{}
+	}
+	return t.Service
+}
+func (t *ManagedNamespaceFragment) GetTarget() *ClusterTargetFragment {
+	if t == nil {
+		t = &ManagedNamespaceFragment{}
+	}
+	return t.Target
+}
+func (t *ManagedNamespaceFragment) GetDeletedAt() *string {
+	if t == nil {
+		t = &ManagedNamespaceFragment{}
+	}
+	return t.DeletedAt
+}
+
+type ServiceTemplateFragment struct {
+	Name         *string             "json:\"name,omitempty\" graphql:\"name\""
+	Namespace    *string             "json:\"namespace,omitempty\" graphql:\"namespace\""
+	Templated    *bool               "json:\"templated,omitempty\" graphql:\"templated\""
+	RepositoryID *string             "json:\"repositoryId,omitempty\" graphql:\"repositoryId\""
+	Contexts     []*string           "json:\"contexts,omitempty\" graphql:\"contexts\""
+	Git          *GitRefFragment     "json:\"git,omitempty\" graphql:\"git\""
+	Helm         *HelmSpecFragment   "json:\"helm,omitempty\" graphql:\"helm\""
+	Kustomize    *KustomizeFragment  "json:\"kustomize,omitempty\" graphql:\"kustomize\""
+	SyncConfig   *SyncConfigFragment "json:\"syncConfig,omitempty\" graphql:\"syncConfig\""
+}
+
+func (t *ServiceTemplateFragment) GetName() *string {
+	if t == nil {
+		t = &ServiceTemplateFragment{}
+	}
+	return t.Name
+}
+func (t *ServiceTemplateFragment) GetNamespace() *string {
+	if t == nil {
+		t = &ServiceTemplateFragment{}
+	}
+	return t.Namespace
+}
+func (t *ServiceTemplateFragment) GetTemplated() *bool {
+	if t == nil {
+		t = &ServiceTemplateFragment{}
+	}
+	return t.Templated
+}
+func (t *ServiceTemplateFragment) GetRepositoryID() *string {
+	if t == nil {
+		t = &ServiceTemplateFragment{}
+	}
+	return t.RepositoryID
+}
+func (t *ServiceTemplateFragment) GetContexts() []*string {
+	if t == nil {
+		t = &ServiceTemplateFragment{}
+	}
+	return t.Contexts
+}
+func (t *ServiceTemplateFragment) GetGit() *GitRefFragment {
+	if t == nil {
+		t = &ServiceTemplateFragment{}
+	}
+	return t.Git
+}
+func (t *ServiceTemplateFragment) GetHelm() *HelmSpecFragment {
+	if t == nil {
+		t = &ServiceTemplateFragment{}
+	}
+	return t.Helm
+}
+func (t *ServiceTemplateFragment) GetKustomize() *KustomizeFragment {
+	if t == nil {
+		t = &ServiceTemplateFragment{}
+	}
+	return t.Kustomize
+}
+func (t *ServiceTemplateFragment) GetSyncConfig() *SyncConfigFragment {
+	if t == nil {
+		t = &ServiceTemplateFragment{}
+	}
+	return t.SyncConfig
 }
 
 type NotificationRouterFragment struct {
@@ -7012,6 +7245,24 @@ func (t *ListPrAutomations_PrAutomations) GetEdges() []*ListPrAutomations_PrAuto
 	return t.Edges
 }
 
+type ListNamespaces_ManagedNamespaces struct {
+	PageInfo *PageInfoFragment               "json:\"pageInfo\" graphql:\"pageInfo\""
+	Edges    []*ManagedNamespaceEdgeFragment "json:\"edges,omitempty\" graphql:\"edges\""
+}
+
+func (t *ListNamespaces_ManagedNamespaces) GetPageInfo() *PageInfoFragment {
+	if t == nil {
+		t = &ListNamespaces_ManagedNamespaces{}
+	}
+	return t.PageInfo
+}
+func (t *ListNamespaces_ManagedNamespaces) GetEdges() []*ManagedNamespaceEdgeFragment {
+	if t == nil {
+		t = &ListNamespaces_ManagedNamespaces{}
+	}
+	return t.Edges
+}
+
 type ListNotificationSinks_NotificationSinks struct {
 	PageInfo *PageInfoFragment               "json:\"pageInfo\" graphql:\"pageInfo\""
 	Edges    []*NotificationSinkEdgeFragment "json:\"edges,omitempty\" graphql:\"edges\""
@@ -8511,6 +8762,28 @@ func (t *CreatePullRequest) GetCreatePullRequest() *PullRequestFragment {
 		t = &CreatePullRequest{}
 	}
 	return t.CreatePullRequest
+}
+
+type ListNamespaces struct {
+	ManagedNamespaces *ListNamespaces_ManagedNamespaces "json:\"managedNamespaces,omitempty\" graphql:\"managedNamespaces\""
+}
+
+func (t *ListNamespaces) GetManagedNamespaces() *ListNamespaces_ManagedNamespaces {
+	if t == nil {
+		t = &ListNamespaces{}
+	}
+	return t.ManagedNamespaces
+}
+
+type GetNamespace struct {
+	ManagedNamespace *ManagedNamespaceFragment "json:\"managedNamespace,omitempty\" graphql:\"managedNamespace\""
+}
+
+func (t *GetNamespace) GetManagedNamespace() *ManagedNamespaceFragment {
+	if t == nil {
+		t = &GetNamespace{}
+	}
+	return t.ManagedNamespace
 }
 
 type UpsertNotificationSink struct {
@@ -14976,6 +15249,135 @@ func (c *Client) CreatePullRequest(ctx context.Context, id string, branch *strin
 	return &res, nil
 }
 
+const ListNamespacesDocument = `query ListNamespaces ($after: String, $first: Int, $before: String, $last: Int) {
+	managedNamespaces(after: $after, first: $first, before: $before, last: $last) {
+		pageInfo {
+			... PageInfoFragment
+		}
+		edges {
+			... ManagedNamespaceEdgeFragment
+		}
+	}
+}
+fragment PageInfoFragment on PageInfo {
+	hasNextPage
+	endCursor
+}
+fragment ManagedNamespaceEdgeFragment on ManagedNamespaceEdge {
+	cursor
+	node {
+		... ManagedNamespaceMinimalFragment
+	}
+}
+fragment ManagedNamespaceMinimalFragment on ManagedNamespace {
+	id
+	name
+	description
+}
+`
+
+func (c *Client) ListNamespaces(ctx context.Context, after *string, first *int64, before *string, last *int64, interceptors ...clientv2.RequestInterceptor) (*ListNamespaces, error) {
+	vars := map[string]interface{}{
+		"after":  after,
+		"first":  first,
+		"before": before,
+		"last":   last,
+	}
+
+	var res ListNamespaces
+	if err := c.Client.Post(ctx, "ListNamespaces", ListNamespacesDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const GetNamespaceDocument = `query GetNamespace ($id: ID!) {
+	managedNamespace(id: $id) {
+		... ManagedNamespaceFragment
+	}
+}
+fragment ManagedNamespaceFragment on ManagedNamespace {
+	id
+	name
+	description
+	labels
+	annotations
+	pullSecrets
+	service {
+		... ServiceTemplateFragment
+	}
+	target {
+		... ClusterTargetFragment
+	}
+	deletedAt
+}
+fragment ServiceTemplateFragment on ServiceTemplate {
+	name
+	namespace
+	templated
+	repositoryId
+	contexts
+	git {
+		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
+	}
+	kustomize {
+		... KustomizeFragment
+	}
+	syncConfig {
+		... SyncConfigFragment
+	}
+}
+fragment GitRefFragment on GitRef {
+	folder
+	ref
+}
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
+fragment KustomizeFragment on Kustomize {
+	path
+}
+fragment SyncConfigFragment on SyncConfig {
+	createNamespace
+	namespaceMetadata {
+		... NamespaceMetadataFragment
+	}
+}
+fragment NamespaceMetadataFragment on NamespaceMetadata {
+	labels
+	annotations
+}
+fragment ClusterTargetFragment on ClusterTarget {
+	tags
+	distro
+}
+`
+
+func (c *Client) GetNamespace(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*GetNamespace, error) {
+	vars := map[string]interface{}{
+		"id": id,
+	}
+
+	var res GetNamespace
+	if err := c.Client.Post(ctx, "GetNamespace", GetNamespaceDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
 const UpsertNotificationSinkDocument = `mutation UpsertNotificationSink ($attributes: NotificationSinkAttributes!) {
 	upsertNotificationSink(attributes: $attributes) {
 		... NotificationSinkFragment
@@ -16554,6 +16956,8 @@ var DocumentOperationNames = map[string]string{
 	UpdatePrAutomationDocument:                "UpdatePrAutomation",
 	DeletePrAutomationDocument:                "DeletePrAutomation",
 	CreatePullRequestDocument:                 "CreatePullRequest",
+	ListNamespacesDocument:                    "ListNamespaces",
+	GetNamespaceDocument:                      "GetNamespace",
 	UpsertNotificationSinkDocument:            "UpsertNotificationSink",
 	DeleteNotificationSinkDocument:            "DeleteNotificationSink",
 	GetNotificationSinkDocument:               "GetNotificationSink",

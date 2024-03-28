@@ -1765,14 +1765,14 @@ type ManagedNamespace struct {
 	Annotations map[string]interface{} `json:"annotations,omitempty"`
 	// a list of pull secrets to attach to this namespace
 	PullSecrets []*string `json:"pullSecrets,omitempty"`
-	// A template for creating the core service for this namespace
-	Service *ServiceTemplate `json:"service,omitempty"`
 	// The targeting criteria to select clusters this namespace is bound to
 	Target *ClusterTarget `json:"target,omitempty"`
 	// the timestamp this namespace was deleted at, indicating it's currently draining
-	DeletedAt  *string `json:"deletedAt,omitempty"`
-	InsertedAt *string `json:"insertedAt,omitempty"`
-	UpdatedAt  *string `json:"updatedAt,omitempty"`
+	DeletedAt *string `json:"deletedAt,omitempty"`
+	// A template for creating the core service for this namespace
+	Service    *ServiceTemplate `json:"service,omitempty"`
+	InsertedAt *string          `json:"insertedAt,omitempty"`
+	UpdatedAt  *string          `json:"updatedAt,omitempty"`
 }
 
 // Attributes for configuring a managed namespace
@@ -3486,7 +3486,11 @@ type ServiceStatusCount struct {
 
 // Attributes for configuring a service in something like a managed namespace
 type ServiceTemplate struct {
-	Templated *bool `json:"templated,omitempty"`
+	// the name for this service (optional for managed namespaces)
+	Name *string `json:"name,omitempty"`
+	// the namespace for this service (optional for managed namespaces)
+	Namespace *string `json:"namespace,omitempty"`
+	Templated *bool   `json:"templated,omitempty"`
 	// the id of a repository to source manifests for this service
 	RepositoryID *string `json:"repositoryId,omitempty"`
 	// a list of context ids to add to this service
@@ -3497,11 +3501,17 @@ type ServiceTemplate struct {
 	Helm *HelmSpec `json:"helm,omitempty"`
 	// settings for service kustomization
 	Kustomize *Kustomize `json:"kustomize,omitempty"`
+	// specification of how the templated service will be synced
+	SyncConfig *SyncConfig `json:"syncConfig,omitempty"`
 }
 
 // Attributes for configuring a service in something like a managed namespace
 type ServiceTemplateAttributes struct {
-	Templated *bool `json:"templated,omitempty"`
+	// the name for this service (optional for managed namespaces)
+	Name *string `json:"name,omitempty"`
+	// the namespace for this service (optional for managed namespaces)
+	Namespace *string `json:"namespace,omitempty"`
+	Templated *bool   `json:"templated,omitempty"`
 	// the id of a repository to source manifests for this service
 	RepositoryID *string `json:"repositoryId,omitempty"`
 	// a list of context ids to add to this service
@@ -3512,6 +3522,8 @@ type ServiceTemplateAttributes struct {
 	Helm *HelmConfigAttributes `json:"helm,omitempty"`
 	// settings for service kustomization
 	Kustomize *KustomizeAttributes `json:"kustomize,omitempty"`
+	// attributes to configure sync settings for this service
+	SyncConfig *SyncConfigAttributes `json:"syncConfig,omitempty"`
 }
 
 type ServiceUpdateAttributes struct {

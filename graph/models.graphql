@@ -371,3 +371,18 @@ fragment PullRequestFragment on PullRequest {
     title
     creator
 }
+
+fragment SyncConfigFragment on SyncConfig {
+    createNamespace
+    namespaceMetadata { ...NamespaceMetadataFragment}
+}
+
+fragment NamespaceMetadataFragment on NamespaceMetadata {
+    labels
+    annotations
+}
+
+fragment ClusterTargetFragment on ClusterTarget {
+    tags
+    distro
+}
