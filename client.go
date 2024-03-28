@@ -85,6 +85,9 @@ type ConsoleClient interface {
 	UpdatePrAutomation(ctx context.Context, id string, attributes PrAutomationAttributes, interceptors ...clientv2.RequestInterceptor) (*UpdatePrAutomation, error)
 	DeletePrAutomation(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DeletePrAutomation, error)
 	CreatePullRequest(ctx context.Context, id string, branch *string, context *string, interceptors ...clientv2.RequestInterceptor) (*CreatePullRequest, error)
+	CreateNamespace(ctx context.Context, attributes ManagedNamespaceAttributes, interceptors ...clientv2.RequestInterceptor) (*CreateNamespace, error)
+	UpdateNamespace(ctx context.Context, id string, attributes ManagedNamespaceAttributes, interceptors ...clientv2.RequestInterceptor) (*UpdateNamespace, error)
+	DeleteNamespace(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DeleteNamespace, error)
 	ListNamespaces(ctx context.Context, after *string, first *int64, before *string, last *int64, interceptors ...clientv2.RequestInterceptor) (*ListNamespaces, error)
 	GetNamespace(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*GetNamespace, error)
 	UpsertNotificationSink(ctx context.Context, attributes NotificationSinkAttributes, interceptors ...clientv2.RequestInterceptor) (*UpsertNotificationSink, error)
@@ -7245,6 +7248,17 @@ func (t *ListPrAutomations_PrAutomations) GetEdges() []*ListPrAutomations_PrAuto
 	return t.Edges
 }
 
+type DeleteNamespace_DeleteManagedNamespace struct {
+	ID string "json:\"id\" graphql:\"id\""
+}
+
+func (t *DeleteNamespace_DeleteManagedNamespace) GetID() string {
+	if t == nil {
+		t = &DeleteNamespace_DeleteManagedNamespace{}
+	}
+	return t.ID
+}
+
 type ListNamespaces_ManagedNamespaces struct {
 	PageInfo *PageInfoFragment               "json:\"pageInfo\" graphql:\"pageInfo\""
 	Edges    []*ManagedNamespaceEdgeFragment "json:\"edges,omitempty\" graphql:\"edges\""
@@ -8762,6 +8776,39 @@ func (t *CreatePullRequest) GetCreatePullRequest() *PullRequestFragment {
 		t = &CreatePullRequest{}
 	}
 	return t.CreatePullRequest
+}
+
+type CreateNamespace struct {
+	CreateManagedNamespace *ManagedNamespaceFragment "json:\"createManagedNamespace,omitempty\" graphql:\"createManagedNamespace\""
+}
+
+func (t *CreateNamespace) GetCreateManagedNamespace() *ManagedNamespaceFragment {
+	if t == nil {
+		t = &CreateNamespace{}
+	}
+	return t.CreateManagedNamespace
+}
+
+type UpdateNamespace struct {
+	UpdateManagedNamespace *ManagedNamespaceFragment "json:\"updateManagedNamespace,omitempty\" graphql:\"updateManagedNamespace\""
+}
+
+func (t *UpdateNamespace) GetUpdateManagedNamespace() *ManagedNamespaceFragment {
+	if t == nil {
+		t = &UpdateNamespace{}
+	}
+	return t.UpdateManagedNamespace
+}
+
+type DeleteNamespace struct {
+	DeleteManagedNamespace *DeleteNamespace_DeleteManagedNamespace "json:\"deleteManagedNamespace,omitempty\" graphql:\"deleteManagedNamespace\""
+}
+
+func (t *DeleteNamespace) GetDeleteManagedNamespace() *DeleteNamespace_DeleteManagedNamespace {
+	if t == nil {
+		t = &DeleteNamespace{}
+	}
+	return t.DeleteManagedNamespace
 }
 
 type ListNamespaces struct {
@@ -15249,6 +15296,195 @@ func (c *Client) CreatePullRequest(ctx context.Context, id string, branch *strin
 	return &res, nil
 }
 
+const CreateNamespaceDocument = `mutation CreateNamespace ($attributes: ManagedNamespaceAttributes!) {
+	createManagedNamespace(attributes: $attributes) {
+		... ManagedNamespaceFragment
+	}
+}
+fragment ManagedNamespaceFragment on ManagedNamespace {
+	id
+	name
+	description
+	labels
+	annotations
+	pullSecrets
+	service {
+		... ServiceTemplateFragment
+	}
+	target {
+		... ClusterTargetFragment
+	}
+	deletedAt
+}
+fragment ServiceTemplateFragment on ServiceTemplate {
+	name
+	namespace
+	templated
+	repositoryId
+	contexts
+	git {
+		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
+	}
+	kustomize {
+		... KustomizeFragment
+	}
+	syncConfig {
+		... SyncConfigFragment
+	}
+}
+fragment GitRefFragment on GitRef {
+	folder
+	ref
+}
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
+fragment KustomizeFragment on Kustomize {
+	path
+}
+fragment SyncConfigFragment on SyncConfig {
+	createNamespace
+	namespaceMetadata {
+		... NamespaceMetadataFragment
+	}
+}
+fragment NamespaceMetadataFragment on NamespaceMetadata {
+	labels
+	annotations
+}
+fragment ClusterTargetFragment on ClusterTarget {
+	tags
+	distro
+}
+`
+
+func (c *Client) CreateNamespace(ctx context.Context, attributes ManagedNamespaceAttributes, interceptors ...clientv2.RequestInterceptor) (*CreateNamespace, error) {
+	vars := map[string]interface{}{
+		"attributes": attributes,
+	}
+
+	var res CreateNamespace
+	if err := c.Client.Post(ctx, "CreateNamespace", CreateNamespaceDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const UpdateNamespaceDocument = `mutation UpdateNamespace ($id: ID!, $attributes: ManagedNamespaceAttributes!) {
+	updateManagedNamespace(id: $id, attributes: $attributes) {
+		... ManagedNamespaceFragment
+	}
+}
+fragment ManagedNamespaceFragment on ManagedNamespace {
+	id
+	name
+	description
+	labels
+	annotations
+	pullSecrets
+	service {
+		... ServiceTemplateFragment
+	}
+	target {
+		... ClusterTargetFragment
+	}
+	deletedAt
+}
+fragment ServiceTemplateFragment on ServiceTemplate {
+	name
+	namespace
+	templated
+	repositoryId
+	contexts
+	git {
+		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
+	}
+	kustomize {
+		... KustomizeFragment
+	}
+	syncConfig {
+		... SyncConfigFragment
+	}
+}
+fragment GitRefFragment on GitRef {
+	folder
+	ref
+}
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
+fragment KustomizeFragment on Kustomize {
+	path
+}
+fragment SyncConfigFragment on SyncConfig {
+	createNamespace
+	namespaceMetadata {
+		... NamespaceMetadataFragment
+	}
+}
+fragment NamespaceMetadataFragment on NamespaceMetadata {
+	labels
+	annotations
+}
+fragment ClusterTargetFragment on ClusterTarget {
+	tags
+	distro
+}
+`
+
+func (c *Client) UpdateNamespace(ctx context.Context, id string, attributes ManagedNamespaceAttributes, interceptors ...clientv2.RequestInterceptor) (*UpdateNamespace, error) {
+	vars := map[string]interface{}{
+		"id":         id,
+		"attributes": attributes,
+	}
+
+	var res UpdateNamespace
+	if err := c.Client.Post(ctx, "UpdateNamespace", UpdateNamespaceDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const DeleteNamespaceDocument = `mutation DeleteNamespace ($id: ID!) {
+	deleteManagedNamespace(id: $id) {
+		id
+	}
+}
+`
+
+func (c *Client) DeleteNamespace(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DeleteNamespace, error) {
+	vars := map[string]interface{}{
+		"id": id,
+	}
+
+	var res DeleteNamespace
+	if err := c.Client.Post(ctx, "DeleteNamespace", DeleteNamespaceDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
 const ListNamespacesDocument = `query ListNamespaces ($after: String, $first: Int, $before: String, $last: Int) {
 	managedNamespaces(after: $after, first: $first, before: $before, last: $last) {
 		pageInfo {
@@ -16956,6 +17192,9 @@ var DocumentOperationNames = map[string]string{
 	UpdatePrAutomationDocument:                "UpdatePrAutomation",
 	DeletePrAutomationDocument:                "DeletePrAutomation",
 	CreatePullRequestDocument:                 "CreatePullRequest",
+	CreateNamespaceDocument:                   "CreateNamespace",
+	UpdateNamespaceDocument:                   "UpdateNamespace",
+	DeleteNamespaceDocument:                   "DeleteNamespace",
 	ListNamespacesDocument:                    "ListNamespaces",
 	GetNamespaceDocument:                      "GetNamespace",
 	UpsertNotificationSinkDocument:            "UpsertNotificationSink",

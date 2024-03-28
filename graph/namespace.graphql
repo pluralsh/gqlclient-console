@@ -1,3 +1,21 @@
+mutation CreateNamespace($attributes: ManagedNamespaceAttributes!) {
+    createManagedNamespace(attributes: $attributes) {
+        ...ManagedNamespaceFragment
+    }
+}
+
+mutation UpdateNamespace($id: ID!, $attributes: ManagedNamespaceAttributes!) {
+    updateManagedNamespace(id: $id, attributes: $attributes) {
+        ...ManagedNamespaceFragment
+    }
+}
+
+mutation DeleteNamespace($id: ID!) {
+    deleteManagedNamespace(id: $id) {
+        id
+    }
+}
+
 query ListNamespaces($after: String, $first: Int, $before: String, $last: Int) {
     managedNamespaces(after: $after, first: $first, before: $before, last: $last) {
         pageInfo { ...PageInfoFragment }
