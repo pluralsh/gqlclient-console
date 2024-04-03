@@ -23,6 +23,13 @@ query ListNamespaces($after: String, $first: Int, $before: String, $last: Int) {
     }
 }
 
+query ListClusterNamespaces($after: String, $first: Int, $before: String, $last: Int) {
+    clusterManagedNamespaces(after: $after, first: $first, before: $before, last: $last) {
+        pageInfo { ...PageInfoFragment }
+        edges { ...ManagedNamespaceEdgeFragment }
+    }
+}
+
 query GetNamespace($id: ID!) {
     managedNamespace(id: $id) {
         ...ManagedNamespaceFragment

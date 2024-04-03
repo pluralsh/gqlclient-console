@@ -89,6 +89,7 @@ type ConsoleClient interface {
 	UpdateNamespace(ctx context.Context, id string, attributes ManagedNamespaceAttributes, interceptors ...clientv2.RequestInterceptor) (*UpdateNamespace, error)
 	DeleteNamespace(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DeleteNamespace, error)
 	ListNamespaces(ctx context.Context, after *string, first *int64, before *string, last *int64, interceptors ...clientv2.RequestInterceptor) (*ListNamespaces, error)
+	ListClusterNamespaces(ctx context.Context, after *string, first *int64, before *string, last *int64, interceptors ...clientv2.RequestInterceptor) (*ListClusterNamespaces, error)
 	GetNamespace(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*GetNamespace, error)
 	UpsertNotificationSink(ctx context.Context, attributes NotificationSinkAttributes, interceptors ...clientv2.RequestInterceptor) (*UpsertNotificationSink, error)
 	DeleteNotificationSink(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DeleteNotificationSink, error)
@@ -7277,6 +7278,24 @@ func (t *ListNamespaces_ManagedNamespaces) GetEdges() []*ManagedNamespaceEdgeFra
 	return t.Edges
 }
 
+type ListClusterNamespaces_ClusterManagedNamespaces struct {
+	PageInfo *PageInfoFragment               "json:\"pageInfo\" graphql:\"pageInfo\""
+	Edges    []*ManagedNamespaceEdgeFragment "json:\"edges,omitempty\" graphql:\"edges\""
+}
+
+func (t *ListClusterNamespaces_ClusterManagedNamespaces) GetPageInfo() *PageInfoFragment {
+	if t == nil {
+		t = &ListClusterNamespaces_ClusterManagedNamespaces{}
+	}
+	return t.PageInfo
+}
+func (t *ListClusterNamespaces_ClusterManagedNamespaces) GetEdges() []*ManagedNamespaceEdgeFragment {
+	if t == nil {
+		t = &ListClusterNamespaces_ClusterManagedNamespaces{}
+	}
+	return t.Edges
+}
+
 type ListNotificationSinks_NotificationSinks struct {
 	PageInfo *PageInfoFragment               "json:\"pageInfo\" graphql:\"pageInfo\""
 	Edges    []*NotificationSinkEdgeFragment "json:\"edges,omitempty\" graphql:\"edges\""
@@ -8820,6 +8839,17 @@ func (t *ListNamespaces) GetManagedNamespaces() *ListNamespaces_ManagedNamespace
 		t = &ListNamespaces{}
 	}
 	return t.ManagedNamespaces
+}
+
+type ListClusterNamespaces struct {
+	ClusterManagedNamespaces *ListClusterNamespaces_ClusterManagedNamespaces "json:\"clusterManagedNamespaces,omitempty\" graphql:\"clusterManagedNamespaces\""
+}
+
+func (t *ListClusterNamespaces) GetClusterManagedNamespaces() *ListClusterNamespaces_ClusterManagedNamespaces {
+	if t == nil {
+		t = &ListClusterNamespaces{}
+	}
+	return t.ClusterManagedNamespaces
 }
 
 type GetNamespace struct {
@@ -15532,6 +15562,53 @@ func (c *Client) ListNamespaces(ctx context.Context, after *string, first *int64
 	return &res, nil
 }
 
+const ListClusterNamespacesDocument = `query ListClusterNamespaces ($after: String, $first: Int, $before: String, $last: Int) {
+	clusterManagedNamespaces(after: $after, first: $first, before: $before, last: $last) {
+		pageInfo {
+			... PageInfoFragment
+		}
+		edges {
+			... ManagedNamespaceEdgeFragment
+		}
+	}
+}
+fragment PageInfoFragment on PageInfo {
+	hasNextPage
+	endCursor
+}
+fragment ManagedNamespaceEdgeFragment on ManagedNamespaceEdge {
+	cursor
+	node {
+		... ManagedNamespaceMinimalFragment
+	}
+}
+fragment ManagedNamespaceMinimalFragment on ManagedNamespace {
+	id
+	name
+	description
+}
+`
+
+func (c *Client) ListClusterNamespaces(ctx context.Context, after *string, first *int64, before *string, last *int64, interceptors ...clientv2.RequestInterceptor) (*ListClusterNamespaces, error) {
+	vars := map[string]interface{}{
+		"after":  after,
+		"first":  first,
+		"before": before,
+		"last":   last,
+	}
+
+	var res ListClusterNamespaces
+	if err := c.Client.Post(ctx, "ListClusterNamespaces", ListClusterNamespacesDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
 const GetNamespaceDocument = `query GetNamespace ($id: ID!) {
 	managedNamespace(id: $id) {
 		... ManagedNamespaceFragment
@@ -17196,6 +17273,7 @@ var DocumentOperationNames = map[string]string{
 	UpdateNamespaceDocument:                   "UpdateNamespace",
 	DeleteNamespaceDocument:                   "DeleteNamespace",
 	ListNamespacesDocument:                    "ListNamespaces",
+	ListClusterNamespacesDocument:             "ListClusterNamespaces",
 	GetNamespaceDocument:                      "GetNamespace",
 	UpsertNotificationSinkDocument:            "UpsertNotificationSink",
 	DeleteNotificationSinkDocument:            "DeleteNotificationSink",

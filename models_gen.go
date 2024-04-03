@@ -506,6 +506,8 @@ type Cluster struct {
 	Nodes []*Node `json:"nodes,omitempty"`
 	// list the cached node metrics for a cluster, can also be stale up to 5m
 	NodeMetrics []*NodeMetric `json:"nodeMetrics,omitempty"`
+	// custom resources with dedicated views for this cluster
+	PinnedCustomResources []*PinnedCustomResource `json:"pinnedCustomResources,omitempty"`
 	// the status of the cluster as seen from the CAPI operator, since some clusters can be provisioned without CAPI, this can be null
 	Status *ClusterStatus `json:"status,omitempty"`
 	// a relay connection of all revisions of this cluster, these are periodically pruned up to a history limit
@@ -2185,6 +2187,26 @@ type PersonaSidebarAttributes struct {
 	Stacks       *bool `json:"stacks,omitempty"`
 }
 
+// A reference to a custom resource you want to be displayed in the k8s dashboard
+type PinnedCustomResource struct {
+	ID          string   `json:"id"`
+	DisplayName string   `json:"displayName"`
+	Group       string   `json:"group"`
+	Version     string   `json:"version"`
+	Kind        string   `json:"kind"`
+	Namespaced  *bool    `json:"namespaced,omitempty"`
+	Cluster     *Cluster `json:"cluster,omitempty"`
+}
+
+type PinnedCustomResourceAttributes struct {
+	DisplayName string  `json:"displayName"`
+	Group       string  `json:"group"`
+	Version     string  `json:"version"`
+	Kind        string  `json:"kind"`
+	Namespaced  *bool   `json:"namespaced,omitempty"`
+	ClusterID   *string `json:"clusterId,omitempty"`
+}
+
 // a release pipeline, composed of multiple stages each with potentially multiple services
 type Pipeline struct {
 	ID string `json:"id"`
@@ -3495,6 +3517,8 @@ type ServiceTemplate struct {
 	RepositoryID *string `json:"repositoryId,omitempty"`
 	// a list of context ids to add to this service
 	Contexts []*string `json:"contexts,omitempty"`
+	// possibly secret configuration for all spawned services, don't query this in list endpoints
+	Configuration []*ServiceConfiguration `json:"configuration,omitempty"`
 	// settings to configure git for a service
 	Git *GitRef `json:"git,omitempty"`
 	// settings to configure helm for a service
@@ -3516,6 +3540,8 @@ type ServiceTemplateAttributes struct {
 	RepositoryID *string `json:"repositoryId,omitempty"`
 	// a list of context ids to add to this service
 	Contexts []*string `json:"contexts,omitempty"`
+	// a list of secure configuration that will be added to any services created by this template
+	Configuration []*ConfigAttributes `json:"configuration,omitempty"`
 	// settings to configure git for a service
 	Git *GitRefAttributes `json:"git,omitempty"`
 	// settings to configure helm for a service
