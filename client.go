@@ -6508,6 +6508,42 @@ func (t *GetServiceDeploymentForAgent_ServiceDeployment_Contexts) GetConfigurati
 	return t.Configuration
 }
 
+type GetServiceDeploymentForAgent_ServiceDeployment_SyncConfig_NamespaceMetadata struct {
+	Labels      map[string]interface{} "json:\"labels,omitempty\" graphql:\"labels\""
+	Annotations map[string]interface{} "json:\"annotations,omitempty\" graphql:\"annotations\""
+}
+
+func (t *GetServiceDeploymentForAgent_ServiceDeployment_SyncConfig_NamespaceMetadata) GetLabels() map[string]interface{} {
+	if t == nil {
+		t = &GetServiceDeploymentForAgent_ServiceDeployment_SyncConfig_NamespaceMetadata{}
+	}
+	return t.Labels
+}
+func (t *GetServiceDeploymentForAgent_ServiceDeployment_SyncConfig_NamespaceMetadata) GetAnnotations() map[string]interface{} {
+	if t == nil {
+		t = &GetServiceDeploymentForAgent_ServiceDeployment_SyncConfig_NamespaceMetadata{}
+	}
+	return t.Annotations
+}
+
+type GetServiceDeploymentForAgent_ServiceDeployment_SyncConfig struct {
+	CreateNamespace   *bool                                                                        "json:\"createNamespace,omitempty\" graphql:\"createNamespace\""
+	NamespaceMetadata *GetServiceDeploymentForAgent_ServiceDeployment_SyncConfig_NamespaceMetadata "json:\"namespaceMetadata,omitempty\" graphql:\"namespaceMetadata\""
+}
+
+func (t *GetServiceDeploymentForAgent_ServiceDeployment_SyncConfig) GetCreateNamespace() *bool {
+	if t == nil {
+		t = &GetServiceDeploymentForAgent_ServiceDeployment_SyncConfig{}
+	}
+	return t.CreateNamespace
+}
+func (t *GetServiceDeploymentForAgent_ServiceDeployment_SyncConfig) GetNamespaceMetadata() *GetServiceDeploymentForAgent_ServiceDeployment_SyncConfig_NamespaceMetadata {
+	if t == nil {
+		t = &GetServiceDeploymentForAgent_ServiceDeployment_SyncConfig{}
+	}
+	return t.NamespaceMetadata
+}
+
 type GetServiceDeploymentForAgent_ServiceDeployment struct {
 	ID            string                                                          "json:\"id\" graphql:\"id\""
 	Name          string                                                          "json:\"name\" graphql:\"name\""
@@ -6522,6 +6558,7 @@ type GetServiceDeploymentForAgent_ServiceDeployment struct {
 	Helm          *GetServiceDeploymentForAgent_ServiceDeployment_Helm            "json:\"helm,omitempty\" graphql:\"helm\""
 	Configuration []*GetServiceDeploymentForAgent_ServiceDeployment_Configuration "json:\"configuration,omitempty\" graphql:\"configuration\""
 	Contexts      []*GetServiceDeploymentForAgent_ServiceDeployment_Contexts      "json:\"contexts,omitempty\" graphql:\"contexts\""
+	SyncConfig    *GetServiceDeploymentForAgent_ServiceDeployment_SyncConfig      "json:\"syncConfig,omitempty\" graphql:\"syncConfig\""
 }
 
 func (t *GetServiceDeploymentForAgent_ServiceDeployment) GetID() string {
@@ -6601,6 +6638,12 @@ func (t *GetServiceDeploymentForAgent_ServiceDeployment) GetContexts() []*GetSer
 		t = &GetServiceDeploymentForAgent_ServiceDeployment{}
 	}
 	return t.Contexts
+}
+func (t *GetServiceDeploymentForAgent_ServiceDeployment) GetSyncConfig() *GetServiceDeploymentForAgent_ServiceDeployment_SyncConfig {
+	if t == nil {
+		t = &GetServiceDeploymentForAgent_ServiceDeployment{}
+	}
+	return t.SyncConfig
 }
 
 type GetServiceDeploymentByHandle_ServiceDeployment_ServiceDeploymentExtended_Revision_RevisionFragment_Git struct {
@@ -13417,6 +13460,13 @@ const GetServiceDeploymentForAgentDocument = `query GetServiceDeploymentForAgent
 		contexts {
 			name
 			configuration
+		}
+		syncConfig {
+			createNamespace
+			namespaceMetadata {
+				labels
+				annotations
+			}
 		}
 	}
 }

@@ -1358,6 +1358,8 @@ type GlobalService struct {
 	Tags []*Tag `json:"tags,omitempty"`
 	// the kubernetes distribution to target with this global service
 	Distro *ClusterDistro `json:"distro,omitempty"`
+	// the service template used to spawn services
+	Template *ServiceTemplate `json:"template,omitempty"`
 	// the service to replicate across clusters
 	Service *ServiceDeployment `json:"service,omitempty"`
 	// whether to only apply to clusters with this provider
@@ -1376,7 +1378,8 @@ type GlobalServiceAttributes struct {
 	// kubernetes distribution to target
 	Distro *ClusterDistro `json:"distro,omitempty"`
 	// cluster api provider to target
-	ProviderID *string `json:"providerId,omitempty"`
+	ProviderID *string                    `json:"providerId,omitempty"`
+	Template   *ServiceTemplateAttributes `json:"template,omitempty"`
 }
 
 type GlobalServiceConnection struct {
@@ -1530,6 +1533,51 @@ type HTTPConnectionAttributes struct {
 
 type HTTPIngressRule struct {
 	Paths []*IngressPath `json:"paths,omitempty"`
+}
+
+type InfrastructureStack struct {
+	ID *string `json:"id,omitempty"`
+	// the name of the stack
+	Name string `json:"name"`
+	// A type for the stack, specifies the tool to use to apply it
+	Type StackType `json:"type"`
+	// reference w/in the repository where the IaC lives
+	Git GitRef `json:"git"`
+	// optional k8s job configuration for the job that will apply this stack
+	JobSpec *JobGateSpec `json:"jobSpec,omitempty"`
+	// version/image config for the tool you're using
+	Configuration StackConfiguration `json:"configuration"`
+	// whether to require approval
+	Approval *bool `json:"approval,omitempty"`
+	// whether this stack was previously deleted and is pending cleanup
+	DeletedAt *string             `json:"deletedAt,omitempty"`
+	Runs      *StackRunConnection `json:"runs,omitempty"`
+	// files bound to a run of this stack
+	Files []*StackFile `json:"files,omitempty"`
+	// environment variables for this stack
+	Environment []*StackEnvironment `json:"environment,omitempty"`
+	// the most recent output for this stack
+	Output []*StackOutput `json:"output,omitempty"`
+	// the most recent state of this stack
+	State *StackState `json:"state,omitempty"`
+	// the cluster this stack runs on
+	Cluster *Cluster `json:"cluster,omitempty"`
+	// the git repository you're sourcing IaC from
+	Repository    *GitRepository   `json:"repository,omitempty"`
+	ReadBindings  []*PolicyBinding `json:"readBindings,omitempty"`
+	WriteBindings []*PolicyBinding `json:"writeBindings,omitempty"`
+	InsertedAt    *string          `json:"insertedAt,omitempty"`
+	UpdatedAt     *string          `json:"updatedAt,omitempty"`
+}
+
+type InfrastructureStackConnection struct {
+	PageInfo PageInfo                   `json:"pageInfo"`
+	Edges    []*InfrastructureStackEdge `json:"edges,omitempty"`
+}
+
+type InfrastructureStackEdge struct {
+	Node   *InfrastructureStack `json:"node,omitempty"`
+	Cursor *string              `json:"cursor,omitempty"`
 }
 
 type Ingress struct {
@@ -3080,6 +3128,34 @@ type RouterSinkAttributes struct {
 	SinkID string `json:"sinkId"`
 }
 
+type RunLogAttributes struct {
+	Logs string `json:"logs"`
+}
+
+type RunLogs struct {
+	ID         string  `json:"id"`
+	Logs       string  `json:"logs"`
+	InsertedAt *string `json:"insertedAt,omitempty"`
+	UpdatedAt  *string `json:"updatedAt,omitempty"`
+}
+
+type RunStep struct {
+	ID         string     `json:"id"`
+	Status     StepStatus `json:"status"`
+	Stage      StepStage  `json:"stage"`
+	Name       string     `json:"name"`
+	Cmd        string     `json:"cmd"`
+	Args       []string   `json:"args,omitempty"`
+	Index      int64      `json:"index"`
+	Logs       []*RunLogs `json:"logs,omitempty"`
+	InsertedAt *string    `json:"insertedAt,omitempty"`
+	UpdatedAt  *string    `json:"updatedAt,omitempty"`
+}
+
+type RunStepAttributes struct {
+	Status StepStatus `json:"status"`
+}
+
 type Runbook struct {
 	Name       string                      `json:"name"`
 	Spec       RunbookSpec                 `json:"spec"`
@@ -3516,7 +3592,8 @@ type ServiceTemplate struct {
 	// the id of a repository to source manifests for this service
 	RepositoryID *string `json:"repositoryId,omitempty"`
 	// a list of context ids to add to this service
-	Contexts []*string `json:"contexts,omitempty"`
+	Contexts   []*string      `json:"contexts,omitempty"`
+	Repository *GitRepository `json:"repository,omitempty"`
 	// possibly secret configuration for all spawned services, don't query this in list endpoints
 	Configuration []*ServiceConfiguration `json:"configuration,omitempty"`
 	// settings to configure git for a service
@@ -3602,6 +3679,177 @@ type Stack struct {
 	Sections   []*RecipeSection `json:"sections,omitempty"`
 	InsertedAt *string          `json:"insertedAt,omitempty"`
 	UpdatedAt  *string          `json:"updatedAt,omitempty"`
+}
+
+type StackAttributes struct {
+	// the name of the stack
+	Name string `json:"name"`
+	// A type for the stack, specifies the tool to use to apply it
+	Type StackType `json:"type"`
+	// The repository to source IaC from
+	RepositoryID string `json:"repositoryId"`
+	// The cluster on which the terraform will be applied
+	ClusterID string `json:"clusterId"`
+	// reference w/in the repository where the IaC lives
+	Git GitRefAttributes `json:"git"`
+	// optional k8s job configuration for the job that will apply this stack
+	JobSpec *GateJobAttributes `json:"jobSpec,omitempty"`
+	// version/image config for the tool you're using
+	Configuration StackConfigurationAttributes `json:"configuration"`
+	// whether to require approval
+	Approval      *bool                         `json:"approval,omitempty"`
+	ReadBindings  []*PolicyBindingAttributes    `json:"readBindings,omitempty"`
+	WriteBindings []*PolicyBindingAttributes    `json:"writeBindings,omitempty"`
+	Files         []*StackFileAttributes        `json:"files,omitempty"`
+	Environemnt   []*StackEnvironmentAttributes `json:"environemnt,omitempty"`
+}
+
+type StackConfiguration struct {
+	// optional custom image you might want to use
+	Image *string `json:"image,omitempty"`
+	// the semver of the tool you wish to use
+	Version string `json:"version"`
+}
+
+type StackConfigurationAttributes struct {
+	// optional custom image you might want to use
+	Image *string `json:"image,omitempty"`
+	// the semver of the tool you wish to use
+	Version string `json:"version"`
+}
+
+type StackEnvironment struct {
+	Name   string `json:"name"`
+	Value  string `json:"value"`
+	Secret *bool  `json:"secret,omitempty"`
+}
+
+type StackEnvironmentAttributes struct {
+	Name   string `json:"name"`
+	Value  string `json:"value"`
+	Secret *bool  `json:"secret,omitempty"`
+}
+
+type StackFile struct {
+	Path    string `json:"path"`
+	Content string `json:"content"`
+}
+
+type StackFileAttributes struct {
+	Path    string `json:"path"`
+	Content string `json:"content"`
+}
+
+type StackOutput struct {
+	Name   string `json:"name"`
+	Value  string `json:"value"`
+	Secret *bool  `json:"secret,omitempty"`
+}
+
+type StackOutputAttributes struct {
+	Name   string `json:"name"`
+	Value  string `json:"value"`
+	Secret *bool  `json:"secret,omitempty"`
+}
+
+type StackRun struct {
+	ID string `json:"id"`
+	// The status of this run
+	Status StackStatus `json:"status"`
+	// the name of the stack
+	Name string `json:"name"`
+	// A type for the stack, specifies the tool to use to apply it
+	Type StackType `json:"type"`
+	// reference w/in the repository where the IaC lives
+	Git GitRef `json:"git"`
+	// optional k8s job configuration for the job that will apply this stack
+	JobSpec *JobGateSpec `json:"jobSpec,omitempty"`
+	// version/image config for the tool you're using
+	Configuration StackConfiguration `json:"configuration"`
+	// whether to require approval
+	Approval *bool `json:"approval,omitempty"`
+	// when this run was approved
+	ApprovedAt *string `json:"approvedAt,omitempty"`
+	// https url to fetch the latest tarball of stack IaC
+	Tarball string `json:"tarball"`
+	// the approver of this job
+	Approver *User `json:"approver,omitempty"`
+	// The steps to perform when running this stack
+	Steps []*RunStep `json:"steps,omitempty"`
+	// files bound to a run of this stack
+	Files []*StackFile `json:"files,omitempty"`
+	// environment variables for this stack
+	Environment []*StackEnvironment `json:"environment,omitempty"`
+	// the most recent output for this stack
+	Output []*StackOutput `json:"output,omitempty"`
+	// the most recent state of this stack
+	State *StackState `json:"state,omitempty"`
+	// a list of errors generated by the deployment operator
+	Errors []*ServiceError `json:"errors,omitempty"`
+	// the cluster this stack runs on
+	Cluster *Cluster `json:"cluster,omitempty"`
+	// the git repository you're sourcing IaC from
+	Repository *GitRepository `json:"repository,omitempty"`
+	InsertedAt *string        `json:"insertedAt,omitempty"`
+	UpdatedAt  *string        `json:"updatedAt,omitempty"`
+}
+
+type StackRunAttributes struct {
+	// The status of this run
+	Status StackStatus `json:"status"`
+	// the state from this runs plan or apply
+	State *StackStateAttributes `json:"state,omitempty"`
+	// output generated by this run
+	Output []*StackOutputAttributes `json:"output,omitempty"`
+	// Any errors detected when trying to run this stack
+	Errors []*ServiceErrorAttributes `json:"errors,omitempty"`
+}
+
+type StackRunConnection struct {
+	PageInfo PageInfo        `json:"pageInfo"`
+	Edges    []*StackRunEdge `json:"edges,omitempty"`
+}
+
+type StackRunEdge struct {
+	Node   *StackRun `json:"node,omitempty"`
+	Cursor *string   `json:"cursor,omitempty"`
+}
+
+type StackState struct {
+	ID    string                `json:"id"`
+	Plan  *string               `json:"plan,omitempty"`
+	State []*StackStateResource `json:"state,omitempty"`
+}
+
+type StackStateAttributes struct {
+	Plan  *string                         `json:"plan,omitempty"`
+	State []*StackStateResourceAttributes `json:"state,omitempty"`
+}
+
+type StackStateResource struct {
+	// a string identifier for this resource, different tools will have different conventions
+	Identifier string `json:"identifier"`
+	// a string name of the resource type
+	Resource string `json:"resource"`
+	// the name of the resource within that type
+	Name string `json:"name"`
+	// arbitrary configuration used to create the resource
+	Configuration *string `json:"configuration,omitempty"`
+	// identifiers this resource is linked to for graphing in the UI
+	Links []*string `json:"links,omitempty"`
+}
+
+type StackStateResourceAttributes struct {
+	// a string identifier for this resource, different tools will have different conventions
+	Identifier string `json:"identifier"`
+	// a string name of the resource type
+	Resource string `json:"resource"`
+	// the name of the resource within that type
+	Name string `json:"name"`
+	// arbitrary configuration used to create the resource
+	Configuration *string `json:"configuration,omitempty"`
+	// identifiers this resource is linked to for graphing in the UI
+	Links []*string `json:"links,omitempty"`
 }
 
 // the configuration of a service within a pipeline stage, including optional promotion criteria
@@ -5169,6 +5417,96 @@ func (e SinkType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+type StackStatus string
+
+const (
+	StackStatusQueued     StackStatus = "QUEUED"
+	StackStatusPending    StackStatus = "PENDING"
+	StackStatusRunning    StackStatus = "RUNNING"
+	StackStatusSuccessful StackStatus = "SUCCESSFUL"
+	StackStatusFailed     StackStatus = "FAILED"
+	StackStatusCancelled  StackStatus = "CANCELLED"
+)
+
+var AllStackStatus = []StackStatus{
+	StackStatusQueued,
+	StackStatusPending,
+	StackStatusRunning,
+	StackStatusSuccessful,
+	StackStatusFailed,
+	StackStatusCancelled,
+}
+
+func (e StackStatus) IsValid() bool {
+	switch e {
+	case StackStatusQueued, StackStatusPending, StackStatusRunning, StackStatusSuccessful, StackStatusFailed, StackStatusCancelled:
+		return true
+	}
+	return false
+}
+
+func (e StackStatus) String() string {
+	return string(e)
+}
+
+func (e *StackStatus) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = StackStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid StackStatus", str)
+	}
+	return nil
+}
+
+func (e StackStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type StackType string
+
+const (
+	StackTypeTerraform StackType = "TERRAFORM"
+	StackTypeAnsible   StackType = "ANSIBLE"
+)
+
+var AllStackType = []StackType{
+	StackTypeTerraform,
+	StackTypeAnsible,
+}
+
+func (e StackType) IsValid() bool {
+	switch e {
+	case StackTypeTerraform, StackTypeAnsible:
+		return true
+	}
+	return false
+}
+
+func (e StackType) String() string {
+	return string(e)
+}
+
+func (e *StackType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = StackType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid StackType", str)
+	}
+	return nil
+}
+
+func (e StackType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 type Status string
 
 const (
@@ -5215,6 +5553,94 @@ func (e *Status) UnmarshalGQL(v interface{}) error {
 }
 
 func (e Status) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type StepStage string
+
+const (
+	StepStagePlan   StepStage = "PLAN"
+	StepStageVerify StepStage = "VERIFY"
+	StepStageApply  StepStage = "APPLY"
+)
+
+var AllStepStage = []StepStage{
+	StepStagePlan,
+	StepStageVerify,
+	StepStageApply,
+}
+
+func (e StepStage) IsValid() bool {
+	switch e {
+	case StepStagePlan, StepStageVerify, StepStageApply:
+		return true
+	}
+	return false
+}
+
+func (e StepStage) String() string {
+	return string(e)
+}
+
+func (e *StepStage) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = StepStage(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid StepStage", str)
+	}
+	return nil
+}
+
+func (e StepStage) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type StepStatus string
+
+const (
+	StepStatusPending    StepStatus = "PENDING"
+	StepStatusRunning    StepStatus = "RUNNING"
+	StepStatusSuccessful StepStatus = "SUCCESSFUL"
+	StepStatusFailed     StepStatus = "FAILED"
+)
+
+var AllStepStatus = []StepStatus{
+	StepStatusPending,
+	StepStatusRunning,
+	StepStatusSuccessful,
+	StepStatusFailed,
+}
+
+func (e StepStatus) IsValid() bool {
+	switch e {
+	case StepStatusPending, StepStatusRunning, StepStatusSuccessful, StepStatusFailed:
+		return true
+	}
+	return false
+}
+
+func (e StepStatus) String() string {
+	return string(e)
+}
+
+func (e *StepStatus) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = StepStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid StepStatus", str)
+	}
+	return nil
+}
+
+func (e StepStatus) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

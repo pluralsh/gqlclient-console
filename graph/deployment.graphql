@@ -134,6 +134,13 @@ query GetServiceDeploymentForAgent($id: ID!) {
             name
             configuration
         }
+        syncConfig {
+            createNamespace
+            namespaceMetadata {
+                labels
+                annotations
+            }
+        }
     }
 }
 
