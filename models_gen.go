@@ -468,6 +468,8 @@ type Cluster struct {
 	Installed *bool `json:"installed,omitempty"`
 	// the cloud settings for this cluster (for instance its aws region)
 	Settings *CloudSettings `json:"settings,omitempty"`
+	// Checklist of tasks to complete to safely upgrade this cluster
+	UpgradePlan *ClusterUpgradePlan `json:"upgradePlan,omitempty"`
 	// the url of the kas server you can access this cluster from
 	KasURL *string `json:"kasUrl,omitempty"`
 	// a auth token to be used by the deploy operator, only readable on create
@@ -541,13 +543,15 @@ type ClusterAttributes struct {
 	Handle     *string `json:"handle,omitempty"`
 	ProviderID *string `json:"providerId,omitempty"`
 	// a cloud credential to use when provisioning this cluster
-	CredentialID  *string                    `json:"credentialId,omitempty"`
-	Version       *string                    `json:"version,omitempty"`
-	Distro        *ClusterDistro             `json:"distro,omitempty"`
-	Metadata      *string                    `json:"metadata,omitempty"`
-	Protect       *bool                      `json:"protect,omitempty"`
-	Kubeconfig    *KubeconfigAttributes      `json:"kubeconfig,omitempty"`
-	CloudSettings *CloudSettingsAttributes   `json:"cloudSettings,omitempty"`
+	CredentialID  *string                  `json:"credentialId,omitempty"`
+	Version       *string                  `json:"version,omitempty"`
+	Distro        *ClusterDistro           `json:"distro,omitempty"`
+	Metadata      *string                  `json:"metadata,omitempty"`
+	Protect       *bool                    `json:"protect,omitempty"`
+	Kubeconfig    *KubeconfigAttributes    `json:"kubeconfig,omitempty"`
+	CloudSettings *CloudSettingsAttributes `json:"cloudSettings,omitempty"`
+	// status of the upgrade plan for this cluster
+	UpgradePlan   *UpgradePlanAttributes     `json:"upgradePlan,omitempty"`
 	NodePools     []*NodePoolAttributes      `json:"nodePools,omitempty"`
 	ReadBindings  []*PolicyBindingAttributes `json:"readBindings,omitempty"`
 	WriteBindings []*PolicyBindingAttributes `json:"writeBindings,omitempty"`
@@ -747,11 +751,23 @@ type ClusterUpdateAttributes struct {
 	Service *ClusterServiceAttributes `json:"service,omitempty"`
 	// pass a kubeconfig for this cluster (DEPRECATED)
 	Kubeconfig *KubeconfigAttributes `json:"kubeconfig,omitempty"`
-	Protect    *bool                 `json:"protect,omitempty"`
-	Distro     *ClusterDistro        `json:"distro,omitempty"`
-	Metadata   *string               `json:"metadata,omitempty"`
-	NodePools  []*NodePoolAttributes `json:"nodePools,omitempty"`
-	Tags       []*TagAttributes      `json:"tags,omitempty"`
+	// status of the upgrade plan for this cluster
+	UpgradePlan *UpgradePlanAttributes `json:"upgradePlan,omitempty"`
+	Protect     *bool                  `json:"protect,omitempty"`
+	Distro      *ClusterDistro         `json:"distro,omitempty"`
+	Metadata    *string                `json:"metadata,omitempty"`
+	NodePools   []*NodePoolAttributes  `json:"nodePools,omitempty"`
+	Tags        []*TagAttributes       `json:"tags,omitempty"`
+}
+
+// A consolidated checklist of tasks that need to be completed to upgrade this cluster
+type ClusterUpgradePlan struct {
+	// whether api compatibilities with all addons and kubernetes are satisfied
+	Compatibilities *bool `json:"compatibilities,omitempty"`
+	// whether mutual api incompatibilities with all addons and kubernetes have been satisfied
+	Incompatibilities *bool `json:"incompatibilities,omitempty"`
+	// whether all api deprecations have been cleared for the target version
+	Deprecations *bool `json:"deprecations,omitempty"`
 }
 
 type Command struct {
@@ -903,6 +919,7 @@ type ConsoleConfiguration struct {
 	VpnEnabled    *bool              `json:"vpnEnabled,omitempty"`
 	Byok          *bool              `json:"byok,omitempty"`
 	ExternalOidc  *bool              `json:"externalOidc,omitempty"`
+	OidcName      *string            `json:"oidcName,omitempty"`
 	Features      *AvailableFeatures `json:"features,omitempty"`
 	Manifest      *PluralManifest    `json:"manifest,omitempty"`
 	GitStatus     *GitStatus         `json:"gitStatus,omitempty"`
@@ -1781,6 +1798,7 @@ type LogStream struct {
 type LoginInfo struct {
 	OidcURI  *string `json:"oidcUri,omitempty"`
 	External *bool   `json:"external,omitempty"`
+	OidcName *string `json:"oidcName,omitempty"`
 }
 
 type LokiLabelFilter struct {
@@ -3343,6 +3361,16 @@ type ScmWebhook struct {
 	UpdatedAt  *string `json:"updatedAt,omitempty"`
 }
 
+// The attributes to configure a new webhook for a SCM provider
+type ScmWebhookAttributes struct {
+	// the secret token for authenticating this webhook via hmac signature
+	Hmac string `json:"hmac"`
+	// the type of webhook to create
+	Type ScmType `json:"type"`
+	// the owner for this webhook in your SCM, eg a github org or gitlab group
+	Owner string `json:"owner"`
+}
+
 type ScmWebhookConnection struct {
 	PageInfo PageInfo          `json:"pageInfo"`
 	Edges    []*ScmWebhookEdge `json:"edges,omitempty"`
@@ -3630,10 +3658,11 @@ type ServiceTemplateAttributes struct {
 }
 
 type ServiceUpdateAttributes struct {
-	Version  *string `json:"version,omitempty"`
-	Protect  *bool   `json:"protect,omitempty"`
-	DryRun   *bool   `json:"dryRun,omitempty"`
-	Interval *string `json:"interval,omitempty"`
+	Version    *string               `json:"version,omitempty"`
+	Protect    *bool                 `json:"protect,omitempty"`
+	DryRun     *bool                 `json:"dryRun,omitempty"`
+	Interval   *string               `json:"interval,omitempty"`
+	SyncConfig *SyncConfigAttributes `json:"syncConfig,omitempty"`
 	// if you should apply liquid templating to raw yaml files, defaults to true
 	Templated       *bool                       `json:"templated,omitempty"`
 	Git             *GitRefAttributes           `json:"git,omitempty"`
@@ -3988,6 +4017,15 @@ type UpgradePlan struct {
 	Pods     []*Pod            `json:"pods,omitempty"`
 	Raw      string            `json:"raw"`
 	Events   []*Event          `json:"events,omitempty"`
+}
+
+type UpgradePlanAttributes struct {
+	// whether all compatibilities for a cluster upgrade have been cleared
+	Compatibilities *bool `json:"compatibilities,omitempty"`
+	// whether all incompatibilities w/in runtime components have been cleared
+	Incompatibilities *bool `json:"incompatibilities,omitempty"`
+	// whether all deprecated apis for a cluster have been cleared
+	Deprecations *bool `json:"deprecations,omitempty"`
 }
 
 type UpgradePlanSpec struct {
