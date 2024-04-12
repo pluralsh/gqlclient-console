@@ -120,6 +120,7 @@ fragment BaseClusterFragment on Cluster {
     pingedAt
     currentVersion
     kasUrl
+    metadata
     credential { ...ProviderCredentialFragment }
     provider { ...BaseClusterProviderFragment }
     nodePools { ...NodePoolFragment }
@@ -137,6 +138,7 @@ fragment ClusterFragment on Cluster {
     currentVersion
     kasUrl
     deletedAt
+    metadata
     tags { ...ClusterTags }
     credential { ...ProviderCredentialFragment }
     provider { ...ClusterProviderFragment }

@@ -915,6 +915,7 @@ type BaseClusterFragment struct {
 	PingedAt       *string                      "json:\"pingedAt,omitempty\" graphql:\"pingedAt\""
 	CurrentVersion *string                      "json:\"currentVersion,omitempty\" graphql:\"currentVersion\""
 	KasURL         *string                      "json:\"kasUrl,omitempty\" graphql:\"kasUrl\""
+	Metadata       map[string]interface{}       "json:\"metadata,omitempty\" graphql:\"metadata\""
 	Credential     *ProviderCredentialFragment  "json:\"credential,omitempty\" graphql:\"credential\""
 	Provider       *BaseClusterProviderFragment "json:\"provider,omitempty\" graphql:\"provider\""
 	NodePools      []*NodePoolFragment          "json:\"nodePools,omitempty\" graphql:\"nodePools\""
@@ -968,6 +969,12 @@ func (t *BaseClusterFragment) GetKasURL() *string {
 	}
 	return t.KasURL
 }
+func (t *BaseClusterFragment) GetMetadata() map[string]interface{} {
+	if t == nil {
+		t = &BaseClusterFragment{}
+	}
+	return t.Metadata
+}
 func (t *BaseClusterFragment) GetCredential() *ProviderCredentialFragment {
 	if t == nil {
 		t = &BaseClusterFragment{}
@@ -999,6 +1006,7 @@ type ClusterFragment struct {
 	CurrentVersion *string                     "json:\"currentVersion,omitempty\" graphql:\"currentVersion\""
 	KasURL         *string                     "json:\"kasUrl,omitempty\" graphql:\"kasUrl\""
 	DeletedAt      *string                     "json:\"deletedAt,omitempty\" graphql:\"deletedAt\""
+	Metadata       map[string]interface{}      "json:\"metadata,omitempty\" graphql:\"metadata\""
 	Tags           []*ClusterTags              "json:\"tags,omitempty\" graphql:\"tags\""
 	Credential     *ProviderCredentialFragment "json:\"credential,omitempty\" graphql:\"credential\""
 	Provider       *ClusterProviderFragment    "json:\"provider,omitempty\" graphql:\"provider\""
@@ -1071,6 +1079,12 @@ func (t *ClusterFragment) GetDeletedAt() *string {
 		t = &ClusterFragment{}
 	}
 	return t.DeletedAt
+}
+func (t *ClusterFragment) GetMetadata() map[string]interface{} {
+	if t == nil {
+		t = &ClusterFragment{}
+	}
+	return t.Metadata
 }
 func (t *ClusterFragment) GetTags() []*ClusterTags {
 	if t == nil {
@@ -3852,6 +3866,7 @@ type CreateCluster_CreateCluster struct {
 	CurrentVersion *string                     "json:\"currentVersion,omitempty\" graphql:\"currentVersion\""
 	KasURL         *string                     "json:\"kasUrl,omitempty\" graphql:\"kasUrl\""
 	DeletedAt      *string                     "json:\"deletedAt,omitempty\" graphql:\"deletedAt\""
+	Metadata       map[string]interface{}      "json:\"metadata,omitempty\" graphql:\"metadata\""
 	Tags           []*ClusterTags              "json:\"tags,omitempty\" graphql:\"tags\""
 	Credential     *ProviderCredentialFragment "json:\"credential,omitempty\" graphql:\"credential\""
 	Provider       *ClusterProviderFragment    "json:\"provider,omitempty\" graphql:\"provider\""
@@ -3930,6 +3945,12 @@ func (t *CreateCluster_CreateCluster) GetDeletedAt() *string {
 		t = &CreateCluster_CreateCluster{}
 	}
 	return t.DeletedAt
+}
+func (t *CreateCluster_CreateCluster) GetMetadata() map[string]interface{} {
+	if t == nil {
+		t = &CreateCluster_CreateCluster{}
+	}
+	return t.Metadata
 }
 func (t *CreateCluster_CreateCluster) GetTags() []*ClusterTags {
 	if t == nil {
@@ -4768,6 +4789,7 @@ type GetClusterWithToken_Cluster struct {
 	CurrentVersion *string                     "json:\"currentVersion,omitempty\" graphql:\"currentVersion\""
 	KasURL         *string                     "json:\"kasUrl,omitempty\" graphql:\"kasUrl\""
 	DeletedAt      *string                     "json:\"deletedAt,omitempty\" graphql:\"deletedAt\""
+	Metadata       map[string]interface{}      "json:\"metadata,omitempty\" graphql:\"metadata\""
 	Tags           []*ClusterTags              "json:\"tags,omitempty\" graphql:\"tags\""
 	Credential     *ProviderCredentialFragment "json:\"credential,omitempty\" graphql:\"credential\""
 	Provider       *ClusterProviderFragment    "json:\"provider,omitempty\" graphql:\"provider\""
@@ -4841,6 +4863,12 @@ func (t *GetClusterWithToken_Cluster) GetDeletedAt() *string {
 		t = &GetClusterWithToken_Cluster{}
 	}
 	return t.DeletedAt
+}
+func (t *GetClusterWithToken_Cluster) GetMetadata() map[string]interface{} {
+	if t == nil {
+		t = &GetClusterWithToken_Cluster{}
+	}
+	return t.Metadata
 }
 func (t *GetClusterWithToken_Cluster) GetTags() []*ClusterTags {
 	if t == nil {
@@ -9450,6 +9478,7 @@ fragment ClusterFragment on Cluster {
 	currentVersion
 	kasUrl
 	deletedAt
+	metadata
 	tags {
 		... ClusterTags
 	}
@@ -9629,6 +9658,7 @@ fragment ClusterFragment on Cluster {
 	currentVersion
 	kasUrl
 	deletedAt
+	metadata
 	tags {
 		... ClusterTags
 	}
@@ -9809,6 +9839,7 @@ fragment ClusterFragment on Cluster {
 	currentVersion
 	kasUrl
 	deletedAt
+	metadata
 	tags {
 		... ClusterTags
 	}
@@ -9988,6 +10019,7 @@ fragment ClusterFragment on Cluster {
 	currentVersion
 	kasUrl
 	deletedAt
+	metadata
 	tags {
 		... ClusterTags
 	}
@@ -10565,6 +10597,7 @@ fragment ClusterFragment on Cluster {
 	currentVersion
 	kasUrl
 	deletedAt
+	metadata
 	tags {
 		... ClusterTags
 	}
@@ -10746,6 +10779,7 @@ fragment ClusterFragment on Cluster {
 	currentVersion
 	kasUrl
 	deletedAt
+	metadata
 	tags {
 		... ClusterTags
 	}
@@ -10926,6 +10960,7 @@ fragment ClusterFragment on Cluster {
 	currentVersion
 	kasUrl
 	deletedAt
+	metadata
 	tags {
 		... ClusterTags
 	}
@@ -11106,6 +11141,7 @@ fragment ClusterFragment on Cluster {
 	currentVersion
 	kasUrl
 	deletedAt
+	metadata
 	tags {
 		... ClusterTags
 	}
@@ -11893,6 +11929,7 @@ fragment BaseClusterFragment on Cluster {
 	pingedAt
 	currentVersion
 	kasUrl
+	metadata
 	credential {
 		... ProviderCredentialFragment
 	}
@@ -12067,6 +12104,7 @@ fragment BaseClusterFragment on Cluster {
 	pingedAt
 	currentVersion
 	kasUrl
+	metadata
 	credential {
 		... ProviderCredentialFragment
 	}
@@ -12332,6 +12370,7 @@ fragment BaseClusterFragment on Cluster {
 	pingedAt
 	currentVersion
 	kasUrl
+	metadata
 	credential {
 		... ProviderCredentialFragment
 	}
@@ -12506,6 +12545,7 @@ fragment BaseClusterFragment on Cluster {
 	pingedAt
 	currentVersion
 	kasUrl
+	metadata
 	credential {
 		... ProviderCredentialFragment
 	}
@@ -13283,6 +13323,7 @@ fragment BaseClusterFragment on Cluster {
 	pingedAt
 	currentVersion
 	kasUrl
+	metadata
 	credential {
 		... ProviderCredentialFragment
 	}
@@ -13518,6 +13559,7 @@ fragment BaseClusterFragment on Cluster {
 	pingedAt
 	currentVersion
 	kasUrl
+	metadata
 	credential {
 		... ProviderCredentialFragment
 	}
@@ -14121,6 +14163,7 @@ fragment BaseClusterFragment on Cluster {
 	pingedAt
 	currentVersion
 	kasUrl
+	metadata
 	credential {
 		... ProviderCredentialFragment
 	}
@@ -14294,6 +14337,7 @@ fragment BaseClusterFragment on Cluster {
 	pingedAt
 	currentVersion
 	kasUrl
+	metadata
 	credential {
 		... ProviderCredentialFragment
 	}
