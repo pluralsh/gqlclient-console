@@ -6419,14 +6419,15 @@ func (t *GetServiceDeployment_ServiceDeployment_ServiceDeploymentExtended_Servic
 }
 
 type GetServiceDeploymentForAgent_ServiceDeployment_Cluster struct {
-	ID             string  "json:\"id\" graphql:\"id\""
-	Name           string  "json:\"name\" graphql:\"name\""
-	Handle         *string "json:\"handle,omitempty\" graphql:\"handle\""
-	Self           *bool   "json:\"self,omitempty\" graphql:\"self\""
-	Version        *string "json:\"version,omitempty\" graphql:\"version\""
-	PingedAt       *string "json:\"pingedAt,omitempty\" graphql:\"pingedAt\""
-	CurrentVersion *string "json:\"currentVersion,omitempty\" graphql:\"currentVersion\""
-	KasURL         *string "json:\"kasUrl,omitempty\" graphql:\"kasUrl\""
+	ID             string                 "json:\"id\" graphql:\"id\""
+	Name           string                 "json:\"name\" graphql:\"name\""
+	Handle         *string                "json:\"handle,omitempty\" graphql:\"handle\""
+	Self           *bool                  "json:\"self,omitempty\" graphql:\"self\""
+	Version        *string                "json:\"version,omitempty\" graphql:\"version\""
+	PingedAt       *string                "json:\"pingedAt,omitempty\" graphql:\"pingedAt\""
+	Metadata       map[string]interface{} "json:\"metadata,omitempty\" graphql:\"metadata\""
+	CurrentVersion *string                "json:\"currentVersion,omitempty\" graphql:\"currentVersion\""
+	KasURL         *string                "json:\"kasUrl,omitempty\" graphql:\"kasUrl\""
 }
 
 func (t *GetServiceDeploymentForAgent_ServiceDeployment_Cluster) GetID() string {
@@ -6464,6 +6465,12 @@ func (t *GetServiceDeploymentForAgent_ServiceDeployment_Cluster) GetPingedAt() *
 		t = &GetServiceDeploymentForAgent_ServiceDeployment_Cluster{}
 	}
 	return t.PingedAt
+}
+func (t *GetServiceDeploymentForAgent_ServiceDeployment_Cluster) GetMetadata() map[string]interface{} {
+	if t == nil {
+		t = &GetServiceDeploymentForAgent_ServiceDeployment_Cluster{}
+	}
+	return t.Metadata
 }
 func (t *GetServiceDeploymentForAgent_ServiceDeployment_Cluster) GetCurrentVersion() *string {
 	if t == nil {
@@ -13485,6 +13492,7 @@ const GetServiceDeploymentForAgentDocument = `query GetServiceDeploymentForAgent
 			self
 			version
 			pingedAt
+			metadata
 			currentVersion
 			kasUrl
 		}

@@ -117,6 +117,7 @@ query GetServiceDeploymentForAgent($id: ID!) {
             self
             version
             pingedAt
+            metadata
             currentVersion
             kasUrl
         }
