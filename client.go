@@ -35,6 +35,7 @@ type ConsoleClient interface {
 	MyCluster(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*MyCluster, error)
 	GetGlobalServiceDeployment(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*GetGlobalServiceDeployment, error)
 	CreateGlobalServiceDeployment(ctx context.Context, serviceID string, attributes GlobalServiceAttributes, interceptors ...clientv2.RequestInterceptor) (*CreateGlobalServiceDeployment, error)
+	CreateGlobalServiceDeploymentFromTemplate(ctx context.Context, attributes GlobalServiceAttributes, interceptors ...clientv2.RequestInterceptor) (*CreateGlobalServiceDeploymentFromTemplate, error)
 	UpdateGlobalServiceDeployment(ctx context.Context, id string, attributes GlobalServiceAttributes, interceptors ...clientv2.RequestInterceptor) (*UpdateGlobalServiceDeployment, error)
 	DeleteGlobalServiceDeployment(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DeleteGlobalServiceDeployment, error)
 	CreateServiceDeployment(ctx context.Context, clusterID string, attributes ServiceDeploymentAttributes, interceptors ...clientv2.RequestInterceptor) (*CreateServiceDeployment, error)
@@ -5349,6 +5350,28 @@ func (t *CreateGlobalServiceDeployment_CreateGlobalService_GlobalServiceFragment
 	return t.ID
 }
 
+type CreateGlobalServiceDeploymentFromTemplate_CreateGlobalService_GlobalServiceFragment_Provider struct {
+	ID string "json:\"id\" graphql:\"id\""
+}
+
+func (t *CreateGlobalServiceDeploymentFromTemplate_CreateGlobalService_GlobalServiceFragment_Provider) GetID() string {
+	if t == nil {
+		t = &CreateGlobalServiceDeploymentFromTemplate_CreateGlobalService_GlobalServiceFragment_Provider{}
+	}
+	return t.ID
+}
+
+type CreateGlobalServiceDeploymentFromTemplate_CreateGlobalService_GlobalServiceFragment_Service struct {
+	ID string "json:\"id\" graphql:\"id\""
+}
+
+func (t *CreateGlobalServiceDeploymentFromTemplate_CreateGlobalService_GlobalServiceFragment_Service) GetID() string {
+	if t == nil {
+		t = &CreateGlobalServiceDeploymentFromTemplate_CreateGlobalService_GlobalServiceFragment_Service{}
+	}
+	return t.ID
+}
+
 type UpdateGlobalServiceDeployment_UpdateGlobalService_GlobalServiceFragment_Provider struct {
 	ID string "json:\"id\" graphql:\"id\""
 }
@@ -8321,6 +8344,17 @@ type CreateGlobalServiceDeployment struct {
 func (t *CreateGlobalServiceDeployment) GetCreateGlobalService() *GlobalServiceFragment {
 	if t == nil {
 		t = &CreateGlobalServiceDeployment{}
+	}
+	return t.CreateGlobalService
+}
+
+type CreateGlobalServiceDeploymentFromTemplate struct {
+	CreateGlobalService *GlobalServiceFragment "json:\"createGlobalService,omitempty\" graphql:\"createGlobalService\""
+}
+
+func (t *CreateGlobalServiceDeploymentFromTemplate) GetCreateGlobalService() *GlobalServiceFragment {
+	if t == nil {
+		t = &CreateGlobalServiceDeploymentFromTemplate{}
 	}
 	return t.CreateGlobalService
 }
@@ -11812,6 +11846,48 @@ func (c *Client) CreateGlobalServiceDeployment(ctx context.Context, serviceID st
 
 	var res CreateGlobalServiceDeployment
 	if err := c.Client.Post(ctx, "CreateGlobalServiceDeployment", CreateGlobalServiceDeploymentDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const CreateGlobalServiceDeploymentFromTemplateDocument = `mutation CreateGlobalServiceDeploymentFromTemplate ($attributes: GlobalServiceAttributes!) {
+	createGlobalService(attributes: $attributes) {
+		... GlobalServiceFragment
+	}
+}
+fragment GlobalServiceFragment on GlobalService {
+	id
+	name
+	distro
+	provider {
+		id
+	}
+	service {
+		id
+	}
+	tags {
+		... ClusterTags
+	}
+}
+fragment ClusterTags on Tag {
+	name
+	value
+}
+`
+
+func (c *Client) CreateGlobalServiceDeploymentFromTemplate(ctx context.Context, attributes GlobalServiceAttributes, interceptors ...clientv2.RequestInterceptor) (*CreateGlobalServiceDeploymentFromTemplate, error) {
+	vars := map[string]interface{}{
+		"attributes": attributes,
+	}
+
+	var res CreateGlobalServiceDeploymentFromTemplate
+	if err := c.Client.Post(ctx, "CreateGlobalServiceDeploymentFromTemplate", CreateGlobalServiceDeploymentFromTemplateDocument, &res, vars, interceptors...); err != nil {
 		if c.Client.ParseDataWhenErrors {
 			return &res, err
 		}
@@ -17296,116 +17372,117 @@ func (c *Client) DeleteGroupMember(ctx context.Context, userID string, groupID s
 }
 
 var DocumentOperationNames = map[string]string{
-	CreateClusterBackupDocument:               "CreateClusterBackup",
-	GetClusterBackupDocument:                  "GetClusterBackup",
-	UpdateClusterRestoreDocument:              "UpdateClusterRestore",
-	CreateClusterRestoreDocument:              "CreateClusterRestore",
-	GetClusterRestoreDocument:                 "GetClusterRestore",
-	CreateClusterDocument:                     "CreateCluster",
-	UpdateClusterDocument:                     "UpdateCluster",
-	DeleteClusterDocument:                     "DeleteCluster",
-	DetachClusterDocument:                     "DetachCluster",
-	CreateClusterProviderDocument:             "CreateClusterProvider",
-	UpdateClusterProviderDocument:             "UpdateClusterProvider",
-	DeleteClusterProviderDocument:             "DeleteClusterProvider",
-	PingClusterDocument:                       "PingCluster",
-	RegisterRuntimeServicesDocument:           "RegisterRuntimeServices",
-	ListClustersDocument:                      "ListClusters",
-	GetClusterDocument:                        "GetCluster",
-	GetClusterWithTokenDocument:               "GetClusterWithToken",
-	GetClusterByHandleDocument:                "GetClusterByHandle",
-	GetClusterProviderDocument:                "GetClusterProvider",
-	GetClusterProviderByCloudDocument:         "GetClusterProviderByCloud",
-	ListClusterServicesDocument:               "ListClusterServices",
-	ListServiceDeploymentsDocument:            "ListServiceDeployments",
-	MyClusterDocument:                         "MyCluster",
-	GetGlobalServiceDeploymentDocument:        "GetGlobalServiceDeployment",
-	CreateGlobalServiceDeploymentDocument:     "CreateGlobalServiceDeployment",
-	UpdateGlobalServiceDeploymentDocument:     "UpdateGlobalServiceDeployment",
-	DeleteGlobalServiceDeploymentDocument:     "DeleteGlobalServiceDeployment",
-	CreateServiceDeploymentDocument:           "CreateServiceDeployment",
-	CreateServiceDeploymentWithHandleDocument: "CreateServiceDeploymentWithHandle",
-	DeleteServiceDeploymentDocument:           "DeleteServiceDeployment",
-	UpdateServiceDeploymentDocument:           "UpdateServiceDeployment",
-	UpdateServiceDeploymentWithHandleDocument: "UpdateServiceDeploymentWithHandle",
-	CloneServiceDeploymentDocument:            "CloneServiceDeployment",
-	CloneServiceDeploymentWithHandleDocument:  "CloneServiceDeploymentWithHandle",
-	RollbackServiceDocument:                   "RollbackService",
-	UpdateServiceComponentsDocument:           "updateServiceComponents",
-	AddServiceErrorDocument:                   "AddServiceError",
-	UpdateDeploymentSettingsDocument:          "UpdateDeploymentSettings",
-	ListDeploymentSettingsDocument:            "ListDeploymentSettings",
-	GetServiceDeploymentDocument:              "GetServiceDeployment",
-	GetServiceDeploymentForAgentDocument:      "GetServiceDeploymentForAgent",
-	GetServiceDeploymentByHandleDocument:      "GetServiceDeploymentByHandle",
-	ListServiceDeploymentDocument:             "ListServiceDeployment",
-	PagedClusterServicesDocument:              "PagedClusterServices",
-	ListServiceDeploymentByHandleDocument:     "ListServiceDeploymentByHandle",
-	GetServiceContextDocument:                 "GetServiceContext",
-	SaveServiceContextDocument:                "SaveServiceContext",
-	DeleteServiceContextDocument:              "DeleteServiceContext",
-	CreateGlobalServiceDocument:               "CreateGlobalService",
-	UpdateGlobalServiceDocument:               "UpdateGlobalService",
-	DeleteGlobalServiceDocument:               "DeleteGlobalService",
-	KickServiceDocument:                       "KickService",
-	KickServiceByHandleDocument:               "KickServiceByHandle",
-	GetClusterGatesDocument:                   "GetClusterGates",
-	PagedClusterGatesDocument:                 "PagedClusterGates",
-	UpdateGateDocument:                        "updateGate",
-	GetClusterGateDocument:                    "GetClusterGate",
-	CreateGitRepositoryDocument:               "CreateGitRepository",
-	UpdateGitRepositoryDocument:               "UpdateGitRepository",
-	DeleteGitRepositoryDocument:               "DeleteGitRepository",
-	ListGitRepositoriesDocument:               "ListGitRepositories",
-	GetGitRepositoryDocument:                  "GetGitRepository",
-	GetScmConnectionDocument:                  "GetScmConnection",
-	GetScmConnectionByNameDocument:            "GetScmConnectionByName",
-	ListScmConnectionsDocument:                "ListScmConnections",
-	CreateScmConnectionDocument:               "CreateScmConnection",
-	UpdateScmConnectionDocument:               "UpdateScmConnection",
-	DeleteScmConnectionDocument:               "DeleteScmConnection",
-	GetPrAutomationDocument:                   "GetPrAutomation",
-	GetPrAutomationByNameDocument:             "GetPrAutomationByName",
-	ListPrAutomationsDocument:                 "ListPrAutomations",
-	CreatePrAutomationDocument:                "CreatePrAutomation",
-	UpdatePrAutomationDocument:                "UpdatePrAutomation",
-	DeletePrAutomationDocument:                "DeletePrAutomation",
-	CreatePullRequestDocument:                 "CreatePullRequest",
-	CreateNamespaceDocument:                   "CreateNamespace",
-	UpdateNamespaceDocument:                   "UpdateNamespace",
-	DeleteNamespaceDocument:                   "DeleteNamespace",
-	ListNamespacesDocument:                    "ListNamespaces",
-	ListClusterNamespacesDocument:             "ListClusterNamespaces",
-	GetNamespaceDocument:                      "GetNamespace",
-	UpsertNotificationSinkDocument:            "UpsertNotificationSink",
-	DeleteNotificationSinkDocument:            "DeleteNotificationSink",
-	GetNotificationSinkDocument:               "GetNotificationSink",
-	GetNotificationSinkByNameDocument:         "GetNotificationSinkByName",
-	ListNotificationSinksDocument:             "ListNotificationSinks",
-	GetNotificationRouterDocument:             "GetNotificationRouter",
-	GetNotificationRouterByNameDocument:       "GetNotificationRouterByName",
-	DeleteNotificationRouterDocument:          "DeleteNotificationRouter",
-	UpsertNotificationRouterDocument:          "UpsertNotificationRouter",
-	UpsertPolicyConstraintsDocument:           "UpsertPolicyConstraints",
-	ListPolicyConstraintsDocument:             "ListPolicyConstraints",
-	ListViolationStatisticsDocument:           "ListViolationStatistics",
-	SavePipelineDocument:                      "SavePipeline",
-	DeletePipelineDocument:                    "DeletePipeline",
-	GetPipelineDocument:                       "GetPipeline",
-	GetPipelinesDocument:                      "GetPipelines",
-	CreatePipelineContextDocument:             "CreatePipelineContext",
-	GetPipelineContextDocument:                "GetPipelineContext",
-	CreateProviderCredentialDocument:          "CreateProviderCredential",
-	DeleteProviderCredentialDocument:          "DeleteProviderCredential",
-	ListProvidersDocument:                     "ListProviders",
-	UpdateRbacDocument:                        "UpdateRbac",
-	CreateAccessTokenDocument:                 "CreateAccessToken",
-	DeleteAccessTokenDocument:                 "DeleteAccessToken",
-	ListAccessTokensDocument:                  "ListAccessTokens",
-	GetAccessTokenDocument:                    "GetAccessToken",
-	TokenExchangeDocument:                     "TokenExchange",
-	GetUserDocument:                           "GetUser",
-	GetGroupDocument:                          "GetGroup",
-	AddGroupMemberDocument:                    "AddGroupMember",
-	DeleteGroupMemberDocument:                 "DeleteGroupMember",
+	CreateClusterBackupDocument:                       "CreateClusterBackup",
+	GetClusterBackupDocument:                          "GetClusterBackup",
+	UpdateClusterRestoreDocument:                      "UpdateClusterRestore",
+	CreateClusterRestoreDocument:                      "CreateClusterRestore",
+	GetClusterRestoreDocument:                         "GetClusterRestore",
+	CreateClusterDocument:                             "CreateCluster",
+	UpdateClusterDocument:                             "UpdateCluster",
+	DeleteClusterDocument:                             "DeleteCluster",
+	DetachClusterDocument:                             "DetachCluster",
+	CreateClusterProviderDocument:                     "CreateClusterProvider",
+	UpdateClusterProviderDocument:                     "UpdateClusterProvider",
+	DeleteClusterProviderDocument:                     "DeleteClusterProvider",
+	PingClusterDocument:                               "PingCluster",
+	RegisterRuntimeServicesDocument:                   "RegisterRuntimeServices",
+	ListClustersDocument:                              "ListClusters",
+	GetClusterDocument:                                "GetCluster",
+	GetClusterWithTokenDocument:                       "GetClusterWithToken",
+	GetClusterByHandleDocument:                        "GetClusterByHandle",
+	GetClusterProviderDocument:                        "GetClusterProvider",
+	GetClusterProviderByCloudDocument:                 "GetClusterProviderByCloud",
+	ListClusterServicesDocument:                       "ListClusterServices",
+	ListServiceDeploymentsDocument:                    "ListServiceDeployments",
+	MyClusterDocument:                                 "MyCluster",
+	GetGlobalServiceDeploymentDocument:                "GetGlobalServiceDeployment",
+	CreateGlobalServiceDeploymentDocument:             "CreateGlobalServiceDeployment",
+	CreateGlobalServiceDeploymentFromTemplateDocument: "CreateGlobalServiceDeploymentFromTemplate",
+	UpdateGlobalServiceDeploymentDocument:             "UpdateGlobalServiceDeployment",
+	DeleteGlobalServiceDeploymentDocument:             "DeleteGlobalServiceDeployment",
+	CreateServiceDeploymentDocument:                   "CreateServiceDeployment",
+	CreateServiceDeploymentWithHandleDocument:         "CreateServiceDeploymentWithHandle",
+	DeleteServiceDeploymentDocument:                   "DeleteServiceDeployment",
+	UpdateServiceDeploymentDocument:                   "UpdateServiceDeployment",
+	UpdateServiceDeploymentWithHandleDocument:         "UpdateServiceDeploymentWithHandle",
+	CloneServiceDeploymentDocument:                    "CloneServiceDeployment",
+	CloneServiceDeploymentWithHandleDocument:          "CloneServiceDeploymentWithHandle",
+	RollbackServiceDocument:                           "RollbackService",
+	UpdateServiceComponentsDocument:                   "updateServiceComponents",
+	AddServiceErrorDocument:                           "AddServiceError",
+	UpdateDeploymentSettingsDocument:                  "UpdateDeploymentSettings",
+	ListDeploymentSettingsDocument:                    "ListDeploymentSettings",
+	GetServiceDeploymentDocument:                      "GetServiceDeployment",
+	GetServiceDeploymentForAgentDocument:              "GetServiceDeploymentForAgent",
+	GetServiceDeploymentByHandleDocument:              "GetServiceDeploymentByHandle",
+	ListServiceDeploymentDocument:                     "ListServiceDeployment",
+	PagedClusterServicesDocument:                      "PagedClusterServices",
+	ListServiceDeploymentByHandleDocument:             "ListServiceDeploymentByHandle",
+	GetServiceContextDocument:                         "GetServiceContext",
+	SaveServiceContextDocument:                        "SaveServiceContext",
+	DeleteServiceContextDocument:                      "DeleteServiceContext",
+	CreateGlobalServiceDocument:                       "CreateGlobalService",
+	UpdateGlobalServiceDocument:                       "UpdateGlobalService",
+	DeleteGlobalServiceDocument:                       "DeleteGlobalService",
+	KickServiceDocument:                               "KickService",
+	KickServiceByHandleDocument:                       "KickServiceByHandle",
+	GetClusterGatesDocument:                           "GetClusterGates",
+	PagedClusterGatesDocument:                         "PagedClusterGates",
+	UpdateGateDocument:                                "updateGate",
+	GetClusterGateDocument:                            "GetClusterGate",
+	CreateGitRepositoryDocument:                       "CreateGitRepository",
+	UpdateGitRepositoryDocument:                       "UpdateGitRepository",
+	DeleteGitRepositoryDocument:                       "DeleteGitRepository",
+	ListGitRepositoriesDocument:                       "ListGitRepositories",
+	GetGitRepositoryDocument:                          "GetGitRepository",
+	GetScmConnectionDocument:                          "GetScmConnection",
+	GetScmConnectionByNameDocument:                    "GetScmConnectionByName",
+	ListScmConnectionsDocument:                        "ListScmConnections",
+	CreateScmConnectionDocument:                       "CreateScmConnection",
+	UpdateScmConnectionDocument:                       "UpdateScmConnection",
+	DeleteScmConnectionDocument:                       "DeleteScmConnection",
+	GetPrAutomationDocument:                           "GetPrAutomation",
+	GetPrAutomationByNameDocument:                     "GetPrAutomationByName",
+	ListPrAutomationsDocument:                         "ListPrAutomations",
+	CreatePrAutomationDocument:                        "CreatePrAutomation",
+	UpdatePrAutomationDocument:                        "UpdatePrAutomation",
+	DeletePrAutomationDocument:                        "DeletePrAutomation",
+	CreatePullRequestDocument:                         "CreatePullRequest",
+	CreateNamespaceDocument:                           "CreateNamespace",
+	UpdateNamespaceDocument:                           "UpdateNamespace",
+	DeleteNamespaceDocument:                           "DeleteNamespace",
+	ListNamespacesDocument:                            "ListNamespaces",
+	ListClusterNamespacesDocument:                     "ListClusterNamespaces",
+	GetNamespaceDocument:                              "GetNamespace",
+	UpsertNotificationSinkDocument:                    "UpsertNotificationSink",
+	DeleteNotificationSinkDocument:                    "DeleteNotificationSink",
+	GetNotificationSinkDocument:                       "GetNotificationSink",
+	GetNotificationSinkByNameDocument:                 "GetNotificationSinkByName",
+	ListNotificationSinksDocument:                     "ListNotificationSinks",
+	GetNotificationRouterDocument:                     "GetNotificationRouter",
+	GetNotificationRouterByNameDocument:               "GetNotificationRouterByName",
+	DeleteNotificationRouterDocument:                  "DeleteNotificationRouter",
+	UpsertNotificationRouterDocument:                  "UpsertNotificationRouter",
+	UpsertPolicyConstraintsDocument:                   "UpsertPolicyConstraints",
+	ListPolicyConstraintsDocument:                     "ListPolicyConstraints",
+	ListViolationStatisticsDocument:                   "ListViolationStatistics",
+	SavePipelineDocument:                              "SavePipeline",
+	DeletePipelineDocument:                            "DeletePipeline",
+	GetPipelineDocument:                               "GetPipeline",
+	GetPipelinesDocument:                              "GetPipelines",
+	CreatePipelineContextDocument:                     "CreatePipelineContext",
+	GetPipelineContextDocument:                        "GetPipelineContext",
+	CreateProviderCredentialDocument:                  "CreateProviderCredential",
+	DeleteProviderCredentialDocument:                  "DeleteProviderCredential",
+	ListProvidersDocument:                             "ListProviders",
+	UpdateRbacDocument:                                "UpdateRbac",
+	CreateAccessTokenDocument:                         "CreateAccessToken",
+	DeleteAccessTokenDocument:                         "DeleteAccessToken",
+	ListAccessTokensDocument:                          "ListAccessTokens",
+	GetAccessTokenDocument:                            "GetAccessToken",
+	TokenExchangeDocument:                             "TokenExchange",
+	GetUserDocument:                                   "GetUser",
+	GetGroupDocument:                                  "GetGroup",
+	AddGroupMemberDocument:                            "AddGroupMember",
+	DeleteGroupMemberDocument:                         "DeleteGroupMember",
 }

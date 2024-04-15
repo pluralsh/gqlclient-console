@@ -10,6 +10,12 @@ mutation CreateGlobalServiceDeployment($serviceId: ID!, $attributes: GlobalServi
     }
 }
 
+mutation CreateGlobalServiceDeploymentFromTemplate($attributes: GlobalServiceAttributes!) {
+    createGlobalService(attributes: $attributes) {
+        ...GlobalServiceFragment
+    }
+}
+
 mutation UpdateGlobalServiceDeployment($id: ID!, $attributes: GlobalServiceAttributes!) {
     updateGlobalService(id: $id, attributes: $attributes) {
         ...GlobalServiceFragment
