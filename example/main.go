@@ -36,7 +36,7 @@ func main() {
 			wrapped: http.DefaultTransport,
 		},
 	}
-	graphqlClient := gqlclient.NewClient(&httpClient, "https://app.plural.sh/gql")
+	graphqlClient := gqlclient.NewClient(&httpClient, "https://app.plural.sh/gql", nil)
 	meResp, err := graphqlClient.MyCluster(context.Background())
 	if err != nil {
 		return
