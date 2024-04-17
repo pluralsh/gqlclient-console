@@ -1,0 +1,114 @@
+fragment InfrastructureStackEdgeFragment on InfrastructureStackEdge {
+    node { ...InfrastructureStackFragment}
+}
+
+fragment StackRunEdgeFragment on StackRunEdge {
+    node { ...StackRunFragment}
+}
+
+fragment InfrastructureStackFragment on InfrastructureStack {
+    id
+    name
+    type
+    git { ...GitRefFragment }
+    jobSpec { ...JobGateSpecFragment}
+    configuration { ...StackConfigurationFragment}
+    approval
+    deletedAt
+    files { ...StackFileFragment}
+    environment { ...StackEnvironmentFragment}
+    output { ...StackOutputFragment}
+    state { ...StackStateFragment}
+    repository { ...GitRepositoryFragment}
+    writeBindings {
+        ...PolicyBindingFragment
+    }
+    readBindings {
+        ...PolicyBindingFragment
+    }
+
+}
+
+fragment StackRunFragment on StackRun {
+    id
+    name
+    type
+    status
+    approval
+    approvedAt
+    tarball
+    state { ...StackStateFragment}
+    approver { ...UserFragment}
+    steps { ...RunStepFragment}
+    files { ...StackFileFragment}
+    git { ...GitRefFragment }
+    repository { ...GitRepositoryFragment}
+    jobSpec { ...JobGateSpecFragment}
+    configuration { ...StackConfigurationFragment}
+    environment { ...StackEnvironmentFragment}
+    output { ...StackOutputFragment}
+    errors { ...ServiceErrorFragment}
+
+}
+
+fragment ServiceErrorFragment on ServiceError {
+    source
+    message
+}
+
+fragment StackOutputFragment on StackOutput {
+    name
+    value
+    secret
+}
+
+fragment StackStateFragment on StackState {
+    id
+    plan
+    state { ...StackStateResourceFragment}
+}
+
+fragment StackStateResourceFragment on StackStateResource {
+    identifier
+    resource
+    name
+    configuration
+    links
+}
+
+fragment StackEnvironmentFragment on StackEnvironment {
+    name
+    value
+    secret
+}
+
+fragment StackFileFragment on StackFile {
+    path
+    content
+}
+
+fragment RunStepFragment on RunStep {
+    id
+    status
+    name
+    cmd
+    args
+    index
+    stage
+}
+
+
+fragment StackConfigurationFragment on StackConfiguration {
+    image
+    version
+}
+
+fragment JobGateSpecFragment on JobGateSpec {
+    namespace
+    raw
+    labels
+    annotations
+    serviceAccount
+    containers {...ContainerSpecFragment}
+}
+

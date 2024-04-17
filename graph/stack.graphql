@@ -1,0 +1,29 @@
+query ListClusterStacks($after: String, $first: Int, $before: String, $last: Int) {
+    clusterStackRuns(after: $after, first: $first, before: $before, last: $last) {
+        pageInfo { ...PageInfoFragment}
+        edges {
+            ...StackRunEdgeFragment
+        }
+    }
+}
+
+query ListInfrastructureStacks($after: String, $first: Int, $before: String, $last: Int) {
+    infrastructureStacks(after: $after, first: $first, before: $before, last: $last) {
+        pageInfo { ...PageInfoFragment}
+        edges {
+            ...InfrastructureStackEdgeFragment
+        }
+    }
+}
+
+query GetStackRun($id: ID!) {
+    stackRun(id: $id) {
+        ...StackRunFragment
+    }
+}
+
+query GetInfrastructureStack($id: ID!) {
+    infrastructureStack(id: $id) {
+        ...InfrastructureStackFragment
+    }
+}
