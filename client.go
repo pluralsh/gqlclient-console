@@ -49,7 +49,7 @@ type ConsoleClient interface {
 	UpdateServiceComponents(ctx context.Context, id string, components []*ComponentAttributes, errors []*ServiceErrorAttributes, interceptors ...clientv2.RequestInterceptor) (*UpdateServiceComponents, error)
 	AddServiceError(ctx context.Context, id string, errors []*ServiceErrorAttributes, interceptors ...clientv2.RequestInterceptor) (*AddServiceError, error)
 	UpdateDeploymentSettings(ctx context.Context, attributes DeploymentSettingsAttributes, interceptors ...clientv2.RequestInterceptor) (*UpdateDeploymentSettings, error)
-	ListDeploymentSettings(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*ListDeploymentSettings, error)
+	GetDeploymentSettings(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*GetDeploymentSettings, error)
 	GetServiceDeployment(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*GetServiceDeployment, error)
 	GetServiceDeploymentForAgent(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*GetServiceDeploymentForAgent, error)
 	GetServiceDeploymentByHandle(ctx context.Context, cluster string, name string, interceptors ...clientv2.RequestInterceptor) (*GetServiceDeploymentByHandle, error)
@@ -1466,6 +1466,7 @@ func (t *GitRepositoryEdgeFragment) GetCursor() *string {
 type DeploymentSettingsFragment struct {
 	ID                 string                   "json:\"id\" graphql:\"id\""
 	Name               string                   "json:\"name\" graphql:\"name\""
+	AgentHelmValues    *string                  "json:\"agentHelmValues,omitempty\" graphql:\"agentHelmValues\""
 	WriteBindings      []*PolicyBindingFragment "json:\"writeBindings,omitempty\" graphql:\"writeBindings\""
 	ReadBindings       []*PolicyBindingFragment "json:\"readBindings,omitempty\" graphql:\"readBindings\""
 	CreateBindings     []*PolicyBindingFragment "json:\"createBindings,omitempty\" graphql:\"createBindings\""
@@ -1484,6 +1485,12 @@ func (t *DeploymentSettingsFragment) GetName() string {
 		t = &DeploymentSettingsFragment{}
 	}
 	return t.Name
+}
+func (t *DeploymentSettingsFragment) GetAgentHelmValues() *string {
+	if t == nil {
+		t = &DeploymentSettingsFragment{}
+	}
+	return t.AgentHelmValues
 }
 func (t *DeploymentSettingsFragment) GetWriteBindings() []*PolicyBindingFragment {
 	if t == nil {
@@ -9394,13 +9401,13 @@ func (t *UpdateDeploymentSettings) GetUpdateDeploymentSettings() *DeploymentSett
 	return t.UpdateDeploymentSettings
 }
 
-type ListDeploymentSettings struct {
+type GetDeploymentSettings struct {
 	DeploymentSettings *DeploymentSettingsFragment "json:\"deploymentSettings,omitempty\" graphql:\"deploymentSettings\""
 }
 
-func (t *ListDeploymentSettings) GetDeploymentSettings() *DeploymentSettingsFragment {
+func (t *GetDeploymentSettings) GetDeploymentSettings() *DeploymentSettingsFragment {
 	if t == nil {
-		t = &ListDeploymentSettings{}
+		t = &GetDeploymentSettings{}
 	}
 	return t.DeploymentSettings
 }
@@ -14183,6 +14190,7 @@ const UpdateDeploymentSettingsDocument = `mutation UpdateDeploymentSettings ($at
 fragment DeploymentSettingsFragment on DeploymentSettings {
 	id
 	name
+	agentHelmValues
 	writeBindings {
 		... PolicyBindingFragment
 	}
@@ -14245,7 +14253,7 @@ func (c *Client) UpdateDeploymentSettings(ctx context.Context, attributes Deploy
 	return &res, nil
 }
 
-const ListDeploymentSettingsDocument = `query ListDeploymentSettings {
+const GetDeploymentSettingsDocument = `query GetDeploymentSettings {
 	deploymentSettings {
 		... DeploymentSettingsFragment
 	}
@@ -14253,6 +14261,7 @@ const ListDeploymentSettingsDocument = `query ListDeploymentSettings {
 fragment DeploymentSettingsFragment on DeploymentSettings {
 	id
 	name
+	agentHelmValues
 	writeBindings {
 		... PolicyBindingFragment
 	}
@@ -14298,11 +14307,11 @@ fragment GitRepositoryFragment on GitRepository {
 }
 `
 
-func (c *Client) ListDeploymentSettings(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*ListDeploymentSettings, error) {
+func (c *Client) GetDeploymentSettings(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*GetDeploymentSettings, error) {
 	vars := map[string]interface{}{}
 
-	var res ListDeploymentSettings
-	if err := c.Client.Post(ctx, "ListDeploymentSettings", ListDeploymentSettingsDocument, &res, vars, interceptors...); err != nil {
+	var res GetDeploymentSettings
+	if err := c.Client.Post(ctx, "GetDeploymentSettings", GetDeploymentSettingsDocument, &res, vars, interceptors...); err != nil {
 		if c.Client.ParseDataWhenErrors {
 			return &res, err
 		}
@@ -18973,7 +18982,7 @@ var DocumentOperationNames = map[string]string{
 	UpdateServiceComponentsDocument:                   "updateServiceComponents",
 	AddServiceErrorDocument:                           "AddServiceError",
 	UpdateDeploymentSettingsDocument:                  "UpdateDeploymentSettings",
-	ListDeploymentSettingsDocument:                    "ListDeploymentSettings",
+	GetDeploymentSettingsDocument:                     "GetDeploymentSettings",
 	GetServiceDeploymentDocument:                      "GetServiceDeployment",
 	GetServiceDeploymentForAgentDocument:              "GetServiceDeploymentForAgent",
 	GetServiceDeploymentByHandleDocument:              "GetServiceDeploymentByHandle",

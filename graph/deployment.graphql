@@ -94,7 +94,7 @@ mutation UpdateDeploymentSettings($attributes: DeploymentSettingsAttributes!) {
     }
 }
 
-query ListDeploymentSettings {
+query GetDeploymentSettings {
     deploymentSettings{
         ...DeploymentSettingsFragment
     }

@@ -236,6 +236,7 @@ fragment GitRepositoryEdgeFragment on GitRepositoryEdge {
 fragment DeploymentSettingsFragment on DeploymentSettings {
     id
     name
+    agentHelmValues
     writeBindings {
         ...PolicyBindingFragment
     }
