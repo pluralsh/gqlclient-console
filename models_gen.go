@@ -1838,9 +1838,10 @@ type ManagedNamespace struct {
 	// the timestamp this namespace was deleted at, indicating it's currently draining
 	DeletedAt *string `json:"deletedAt,omitempty"`
 	// A template for creating the core service for this namespace
-	Service    *ServiceTemplate `json:"service,omitempty"`
-	InsertedAt *string          `json:"insertedAt,omitempty"`
-	UpdatedAt  *string          `json:"updatedAt,omitempty"`
+	Service    *ServiceTemplate             `json:"service,omitempty"`
+	Services   *ServiceDeploymentConnection `json:"services,omitempty"`
+	InsertedAt *string                      `json:"insertedAt,omitempty"`
+	UpdatedAt  *string                      `json:"updatedAt,omitempty"`
 }
 
 // Attributes for configuring a managed namespace
@@ -2363,6 +2364,8 @@ type PipelineGate struct {
 	Status *GateStatus `json:"status,omitempty"`
 	// the kubernetes job running this gate (should only be fetched lazily as this is a heavy operation)
 	Job *Job `json:"job,omitempty"`
+	// the edge this gate lives on
+	Edge *PipelineStageEdge `json:"edge,omitempty"`
 	// the cluster this gate can run on
 	Cluster *Cluster `json:"cluster,omitempty"`
 	// the last user to approve this gate
@@ -2444,6 +2447,7 @@ type PipelineStageEdge struct {
 	From       PipelineStage   `json:"from"`
 	To         PipelineStage   `json:"to"`
 	Gates      []*PipelineGate `json:"gates,omitempty"`
+	Pipeline   *Pipeline       `json:"pipeline,omitempty"`
 	InsertedAt *string         `json:"insertedAt,omitempty"`
 	UpdatedAt  *string         `json:"updatedAt,omitempty"`
 }

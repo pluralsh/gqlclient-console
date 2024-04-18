@@ -26,7 +26,17 @@ fragment InfrastructureStackFragment on InfrastructureStack {
     readBindings {
         ...PolicyBindingFragment
     }
+    runs {
+        ...StackRunConnectionFragment
+    }
 
+}
+
+fragment StackRunConnectionFragment on StackRunConnection {
+    pageInfo { ...PageInfoFragment}
+    edges {
+        ...StackRunEdgeFragment
+    }
 }
 
 fragment StackRunFragment on StackRun {

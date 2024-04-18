@@ -22,6 +22,36 @@ query GetStackRun($id: ID!) {
     }
 }
 
+mutation UpdateStackRun($id: ID!, $attributes: StackRunAttributes!) {
+    updateStackRun(id: $id, attributes: $attributes) {
+        ...StackRunFragment
+    }
+}
+
+mutation ApproveStackRun($id: ID!) {
+    approveStackRun(id: $id) {
+        ...StackRunFragment
+    }
+}
+
+mutation CreateStack($attributes: StackAttributes!) {
+    createStack(attributes: $attributes) {
+        ...InfrastructureStackFragment
+    }
+}
+
+mutation UpdateStack($id: ID!, $attributes: StackAttributes!) {
+    updateStack(id: $id, attributes: $attributes) {
+        ...InfrastructureStackFragment
+    }
+}
+
+mutation DeleteStack($id: ID!) {
+    deleteStack(id: $id){
+        ...InfrastructureStackFragment
+    }
+}
+
 query GetInfrastructureStack($id: ID!) {
     infrastructureStack(id: $id) {
         ...InfrastructureStackFragment
