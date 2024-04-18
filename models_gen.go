@@ -2257,6 +2257,7 @@ type PersonaSidebarAttributes struct {
 // A reference to a custom resource you want to be displayed in the k8s dashboard
 type PinnedCustomResource struct {
 	ID          string   `json:"id"`
+	Name        string   `json:"name"`
 	DisplayName string   `json:"displayName"`
 	Group       string   `json:"group"`
 	Version     string   `json:"version"`
@@ -2266,6 +2267,7 @@ type PinnedCustomResource struct {
 }
 
 type PinnedCustomResourceAttributes struct {
+	Name        string  `json:"name"`
 	DisplayName string  `json:"displayName"`
 	Group       string  `json:"group"`
 	Version     string  `json:"version"`
