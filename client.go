@@ -916,6 +916,38 @@ func (t *HelmSpecFragment) GetValuesFiles() []*string {
 	return t.ValuesFiles
 }
 
+type TinyClusterFragment struct {
+	ID     string  "json:\"id\" graphql:\"id\""
+	Name   string  "json:\"name\" graphql:\"name\""
+	Handle *string "json:\"handle,omitempty\" graphql:\"handle\""
+	Self   *bool   "json:\"self,omitempty\" graphql:\"self\""
+}
+
+func (t *TinyClusterFragment) GetID() string {
+	if t == nil {
+		t = &TinyClusterFragment{}
+	}
+	return t.ID
+}
+func (t *TinyClusterFragment) GetName() string {
+	if t == nil {
+		t = &TinyClusterFragment{}
+	}
+	return t.Name
+}
+func (t *TinyClusterFragment) GetHandle() *string {
+	if t == nil {
+		t = &TinyClusterFragment{}
+	}
+	return t.Handle
+}
+func (t *TinyClusterFragment) GetSelf() *bool {
+	if t == nil {
+		t = &TinyClusterFragment{}
+	}
+	return t.Self
+}
+
 type BaseClusterFragment struct {
 	ID             string                       "json:\"id\" graphql:\"id\""
 	Name           string                       "json:\"name\" graphql:\"name\""
@@ -2558,6 +2590,7 @@ type InfrastructureStackFragment struct {
 	Git           *GitRefFragment             "json:\"git\" graphql:\"git\""
 	JobSpec       *JobGateSpecFragment        "json:\"jobSpec,omitempty\" graphql:\"jobSpec\""
 	Configuration *StackConfigurationFragment "json:\"configuration\" graphql:\"configuration\""
+	Cluster       *TinyClusterFragment        "json:\"cluster,omitempty\" graphql:\"cluster\""
 	Approval      *bool                       "json:\"approval,omitempty\" graphql:\"approval\""
 	DeletedAt     *string                     "json:\"deletedAt,omitempty\" graphql:\"deletedAt\""
 	Files         []*StackFileFragment        "json:\"files,omitempty\" graphql:\"files\""
@@ -2604,6 +2637,12 @@ func (t *InfrastructureStackFragment) GetConfiguration() *StackConfigurationFrag
 		t = &InfrastructureStackFragment{}
 	}
 	return t.Configuration
+}
+func (t *InfrastructureStackFragment) GetCluster() *TinyClusterFragment {
+	if t == nil {
+		t = &InfrastructureStackFragment{}
+	}
+	return t.Cluster
 }
 func (t *InfrastructureStackFragment) GetApproval() *bool {
 	if t == nil {
@@ -18473,6 +18512,9 @@ fragment InfrastructureStackFragment on InfrastructureStack {
 	configuration {
 		... StackConfigurationFragment
 	}
+	cluster {
+		... TinyClusterFragment
+	}
 	approval
 	deletedAt
 	files {
@@ -18526,6 +18568,12 @@ fragment ContainerSpecFragment on ContainerSpec {
 fragment StackConfigurationFragment on StackConfiguration {
 	image
 	version
+}
+fragment TinyClusterFragment on Cluster {
+	id
+	name
+	handle
+	self
 }
 fragment StackFileFragment on StackFile {
 	path
@@ -19073,6 +19121,9 @@ fragment InfrastructureStackFragment on InfrastructureStack {
 	configuration {
 		... StackConfigurationFragment
 	}
+	cluster {
+		... TinyClusterFragment
+	}
 	approval
 	deletedAt
 	files {
@@ -19126,6 +19177,12 @@ fragment ContainerSpecFragment on ContainerSpec {
 fragment StackConfigurationFragment on StackConfiguration {
 	image
 	version
+}
+fragment TinyClusterFragment on Cluster {
+	id
+	name
+	handle
+	self
 }
 fragment StackFileFragment on StackFile {
 	path
@@ -19219,6 +19276,9 @@ fragment InfrastructureStackFragment on InfrastructureStack {
 	configuration {
 		... StackConfigurationFragment
 	}
+	cluster {
+		... TinyClusterFragment
+	}
 	approval
 	deletedAt
 	files {
@@ -19272,6 +19332,12 @@ fragment ContainerSpecFragment on ContainerSpec {
 fragment StackConfigurationFragment on StackConfiguration {
 	image
 	version
+}
+fragment TinyClusterFragment on Cluster {
+	id
+	name
+	handle
+	self
 }
 fragment StackFileFragment on StackFile {
 	path
@@ -19366,6 +19432,9 @@ fragment InfrastructureStackFragment on InfrastructureStack {
 	configuration {
 		... StackConfigurationFragment
 	}
+	cluster {
+		... TinyClusterFragment
+	}
 	approval
 	deletedAt
 	files {
@@ -19419,6 +19488,12 @@ fragment ContainerSpecFragment on ContainerSpec {
 fragment StackConfigurationFragment on StackConfiguration {
 	image
 	version
+}
+fragment TinyClusterFragment on Cluster {
+	id
+	name
+	handle
+	self
 }
 fragment StackFileFragment on StackFile {
 	path
@@ -19512,6 +19587,9 @@ fragment InfrastructureStackFragment on InfrastructureStack {
 	configuration {
 		... StackConfigurationFragment
 	}
+	cluster {
+		... TinyClusterFragment
+	}
 	approval
 	deletedAt
 	files {
@@ -19565,6 +19643,12 @@ fragment ContainerSpecFragment on ContainerSpec {
 fragment StackConfigurationFragment on StackConfiguration {
 	image
 	version
+}
+fragment TinyClusterFragment on Cluster {
+	id
+	name
+	handle
+	self
 }
 fragment StackFileFragment on StackFile {
 	path

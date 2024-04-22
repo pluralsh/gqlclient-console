@@ -111,6 +111,13 @@ fragment HelmSpecFragment on HelmSpec {
     valuesFiles
 }
 
+fragment TinyClusterFragment on Cluster {
+    id
+    name
+    handle
+    self
+}
+
 fragment BaseClusterFragment on Cluster {
     id
     name

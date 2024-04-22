@@ -13,6 +13,7 @@ fragment InfrastructureStackFragment on InfrastructureStack {
     git { ...GitRefFragment }
     jobSpec { ...JobGateSpecFragment}
     configuration { ...StackConfigurationFragment}
+    cluster { ...TinyClusterFragment }
     approval
     deletedAt
     files { ...StackFileFragment}
