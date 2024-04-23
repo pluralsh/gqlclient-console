@@ -31,6 +31,12 @@ fragment InfrastructureStackFragment on InfrastructureStack {
 
 
 fragment StackRunFragment on StackRun {
+    ...StackRunBaseFragment
+
+    approver { ...UserFragment}
+}
+
+fragment StackRunBaseFragment on StackRun {
     id
     type
     status
@@ -38,7 +44,6 @@ fragment StackRunFragment on StackRun {
     approvedAt
     tarball
     state { ...StackStateFragment}
-    approver { ...UserFragment}
     steps { ...RunStepFragment}
     files { ...StackFileFragment}
     git { ...GitRefFragment }
@@ -48,7 +53,6 @@ fragment StackRunFragment on StackRun {
     environment { ...StackEnvironmentFragment}
     output { ...StackOutputFragment}
     errors { ...ServiceErrorFragment}
-
 }
 
 fragment ServiceErrorFragment on ServiceError {

@@ -22,6 +22,12 @@ query GetStackRun($id: ID!) {
     }
 }
 
+query GetStackRunBase($id: ID!) {
+    stackRun(id: $id) {
+        ...StackRunBaseFragment
+    }
+}
+
 mutation UpdateStackRun($id: ID!, $attributes: StackRunAttributes!) {
     updateStackRun(id: $id, attributes: $attributes) {
         ...StackRunFragment

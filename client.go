@@ -117,6 +117,7 @@ type ConsoleClient interface {
 	ListClusterStacks(ctx context.Context, after *string, first *int64, before *string, last *int64, interceptors ...clientv2.RequestInterceptor) (*ListClusterStacks, error)
 	ListInfrastructureStacks(ctx context.Context, after *string, first *int64, before *string, last *int64, interceptors ...clientv2.RequestInterceptor) (*ListInfrastructureStacks, error)
 	GetStackRun(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*GetStackRun, error)
+	GetStackRunBase(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*GetStackRunBase, error)
 	UpdateStackRun(ctx context.Context, id string, attributes StackRunAttributes, interceptors ...clientv2.RequestInterceptor) (*UpdateStackRun, error)
 	ApproveStackRun(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*ApproveStackRun, error)
 	CreateStack(ctx context.Context, attributes StackAttributes, interceptors ...clientv2.RequestInterceptor) (*CreateStack, error)
@@ -2708,7 +2709,6 @@ type StackRunFragment struct {
 	ApprovedAt    *string                     "json:\"approvedAt,omitempty\" graphql:\"approvedAt\""
 	Tarball       string                      "json:\"tarball\" graphql:\"tarball\""
 	State         *StackStateFragment         "json:\"state,omitempty\" graphql:\"state\""
-	Approver      *UserFragment               "json:\"approver,omitempty\" graphql:\"approver\""
 	Steps         []*RunStepFragment          "json:\"steps,omitempty\" graphql:\"steps\""
 	Files         []*StackFileFragment        "json:\"files,omitempty\" graphql:\"files\""
 	Git           *GitRefFragment             "json:\"git\" graphql:\"git\""
@@ -2718,6 +2718,7 @@ type StackRunFragment struct {
 	Environment   []*StackEnvironmentFragment "json:\"environment,omitempty\" graphql:\"environment\""
 	Output        []*StackOutputFragment      "json:\"output,omitempty\" graphql:\"output\""
 	Errors        []*ServiceErrorFragment     "json:\"errors,omitempty\" graphql:\"errors\""
+	Approver      *UserFragment               "json:\"approver,omitempty\" graphql:\"approver\""
 }
 
 func (t *StackRunFragment) GetID() string {
@@ -2761,12 +2762,6 @@ func (t *StackRunFragment) GetState() *StackStateFragment {
 		t = &StackRunFragment{}
 	}
 	return t.State
-}
-func (t *StackRunFragment) GetApprover() *UserFragment {
-	if t == nil {
-		t = &StackRunFragment{}
-	}
-	return t.Approver
 }
 func (t *StackRunFragment) GetSteps() []*RunStepFragment {
 	if t == nil {
@@ -2819,6 +2814,128 @@ func (t *StackRunFragment) GetOutput() []*StackOutputFragment {
 func (t *StackRunFragment) GetErrors() []*ServiceErrorFragment {
 	if t == nil {
 		t = &StackRunFragment{}
+	}
+	return t.Errors
+}
+func (t *StackRunFragment) GetApprover() *UserFragment {
+	if t == nil {
+		t = &StackRunFragment{}
+	}
+	return t.Approver
+}
+
+type StackRunBaseFragment struct {
+	ID            string                      "json:\"id\" graphql:\"id\""
+	Type          StackType                   "json:\"type\" graphql:\"type\""
+	Status        StackStatus                 "json:\"status\" graphql:\"status\""
+	Approval      *bool                       "json:\"approval,omitempty\" graphql:\"approval\""
+	ApprovedAt    *string                     "json:\"approvedAt,omitempty\" graphql:\"approvedAt\""
+	Tarball       string                      "json:\"tarball\" graphql:\"tarball\""
+	State         *StackStateFragment         "json:\"state,omitempty\" graphql:\"state\""
+	Steps         []*RunStepFragment          "json:\"steps,omitempty\" graphql:\"steps\""
+	Files         []*StackFileFragment        "json:\"files,omitempty\" graphql:\"files\""
+	Git           *GitRefFragment             "json:\"git\" graphql:\"git\""
+	Repository    *GitRepositoryFragment      "json:\"repository,omitempty\" graphql:\"repository\""
+	JobSpec       *JobGateSpecFragment        "json:\"jobSpec,omitempty\" graphql:\"jobSpec\""
+	Configuration *StackConfigurationFragment "json:\"configuration\" graphql:\"configuration\""
+	Environment   []*StackEnvironmentFragment "json:\"environment,omitempty\" graphql:\"environment\""
+	Output        []*StackOutputFragment      "json:\"output,omitempty\" graphql:\"output\""
+	Errors        []*ServiceErrorFragment     "json:\"errors,omitempty\" graphql:\"errors\""
+}
+
+func (t *StackRunBaseFragment) GetID() string {
+	if t == nil {
+		t = &StackRunBaseFragment{}
+	}
+	return t.ID
+}
+func (t *StackRunBaseFragment) GetType() *StackType {
+	if t == nil {
+		t = &StackRunBaseFragment{}
+	}
+	return &t.Type
+}
+func (t *StackRunBaseFragment) GetStatus() *StackStatus {
+	if t == nil {
+		t = &StackRunBaseFragment{}
+	}
+	return &t.Status
+}
+func (t *StackRunBaseFragment) GetApproval() *bool {
+	if t == nil {
+		t = &StackRunBaseFragment{}
+	}
+	return t.Approval
+}
+func (t *StackRunBaseFragment) GetApprovedAt() *string {
+	if t == nil {
+		t = &StackRunBaseFragment{}
+	}
+	return t.ApprovedAt
+}
+func (t *StackRunBaseFragment) GetTarball() string {
+	if t == nil {
+		t = &StackRunBaseFragment{}
+	}
+	return t.Tarball
+}
+func (t *StackRunBaseFragment) GetState() *StackStateFragment {
+	if t == nil {
+		t = &StackRunBaseFragment{}
+	}
+	return t.State
+}
+func (t *StackRunBaseFragment) GetSteps() []*RunStepFragment {
+	if t == nil {
+		t = &StackRunBaseFragment{}
+	}
+	return t.Steps
+}
+func (t *StackRunBaseFragment) GetFiles() []*StackFileFragment {
+	if t == nil {
+		t = &StackRunBaseFragment{}
+	}
+	return t.Files
+}
+func (t *StackRunBaseFragment) GetGit() *GitRefFragment {
+	if t == nil {
+		t = &StackRunBaseFragment{}
+	}
+	return t.Git
+}
+func (t *StackRunBaseFragment) GetRepository() *GitRepositoryFragment {
+	if t == nil {
+		t = &StackRunBaseFragment{}
+	}
+	return t.Repository
+}
+func (t *StackRunBaseFragment) GetJobSpec() *JobGateSpecFragment {
+	if t == nil {
+		t = &StackRunBaseFragment{}
+	}
+	return t.JobSpec
+}
+func (t *StackRunBaseFragment) GetConfiguration() *StackConfigurationFragment {
+	if t == nil {
+		t = &StackRunBaseFragment{}
+	}
+	return t.Configuration
+}
+func (t *StackRunBaseFragment) GetEnvironment() []*StackEnvironmentFragment {
+	if t == nil {
+		t = &StackRunBaseFragment{}
+	}
+	return t.Environment
+}
+func (t *StackRunBaseFragment) GetOutput() []*StackOutputFragment {
+	if t == nil {
+		t = &StackRunBaseFragment{}
+	}
+	return t.Output
+}
+func (t *StackRunBaseFragment) GetErrors() []*ServiceErrorFragment {
+	if t == nil {
+		t = &StackRunBaseFragment{}
 	}
 	return t.Errors
 }
@@ -4327,38 +4444,38 @@ func (t *InfrastructureStackEdgeFragment_Node_InfrastructureStackFragment_JobSpe
 	return t.Secret
 }
 
-type StackRunEdgeFragment_Node_StackRunFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env struct {
+type StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env struct {
 	Name  string "json:\"name\" graphql:\"name\""
 	Value string "json:\"value\" graphql:\"value\""
 }
 
-func (t *StackRunEdgeFragment_Node_StackRunFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetName() string {
+func (t *StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetName() string {
 	if t == nil {
-		t = &StackRunEdgeFragment_Node_StackRunFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
+		t = &StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
 	}
 	return t.Name
 }
-func (t *StackRunEdgeFragment_Node_StackRunFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetValue() string {
+func (t *StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetValue() string {
 	if t == nil {
-		t = &StackRunEdgeFragment_Node_StackRunFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
+		t = &StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
 	}
 	return t.Value
 }
 
-type StackRunEdgeFragment_Node_StackRunFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom struct {
+type StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom struct {
 	ConfigMap string "json:\"configMap\" graphql:\"configMap\""
 	Secret    string "json:\"secret\" graphql:\"secret\""
 }
 
-func (t *StackRunEdgeFragment_Node_StackRunFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetConfigMap() string {
+func (t *StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetConfigMap() string {
 	if t == nil {
-		t = &StackRunEdgeFragment_Node_StackRunFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
+		t = &StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
 	}
 	return t.ConfigMap
 }
-func (t *StackRunEdgeFragment_Node_StackRunFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetSecret() string {
+func (t *StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetSecret() string {
 	if t == nil {
-		t = &StackRunEdgeFragment_Node_StackRunFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
+		t = &StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
 	}
 	return t.Secret
 }
@@ -4399,38 +4516,74 @@ func (t *InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_Cont
 	return t.Secret
 }
 
-type StackRunFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env struct {
+type StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env struct {
 	Name  string "json:\"name\" graphql:\"name\""
 	Value string "json:\"value\" graphql:\"value\""
 }
 
-func (t *StackRunFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetName() string {
+func (t *StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetName() string {
 	if t == nil {
-		t = &StackRunFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
+		t = &StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
 	}
 	return t.Name
 }
-func (t *StackRunFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetValue() string {
+func (t *StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetValue() string {
 	if t == nil {
-		t = &StackRunFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
+		t = &StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
 	}
 	return t.Value
 }
 
-type StackRunFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom struct {
+type StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom struct {
 	ConfigMap string "json:\"configMap\" graphql:\"configMap\""
 	Secret    string "json:\"secret\" graphql:\"secret\""
 }
 
-func (t *StackRunFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetConfigMap() string {
+func (t *StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetConfigMap() string {
 	if t == nil {
-		t = &StackRunFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
+		t = &StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
 	}
 	return t.ConfigMap
 }
-func (t *StackRunFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetSecret() string {
+func (t *StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetSecret() string {
 	if t == nil {
-		t = &StackRunFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
+		t = &StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
+	}
+	return t.Secret
+}
+
+type StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env struct {
+	Name  string "json:\"name\" graphql:\"name\""
+	Value string "json:\"value\" graphql:\"value\""
+}
+
+func (t *StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetName() string {
+	if t == nil {
+		t = &StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
+	}
+	return t.Name
+}
+func (t *StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetValue() string {
+	if t == nil {
+		t = &StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
+	}
+	return t.Value
+}
+
+type StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom struct {
+	ConfigMap string "json:\"configMap\" graphql:\"configMap\""
+	Secret    string "json:\"secret\" graphql:\"secret\""
+}
+
+func (t *StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetConfigMap() string {
+	if t == nil {
+		t = &StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
+	}
+	return t.ConfigMap
+}
+func (t *StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetSecret() string {
+	if t == nil {
+		t = &StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
 	}
 	return t.Secret
 }
@@ -8700,38 +8853,38 @@ func (t *ListProviders_ClusterProviders_ClusterProviderConnectionFragment_Edges_
 	return t.Value
 }
 
-type ListClusterStacks_ClusterStackRuns_Edges_StackRunEdgeFragment_Node_StackRunFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env struct {
+type ListClusterStacks_ClusterStackRuns_Edges_StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env struct {
 	Name  string "json:\"name\" graphql:\"name\""
 	Value string "json:\"value\" graphql:\"value\""
 }
 
-func (t *ListClusterStacks_ClusterStackRuns_Edges_StackRunEdgeFragment_Node_StackRunFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetName() string {
+func (t *ListClusterStacks_ClusterStackRuns_Edges_StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetName() string {
 	if t == nil {
-		t = &ListClusterStacks_ClusterStackRuns_Edges_StackRunEdgeFragment_Node_StackRunFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
+		t = &ListClusterStacks_ClusterStackRuns_Edges_StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
 	}
 	return t.Name
 }
-func (t *ListClusterStacks_ClusterStackRuns_Edges_StackRunEdgeFragment_Node_StackRunFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetValue() string {
+func (t *ListClusterStacks_ClusterStackRuns_Edges_StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetValue() string {
 	if t == nil {
-		t = &ListClusterStacks_ClusterStackRuns_Edges_StackRunEdgeFragment_Node_StackRunFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
+		t = &ListClusterStacks_ClusterStackRuns_Edges_StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
 	}
 	return t.Value
 }
 
-type ListClusterStacks_ClusterStackRuns_Edges_StackRunEdgeFragment_Node_StackRunFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom struct {
+type ListClusterStacks_ClusterStackRuns_Edges_StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom struct {
 	ConfigMap string "json:\"configMap\" graphql:\"configMap\""
 	Secret    string "json:\"secret\" graphql:\"secret\""
 }
 
-func (t *ListClusterStacks_ClusterStackRuns_Edges_StackRunEdgeFragment_Node_StackRunFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetConfigMap() string {
+func (t *ListClusterStacks_ClusterStackRuns_Edges_StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetConfigMap() string {
 	if t == nil {
-		t = &ListClusterStacks_ClusterStackRuns_Edges_StackRunEdgeFragment_Node_StackRunFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
+		t = &ListClusterStacks_ClusterStackRuns_Edges_StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
 	}
 	return t.ConfigMap
 }
-func (t *ListClusterStacks_ClusterStackRuns_Edges_StackRunEdgeFragment_Node_StackRunFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetSecret() string {
+func (t *ListClusterStacks_ClusterStackRuns_Edges_StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetSecret() string {
 	if t == nil {
-		t = &ListClusterStacks_ClusterStackRuns_Edges_StackRunEdgeFragment_Node_StackRunFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
+		t = &ListClusterStacks_ClusterStackRuns_Edges_StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
 	}
 	return t.Secret
 }
@@ -8808,110 +8961,146 @@ func (t *ListInfrastructureStacks_InfrastructureStacks) GetEdges() []*Infrastruc
 	return t.Edges
 }
 
-type GetStackRun_StackRun_StackRunFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env struct {
+type GetStackRun_StackRun_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env struct {
 	Name  string "json:\"name\" graphql:\"name\""
 	Value string "json:\"value\" graphql:\"value\""
 }
 
-func (t *GetStackRun_StackRun_StackRunFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetName() string {
+func (t *GetStackRun_StackRun_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetName() string {
 	if t == nil {
-		t = &GetStackRun_StackRun_StackRunFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
+		t = &GetStackRun_StackRun_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
 	}
 	return t.Name
 }
-func (t *GetStackRun_StackRun_StackRunFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetValue() string {
+func (t *GetStackRun_StackRun_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetValue() string {
 	if t == nil {
-		t = &GetStackRun_StackRun_StackRunFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
+		t = &GetStackRun_StackRun_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
 	}
 	return t.Value
 }
 
-type GetStackRun_StackRun_StackRunFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom struct {
+type GetStackRun_StackRun_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom struct {
 	ConfigMap string "json:\"configMap\" graphql:\"configMap\""
 	Secret    string "json:\"secret\" graphql:\"secret\""
 }
 
-func (t *GetStackRun_StackRun_StackRunFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetConfigMap() string {
+func (t *GetStackRun_StackRun_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetConfigMap() string {
 	if t == nil {
-		t = &GetStackRun_StackRun_StackRunFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
+		t = &GetStackRun_StackRun_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
 	}
 	return t.ConfigMap
 }
-func (t *GetStackRun_StackRun_StackRunFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetSecret() string {
+func (t *GetStackRun_StackRun_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetSecret() string {
 	if t == nil {
-		t = &GetStackRun_StackRun_StackRunFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
+		t = &GetStackRun_StackRun_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
 	}
 	return t.Secret
 }
 
-type UpdateStackRun_UpdateStackRun_StackRunFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env struct {
+type GetStackRunBase_StackRun_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env struct {
 	Name  string "json:\"name\" graphql:\"name\""
 	Value string "json:\"value\" graphql:\"value\""
 }
 
-func (t *UpdateStackRun_UpdateStackRun_StackRunFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetName() string {
+func (t *GetStackRunBase_StackRun_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetName() string {
 	if t == nil {
-		t = &UpdateStackRun_UpdateStackRun_StackRunFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
+		t = &GetStackRunBase_StackRun_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
 	}
 	return t.Name
 }
-func (t *UpdateStackRun_UpdateStackRun_StackRunFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetValue() string {
+func (t *GetStackRunBase_StackRun_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetValue() string {
 	if t == nil {
-		t = &UpdateStackRun_UpdateStackRun_StackRunFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
+		t = &GetStackRunBase_StackRun_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
 	}
 	return t.Value
 }
 
-type UpdateStackRun_UpdateStackRun_StackRunFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom struct {
+type GetStackRunBase_StackRun_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom struct {
 	ConfigMap string "json:\"configMap\" graphql:\"configMap\""
 	Secret    string "json:\"secret\" graphql:\"secret\""
 }
 
-func (t *UpdateStackRun_UpdateStackRun_StackRunFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetConfigMap() string {
+func (t *GetStackRunBase_StackRun_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetConfigMap() string {
 	if t == nil {
-		t = &UpdateStackRun_UpdateStackRun_StackRunFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
+		t = &GetStackRunBase_StackRun_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
 	}
 	return t.ConfigMap
 }
-func (t *UpdateStackRun_UpdateStackRun_StackRunFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetSecret() string {
+func (t *GetStackRunBase_StackRun_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetSecret() string {
 	if t == nil {
-		t = &UpdateStackRun_UpdateStackRun_StackRunFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
+		t = &GetStackRunBase_StackRun_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
 	}
 	return t.Secret
 }
 
-type ApproveStackRun_ApproveStackRun_StackRunFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env struct {
+type UpdateStackRun_UpdateStackRun_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env struct {
 	Name  string "json:\"name\" graphql:\"name\""
 	Value string "json:\"value\" graphql:\"value\""
 }
 
-func (t *ApproveStackRun_ApproveStackRun_StackRunFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetName() string {
+func (t *UpdateStackRun_UpdateStackRun_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetName() string {
 	if t == nil {
-		t = &ApproveStackRun_ApproveStackRun_StackRunFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
+		t = &UpdateStackRun_UpdateStackRun_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
 	}
 	return t.Name
 }
-func (t *ApproveStackRun_ApproveStackRun_StackRunFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetValue() string {
+func (t *UpdateStackRun_UpdateStackRun_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetValue() string {
 	if t == nil {
-		t = &ApproveStackRun_ApproveStackRun_StackRunFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
+		t = &UpdateStackRun_UpdateStackRun_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
 	}
 	return t.Value
 }
 
-type ApproveStackRun_ApproveStackRun_StackRunFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom struct {
+type UpdateStackRun_UpdateStackRun_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom struct {
 	ConfigMap string "json:\"configMap\" graphql:\"configMap\""
 	Secret    string "json:\"secret\" graphql:\"secret\""
 }
 
-func (t *ApproveStackRun_ApproveStackRun_StackRunFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetConfigMap() string {
+func (t *UpdateStackRun_UpdateStackRun_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetConfigMap() string {
 	if t == nil {
-		t = &ApproveStackRun_ApproveStackRun_StackRunFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
+		t = &UpdateStackRun_UpdateStackRun_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
 	}
 	return t.ConfigMap
 }
-func (t *ApproveStackRun_ApproveStackRun_StackRunFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetSecret() string {
+func (t *UpdateStackRun_UpdateStackRun_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetSecret() string {
 	if t == nil {
-		t = &ApproveStackRun_ApproveStackRun_StackRunFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
+		t = &UpdateStackRun_UpdateStackRun_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
+	}
+	return t.Secret
+}
+
+type ApproveStackRun_ApproveStackRun_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env struct {
+	Name  string "json:\"name\" graphql:\"name\""
+	Value string "json:\"value\" graphql:\"value\""
+}
+
+func (t *ApproveStackRun_ApproveStackRun_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetName() string {
+	if t == nil {
+		t = &ApproveStackRun_ApproveStackRun_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
+	}
+	return t.Name
+}
+func (t *ApproveStackRun_ApproveStackRun_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetValue() string {
+	if t == nil {
+		t = &ApproveStackRun_ApproveStackRun_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
+	}
+	return t.Value
+}
+
+type ApproveStackRun_ApproveStackRun_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom struct {
+	ConfigMap string "json:\"configMap\" graphql:\"configMap\""
+	Secret    string "json:\"secret\" graphql:\"secret\""
+}
+
+func (t *ApproveStackRun_ApproveStackRun_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetConfigMap() string {
+	if t == nil {
+		t = &ApproveStackRun_ApproveStackRun_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
+	}
+	return t.ConfigMap
+}
+func (t *ApproveStackRun_ApproveStackRun_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetSecret() string {
+	if t == nil {
+		t = &ApproveStackRun_ApproveStackRun_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
 	}
 	return t.Secret
 }
@@ -10399,6 +10588,17 @@ type GetStackRun struct {
 func (t *GetStackRun) GetStackRun() *StackRunFragment {
 	if t == nil {
 		t = &GetStackRun{}
+	}
+	return t.StackRun
+}
+
+type GetStackRunBase struct {
+	StackRun *StackRunBaseFragment "json:\"stackRun,omitempty\" graphql:\"stackRun\""
+}
+
+func (t *GetStackRunBase) GetStackRun() *StackRunBaseFragment {
+	if t == nil {
+		t = &GetStackRunBase{}
 	}
 	return t.StackRun
 }
@@ -18374,6 +18574,12 @@ fragment StackRunEdgeFragment on StackRunEdge {
 	}
 }
 fragment StackRunFragment on StackRun {
+	... StackRunBaseFragment
+	approver {
+		... UserFragment
+	}
+}
+fragment StackRunBaseFragment on StackRun {
 	id
 	type
 	status
@@ -18382,9 +18588,6 @@ fragment StackRunFragment on StackRun {
 	tarball
 	state {
 		... StackStateFragment
-	}
-	approver {
-		... UserFragment
 	}
 	steps {
 		... RunStepFragment
@@ -18427,11 +18630,6 @@ fragment StackStateResourceFragment on StackStateResource {
 	name
 	configuration
 	links
-}
-fragment UserFragment on User {
-	name
-	id
-	email
 }
 fragment RunStepFragment on RunStep {
 	id
@@ -18497,6 +18695,11 @@ fragment StackOutputFragment on StackOutput {
 fragment ServiceErrorFragment on ServiceError {
 	source
 	message
+}
+fragment UserFragment on User {
+	name
+	id
+	email
 }
 `
 
@@ -18698,6 +18901,12 @@ const GetStackRunDocument = `query GetStackRun ($id: ID!) {
 	}
 }
 fragment StackRunFragment on StackRun {
+	... StackRunBaseFragment
+	approver {
+		... UserFragment
+	}
+}
+fragment StackRunBaseFragment on StackRun {
 	id
 	type
 	status
@@ -18706,9 +18915,6 @@ fragment StackRunFragment on StackRun {
 	tarball
 	state {
 		... StackStateFragment
-	}
-	approver {
-		... UserFragment
 	}
 	steps {
 		... RunStepFragment
@@ -18752,10 +18958,151 @@ fragment StackStateResourceFragment on StackStateResource {
 	configuration
 	links
 }
+fragment RunStepFragment on RunStep {
+	id
+	status
+	name
+	cmd
+	args
+	index
+	stage
+}
+fragment StackFileFragment on StackFile {
+	path
+	content
+}
+fragment GitRefFragment on GitRef {
+	folder
+	ref
+}
+fragment GitRepositoryFragment on GitRepository {
+	id
+	error
+	health
+	authMethod
+	url
+	decrypt
+}
+fragment JobGateSpecFragment on JobGateSpec {
+	namespace
+	raw
+	labels
+	annotations
+	serviceAccount
+	containers {
+		... ContainerSpecFragment
+	}
+}
+fragment ContainerSpecFragment on ContainerSpec {
+	image
+	args
+	env {
+		name
+		value
+	}
+	envFrom {
+		configMap
+		secret
+	}
+}
+fragment StackConfigurationFragment on StackConfiguration {
+	image
+	version
+}
+fragment StackEnvironmentFragment on StackEnvironment {
+	name
+	value
+	secret
+}
+fragment StackOutputFragment on StackOutput {
+	name
+	value
+	secret
+}
+fragment ServiceErrorFragment on ServiceError {
+	source
+	message
+}
 fragment UserFragment on User {
 	name
 	id
 	email
+}
+`
+
+func (c *Client) GetStackRun(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*GetStackRun, error) {
+	vars := map[string]interface{}{
+		"id": id,
+	}
+
+	var res GetStackRun
+	if err := c.Client.Post(ctx, "GetStackRun", GetStackRunDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const GetStackRunBaseDocument = `query GetStackRunBase ($id: ID!) {
+	stackRun(id: $id) {
+		... StackRunBaseFragment
+	}
+}
+fragment StackRunBaseFragment on StackRun {
+	id
+	type
+	status
+	approval
+	approvedAt
+	tarball
+	state {
+		... StackStateFragment
+	}
+	steps {
+		... RunStepFragment
+	}
+	files {
+		... StackFileFragment
+	}
+	git {
+		... GitRefFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+	jobSpec {
+		... JobGateSpecFragment
+	}
+	configuration {
+		... StackConfigurationFragment
+	}
+	environment {
+		... StackEnvironmentFragment
+	}
+	output {
+		... StackOutputFragment
+	}
+	errors {
+		... ServiceErrorFragment
+	}
+}
+fragment StackStateFragment on StackState {
+	id
+	plan
+	state {
+		... StackStateResourceFragment
+	}
+}
+fragment StackStateResourceFragment on StackStateResource {
+	identifier
+	resource
+	name
+	configuration
+	links
 }
 fragment RunStepFragment on RunStep {
 	id
@@ -18824,13 +19171,13 @@ fragment ServiceErrorFragment on ServiceError {
 }
 `
 
-func (c *Client) GetStackRun(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*GetStackRun, error) {
+func (c *Client) GetStackRunBase(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*GetStackRunBase, error) {
 	vars := map[string]interface{}{
 		"id": id,
 	}
 
-	var res GetStackRun
-	if err := c.Client.Post(ctx, "GetStackRun", GetStackRunDocument, &res, vars, interceptors...); err != nil {
+	var res GetStackRunBase
+	if err := c.Client.Post(ctx, "GetStackRunBase", GetStackRunBaseDocument, &res, vars, interceptors...); err != nil {
 		if c.Client.ParseDataWhenErrors {
 			return &res, err
 		}
@@ -18847,6 +19194,12 @@ const UpdateStackRunDocument = `mutation UpdateStackRun ($id: ID!, $attributes: 
 	}
 }
 fragment StackRunFragment on StackRun {
+	... StackRunBaseFragment
+	approver {
+		... UserFragment
+	}
+}
+fragment StackRunBaseFragment on StackRun {
 	id
 	type
 	status
@@ -18855,9 +19208,6 @@ fragment StackRunFragment on StackRun {
 	tarball
 	state {
 		... StackStateFragment
-	}
-	approver {
-		... UserFragment
 	}
 	steps {
 		... RunStepFragment
@@ -18900,11 +19250,6 @@ fragment StackStateResourceFragment on StackStateResource {
 	name
 	configuration
 	links
-}
-fragment UserFragment on User {
-	name
-	id
-	email
 }
 fragment RunStepFragment on RunStep {
 	id
@@ -18970,6 +19315,11 @@ fragment StackOutputFragment on StackOutput {
 fragment ServiceErrorFragment on ServiceError {
 	source
 	message
+}
+fragment UserFragment on User {
+	name
+	id
+	email
 }
 `
 
@@ -18997,6 +19347,12 @@ const ApproveStackRunDocument = `mutation ApproveStackRun ($id: ID!) {
 	}
 }
 fragment StackRunFragment on StackRun {
+	... StackRunBaseFragment
+	approver {
+		... UserFragment
+	}
+}
+fragment StackRunBaseFragment on StackRun {
 	id
 	type
 	status
@@ -19005,9 +19361,6 @@ fragment StackRunFragment on StackRun {
 	tarball
 	state {
 		... StackStateFragment
-	}
-	approver {
-		... UserFragment
 	}
 	steps {
 		... RunStepFragment
@@ -19050,11 +19403,6 @@ fragment StackStateResourceFragment on StackStateResource {
 	name
 	configuration
 	links
-}
-fragment UserFragment on User {
-	name
-	id
-	email
 }
 fragment RunStepFragment on RunStep {
 	id
@@ -19120,6 +19468,11 @@ fragment StackOutputFragment on StackOutput {
 fragment ServiceErrorFragment on ServiceError {
 	source
 	message
+}
+fragment UserFragment on User {
+	name
+	id
+	email
 }
 `
 
@@ -20306,6 +20659,7 @@ var DocumentOperationNames = map[string]string{
 	ListClusterStacksDocument:                         "ListClusterStacks",
 	ListInfrastructureStacksDocument:                  "ListInfrastructureStacks",
 	GetStackRunDocument:                               "GetStackRun",
+	GetStackRunBaseDocument:                           "GetStackRunBase",
 	UpdateStackRunDocument:                            "UpdateStackRun",
 	ApproveStackRunDocument:                           "ApproveStackRun",
 	CreateStackDocument:                               "CreateStack",
