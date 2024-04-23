@@ -1103,6 +1103,11 @@ type DatabaseVolume struct {
 	Size *string `json:"size,omitempty"`
 }
 
+type DatadogCredentialsAttributes struct {
+	APIKey string `json:"apiKey"`
+	AppKey string `json:"appKey"`
+}
+
 // A representation to a service which configures renovate for a scm connection
 type DependencyManagementService struct {
 	ID         string             `json:"id"`
@@ -1147,6 +1152,10 @@ type DeploymentSettings struct {
 	PrometheusConnection *HTTPConnection `json:"prometheusConnection,omitempty"`
 	// custom helm values to apply to all agents (useful for things like adding customary annotations/labels)
 	AgentHelmValues *string `json:"agentHelmValues,omitempty"`
+	// the latest known k8s version
+	LatestK8sVsn string `json:"latestK8sVsn"`
+	// your compliant k8s version
+	CompliantK8sVsn string `json:"compliantK8sVsn"`
 	// the repo to fetch CAPI manifests from, for both providers and clusters
 	ArtifactRepository *GitRepository `json:"artifactRepository,omitempty"`
 	// the repo to fetch the deploy operators manifests from
@@ -2144,6 +2153,34 @@ type ObjectStoreConnection struct {
 type ObjectStoreEdge struct {
 	Node   *ObjectStore `json:"node,omitempty"`
 	Cursor *string      `json:"cursor,omitempty"`
+}
+
+type ObservabilityProvider struct {
+	ID         string                    `json:"id"`
+	Type       ObservabilityProviderType `json:"type"`
+	Name       string                    `json:"name"`
+	InsertedAt *string                   `json:"insertedAt,omitempty"`
+	UpdatedAt  *string                   `json:"updatedAt,omitempty"`
+}
+
+type ObservabilityProviderAttributes struct {
+	Type        ObservabilityProviderType                  `json:"type"`
+	Name        string                                     `json:"name"`
+	Credentials ObservabilityProviderCredentialsAttributes `json:"credentials"`
+}
+
+type ObservabilityProviderConnection struct {
+	PageInfo PageInfo                     `json:"pageInfo"`
+	Edges    []*ObservabilityProviderEdge `json:"edges,omitempty"`
+}
+
+type ObservabilityProviderCredentialsAttributes struct {
+	Datadog *DatadogCredentialsAttributes `json:"datadog,omitempty"`
+}
+
+type ObservabilityProviderEdge struct {
+	Node   *ObservabilityProvider `json:"node,omitempty"`
+	Cursor *string                `json:"cursor,omitempty"`
 }
 
 type OverlayUpdate struct {
@@ -3736,7 +3773,7 @@ type StackAttributes struct {
 	ReadBindings  []*PolicyBindingAttributes    `json:"readBindings,omitempty"`
 	WriteBindings []*PolicyBindingAttributes    `json:"writeBindings,omitempty"`
 	Files         []*StackFileAttributes        `json:"files,omitempty"`
-	Environemnt   []*StackEnvironmentAttributes `json:"environemnt,omitempty"`
+	Environment   []*StackEnvironmentAttributes `json:"environment,omitempty"`
 }
 
 type StackConfiguration struct {
@@ -3791,8 +3828,6 @@ type StackRun struct {
 	ID string `json:"id"`
 	// The status of this run
 	Status StackStatus `json:"status"`
-	// the name of the stack
-	Name string `json:"name"`
 	// A type for the stack, specifies the tool to use to apply it
 	Type StackType `json:"type"`
 	// reference w/in the repository where the IaC lives
@@ -4063,6 +4098,18 @@ type UpgradePolicyAttributes struct {
 	Type         UpgradePolicyType `json:"type"`
 	Repositories []*string         `json:"repositories,omitempty"`
 	Weight       *int64            `json:"weight,omitempty"`
+}
+
+// Summary statistics of the upgradeability of your fleet
+type UpgradeStatistics struct {
+	// total number of clusters
+	Count *int64 `json:"count,omitempty"`
+	// the number of clusters currently upgradeable
+	Upgradeable *int64 `json:"upgradeable,omitempty"`
+	// the number of clusters currently at the latest version
+	Latest *int64 `json:"latest,omitempty"`
+	// the number of clusters compliant w/ your versioning policy
+	Compliant *int64 `json:"compliant,omitempty"`
 }
 
 type URLSinkAttributes struct {
@@ -4965,6 +5012,47 @@ func (e *NotificationStatus) UnmarshalGQL(v interface{}) error {
 }
 
 func (e NotificationStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type ObservabilityProviderType string
+
+const (
+	ObservabilityProviderTypeDatadog  ObservabilityProviderType = "DATADOG"
+	ObservabilityProviderTypeNewrelic ObservabilityProviderType = "NEWRELIC"
+)
+
+var AllObservabilityProviderType = []ObservabilityProviderType{
+	ObservabilityProviderTypeDatadog,
+	ObservabilityProviderTypeNewrelic,
+}
+
+func (e ObservabilityProviderType) IsValid() bool {
+	switch e {
+	case ObservabilityProviderTypeDatadog, ObservabilityProviderTypeNewrelic:
+		return true
+	}
+	return false
+}
+
+func (e ObservabilityProviderType) String() string {
+	return string(e)
+}
+
+func (e *ObservabilityProviderType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ObservabilityProviderType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ObservabilityProviderType", str)
+	}
+	return nil
+}
+
+func (e ObservabilityProviderType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

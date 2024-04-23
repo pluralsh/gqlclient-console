@@ -32,7 +32,6 @@ fragment InfrastructureStackFragment on InfrastructureStack {
 
 fragment StackRunFragment on StackRun {
     id
-    name
     type
     status
     approval

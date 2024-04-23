@@ -46,6 +46,12 @@ mutation UpdateStack($id: ID!, $attributes: StackAttributes!) {
     }
 }
 
+mutation DetachStack($id: ID!) {
+    detachStack(id: $id){
+        ...InfrastructureStackFragment
+    }
+}
+
 mutation DeleteStack($id: ID!) {
     deleteStack(id: $id){
         ...InfrastructureStackFragment

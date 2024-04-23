@@ -121,6 +121,7 @@ type ConsoleClient interface {
 	ApproveStackRun(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*ApproveStackRun, error)
 	CreateStack(ctx context.Context, attributes StackAttributes, interceptors ...clientv2.RequestInterceptor) (*CreateStack, error)
 	UpdateStack(ctx context.Context, id string, attributes StackAttributes, interceptors ...clientv2.RequestInterceptor) (*UpdateStack, error)
+	DetachStack(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DetachStack, error)
 	DeleteStack(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DeleteStack, error)
 	GetInfrastructureStack(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*GetInfrastructureStack, error)
 	CreateAccessToken(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*CreateAccessToken, error)
@@ -2701,7 +2702,6 @@ func (t *InfrastructureStackFragment) GetReadBindings() []*PolicyBindingFragment
 
 type StackRunFragment struct {
 	ID            string                      "json:\"id\" graphql:\"id\""
-	Name          string                      "json:\"name\" graphql:\"name\""
 	Type          StackType                   "json:\"type\" graphql:\"type\""
 	Status        StackStatus                 "json:\"status\" graphql:\"status\""
 	Approval      *bool                       "json:\"approval,omitempty\" graphql:\"approval\""
@@ -2725,12 +2725,6 @@ func (t *StackRunFragment) GetID() string {
 		t = &StackRunFragment{}
 	}
 	return t.ID
-}
-func (t *StackRunFragment) GetName() string {
-	if t == nil {
-		t = &StackRunFragment{}
-	}
-	return t.Name
 }
 func (t *StackRunFragment) GetType() *StackType {
 	if t == nil {
@@ -8994,6 +8988,42 @@ func (t *UpdateStack_UpdateStack_InfrastructureStackFragment_JobSpec_JobGateSpec
 	return t.Secret
 }
 
+type DetachStack_DetachStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env struct {
+	Name  string "json:\"name\" graphql:\"name\""
+	Value string "json:\"value\" graphql:\"value\""
+}
+
+func (t *DetachStack_DetachStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetName() string {
+	if t == nil {
+		t = &DetachStack_DetachStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
+	}
+	return t.Name
+}
+func (t *DetachStack_DetachStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetValue() string {
+	if t == nil {
+		t = &DetachStack_DetachStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
+	}
+	return t.Value
+}
+
+type DetachStack_DetachStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom struct {
+	ConfigMap string "json:\"configMap\" graphql:\"configMap\""
+	Secret    string "json:\"secret\" graphql:\"secret\""
+}
+
+func (t *DetachStack_DetachStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetConfigMap() string {
+	if t == nil {
+		t = &DetachStack_DetachStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
+	}
+	return t.ConfigMap
+}
+func (t *DetachStack_DetachStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetSecret() string {
+	if t == nil {
+		t = &DetachStack_DetachStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
+	}
+	return t.Secret
+}
+
 type DeleteStack_DeleteStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env struct {
 	Name  string "json:\"name\" graphql:\"name\""
 	Value string "json:\"value\" graphql:\"value\""
@@ -10415,6 +10445,17 @@ func (t *UpdateStack) GetUpdateStack() *InfrastructureStackFragment {
 		t = &UpdateStack{}
 	}
 	return t.UpdateStack
+}
+
+type DetachStack struct {
+	DetachStack *InfrastructureStackFragment "json:\"detachStack,omitempty\" graphql:\"detachStack\""
+}
+
+func (t *DetachStack) GetDetachStack() *InfrastructureStackFragment {
+	if t == nil {
+		t = &DetachStack{}
+	}
+	return t.DetachStack
 }
 
 type DeleteStack struct {
@@ -18334,7 +18375,6 @@ fragment StackRunEdgeFragment on StackRunEdge {
 }
 fragment StackRunFragment on StackRun {
 	id
-	name
 	type
 	status
 	approval
@@ -18659,7 +18699,6 @@ const GetStackRunDocument = `query GetStackRun ($id: ID!) {
 }
 fragment StackRunFragment on StackRun {
 	id
-	name
 	type
 	status
 	approval
@@ -18809,7 +18848,6 @@ const UpdateStackRunDocument = `mutation UpdateStackRun ($id: ID!, $attributes: 
 }
 fragment StackRunFragment on StackRun {
 	id
-	name
 	type
 	status
 	approval
@@ -18960,7 +18998,6 @@ const ApproveStackRunDocument = `mutation ApproveStackRun ($id: ID!) {
 }
 fragment StackRunFragment on StackRun {
 	id
-	name
 	type
 	status
 	approval
@@ -19404,6 +19441,161 @@ func (c *Client) UpdateStack(ctx context.Context, id string, attributes StackAtt
 
 	var res UpdateStack
 	if err := c.Client.Post(ctx, "UpdateStack", UpdateStackDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const DetachStackDocument = `mutation DetachStack ($id: ID!) {
+	detachStack(id: $id) {
+		... InfrastructureStackFragment
+	}
+}
+fragment InfrastructureStackFragment on InfrastructureStack {
+	id
+	name
+	type
+	git {
+		... GitRefFragment
+	}
+	jobSpec {
+		... JobGateSpecFragment
+	}
+	configuration {
+		... StackConfigurationFragment
+	}
+	cluster {
+		... TinyClusterFragment
+	}
+	approval
+	deletedAt
+	files {
+		... StackFileFragment
+	}
+	environment {
+		... StackEnvironmentFragment
+	}
+	output {
+		... StackOutputFragment
+	}
+	state {
+		... StackStateFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+	writeBindings {
+		... PolicyBindingFragment
+	}
+	readBindings {
+		... PolicyBindingFragment
+	}
+}
+fragment GitRefFragment on GitRef {
+	folder
+	ref
+}
+fragment JobGateSpecFragment on JobGateSpec {
+	namespace
+	raw
+	labels
+	annotations
+	serviceAccount
+	containers {
+		... ContainerSpecFragment
+	}
+}
+fragment ContainerSpecFragment on ContainerSpec {
+	image
+	args
+	env {
+		name
+		value
+	}
+	envFrom {
+		configMap
+		secret
+	}
+}
+fragment StackConfigurationFragment on StackConfiguration {
+	image
+	version
+}
+fragment TinyClusterFragment on Cluster {
+	id
+	name
+	handle
+	self
+}
+fragment StackFileFragment on StackFile {
+	path
+	content
+}
+fragment StackEnvironmentFragment on StackEnvironment {
+	name
+	value
+	secret
+}
+fragment StackOutputFragment on StackOutput {
+	name
+	value
+	secret
+}
+fragment StackStateFragment on StackState {
+	id
+	plan
+	state {
+		... StackStateResourceFragment
+	}
+}
+fragment StackStateResourceFragment on StackStateResource {
+	identifier
+	resource
+	name
+	configuration
+	links
+}
+fragment GitRepositoryFragment on GitRepository {
+	id
+	error
+	health
+	authMethod
+	url
+	decrypt
+}
+fragment PolicyBindingFragment on PolicyBinding {
+	id
+	group {
+		... GroupFragment
+	}
+	user {
+		... UserFragment
+	}
+}
+fragment GroupFragment on Group {
+	id
+	name
+	description
+}
+fragment UserFragment on User {
+	name
+	id
+	email
+}
+`
+
+func (c *Client) DetachStack(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DetachStack, error) {
+	vars := map[string]interface{}{
+		"id": id,
+	}
+
+	var res DetachStack
+	if err := c.Client.Post(ctx, "DetachStack", DetachStackDocument, &res, vars, interceptors...); err != nil {
 		if c.Client.ParseDataWhenErrors {
 			return &res, err
 		}
@@ -20118,6 +20310,7 @@ var DocumentOperationNames = map[string]string{
 	ApproveStackRunDocument:                           "ApproveStackRun",
 	CreateStackDocument:                               "CreateStack",
 	UpdateStackDocument:                               "UpdateStack",
+	DetachStackDocument:                               "DetachStack",
 	DeleteStackDocument:                               "DeleteStack",
 	GetInfrastructureStackDocument:                    "GetInfrastructureStack",
 	CreateAccessTokenDocument:                         "CreateAccessToken",
