@@ -1147,6 +1147,10 @@ type DeploymentSettings struct {
 	PrometheusConnection *HTTPConnection `json:"prometheusConnection,omitempty"`
 	// custom helm values to apply to all agents (useful for things like adding customary annotations/labels)
 	AgentHelmValues *string `json:"agentHelmValues,omitempty"`
+	// the latest known k8s version
+	LatestK8sVsn string `json:"latestK8sVsn"`
+	// your compliant k8s version
+	CompliantK8sVsn string `json:"compliantK8sVsn"`
 	// the repo to fetch CAPI manifests from, for both providers and clusters
 	ArtifactRepository *GitRepository `json:"artifactRepository,omitempty"`
 	// the repo to fetch the deploy operators manifests from
@@ -4063,6 +4067,18 @@ type UpgradePolicyAttributes struct {
 	Type         UpgradePolicyType `json:"type"`
 	Repositories []*string         `json:"repositories,omitempty"`
 	Weight       *int64            `json:"weight,omitempty"`
+}
+
+// Summary statistics of the upgradeability of your fleet
+type UpgradeStatistics struct {
+	// total number of clusters
+	Count *int64 `json:"count,omitempty"`
+	// the number of clusters currently upgradeable
+	Upgradeable *int64 `json:"upgradeable,omitempty"`
+	// the number of clusters currently at the latest version
+	Latest *int64 `json:"latest,omitempty"`
+	// the number of clusters compliant w/ your versioning policy
+	Compliant *int64 `json:"compliant,omitempty"`
 }
 
 type URLSinkAttributes struct {
