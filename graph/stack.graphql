@@ -30,13 +30,13 @@ query GetStackRunBase($id: ID!) {
 
 mutation UpdateStackRun($id: ID!, $attributes: StackRunAttributes!) {
     updateStackRun(id: $id, attributes: $attributes) {
-        ...StackRunFragment
+        ...StackRunBaseFragment
     }
 }
 
 mutation ApproveStackRun($id: ID!) {
     approveStackRun(id: $id) {
-        ...StackRunFragment
+        ...StackRunBaseFragment
     }
 }
 
@@ -67,5 +67,23 @@ mutation DeleteStack($id: ID!) {
 query GetInfrastructureStack($id: ID!) {
     infrastructureStack(id: $id) {
         ...InfrastructureStackFragment
+    }
+}
+
+mutation CompletesStackRun($id: ID!, $attributes: StackRunAttributes!) {
+    completeStackRun(id: $id, attributes: $attributes) {
+        ...StackRunBaseFragment
+    }
+}
+
+mutation AddStackRunLogs($id: ID!, $attributes: RunLogAttributes!) {
+    addRunLogs(stepId: $id, attributes: $attributes) {
+        updatedAt
+    }
+}
+
+mutation UpdateStackRunStep($id: ID!, $attributes: RunStepAttributes!) {
+    updateRunStep(id: $id, attributes: $attributes) {
+        ...RunStepFragment
     }
 }
