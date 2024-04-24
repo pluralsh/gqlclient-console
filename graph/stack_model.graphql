@@ -11,7 +11,7 @@ fragment InfrastructureStackFragment on InfrastructureStack {
     name
     type
     git { ...GitRefFragment }
-    jobSpec { ...JobGateSpecFragment}
+    jobSpec { ...JobSpecFragment}
     configuration { ...StackConfigurationFragment}
     cluster { ...TinyClusterFragment }
     approval
@@ -48,7 +48,7 @@ fragment StackRunBaseFragment on StackRun {
     files { ...StackFileFragment}
     git { ...GitRefFragment }
     repository { ...GitRepositoryFragment}
-    jobSpec { ...JobGateSpecFragment}
+    jobSpec { ...JobSpecFragment}
     configuration { ...StackConfigurationFragment}
     environment { ...StackEnvironmentFragment}
     output { ...StackOutputFragment}
@@ -106,13 +106,3 @@ fragment StackConfigurationFragment on StackConfiguration {
     image
     version
 }
-
-fragment JobGateSpecFragment on JobGateSpec {
-    namespace
-    raw
-    labels
-    annotations
-    serviceAccount
-    containers {...ContainerSpecFragment}
-}
-

@@ -2593,7 +2593,7 @@ type InfrastructureStackFragment struct {
 	Name          string                      "json:\"name\" graphql:\"name\""
 	Type          StackType                   "json:\"type\" graphql:\"type\""
 	Git           *GitRefFragment             "json:\"git\" graphql:\"git\""
-	JobSpec       *JobGateSpecFragment        "json:\"jobSpec,omitempty\" graphql:\"jobSpec\""
+	JobSpec       *JobSpecFragment            "json:\"jobSpec,omitempty\" graphql:\"jobSpec\""
 	Configuration *StackConfigurationFragment "json:\"configuration\" graphql:\"configuration\""
 	Cluster       *TinyClusterFragment        "json:\"cluster,omitempty\" graphql:\"cluster\""
 	Approval      *bool                       "json:\"approval,omitempty\" graphql:\"approval\""
@@ -2631,7 +2631,7 @@ func (t *InfrastructureStackFragment) GetGit() *GitRefFragment {
 	}
 	return t.Git
 }
-func (t *InfrastructureStackFragment) GetJobSpec() *JobGateSpecFragment {
+func (t *InfrastructureStackFragment) GetJobSpec() *JobSpecFragment {
 	if t == nil {
 		t = &InfrastructureStackFragment{}
 	}
@@ -2716,7 +2716,7 @@ type StackRunFragment struct {
 	Files         []*StackFileFragment        "json:\"files,omitempty\" graphql:\"files\""
 	Git           *GitRefFragment             "json:\"git\" graphql:\"git\""
 	Repository    *GitRepositoryFragment      "json:\"repository,omitempty\" graphql:\"repository\""
-	JobSpec       *JobGateSpecFragment        "json:\"jobSpec,omitempty\" graphql:\"jobSpec\""
+	JobSpec       *JobSpecFragment            "json:\"jobSpec,omitempty\" graphql:\"jobSpec\""
 	Configuration *StackConfigurationFragment "json:\"configuration\" graphql:\"configuration\""
 	Environment   []*StackEnvironmentFragment "json:\"environment,omitempty\" graphql:\"environment\""
 	Output        []*StackOutputFragment      "json:\"output,omitempty\" graphql:\"output\""
@@ -2790,7 +2790,7 @@ func (t *StackRunFragment) GetRepository() *GitRepositoryFragment {
 	}
 	return t.Repository
 }
-func (t *StackRunFragment) GetJobSpec() *JobGateSpecFragment {
+func (t *StackRunFragment) GetJobSpec() *JobSpecFragment {
 	if t == nil {
 		t = &StackRunFragment{}
 	}
@@ -2839,7 +2839,7 @@ type StackRunBaseFragment struct {
 	Files         []*StackFileFragment        "json:\"files,omitempty\" graphql:\"files\""
 	Git           *GitRefFragment             "json:\"git\" graphql:\"git\""
 	Repository    *GitRepositoryFragment      "json:\"repository,omitempty\" graphql:\"repository\""
-	JobSpec       *JobGateSpecFragment        "json:\"jobSpec,omitempty\" graphql:\"jobSpec\""
+	JobSpec       *JobSpecFragment            "json:\"jobSpec,omitempty\" graphql:\"jobSpec\""
 	Configuration *StackConfigurationFragment "json:\"configuration\" graphql:\"configuration\""
 	Environment   []*StackEnvironmentFragment "json:\"environment,omitempty\" graphql:\"environment\""
 	Output        []*StackOutputFragment      "json:\"output,omitempty\" graphql:\"output\""
@@ -2912,7 +2912,7 @@ func (t *StackRunBaseFragment) GetRepository() *GitRepositoryFragment {
 	}
 	return t.Repository
 }
-func (t *StackRunBaseFragment) GetJobSpec() *JobGateSpecFragment {
+func (t *StackRunBaseFragment) GetJobSpec() *JobSpecFragment {
 	if t == nil {
 		t = &StackRunBaseFragment{}
 	}
@@ -3162,52 +3162,6 @@ func (t *StackConfigurationFragment) GetVersion() string {
 		t = &StackConfigurationFragment{}
 	}
 	return t.Version
-}
-
-type JobGateSpecFragment struct {
-	Namespace      string                   "json:\"namespace\" graphql:\"namespace\""
-	Raw            *string                  "json:\"raw,omitempty\" graphql:\"raw\""
-	Labels         map[string]interface{}   "json:\"labels,omitempty\" graphql:\"labels\""
-	Annotations    map[string]interface{}   "json:\"annotations,omitempty\" graphql:\"annotations\""
-	ServiceAccount *string                  "json:\"serviceAccount,omitempty\" graphql:\"serviceAccount\""
-	Containers     []*ContainerSpecFragment "json:\"containers,omitempty\" graphql:\"containers\""
-}
-
-func (t *JobGateSpecFragment) GetNamespace() string {
-	if t == nil {
-		t = &JobGateSpecFragment{}
-	}
-	return t.Namespace
-}
-func (t *JobGateSpecFragment) GetRaw() *string {
-	if t == nil {
-		t = &JobGateSpecFragment{}
-	}
-	return t.Raw
-}
-func (t *JobGateSpecFragment) GetLabels() map[string]interface{} {
-	if t == nil {
-		t = &JobGateSpecFragment{}
-	}
-	return t.Labels
-}
-func (t *JobGateSpecFragment) GetAnnotations() map[string]interface{} {
-	if t == nil {
-		t = &JobGateSpecFragment{}
-	}
-	return t.Annotations
-}
-func (t *JobGateSpecFragment) GetServiceAccount() *string {
-	if t == nil {
-		t = &JobGateSpecFragment{}
-	}
-	return t.ServiceAccount
-}
-func (t *JobGateSpecFragment) GetContainers() []*ContainerSpecFragment {
-	if t == nil {
-		t = &JobGateSpecFragment{}
-	}
-	return t.Containers
 }
 
 type PipelineGateEdgeFragment_Node_PipelineGateFragment_Spec_GateSpecFragment_Job_JobSpecFragment_Containers_ContainerSpecFragment_Env struct {
@@ -4411,218 +4365,182 @@ func (t *ClusterRestoreFragment_Backup_ClusterBackupFragment_Cluster) GetID() st
 	return t.ID
 }
 
-type InfrastructureStackEdgeFragment_Node_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env struct {
+type InfrastructureStackEdgeFragment_Node_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env struct {
 	Name  string "json:\"name\" graphql:\"name\""
 	Value string "json:\"value\" graphql:\"value\""
 }
 
-func (t *InfrastructureStackEdgeFragment_Node_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetName() string {
+func (t *InfrastructureStackEdgeFragment_Node_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env) GetName() string {
 	if t == nil {
-		t = &InfrastructureStackEdgeFragment_Node_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
+		t = &InfrastructureStackEdgeFragment_Node_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env{}
 	}
 	return t.Name
 }
-func (t *InfrastructureStackEdgeFragment_Node_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetValue() string {
+func (t *InfrastructureStackEdgeFragment_Node_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env) GetValue() string {
 	if t == nil {
-		t = &InfrastructureStackEdgeFragment_Node_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
+		t = &InfrastructureStackEdgeFragment_Node_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env{}
 	}
 	return t.Value
 }
 
-type InfrastructureStackEdgeFragment_Node_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom struct {
+type InfrastructureStackEdgeFragment_Node_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom struct {
 	ConfigMap string "json:\"configMap\" graphql:\"configMap\""
 	Secret    string "json:\"secret\" graphql:\"secret\""
 }
 
-func (t *InfrastructureStackEdgeFragment_Node_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetConfigMap() string {
+func (t *InfrastructureStackEdgeFragment_Node_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetConfigMap() string {
 	if t == nil {
-		t = &InfrastructureStackEdgeFragment_Node_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
+		t = &InfrastructureStackEdgeFragment_Node_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
 	}
 	return t.ConfigMap
 }
-func (t *InfrastructureStackEdgeFragment_Node_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetSecret() string {
+func (t *InfrastructureStackEdgeFragment_Node_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetSecret() string {
 	if t == nil {
-		t = &InfrastructureStackEdgeFragment_Node_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
+		t = &InfrastructureStackEdgeFragment_Node_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
 	}
 	return t.Secret
 }
 
-type StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env struct {
+type StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env struct {
 	Name  string "json:\"name\" graphql:\"name\""
 	Value string "json:\"value\" graphql:\"value\""
 }
 
-func (t *StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetName() string {
+func (t *StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env) GetName() string {
 	if t == nil {
-		t = &StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
+		t = &StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env{}
 	}
 	return t.Name
 }
-func (t *StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetValue() string {
+func (t *StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env) GetValue() string {
 	if t == nil {
-		t = &StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
+		t = &StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env{}
 	}
 	return t.Value
 }
 
-type StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom struct {
+type StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom struct {
 	ConfigMap string "json:\"configMap\" graphql:\"configMap\""
 	Secret    string "json:\"secret\" graphql:\"secret\""
 }
 
-func (t *StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetConfigMap() string {
+func (t *StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetConfigMap() string {
 	if t == nil {
-		t = &StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
+		t = &StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
 	}
 	return t.ConfigMap
 }
-func (t *StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetSecret() string {
+func (t *StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetSecret() string {
 	if t == nil {
-		t = &StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
+		t = &StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
 	}
 	return t.Secret
 }
 
-type InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env struct {
+type InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env struct {
 	Name  string "json:\"name\" graphql:\"name\""
 	Value string "json:\"value\" graphql:\"value\""
 }
 
-func (t *InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetName() string {
+func (t *InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env) GetName() string {
 	if t == nil {
-		t = &InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
+		t = &InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env{}
 	}
 	return t.Name
 }
-func (t *InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetValue() string {
+func (t *InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env) GetValue() string {
 	if t == nil {
-		t = &InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
+		t = &InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env{}
 	}
 	return t.Value
 }
 
-type InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom struct {
+type InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom struct {
 	ConfigMap string "json:\"configMap\" graphql:\"configMap\""
 	Secret    string "json:\"secret\" graphql:\"secret\""
 }
 
-func (t *InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetConfigMap() string {
+func (t *InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetConfigMap() string {
 	if t == nil {
-		t = &InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
+		t = &InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
 	}
 	return t.ConfigMap
 }
-func (t *InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetSecret() string {
+func (t *InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetSecret() string {
 	if t == nil {
-		t = &InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
+		t = &InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
 	}
 	return t.Secret
 }
 
-type StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env struct {
+type StackRunFragment_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env struct {
 	Name  string "json:\"name\" graphql:\"name\""
 	Value string "json:\"value\" graphql:\"value\""
 }
 
-func (t *StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetName() string {
+func (t *StackRunFragment_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env) GetName() string {
 	if t == nil {
-		t = &StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
+		t = &StackRunFragment_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env{}
 	}
 	return t.Name
 }
-func (t *StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetValue() string {
+func (t *StackRunFragment_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env) GetValue() string {
 	if t == nil {
-		t = &StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
+		t = &StackRunFragment_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env{}
 	}
 	return t.Value
 }
 
-type StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom struct {
+type StackRunFragment_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom struct {
 	ConfigMap string "json:\"configMap\" graphql:\"configMap\""
 	Secret    string "json:\"secret\" graphql:\"secret\""
 }
 
-func (t *StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetConfigMap() string {
+func (t *StackRunFragment_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetConfigMap() string {
 	if t == nil {
-		t = &StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
+		t = &StackRunFragment_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
 	}
 	return t.ConfigMap
 }
-func (t *StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetSecret() string {
+func (t *StackRunFragment_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetSecret() string {
 	if t == nil {
-		t = &StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
+		t = &StackRunFragment_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
 	}
 	return t.Secret
 }
 
-type StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env struct {
+type StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env struct {
 	Name  string "json:\"name\" graphql:\"name\""
 	Value string "json:\"value\" graphql:\"value\""
 }
 
-func (t *StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetName() string {
+func (t *StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env) GetName() string {
 	if t == nil {
-		t = &StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
+		t = &StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env{}
 	}
 	return t.Name
 }
-func (t *StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetValue() string {
+func (t *StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env) GetValue() string {
 	if t == nil {
-		t = &StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
+		t = &StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env{}
 	}
 	return t.Value
 }
 
-type StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom struct {
+type StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom struct {
 	ConfigMap string "json:\"configMap\" graphql:\"configMap\""
 	Secret    string "json:\"secret\" graphql:\"secret\""
 }
 
-func (t *StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetConfigMap() string {
+func (t *StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetConfigMap() string {
 	if t == nil {
-		t = &StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
+		t = &StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
 	}
 	return t.ConfigMap
 }
-func (t *StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetSecret() string {
+func (t *StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetSecret() string {
 	if t == nil {
-		t = &StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
-	}
-	return t.Secret
-}
-
-type JobGateSpecFragment_Containers_ContainerSpecFragment_Env struct {
-	Name  string "json:\"name\" graphql:\"name\""
-	Value string "json:\"value\" graphql:\"value\""
-}
-
-func (t *JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetName() string {
-	if t == nil {
-		t = &JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
-	}
-	return t.Name
-}
-func (t *JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetValue() string {
-	if t == nil {
-		t = &JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
-	}
-	return t.Value
-}
-
-type JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom struct {
-	ConfigMap string "json:\"configMap\" graphql:\"configMap\""
-	Secret    string "json:\"secret\" graphql:\"secret\""
-}
-
-func (t *JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetConfigMap() string {
-	if t == nil {
-		t = &JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
-	}
-	return t.ConfigMap
-}
-func (t *JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetSecret() string {
-	if t == nil {
-		t = &JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
+		t = &StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
 	}
 	return t.Secret
 }
@@ -8856,38 +8774,38 @@ func (t *ListProviders_ClusterProviders_ClusterProviderConnectionFragment_Edges_
 	return t.Value
 }
 
-type ListClusterStacks_ClusterStackRuns_Edges_StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env struct {
+type ListClusterStacks_ClusterStackRuns_Edges_StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env struct {
 	Name  string "json:\"name\" graphql:\"name\""
 	Value string "json:\"value\" graphql:\"value\""
 }
 
-func (t *ListClusterStacks_ClusterStackRuns_Edges_StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetName() string {
+func (t *ListClusterStacks_ClusterStackRuns_Edges_StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env) GetName() string {
 	if t == nil {
-		t = &ListClusterStacks_ClusterStackRuns_Edges_StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
+		t = &ListClusterStacks_ClusterStackRuns_Edges_StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env{}
 	}
 	return t.Name
 }
-func (t *ListClusterStacks_ClusterStackRuns_Edges_StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetValue() string {
+func (t *ListClusterStacks_ClusterStackRuns_Edges_StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env) GetValue() string {
 	if t == nil {
-		t = &ListClusterStacks_ClusterStackRuns_Edges_StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
+		t = &ListClusterStacks_ClusterStackRuns_Edges_StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env{}
 	}
 	return t.Value
 }
 
-type ListClusterStacks_ClusterStackRuns_Edges_StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom struct {
+type ListClusterStacks_ClusterStackRuns_Edges_StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom struct {
 	ConfigMap string "json:\"configMap\" graphql:\"configMap\""
 	Secret    string "json:\"secret\" graphql:\"secret\""
 }
 
-func (t *ListClusterStacks_ClusterStackRuns_Edges_StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetConfigMap() string {
+func (t *ListClusterStacks_ClusterStackRuns_Edges_StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetConfigMap() string {
 	if t == nil {
-		t = &ListClusterStacks_ClusterStackRuns_Edges_StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
+		t = &ListClusterStacks_ClusterStackRuns_Edges_StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
 	}
 	return t.ConfigMap
 }
-func (t *ListClusterStacks_ClusterStackRuns_Edges_StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetSecret() string {
+func (t *ListClusterStacks_ClusterStackRuns_Edges_StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetSecret() string {
 	if t == nil {
-		t = &ListClusterStacks_ClusterStackRuns_Edges_StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
+		t = &ListClusterStacks_ClusterStackRuns_Edges_StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
 	}
 	return t.Secret
 }
@@ -8910,38 +8828,38 @@ func (t *ListClusterStacks_ClusterStackRuns) GetEdges() []*StackRunEdgeFragment 
 	return t.Edges
 }
 
-type ListInfrastructureStacks_InfrastructureStacks_Edges_InfrastructureStackEdgeFragment_Node_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env struct {
+type ListInfrastructureStacks_InfrastructureStacks_Edges_InfrastructureStackEdgeFragment_Node_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env struct {
 	Name  string "json:\"name\" graphql:\"name\""
 	Value string "json:\"value\" graphql:\"value\""
 }
 
-func (t *ListInfrastructureStacks_InfrastructureStacks_Edges_InfrastructureStackEdgeFragment_Node_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetName() string {
+func (t *ListInfrastructureStacks_InfrastructureStacks_Edges_InfrastructureStackEdgeFragment_Node_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env) GetName() string {
 	if t == nil {
-		t = &ListInfrastructureStacks_InfrastructureStacks_Edges_InfrastructureStackEdgeFragment_Node_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
+		t = &ListInfrastructureStacks_InfrastructureStacks_Edges_InfrastructureStackEdgeFragment_Node_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env{}
 	}
 	return t.Name
 }
-func (t *ListInfrastructureStacks_InfrastructureStacks_Edges_InfrastructureStackEdgeFragment_Node_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetValue() string {
+func (t *ListInfrastructureStacks_InfrastructureStacks_Edges_InfrastructureStackEdgeFragment_Node_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env) GetValue() string {
 	if t == nil {
-		t = &ListInfrastructureStacks_InfrastructureStacks_Edges_InfrastructureStackEdgeFragment_Node_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
+		t = &ListInfrastructureStacks_InfrastructureStacks_Edges_InfrastructureStackEdgeFragment_Node_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env{}
 	}
 	return t.Value
 }
 
-type ListInfrastructureStacks_InfrastructureStacks_Edges_InfrastructureStackEdgeFragment_Node_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom struct {
+type ListInfrastructureStacks_InfrastructureStacks_Edges_InfrastructureStackEdgeFragment_Node_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom struct {
 	ConfigMap string "json:\"configMap\" graphql:\"configMap\""
 	Secret    string "json:\"secret\" graphql:\"secret\""
 }
 
-func (t *ListInfrastructureStacks_InfrastructureStacks_Edges_InfrastructureStackEdgeFragment_Node_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetConfigMap() string {
+func (t *ListInfrastructureStacks_InfrastructureStacks_Edges_InfrastructureStackEdgeFragment_Node_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetConfigMap() string {
 	if t == nil {
-		t = &ListInfrastructureStacks_InfrastructureStacks_Edges_InfrastructureStackEdgeFragment_Node_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
+		t = &ListInfrastructureStacks_InfrastructureStacks_Edges_InfrastructureStackEdgeFragment_Node_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
 	}
 	return t.ConfigMap
 }
-func (t *ListInfrastructureStacks_InfrastructureStacks_Edges_InfrastructureStackEdgeFragment_Node_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetSecret() string {
+func (t *ListInfrastructureStacks_InfrastructureStacks_Edges_InfrastructureStackEdgeFragment_Node_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetSecret() string {
 	if t == nil {
-		t = &ListInfrastructureStacks_InfrastructureStacks_Edges_InfrastructureStackEdgeFragment_Node_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
+		t = &ListInfrastructureStacks_InfrastructureStacks_Edges_InfrastructureStackEdgeFragment_Node_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
 	}
 	return t.Secret
 }
@@ -8964,362 +8882,362 @@ func (t *ListInfrastructureStacks_InfrastructureStacks) GetEdges() []*Infrastruc
 	return t.Edges
 }
 
-type GetStackRun_StackRun_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env struct {
+type GetStackRun_StackRun_StackRunFragment_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env struct {
 	Name  string "json:\"name\" graphql:\"name\""
 	Value string "json:\"value\" graphql:\"value\""
 }
 
-func (t *GetStackRun_StackRun_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetName() string {
+func (t *GetStackRun_StackRun_StackRunFragment_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env) GetName() string {
 	if t == nil {
-		t = &GetStackRun_StackRun_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
+		t = &GetStackRun_StackRun_StackRunFragment_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env{}
 	}
 	return t.Name
 }
-func (t *GetStackRun_StackRun_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetValue() string {
+func (t *GetStackRun_StackRun_StackRunFragment_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env) GetValue() string {
 	if t == nil {
-		t = &GetStackRun_StackRun_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
+		t = &GetStackRun_StackRun_StackRunFragment_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env{}
 	}
 	return t.Value
 }
 
-type GetStackRun_StackRun_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom struct {
+type GetStackRun_StackRun_StackRunFragment_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom struct {
 	ConfigMap string "json:\"configMap\" graphql:\"configMap\""
 	Secret    string "json:\"secret\" graphql:\"secret\""
 }
 
-func (t *GetStackRun_StackRun_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetConfigMap() string {
+func (t *GetStackRun_StackRun_StackRunFragment_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetConfigMap() string {
 	if t == nil {
-		t = &GetStackRun_StackRun_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
+		t = &GetStackRun_StackRun_StackRunFragment_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
 	}
 	return t.ConfigMap
 }
-func (t *GetStackRun_StackRun_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetSecret() string {
+func (t *GetStackRun_StackRun_StackRunFragment_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetSecret() string {
 	if t == nil {
-		t = &GetStackRun_StackRun_StackRunFragment_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
+		t = &GetStackRun_StackRun_StackRunFragment_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
 	}
 	return t.Secret
 }
 
-type GetStackRunBase_StackRun_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env struct {
+type GetStackRunBase_StackRun_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env struct {
 	Name  string "json:\"name\" graphql:\"name\""
 	Value string "json:\"value\" graphql:\"value\""
 }
 
-func (t *GetStackRunBase_StackRun_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetName() string {
+func (t *GetStackRunBase_StackRun_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env) GetName() string {
 	if t == nil {
-		t = &GetStackRunBase_StackRun_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
+		t = &GetStackRunBase_StackRun_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env{}
 	}
 	return t.Name
 }
-func (t *GetStackRunBase_StackRun_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetValue() string {
+func (t *GetStackRunBase_StackRun_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env) GetValue() string {
 	if t == nil {
-		t = &GetStackRunBase_StackRun_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
+		t = &GetStackRunBase_StackRun_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env{}
 	}
 	return t.Value
 }
 
-type GetStackRunBase_StackRun_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom struct {
+type GetStackRunBase_StackRun_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom struct {
 	ConfigMap string "json:\"configMap\" graphql:\"configMap\""
 	Secret    string "json:\"secret\" graphql:\"secret\""
 }
 
-func (t *GetStackRunBase_StackRun_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetConfigMap() string {
+func (t *GetStackRunBase_StackRun_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetConfigMap() string {
 	if t == nil {
-		t = &GetStackRunBase_StackRun_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
+		t = &GetStackRunBase_StackRun_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
 	}
 	return t.ConfigMap
 }
-func (t *GetStackRunBase_StackRun_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetSecret() string {
+func (t *GetStackRunBase_StackRun_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetSecret() string {
 	if t == nil {
-		t = &GetStackRunBase_StackRun_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
+		t = &GetStackRunBase_StackRun_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
 	}
 	return t.Secret
 }
 
-type UpdateStackRun_UpdateStackRun_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env struct {
+type UpdateStackRun_UpdateStackRun_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env struct {
 	Name  string "json:\"name\" graphql:\"name\""
 	Value string "json:\"value\" graphql:\"value\""
 }
 
-func (t *UpdateStackRun_UpdateStackRun_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetName() string {
+func (t *UpdateStackRun_UpdateStackRun_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env) GetName() string {
 	if t == nil {
-		t = &UpdateStackRun_UpdateStackRun_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
+		t = &UpdateStackRun_UpdateStackRun_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env{}
 	}
 	return t.Name
 }
-func (t *UpdateStackRun_UpdateStackRun_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetValue() string {
+func (t *UpdateStackRun_UpdateStackRun_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env) GetValue() string {
 	if t == nil {
-		t = &UpdateStackRun_UpdateStackRun_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
+		t = &UpdateStackRun_UpdateStackRun_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env{}
 	}
 	return t.Value
 }
 
-type UpdateStackRun_UpdateStackRun_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom struct {
+type UpdateStackRun_UpdateStackRun_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom struct {
 	ConfigMap string "json:\"configMap\" graphql:\"configMap\""
 	Secret    string "json:\"secret\" graphql:\"secret\""
 }
 
-func (t *UpdateStackRun_UpdateStackRun_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetConfigMap() string {
+func (t *UpdateStackRun_UpdateStackRun_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetConfigMap() string {
 	if t == nil {
-		t = &UpdateStackRun_UpdateStackRun_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
+		t = &UpdateStackRun_UpdateStackRun_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
 	}
 	return t.ConfigMap
 }
-func (t *UpdateStackRun_UpdateStackRun_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetSecret() string {
+func (t *UpdateStackRun_UpdateStackRun_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetSecret() string {
 	if t == nil {
-		t = &UpdateStackRun_UpdateStackRun_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
+		t = &UpdateStackRun_UpdateStackRun_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
 	}
 	return t.Secret
 }
 
-type ApproveStackRun_ApproveStackRun_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env struct {
+type ApproveStackRun_ApproveStackRun_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env struct {
 	Name  string "json:\"name\" graphql:\"name\""
 	Value string "json:\"value\" graphql:\"value\""
 }
 
-func (t *ApproveStackRun_ApproveStackRun_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetName() string {
+func (t *ApproveStackRun_ApproveStackRun_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env) GetName() string {
 	if t == nil {
-		t = &ApproveStackRun_ApproveStackRun_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
+		t = &ApproveStackRun_ApproveStackRun_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env{}
 	}
 	return t.Name
 }
-func (t *ApproveStackRun_ApproveStackRun_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetValue() string {
+func (t *ApproveStackRun_ApproveStackRun_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env) GetValue() string {
 	if t == nil {
-		t = &ApproveStackRun_ApproveStackRun_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
+		t = &ApproveStackRun_ApproveStackRun_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env{}
 	}
 	return t.Value
 }
 
-type ApproveStackRun_ApproveStackRun_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom struct {
+type ApproveStackRun_ApproveStackRun_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom struct {
 	ConfigMap string "json:\"configMap\" graphql:\"configMap\""
 	Secret    string "json:\"secret\" graphql:\"secret\""
 }
 
-func (t *ApproveStackRun_ApproveStackRun_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetConfigMap() string {
+func (t *ApproveStackRun_ApproveStackRun_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetConfigMap() string {
 	if t == nil {
-		t = &ApproveStackRun_ApproveStackRun_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
+		t = &ApproveStackRun_ApproveStackRun_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
 	}
 	return t.ConfigMap
 }
-func (t *ApproveStackRun_ApproveStackRun_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetSecret() string {
+func (t *ApproveStackRun_ApproveStackRun_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetSecret() string {
 	if t == nil {
-		t = &ApproveStackRun_ApproveStackRun_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
+		t = &ApproveStackRun_ApproveStackRun_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
 	}
 	return t.Secret
 }
 
-type CreateStack_CreateStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env struct {
+type CreateStack_CreateStack_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env struct {
 	Name  string "json:\"name\" graphql:\"name\""
 	Value string "json:\"value\" graphql:\"value\""
 }
 
-func (t *CreateStack_CreateStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetName() string {
+func (t *CreateStack_CreateStack_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env) GetName() string {
 	if t == nil {
-		t = &CreateStack_CreateStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
+		t = &CreateStack_CreateStack_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env{}
 	}
 	return t.Name
 }
-func (t *CreateStack_CreateStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetValue() string {
+func (t *CreateStack_CreateStack_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env) GetValue() string {
 	if t == nil {
-		t = &CreateStack_CreateStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
+		t = &CreateStack_CreateStack_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env{}
 	}
 	return t.Value
 }
 
-type CreateStack_CreateStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom struct {
+type CreateStack_CreateStack_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom struct {
 	ConfigMap string "json:\"configMap\" graphql:\"configMap\""
 	Secret    string "json:\"secret\" graphql:\"secret\""
 }
 
-func (t *CreateStack_CreateStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetConfigMap() string {
+func (t *CreateStack_CreateStack_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetConfigMap() string {
 	if t == nil {
-		t = &CreateStack_CreateStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
+		t = &CreateStack_CreateStack_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
 	}
 	return t.ConfigMap
 }
-func (t *CreateStack_CreateStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetSecret() string {
+func (t *CreateStack_CreateStack_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetSecret() string {
 	if t == nil {
-		t = &CreateStack_CreateStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
+		t = &CreateStack_CreateStack_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
 	}
 	return t.Secret
 }
 
-type UpdateStack_UpdateStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env struct {
+type UpdateStack_UpdateStack_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env struct {
 	Name  string "json:\"name\" graphql:\"name\""
 	Value string "json:\"value\" graphql:\"value\""
 }
 
-func (t *UpdateStack_UpdateStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetName() string {
+func (t *UpdateStack_UpdateStack_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env) GetName() string {
 	if t == nil {
-		t = &UpdateStack_UpdateStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
+		t = &UpdateStack_UpdateStack_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env{}
 	}
 	return t.Name
 }
-func (t *UpdateStack_UpdateStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetValue() string {
+func (t *UpdateStack_UpdateStack_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env) GetValue() string {
 	if t == nil {
-		t = &UpdateStack_UpdateStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
+		t = &UpdateStack_UpdateStack_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env{}
 	}
 	return t.Value
 }
 
-type UpdateStack_UpdateStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom struct {
+type UpdateStack_UpdateStack_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom struct {
 	ConfigMap string "json:\"configMap\" graphql:\"configMap\""
 	Secret    string "json:\"secret\" graphql:\"secret\""
 }
 
-func (t *UpdateStack_UpdateStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetConfigMap() string {
+func (t *UpdateStack_UpdateStack_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetConfigMap() string {
 	if t == nil {
-		t = &UpdateStack_UpdateStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
+		t = &UpdateStack_UpdateStack_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
 	}
 	return t.ConfigMap
 }
-func (t *UpdateStack_UpdateStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetSecret() string {
+func (t *UpdateStack_UpdateStack_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetSecret() string {
 	if t == nil {
-		t = &UpdateStack_UpdateStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
+		t = &UpdateStack_UpdateStack_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
 	}
 	return t.Secret
 }
 
-type DetachStack_DetachStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env struct {
+type DetachStack_DetachStack_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env struct {
 	Name  string "json:\"name\" graphql:\"name\""
 	Value string "json:\"value\" graphql:\"value\""
 }
 
-func (t *DetachStack_DetachStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetName() string {
+func (t *DetachStack_DetachStack_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env) GetName() string {
 	if t == nil {
-		t = &DetachStack_DetachStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
+		t = &DetachStack_DetachStack_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env{}
 	}
 	return t.Name
 }
-func (t *DetachStack_DetachStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetValue() string {
+func (t *DetachStack_DetachStack_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env) GetValue() string {
 	if t == nil {
-		t = &DetachStack_DetachStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
+		t = &DetachStack_DetachStack_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env{}
 	}
 	return t.Value
 }
 
-type DetachStack_DetachStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom struct {
+type DetachStack_DetachStack_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom struct {
 	ConfigMap string "json:\"configMap\" graphql:\"configMap\""
 	Secret    string "json:\"secret\" graphql:\"secret\""
 }
 
-func (t *DetachStack_DetachStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetConfigMap() string {
+func (t *DetachStack_DetachStack_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetConfigMap() string {
 	if t == nil {
-		t = &DetachStack_DetachStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
+		t = &DetachStack_DetachStack_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
 	}
 	return t.ConfigMap
 }
-func (t *DetachStack_DetachStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetSecret() string {
+func (t *DetachStack_DetachStack_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetSecret() string {
 	if t == nil {
-		t = &DetachStack_DetachStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
+		t = &DetachStack_DetachStack_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
 	}
 	return t.Secret
 }
 
-type DeleteStack_DeleteStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env struct {
+type DeleteStack_DeleteStack_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env struct {
 	Name  string "json:\"name\" graphql:\"name\""
 	Value string "json:\"value\" graphql:\"value\""
 }
 
-func (t *DeleteStack_DeleteStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetName() string {
+func (t *DeleteStack_DeleteStack_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env) GetName() string {
 	if t == nil {
-		t = &DeleteStack_DeleteStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
+		t = &DeleteStack_DeleteStack_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env{}
 	}
 	return t.Name
 }
-func (t *DeleteStack_DeleteStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetValue() string {
+func (t *DeleteStack_DeleteStack_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env) GetValue() string {
 	if t == nil {
-		t = &DeleteStack_DeleteStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
+		t = &DeleteStack_DeleteStack_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env{}
 	}
 	return t.Value
 }
 
-type DeleteStack_DeleteStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom struct {
+type DeleteStack_DeleteStack_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom struct {
 	ConfigMap string "json:\"configMap\" graphql:\"configMap\""
 	Secret    string "json:\"secret\" graphql:\"secret\""
 }
 
-func (t *DeleteStack_DeleteStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetConfigMap() string {
+func (t *DeleteStack_DeleteStack_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetConfigMap() string {
 	if t == nil {
-		t = &DeleteStack_DeleteStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
+		t = &DeleteStack_DeleteStack_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
 	}
 	return t.ConfigMap
 }
-func (t *DeleteStack_DeleteStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetSecret() string {
+func (t *DeleteStack_DeleteStack_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetSecret() string {
 	if t == nil {
-		t = &DeleteStack_DeleteStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
+		t = &DeleteStack_DeleteStack_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
 	}
 	return t.Secret
 }
 
-type GetInfrastructureStack_InfrastructureStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env struct {
+type GetInfrastructureStack_InfrastructureStack_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env struct {
 	Name  string "json:\"name\" graphql:\"name\""
 	Value string "json:\"value\" graphql:\"value\""
 }
 
-func (t *GetInfrastructureStack_InfrastructureStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetName() string {
+func (t *GetInfrastructureStack_InfrastructureStack_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env) GetName() string {
 	if t == nil {
-		t = &GetInfrastructureStack_InfrastructureStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
+		t = &GetInfrastructureStack_InfrastructureStack_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env{}
 	}
 	return t.Name
 }
-func (t *GetInfrastructureStack_InfrastructureStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetValue() string {
+func (t *GetInfrastructureStack_InfrastructureStack_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env) GetValue() string {
 	if t == nil {
-		t = &GetInfrastructureStack_InfrastructureStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
+		t = &GetInfrastructureStack_InfrastructureStack_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env{}
 	}
 	return t.Value
 }
 
-type GetInfrastructureStack_InfrastructureStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom struct {
+type GetInfrastructureStack_InfrastructureStack_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom struct {
 	ConfigMap string "json:\"configMap\" graphql:\"configMap\""
 	Secret    string "json:\"secret\" graphql:\"secret\""
 }
 
-func (t *GetInfrastructureStack_InfrastructureStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetConfigMap() string {
+func (t *GetInfrastructureStack_InfrastructureStack_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetConfigMap() string {
 	if t == nil {
-		t = &GetInfrastructureStack_InfrastructureStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
+		t = &GetInfrastructureStack_InfrastructureStack_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
 	}
 	return t.ConfigMap
 }
-func (t *GetInfrastructureStack_InfrastructureStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetSecret() string {
+func (t *GetInfrastructureStack_InfrastructureStack_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetSecret() string {
 	if t == nil {
-		t = &GetInfrastructureStack_InfrastructureStack_InfrastructureStackFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
+		t = &GetInfrastructureStack_InfrastructureStack_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
 	}
 	return t.Secret
 }
 
-type CompletesStackRun_CompleteStackRun_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env struct {
+type CompletesStackRun_CompleteStackRun_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env struct {
 	Name  string "json:\"name\" graphql:\"name\""
 	Value string "json:\"value\" graphql:\"value\""
 }
 
-func (t *CompletesStackRun_CompleteStackRun_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetName() string {
+func (t *CompletesStackRun_CompleteStackRun_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env) GetName() string {
 	if t == nil {
-		t = &CompletesStackRun_CompleteStackRun_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
+		t = &CompletesStackRun_CompleteStackRun_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env{}
 	}
 	return t.Name
 }
-func (t *CompletesStackRun_CompleteStackRun_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env) GetValue() string {
+func (t *CompletesStackRun_CompleteStackRun_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env) GetValue() string {
 	if t == nil {
-		t = &CompletesStackRun_CompleteStackRun_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_Env{}
+		t = &CompletesStackRun_CompleteStackRun_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env{}
 	}
 	return t.Value
 }
 
-type CompletesStackRun_CompleteStackRun_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom struct {
+type CompletesStackRun_CompleteStackRun_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom struct {
 	ConfigMap string "json:\"configMap\" graphql:\"configMap\""
 	Secret    string "json:\"secret\" graphql:\"secret\""
 }
 
-func (t *CompletesStackRun_CompleteStackRun_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetConfigMap() string {
+func (t *CompletesStackRun_CompleteStackRun_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetConfigMap() string {
 	if t == nil {
-		t = &CompletesStackRun_CompleteStackRun_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
+		t = &CompletesStackRun_CompleteStackRun_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
 	}
 	return t.ConfigMap
 }
-func (t *CompletesStackRun_CompleteStackRun_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetSecret() string {
+func (t *CompletesStackRun_CompleteStackRun_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom) GetSecret() string {
 	if t == nil {
-		t = &CompletesStackRun_CompleteStackRun_StackRunBaseFragment_JobSpec_JobGateSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
+		t = &CompletesStackRun_CompleteStackRun_StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
 	}
 	return t.Secret
 }
@@ -18685,7 +18603,7 @@ fragment StackRunBaseFragment on StackRun {
 		... GitRepositoryFragment
 	}
 	jobSpec {
-		... JobGateSpecFragment
+		... JobSpecFragment
 	}
 	configuration {
 		... StackConfigurationFragment
@@ -18739,15 +18657,15 @@ fragment GitRepositoryFragment on GitRepository {
 	url
 	decrypt
 }
-fragment JobGateSpecFragment on JobGateSpec {
+fragment JobSpecFragment on JobGateSpec {
 	namespace
 	raw
-	labels
-	annotations
-	serviceAccount
 	containers {
 		... ContainerSpecFragment
 	}
+	labels
+	annotations
+	serviceAccount
 }
 fragment ContainerSpecFragment on ContainerSpec {
 	image
@@ -18833,7 +18751,7 @@ fragment InfrastructureStackFragment on InfrastructureStack {
 		... GitRefFragment
 	}
 	jobSpec {
-		... JobGateSpecFragment
+		... JobSpecFragment
 	}
 	configuration {
 		... StackConfigurationFragment
@@ -18869,15 +18787,15 @@ fragment GitRefFragment on GitRef {
 	folder
 	ref
 }
-fragment JobGateSpecFragment on JobGateSpec {
+fragment JobSpecFragment on JobGateSpec {
 	namespace
 	raw
-	labels
-	annotations
-	serviceAccount
 	containers {
 		... ContainerSpecFragment
 	}
+	labels
+	annotations
+	serviceAccount
 }
 fragment ContainerSpecFragment on ContainerSpec {
 	image
@@ -19012,7 +18930,7 @@ fragment StackRunBaseFragment on StackRun {
 		... GitRepositoryFragment
 	}
 	jobSpec {
-		... JobGateSpecFragment
+		... JobSpecFragment
 	}
 	configuration {
 		... StackConfigurationFragment
@@ -19066,15 +18984,15 @@ fragment GitRepositoryFragment on GitRepository {
 	url
 	decrypt
 }
-fragment JobGateSpecFragment on JobGateSpec {
+fragment JobSpecFragment on JobGateSpec {
 	namespace
 	raw
-	labels
-	annotations
-	serviceAccount
 	containers {
 		... ContainerSpecFragment
 	}
+	labels
+	annotations
+	serviceAccount
 }
 fragment ContainerSpecFragment on ContainerSpec {
 	image
@@ -19158,7 +19076,7 @@ fragment StackRunBaseFragment on StackRun {
 		... GitRepositoryFragment
 	}
 	jobSpec {
-		... JobGateSpecFragment
+		... JobSpecFragment
 	}
 	configuration {
 		... StackConfigurationFragment
@@ -19212,15 +19130,15 @@ fragment GitRepositoryFragment on GitRepository {
 	url
 	decrypt
 }
-fragment JobGateSpecFragment on JobGateSpec {
+fragment JobSpecFragment on JobGateSpec {
 	namespace
 	raw
-	labels
-	annotations
-	serviceAccount
 	containers {
 		... ContainerSpecFragment
 	}
+	labels
+	annotations
+	serviceAccount
 }
 fragment ContainerSpecFragment on ContainerSpec {
 	image
@@ -19299,7 +19217,7 @@ fragment StackRunBaseFragment on StackRun {
 		... GitRepositoryFragment
 	}
 	jobSpec {
-		... JobGateSpecFragment
+		... JobSpecFragment
 	}
 	configuration {
 		... StackConfigurationFragment
@@ -19353,15 +19271,15 @@ fragment GitRepositoryFragment on GitRepository {
 	url
 	decrypt
 }
-fragment JobGateSpecFragment on JobGateSpec {
+fragment JobSpecFragment on JobGateSpec {
 	namespace
 	raw
-	labels
-	annotations
-	serviceAccount
 	containers {
 		... ContainerSpecFragment
 	}
+	labels
+	annotations
+	serviceAccount
 }
 fragment ContainerSpecFragment on ContainerSpec {
 	image
@@ -19441,7 +19359,7 @@ fragment StackRunBaseFragment on StackRun {
 		... GitRepositoryFragment
 	}
 	jobSpec {
-		... JobGateSpecFragment
+		... JobSpecFragment
 	}
 	configuration {
 		... StackConfigurationFragment
@@ -19495,15 +19413,15 @@ fragment GitRepositoryFragment on GitRepository {
 	url
 	decrypt
 }
-fragment JobGateSpecFragment on JobGateSpec {
+fragment JobSpecFragment on JobGateSpec {
 	namespace
 	raw
-	labels
-	annotations
-	serviceAccount
 	containers {
 		... ContainerSpecFragment
 	}
+	labels
+	annotations
+	serviceAccount
 }
 fragment ContainerSpecFragment on ContainerSpec {
 	image
@@ -19567,7 +19485,7 @@ fragment InfrastructureStackFragment on InfrastructureStack {
 		... GitRefFragment
 	}
 	jobSpec {
-		... JobGateSpecFragment
+		... JobSpecFragment
 	}
 	configuration {
 		... StackConfigurationFragment
@@ -19603,15 +19521,15 @@ fragment GitRefFragment on GitRef {
 	folder
 	ref
 }
-fragment JobGateSpecFragment on JobGateSpec {
+fragment JobSpecFragment on JobGateSpec {
 	namespace
 	raw
-	labels
-	annotations
-	serviceAccount
 	containers {
 		... ContainerSpecFragment
 	}
+	labels
+	annotations
+	serviceAccount
 }
 fragment ContainerSpecFragment on ContainerSpec {
 	image
@@ -19722,7 +19640,7 @@ fragment InfrastructureStackFragment on InfrastructureStack {
 		... GitRefFragment
 	}
 	jobSpec {
-		... JobGateSpecFragment
+		... JobSpecFragment
 	}
 	configuration {
 		... StackConfigurationFragment
@@ -19758,15 +19676,15 @@ fragment GitRefFragment on GitRef {
 	folder
 	ref
 }
-fragment JobGateSpecFragment on JobGateSpec {
+fragment JobSpecFragment on JobGateSpec {
 	namespace
 	raw
-	labels
-	annotations
-	serviceAccount
 	containers {
 		... ContainerSpecFragment
 	}
+	labels
+	annotations
+	serviceAccount
 }
 fragment ContainerSpecFragment on ContainerSpec {
 	image
@@ -19878,7 +19796,7 @@ fragment InfrastructureStackFragment on InfrastructureStack {
 		... GitRefFragment
 	}
 	jobSpec {
-		... JobGateSpecFragment
+		... JobSpecFragment
 	}
 	configuration {
 		... StackConfigurationFragment
@@ -19914,15 +19832,15 @@ fragment GitRefFragment on GitRef {
 	folder
 	ref
 }
-fragment JobGateSpecFragment on JobGateSpec {
+fragment JobSpecFragment on JobGateSpec {
 	namespace
 	raw
-	labels
-	annotations
-	serviceAccount
 	containers {
 		... ContainerSpecFragment
 	}
+	labels
+	annotations
+	serviceAccount
 }
 fragment ContainerSpecFragment on ContainerSpec {
 	image
@@ -20033,7 +19951,7 @@ fragment InfrastructureStackFragment on InfrastructureStack {
 		... GitRefFragment
 	}
 	jobSpec {
-		... JobGateSpecFragment
+		... JobSpecFragment
 	}
 	configuration {
 		... StackConfigurationFragment
@@ -20069,15 +19987,15 @@ fragment GitRefFragment on GitRef {
 	folder
 	ref
 }
-fragment JobGateSpecFragment on JobGateSpec {
+fragment JobSpecFragment on JobGateSpec {
 	namespace
 	raw
-	labels
-	annotations
-	serviceAccount
 	containers {
 		... ContainerSpecFragment
 	}
+	labels
+	annotations
+	serviceAccount
 }
 fragment ContainerSpecFragment on ContainerSpec {
 	image
@@ -20188,7 +20106,7 @@ fragment InfrastructureStackFragment on InfrastructureStack {
 		... GitRefFragment
 	}
 	jobSpec {
-		... JobGateSpecFragment
+		... JobSpecFragment
 	}
 	configuration {
 		... StackConfigurationFragment
@@ -20224,15 +20142,15 @@ fragment GitRefFragment on GitRef {
 	folder
 	ref
 }
-fragment JobGateSpecFragment on JobGateSpec {
+fragment JobSpecFragment on JobGateSpec {
 	namespace
 	raw
-	labels
-	annotations
-	serviceAccount
 	containers {
 		... ContainerSpecFragment
 	}
+	labels
+	annotations
+	serviceAccount
 }
 fragment ContainerSpecFragment on ContainerSpec {
 	image
@@ -20358,7 +20276,7 @@ fragment StackRunBaseFragment on StackRun {
 		... GitRepositoryFragment
 	}
 	jobSpec {
-		... JobGateSpecFragment
+		... JobSpecFragment
 	}
 	configuration {
 		... StackConfigurationFragment
@@ -20412,15 +20330,15 @@ fragment GitRepositoryFragment on GitRepository {
 	url
 	decrypt
 }
-fragment JobGateSpecFragment on JobGateSpec {
+fragment JobSpecFragment on JobGateSpec {
 	namespace
 	raw
-	labels
-	annotations
-	serviceAccount
 	containers {
 		... ContainerSpecFragment
 	}
+	labels
+	annotations
+	serviceAccount
 }
 fragment ContainerSpecFragment on ContainerSpec {
 	image
