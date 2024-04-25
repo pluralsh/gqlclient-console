@@ -131,6 +131,7 @@ query GetServiceDeploymentForAgent($id: ID!) {
             path
         }
         helm {
+            release
             valuesFiles
         }
         configuration {
