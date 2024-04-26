@@ -1485,8 +1485,12 @@ type HelmConfigAttributes struct {
 	ValuesFiles []*string            `json:"valuesFiles,omitempty"`
 	Chart       *string              `json:"chart,omitempty"`
 	Version     *string              `json:"version,omitempty"`
+	Release     *string              `json:"release,omitempty"`
 	Set         *HelmValueAttributes `json:"set,omitempty"`
 	Repository  *NamespacedName      `json:"repository,omitempty"`
+	Git         *GitRefAttributes    `json:"git,omitempty"`
+	// pointer to a Plural GitRepository
+	RepositoryID *string `json:"repositoryId,omitempty"`
 }
 
 // a crd representation of a helm repository
@@ -1516,7 +1520,12 @@ type HelmSpec struct {
 	// the name of the chart this service is using
 	Chart *string `json:"chart,omitempty"`
 	// a helm values file to use with this service, requires auth and so is heavy to query
-	Values *string `json:"values,omitempty"`
+	Values  *string `json:"values,omitempty"`
+	Release *string `json:"release,omitempty"`
+	// spec of where to find the chart in git
+	Git *GitRef `json:"git,omitempty"`
+	// a git repository in Plural to use as a source
+	RepositoryID *string `json:"repositoryId,omitempty"`
 	// pointer to the flux helm repository resource used for this chart
 	Repository *ObjectReference `json:"repository,omitempty"`
 	// the chart version in use currently
@@ -1576,12 +1585,16 @@ type InfrastructureStack struct {
 	// whether to require approval
 	Approval *bool `json:"approval,omitempty"`
 	// whether this stack was previously deleted and is pending cleanup
-	DeletedAt *string             `json:"deletedAt,omitempty"`
-	Runs      *StackRunConnection `json:"runs,omitempty"`
+	DeletedAt *string `json:"deletedAt,omitempty"`
+	// why this run was cancelled
+	CancellationReason *string             `json:"cancellationReason,omitempty"`
+	Runs               *StackRunConnection `json:"runs,omitempty"`
 	// files bound to a run of this stack
 	Files []*StackFile `json:"files,omitempty"`
 	// environment variables for this stack
 	Environment []*StackEnvironment `json:"environment,omitempty"`
+	// a list of metrics to poll to determine if a stack run should be cancelled
+	ObservableMetrics []*ObservableMetric `json:"observableMetrics,omitempty"`
 	// the most recent output for this stack
 	Output []*StackOutput `json:"output,omitempty"`
 	// the most recent state of this stack
@@ -2183,6 +2196,19 @@ type ObservabilityProviderEdge struct {
 	Cursor *string                `json:"cursor,omitempty"`
 }
 
+type ObservableMetric struct {
+	ID         string                 `json:"id"`
+	Identifier string                 `json:"identifier"`
+	Provider   *ObservabilityProvider `json:"provider,omitempty"`
+	InsertedAt *string                `json:"insertedAt,omitempty"`
+	UpdatedAt  *string                `json:"updatedAt,omitempty"`
+}
+
+type ObservableMetricAttributes struct {
+	Identifier string `json:"identifier"`
+	ProviderID string `json:"providerId"`
+}
+
 type OverlayUpdate struct {
 	Path []*string `json:"path,omitempty"`
 }
@@ -2627,6 +2653,7 @@ type PolicyConstraint struct {
 	Object *KubernetesUnstructured `json:"object,omitempty"`
 	// pointer to the kubernetes resource itself
 	Ref        *ConstraintRef `json:"ref,omitempty"`
+	Cluster    *Cluster       `json:"cluster,omitempty"`
 	Violations []*Violation   `json:"violations,omitempty"`
 	InsertedAt *string        `json:"insertedAt,omitempty"`
 	UpdatedAt  *string        `json:"updatedAt,omitempty"`
@@ -3512,6 +3539,20 @@ type ServiceContextAttributes struct {
 	Secrets       []*ConfigAttributes `json:"secrets,omitempty"`
 }
 
+// A dependency of a service, the service will not actualize until all dependencies are ready
+type ServiceDependency struct {
+	ID         string                   `json:"id"`
+	Status     *ServiceDeploymentStatus `json:"status,omitempty"`
+	Name       string                   `json:"name"`
+	InsertedAt *string                  `json:"insertedAt,omitempty"`
+	UpdatedAt  *string                  `json:"updatedAt,omitempty"`
+}
+
+// A named depedency of a service, will prevent applying any manifests until the dependency has become ready
+type ServiceDependencyAttributes struct {
+	Name string `json:"name"`
+}
+
 // a reference to a service deployed from a git repo into a cluster
 type ServiceDeployment struct {
 	// internal id of this service
@@ -3579,6 +3620,8 @@ type ServiceDeployment struct {
 	Owner *GlobalService `json:"owner,omitempty"`
 	// bound contexts for this service
 	Contexts []*ServiceContext `json:"contexts,omitempty"`
+	// the dependencies of this service, actualization will not happen until all are HEALTHY
+	Dependencies []*ServiceDependency `json:"dependencies,omitempty"`
 	// a relay connection of all revisions of this service, these are periodically pruned up to a history limit
 	Revisions *RevisionConnection `json:"revisions,omitempty"`
 	// whether this service is editable
@@ -3598,14 +3641,15 @@ type ServiceDeploymentAttributes struct {
 	DryRun       *bool                 `json:"dryRun,omitempty"`
 	Interval     *string               `json:"interval,omitempty"`
 	// if you should apply liquid templating to raw yaml files, defaults to true
-	Templated       *bool                       `json:"templated,omitempty"`
-	Git             *GitRefAttributes           `json:"git,omitempty"`
-	Helm            *HelmConfigAttributes       `json:"helm,omitempty"`
-	Kustomize       *KustomizeAttributes        `json:"kustomize,omitempty"`
-	Configuration   []*ConfigAttributes         `json:"configuration,omitempty"`
-	ReadBindings    []*PolicyBindingAttributes  `json:"readBindings,omitempty"`
-	WriteBindings   []*PolicyBindingAttributes  `json:"writeBindings,omitempty"`
-	ContextBindings []*ContextBindingAttributes `json:"contextBindings,omitempty"`
+	Templated       *bool                          `json:"templated,omitempty"`
+	Git             *GitRefAttributes              `json:"git,omitempty"`
+	Helm            *HelmConfigAttributes          `json:"helm,omitempty"`
+	Kustomize       *KustomizeAttributes           `json:"kustomize,omitempty"`
+	Configuration   []*ConfigAttributes            `json:"configuration,omitempty"`
+	Dependencies    []*ServiceDependencyAttributes `json:"dependencies,omitempty"`
+	ReadBindings    []*PolicyBindingAttributes     `json:"readBindings,omitempty"`
+	WriteBindings   []*PolicyBindingAttributes     `json:"writeBindings,omitempty"`
+	ContextBindings []*ContextBindingAttributes    `json:"contextBindings,omitempty"`
 }
 
 type ServiceDeploymentConnection struct {
@@ -3663,8 +3707,9 @@ type ServiceTemplate struct {
 	// the id of a repository to source manifests for this service
 	RepositoryID *string `json:"repositoryId,omitempty"`
 	// a list of context ids to add to this service
-	Contexts   []*string      `json:"contexts,omitempty"`
-	Repository *GitRepository `json:"repository,omitempty"`
+	Contexts     []*string            `json:"contexts,omitempty"`
+	Repository   *GitRepository       `json:"repository,omitempty"`
+	Dependencies []*ServiceDependency `json:"dependencies,omitempty"`
 	// possibly secret configuration for all spawned services, don't query this in list endpoints
 	Configuration []*ServiceConfiguration `json:"configuration,omitempty"`
 	// settings to configure git for a service
@@ -3690,6 +3735,8 @@ type ServiceTemplateAttributes struct {
 	Contexts []*string `json:"contexts,omitempty"`
 	// a list of secure configuration that will be added to any services created by this template
 	Configuration []*ConfigAttributes `json:"configuration,omitempty"`
+	// dependencies for the service to be spawned
+	Dependencies []*ServiceDependencyAttributes `json:"dependencies,omitempty"`
 	// settings to configure git for a service
 	Git *GitRefAttributes `json:"git,omitempty"`
 	// settings to configure helm for a service
@@ -3707,14 +3754,15 @@ type ServiceUpdateAttributes struct {
 	Interval   *string               `json:"interval,omitempty"`
 	SyncConfig *SyncConfigAttributes `json:"syncConfig,omitempty"`
 	// if you should apply liquid templating to raw yaml files, defaults to true
-	Templated       *bool                       `json:"templated,omitempty"`
-	Git             *GitRefAttributes           `json:"git,omitempty"`
-	Helm            *HelmConfigAttributes       `json:"helm,omitempty"`
-	Configuration   []*ConfigAttributes         `json:"configuration,omitempty"`
-	Kustomize       *KustomizeAttributes        `json:"kustomize,omitempty"`
-	ReadBindings    []*PolicyBindingAttributes  `json:"readBindings,omitempty"`
-	WriteBindings   []*PolicyBindingAttributes  `json:"writeBindings,omitempty"`
-	ContextBindings []*ContextBindingAttributes `json:"contextBindings,omitempty"`
+	Templated       *bool                          `json:"templated,omitempty"`
+	Git             *GitRefAttributes              `json:"git,omitempty"`
+	Helm            *HelmConfigAttributes          `json:"helm,omitempty"`
+	Configuration   []*ConfigAttributes            `json:"configuration,omitempty"`
+	Kustomize       *KustomizeAttributes           `json:"kustomize,omitempty"`
+	Dependencies    []*ServiceDependencyAttributes `json:"dependencies,omitempty"`
+	ReadBindings    []*PolicyBindingAttributes     `json:"readBindings,omitempty"`
+	WriteBindings   []*PolicyBindingAttributes     `json:"writeBindings,omitempty"`
+	ContextBindings []*ContextBindingAttributes    `json:"contextBindings,omitempty"`
 }
 
 type SinkConfiguration struct {
@@ -3769,11 +3817,12 @@ type StackAttributes struct {
 	// version/image config for the tool you're using
 	Configuration StackConfigurationAttributes `json:"configuration"`
 	// whether to require approval
-	Approval      *bool                         `json:"approval,omitempty"`
-	ReadBindings  []*PolicyBindingAttributes    `json:"readBindings,omitempty"`
-	WriteBindings []*PolicyBindingAttributes    `json:"writeBindings,omitempty"`
-	Files         []*StackFileAttributes        `json:"files,omitempty"`
-	Environment   []*StackEnvironmentAttributes `json:"environment,omitempty"`
+	Approval          *bool                         `json:"approval,omitempty"`
+	ReadBindings      []*PolicyBindingAttributes    `json:"readBindings,omitempty"`
+	WriteBindings     []*PolicyBindingAttributes    `json:"writeBindings,omitempty"`
+	Files             []*StackFileAttributes        `json:"files,omitempty"`
+	Environment       []*StackEnvironmentAttributes `json:"environment,omitempty"`
+	ObservableMetrics []*ObservableMetricAttributes `json:"observableMetrics,omitempty"`
 }
 
 type StackConfiguration struct {
@@ -3867,12 +3916,14 @@ type StackRun struct {
 type StackRunAttributes struct {
 	// The status of this run
 	Status StackStatus `json:"status"`
-	// the state from this runs plan or apply
+	// The state from this runs plan or apply
 	State *StackStateAttributes `json:"state,omitempty"`
-	// output generated by this run
+	// Output generated by this run
 	Output []*StackOutputAttributes `json:"output,omitempty"`
 	// Any errors detected when trying to run this stack
 	Errors []*ServiceErrorAttributes `json:"errors,omitempty"`
+	// Why you decided to cancel this run
+	CancellationReason *string `json:"cancellationReason,omitempty"`
 }
 
 type StackRunConnection struct {
