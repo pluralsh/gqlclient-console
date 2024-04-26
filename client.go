@@ -7351,9 +7351,16 @@ func (t *GetServiceDeploymentForAgent_ServiceDeployment_Kustomize) GetPath() str
 }
 
 type GetServiceDeploymentForAgent_ServiceDeployment_Helm struct {
+	Release     *string   "json:\"release,omitempty\" graphql:\"release\""
 	ValuesFiles []*string "json:\"valuesFiles,omitempty\" graphql:\"valuesFiles\""
 }
 
+func (t *GetServiceDeploymentForAgent_ServiceDeployment_Helm) GetRelease() *string {
+	if t == nil {
+		t = &GetServiceDeploymentForAgent_ServiceDeployment_Helm{}
+	}
+	return t.Release
+}
 func (t *GetServiceDeploymentForAgent_ServiceDeployment_Helm) GetValuesFiles() []*string {
 	if t == nil {
 		t = &GetServiceDeploymentForAgent_ServiceDeployment_Helm{}
@@ -15042,6 +15049,7 @@ const GetServiceDeploymentForAgentDocument = `query GetServiceDeploymentForAgent
 			path
 		}
 		helm {
+			release
 			valuesFiles
 		}
 		configuration {
