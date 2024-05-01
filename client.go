@@ -1509,6 +1509,7 @@ type DeploymentSettingsFragment struct {
 	ID                 string                   "json:\"id\" graphql:\"id\""
 	Name               string                   "json:\"name\" graphql:\"name\""
 	AgentHelmValues    *string                  "json:\"agentHelmValues,omitempty\" graphql:\"agentHelmValues\""
+	AgentVsn           string                   "json:\"agentVsn\" graphql:\"agentVsn\""
 	WriteBindings      []*PolicyBindingFragment "json:\"writeBindings,omitempty\" graphql:\"writeBindings\""
 	ReadBindings       []*PolicyBindingFragment "json:\"readBindings,omitempty\" graphql:\"readBindings\""
 	CreateBindings     []*PolicyBindingFragment "json:\"createBindings,omitempty\" graphql:\"createBindings\""
@@ -1533,6 +1534,12 @@ func (t *DeploymentSettingsFragment) GetAgentHelmValues() *string {
 		t = &DeploymentSettingsFragment{}
 	}
 	return t.AgentHelmValues
+}
+func (t *DeploymentSettingsFragment) GetAgentVsn() string {
+	if t == nil {
+		t = &DeploymentSettingsFragment{}
+	}
+	return t.AgentVsn
 }
 func (t *DeploymentSettingsFragment) GetWriteBindings() []*PolicyBindingFragment {
 	if t == nil {
@@ -14719,6 +14726,7 @@ fragment DeploymentSettingsFragment on DeploymentSettings {
 	id
 	name
 	agentHelmValues
+	agentVsn
 	writeBindings {
 		... PolicyBindingFragment
 	}
@@ -14790,6 +14798,7 @@ fragment DeploymentSettingsFragment on DeploymentSettings {
 	id
 	name
 	agentHelmValues
+	agentVsn
 	writeBindings {
 		... PolicyBindingFragment
 	}

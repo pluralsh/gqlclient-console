@@ -1152,6 +1152,8 @@ type DeploymentSettings struct {
 	PrometheusConnection *HTTPConnection `json:"prometheusConnection,omitempty"`
 	// custom helm values to apply to all agents (useful for things like adding customary annotations/labels)
 	AgentHelmValues *string `json:"agentHelmValues,omitempty"`
+	// The console's expected agent version
+	AgentVsn string `json:"agentVsn"`
 	// the latest known k8s version
 	LatestK8sVsn string `json:"latestK8sVsn"`
 	// your compliant k8s version
@@ -1587,8 +1589,9 @@ type InfrastructureStack struct {
 	// whether this stack was previously deleted and is pending cleanup
 	DeletedAt *string `json:"deletedAt,omitempty"`
 	// why this run was cancelled
-	CancellationReason *string             `json:"cancellationReason,omitempty"`
-	Runs               *StackRunConnection `json:"runs,omitempty"`
+	CancellationReason *string                `json:"cancellationReason,omitempty"`
+	Runs               *StackRunConnection    `json:"runs,omitempty"`
+	PullRequests       *PullRequestConnection `json:"pullRequests,omitempty"`
 	// files bound to a run of this stack
 	Files []*StackFile `json:"files,omitempty"`
 	// environment variables for this stack
