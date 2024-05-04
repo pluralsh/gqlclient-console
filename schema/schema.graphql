@@ -330,7 +330,7 @@ type RootQueryType {
   notificationRouters(after: String, first: Int, before: String, last: Int, q: String): NotificationRouterConnection
 
   policyConstraints(
-    after: String, first: Int, before: String, last: Int, kind: String, namespace: String, kinds: [String], namespaces: [String], q: String
+    after: String, first: Int, before: String, last: Int, kind: String, namespace: String, kinds: [String], namespaces: [String], clusters: [ID], q: String
   ): PolicyConstraintConnection
 
   violationStatistics(field: ConstraintViolationField!): [ViolationStatistic]
@@ -1258,6 +1258,9 @@ input GlobalServiceAttributes {
   "cluster api provider to target"
   providerId: ID
 
+  "whether you want the global service to take ownership of existing plural services"
+  reparent: Boolean
+
   template: ServiceTemplateAttributes
 }
 
@@ -1340,6 +1343,9 @@ type GlobalService {
 
   "the kubernetes distribution to target with this global service"
   distro: ClusterDistro
+
+  "whether you want to reparent existing plural services under this global service"
+  reparent: Boolean
 
   "the service template used to spawn services"
   template: ServiceTemplate
@@ -1447,6 +1453,12 @@ type ManagedNamespaceConnection {
   edges: [ManagedNamespaceEdge]
 }
 
+enum ConstraintEnforcement {
+  WARN
+  DENY
+  DRY_RUN
+}
+
 enum ConstraintViolationField {
   NAMESPACE
   KIND
@@ -1466,6 +1478,8 @@ input PolicyConstraintAttributes {
   ref: ConstraintRefAttributes
 
   violations: [ViolationAttributes]
+
+  enforcement: ConstraintEnforcement
 }
 
 input ConstraintRefAttributes {
@@ -1493,6 +1507,8 @@ type PolicyConstraint {
   recommendation: String
 
   violationCount: Int
+
+  enforcement: ConstraintEnforcement
 
   "Fetches the live constraint object from K8s, this is an expensive query and should not be done in list endpoints"
   object: KubernetesUnstructured
@@ -2292,6 +2308,8 @@ input HelmConfigAttributes {
 
   release: String
 
+  url: String
+
   set: HelmValueAttributes
 
   repository: NamespacedName
@@ -2563,6 +2581,9 @@ type ObjectReference {
 type HelmSpec {
   "the name of the chart this service is using"
   chart: String
+
+  "the helm repository url to use"
+  url: String
 
   "a helm values file to use with this service, requires auth and so is heavy to query"
   values: String

@@ -1386,6 +1386,8 @@ type GlobalService struct {
 	Tags []*Tag `json:"tags,omitempty"`
 	// the kubernetes distribution to target with this global service
 	Distro *ClusterDistro `json:"distro,omitempty"`
+	// whether you want to reparent existing plural services under this global service
+	Reparent *bool `json:"reparent,omitempty"`
 	// the service template used to spawn services
 	Template *ServiceTemplate `json:"template,omitempty"`
 	// the service to replicate across clusters
@@ -1406,8 +1408,10 @@ type GlobalServiceAttributes struct {
 	// kubernetes distribution to target
 	Distro *ClusterDistro `json:"distro,omitempty"`
 	// cluster api provider to target
-	ProviderID *string                    `json:"providerId,omitempty"`
-	Template   *ServiceTemplateAttributes `json:"template,omitempty"`
+	ProviderID *string `json:"providerId,omitempty"`
+	// whether you want the global service to take ownership of existing plural services
+	Reparent *bool                      `json:"reparent,omitempty"`
+	Template *ServiceTemplateAttributes `json:"template,omitempty"`
 }
 
 type GlobalServiceConnection struct {
@@ -1488,6 +1492,7 @@ type HelmConfigAttributes struct {
 	Chart       *string              `json:"chart,omitempty"`
 	Version     *string              `json:"version,omitempty"`
 	Release     *string              `json:"release,omitempty"`
+	URL         *string              `json:"url,omitempty"`
 	Set         *HelmValueAttributes `json:"set,omitempty"`
 	Repository  *NamespacedName      `json:"repository,omitempty"`
 	Git         *GitRefAttributes    `json:"git,omitempty"`
@@ -1521,6 +1526,8 @@ type HelmRepositoryStatus struct {
 type HelmSpec struct {
 	// the name of the chart this service is using
 	Chart *string `json:"chart,omitempty"`
+	// the helm repository url to use
+	URL *string `json:"url,omitempty"`
 	// a helm values file to use with this service, requires auth and so is heavy to query
 	Values  *string `json:"values,omitempty"`
 	Release *string `json:"release,omitempty"`
@@ -2647,11 +2654,12 @@ type PolicyBindingAttributes struct {
 
 // A OPA Gatekeeper Constraint reference
 type PolicyConstraint struct {
-	ID             string  `json:"id"`
-	Name           string  `json:"name"`
-	Description    *string `json:"description,omitempty"`
-	Recommendation *string `json:"recommendation,omitempty"`
-	ViolationCount *int64  `json:"violationCount,omitempty"`
+	ID             string                 `json:"id"`
+	Name           string                 `json:"name"`
+	Description    *string                `json:"description,omitempty"`
+	Recommendation *string                `json:"recommendation,omitempty"`
+	ViolationCount *int64                 `json:"violationCount,omitempty"`
+	Enforcement    *ConstraintEnforcement `json:"enforcement,omitempty"`
 	// Fetches the live constraint object from K8s, this is an expensive query and should not be done in list endpoints
 	Object *KubernetesUnstructured `json:"object,omitempty"`
 	// pointer to the kubernetes resource itself
@@ -2669,8 +2677,9 @@ type PolicyConstraintAttributes struct {
 	Recommendation *string `json:"recommendation,omitempty"`
 	ViolationCount *int64  `json:"violationCount,omitempty"`
 	// pointer to the group/name for the CR
-	Ref        *ConstraintRefAttributes `json:"ref,omitempty"`
-	Violations []*ViolationAttributes   `json:"violations,omitempty"`
+	Ref         *ConstraintRefAttributes `json:"ref,omitempty"`
+	Violations  []*ViolationAttributes   `json:"violations,omitempty"`
+	Enforcement *ConstraintEnforcement   `json:"enforcement,omitempty"`
 }
 
 type PolicyConstraintConnection struct {
@@ -4769,6 +4778,49 @@ func (e *Conjunction) UnmarshalGQL(v interface{}) error {
 }
 
 func (e Conjunction) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type ConstraintEnforcement string
+
+const (
+	ConstraintEnforcementWarn   ConstraintEnforcement = "WARN"
+	ConstraintEnforcementDeny   ConstraintEnforcement = "DENY"
+	ConstraintEnforcementDryRun ConstraintEnforcement = "DRY_RUN"
+)
+
+var AllConstraintEnforcement = []ConstraintEnforcement{
+	ConstraintEnforcementWarn,
+	ConstraintEnforcementDeny,
+	ConstraintEnforcementDryRun,
+}
+
+func (e ConstraintEnforcement) IsValid() bool {
+	switch e {
+	case ConstraintEnforcementWarn, ConstraintEnforcementDeny, ConstraintEnforcementDryRun:
+		return true
+	}
+	return false
+}
+
+func (e ConstraintEnforcement) String() string {
+	return string(e)
+}
+
+func (e *ConstraintEnforcement) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ConstraintEnforcement(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ConstraintEnforcement", str)
+	}
+	return nil
+}
+
+func (e ConstraintEnforcement) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
