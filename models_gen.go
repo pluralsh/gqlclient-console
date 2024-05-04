@@ -387,6 +387,20 @@ type CanaryStatus struct {
 	Phase              *string            `json:"phase,omitempty"`
 }
 
+// A spec for specifying cascade behavior on an owning resource
+type Cascade struct {
+	// whether to perform a drain-delete for all owned resources
+	Delete *bool `json:"delete,omitempty"`
+	// whether to perform a detach-delete for all owned resources
+	Detach *bool `json:"detach,omitempty"`
+}
+
+// Whether you want to delete or detach owned resources
+type CascadeAttributes struct {
+	Delete *bool `json:"delete,omitempty"`
+	Detach *bool `json:"detach,omitempty"`
+}
+
 type Certificate struct {
 	Metadata Metadata          `json:"metadata"`
 	Status   CertificateStatus `json:"status"`
@@ -1326,11 +1340,14 @@ type GitRef struct {
 	Ref string `json:"ref"`
 	// the folder manifests live under
 	Folder string `json:"folder"`
+	// a list of individual files to include as well
+	Files []string `json:"files,omitempty"`
 }
 
 type GitRefAttributes struct {
-	Ref    string `json:"ref"`
-	Folder string `json:"folder"`
+	Ref    string   `json:"ref"`
+	Folder string   `json:"folder"`
+	Files  []string `json:"files,omitempty"`
 }
 
 // a git repository available for deployments
@@ -1388,6 +1405,8 @@ type GlobalService struct {
 	Distro *ClusterDistro `json:"distro,omitempty"`
 	// whether you want to reparent existing plural services under this global service
 	Reparent *bool `json:"reparent,omitempty"`
+	// behavior for all owned resources when this global service is deleted
+	Cascade *Cascade `json:"cascade,omitempty"`
 	// the service template used to spawn services
 	Template *ServiceTemplate `json:"template,omitempty"`
 	// the service to replicate across clusters
@@ -1412,6 +1431,8 @@ type GlobalServiceAttributes struct {
 	// whether you want the global service to take ownership of existing plural services
 	Reparent *bool                      `json:"reparent,omitempty"`
 	Template *ServiceTemplateAttributes `json:"template,omitempty"`
+	// behavior for all owned resources when this global service is deleted
+	Cascade *CascadeAttributes `json:"cascade,omitempty"`
 }
 
 type GlobalServiceConnection struct {
@@ -1869,6 +1890,8 @@ type ManagedNamespace struct {
 	Target *ClusterTarget `json:"target,omitempty"`
 	// the timestamp this namespace was deleted at, indicating it's currently draining
 	DeletedAt *string `json:"deletedAt,omitempty"`
+	// behavior for all owned resources when this global service is deleted
+	Cascade *Cascade `json:"cascade,omitempty"`
 	// A template for creating the core service for this namespace
 	Service    *ServiceTemplate             `json:"service,omitempty"`
 	Services   *ServiceDeploymentConnection `json:"services,omitempty"`
@@ -1890,6 +1913,8 @@ type ManagedNamespaceAttributes struct {
 	PullSecrets []*string                  `json:"pullSecrets,omitempty"`
 	Service     *ServiceTemplateAttributes `json:"service,omitempty"`
 	Target      *ClusterTargetAttributes   `json:"target,omitempty"`
+	// behavior for all owned resources when this global service is deleted
+	Cascade *CascadeAttributes `json:"cascade,omitempty"`
 }
 
 type ManagedNamespaceConnection struct {
