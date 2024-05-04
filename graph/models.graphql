@@ -15,6 +15,7 @@ fragment ServiceDeploymentBaseFragment on ServiceDeployment {
 
 fragment ServiceContextFragment on ServiceContext {
     id
+    name
     configuration
 }
 

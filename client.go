@@ -402,6 +402,7 @@ func (t *ServiceDeploymentBaseFragment) GetRepository() *GitRepositoryFragment {
 
 type ServiceContextFragment struct {
 	ID            string                 "json:\"id\" graphql:\"id\""
+	Name          string                 "json:\"name\" graphql:\"name\""
 	Configuration map[string]interface{} "json:\"configuration,omitempty\" graphql:\"configuration\""
 }
 
@@ -410,6 +411,12 @@ func (t *ServiceContextFragment) GetID() string {
 		t = &ServiceContextFragment{}
 	}
 	return t.ID
+}
+func (t *ServiceContextFragment) GetName() string {
+	if t == nil {
+		t = &ServiceContextFragment{}
+	}
+	return t.Name
 }
 func (t *ServiceContextFragment) GetConfiguration() map[string]interface{} {
 	if t == nil {
@@ -13555,6 +13562,7 @@ fragment RevisionFragment on Revision {
 }
 fragment ServiceContextFragment on ServiceContext {
 	id
+	name
 	configuration
 }
 fragment ServiceDeploymentFragment on ServiceDeployment {
@@ -13730,6 +13738,7 @@ fragment RevisionFragment on Revision {
 }
 fragment ServiceContextFragment on ServiceContext {
 	id
+	name
 	configuration
 }
 fragment ServiceDeploymentFragment on ServiceDeployment {
@@ -13996,6 +14005,7 @@ fragment RevisionFragment on Revision {
 }
 fragment ServiceContextFragment on ServiceContext {
 	id
+	name
 	configuration
 }
 fragment ServiceDeploymentFragment on ServiceDeployment {
@@ -14171,6 +14181,7 @@ fragment RevisionFragment on Revision {
 }
 fragment ServiceContextFragment on ServiceContext {
 	id
+	name
 	configuration
 }
 fragment ServiceDeploymentFragment on ServiceDeployment {
@@ -14953,6 +14964,7 @@ fragment RevisionFragment on Revision {
 }
 fragment ServiceContextFragment on ServiceContext {
 	id
+	name
 	configuration
 }
 fragment ServiceDeploymentFragment on ServiceDeployment {
@@ -15191,6 +15203,7 @@ fragment RevisionFragment on Revision {
 }
 fragment ServiceContextFragment on ServiceContext {
 	id
+	name
 	configuration
 }
 fragment ServiceDeploymentFragment on ServiceDeployment {
@@ -15496,6 +15509,7 @@ const GetServiceContextDocument = `query GetServiceContext ($name: String!) {
 }
 fragment ServiceContextFragment on ServiceContext {
 	id
+	name
 	configuration
 }
 `
@@ -15524,6 +15538,7 @@ const SaveServiceContextDocument = `mutation SaveServiceContext ($name: String!,
 }
 fragment ServiceContextFragment on ServiceContext {
 	id
+	name
 	configuration
 }
 `
@@ -15553,6 +15568,7 @@ const DeleteServiceContextDocument = `mutation DeleteServiceContext ($id: ID!) {
 }
 fragment ServiceContextFragment on ServiceContext {
 	id
+	name
 	configuration
 }
 `
@@ -15795,6 +15811,7 @@ fragment RevisionFragment on Revision {
 }
 fragment ServiceContextFragment on ServiceContext {
 	id
+	name
 	configuration
 }
 fragment ServiceDeploymentFragment on ServiceDeployment {
@@ -15969,6 +15986,7 @@ fragment RevisionFragment on Revision {
 }
 fragment ServiceContextFragment on ServiceContext {
 	id
+	name
 	configuration
 }
 fragment ServiceDeploymentFragment on ServiceDeployment {
