@@ -1608,6 +1608,8 @@ type InfrastructureStack struct {
 	Type StackType `json:"type"`
 	// reference w/in the repository where the IaC lives
 	Git GitRef `json:"git"`
+	// whether the stack is actively tracking changes in git
+	Paused *bool `json:"paused,omitempty"`
 	// optional k8s job configuration for the job that will apply this stack
 	JobSpec *JobGateSpec `json:"jobSpec,omitempty"`
 	// version/image config for the tool you're using
@@ -3004,6 +3006,17 @@ type PullRequestEdge struct {
 	Cursor *string      `json:"cursor,omitempty"`
 }
 
+// attributes for a pull request pointer record
+type PullRequestUpdateAttributes struct {
+	Title     string          `json:"title"`
+	Labels    []*string       `json:"labels,omitempty"`
+	Status    PrStatus        `json:"status"`
+	ServiceID *string         `json:"serviceId,omitempty"`
+	ClusterID *string         `json:"clusterId,omitempty"`
+	Service   *NamespacedName `json:"service,omitempty"`
+	Cluster   *NamespacedName `json:"cluster,omitempty"`
+}
+
 type RbacAttributes struct {
 	ReadBindings  []*PolicyBindingAttributes `json:"readBindings,omitempty"`
 	WriteBindings []*PolicyBindingAttributes `json:"writeBindings,omitempty"`
@@ -3262,6 +3275,11 @@ type RunLogs struct {
 	Logs       string  `json:"logs"`
 	InsertedAt *string `json:"insertedAt,omitempty"`
 	UpdatedAt  *string `json:"updatedAt,omitempty"`
+}
+
+type RunLogsDelta struct {
+	Delta   *Delta   `json:"delta,omitempty"`
+	Payload *RunLogs `json:"payload,omitempty"`
 }
 
 type RunStep struct {
@@ -3924,6 +3942,8 @@ type StackRun struct {
 	Configuration StackConfiguration `json:"configuration"`
 	// whether to require approval
 	Approval *bool `json:"approval,omitempty"`
+	// the commit message
+	Message *string `json:"message,omitempty"`
 	// when this run was approved
 	ApprovedAt *string `json:"approvedAt,omitempty"`
 	// https url to fetch the latest tarball of stack IaC
@@ -3992,7 +4012,7 @@ type StackStateResource struct {
 	// the name of the resource within that type
 	Name string `json:"name"`
 	// arbitrary configuration used to create the resource
-	Configuration *string `json:"configuration,omitempty"`
+	Configuration map[string]interface{} `json:"configuration,omitempty"`
 	// identifiers this resource is linked to for graphing in the UI
 	Links []*string `json:"links,omitempty"`
 }
@@ -4308,7 +4328,7 @@ type ViolationAttributes struct {
 // A summary of statistics for violations w/in a specific column
 type ViolationStatistic struct {
 	// the value of this field being aggregated
-	Value string `json:"value"`
+	Value *string `json:"value,omitempty"`
 	// the total number of violations found
 	Violations *int64 `json:"violations,omitempty"`
 	// the total number of policy constraints

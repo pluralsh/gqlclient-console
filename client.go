@@ -2556,12 +2556,12 @@ func (t *ViolationFragment) GetMessage() *string {
 }
 
 type ViolationStatisticFragment struct {
-	Value      string "json:\"value\" graphql:\"value\""
-	Violations *int64 "json:\"violations,omitempty\" graphql:\"violations\""
-	Count      *int64 "json:\"count,omitempty\" graphql:\"count\""
+	Value      *string "json:\"value,omitempty\" graphql:\"value\""
+	Violations *int64  "json:\"violations,omitempty\" graphql:\"violations\""
+	Count      *int64  "json:\"count,omitempty\" graphql:\"count\""
 }
 
-func (t *ViolationStatisticFragment) GetValue() string {
+func (t *ViolationStatisticFragment) GetValue() *string {
 	if t == nil {
 		t = &ViolationStatisticFragment{}
 	}
@@ -3026,11 +3026,11 @@ func (t *StackStateFragment) GetState() []*StackStateResourceFragment {
 }
 
 type StackStateResourceFragment struct {
-	Identifier    string    "json:\"identifier\" graphql:\"identifier\""
-	Resource      string    "json:\"resource\" graphql:\"resource\""
-	Name          string    "json:\"name\" graphql:\"name\""
-	Configuration *string   "json:\"configuration,omitempty\" graphql:\"configuration\""
-	Links         []*string "json:\"links,omitempty\" graphql:\"links\""
+	Identifier    string                 "json:\"identifier\" graphql:\"identifier\""
+	Resource      string                 "json:\"resource\" graphql:\"resource\""
+	Name          string                 "json:\"name\" graphql:\"name\""
+	Configuration map[string]interface{} "json:\"configuration,omitempty\" graphql:\"configuration\""
+	Links         []*string              "json:\"links,omitempty\" graphql:\"links\""
 }
 
 func (t *StackStateResourceFragment) GetIdentifier() string {
@@ -3051,7 +3051,7 @@ func (t *StackStateResourceFragment) GetName() string {
 	}
 	return t.Name
 }
-func (t *StackStateResourceFragment) GetConfiguration() *string {
+func (t *StackStateResourceFragment) GetConfiguration() map[string]interface{} {
 	if t == nil {
 		t = &StackStateResourceFragment{}
 	}
