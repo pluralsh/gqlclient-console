@@ -46,6 +46,12 @@ mutation DeleteServiceDeployment($id: ID!) {
     }
 }
 
+mutation DetachServiceDeployment($id: ID!) {
+    detachServiceDeployment(id: $id) {
+        ...ServiceDeploymentFragment
+    }
+}
+
 mutation UpdateServiceDeployment($id: ID!, $attributes: ServiceUpdateAttributes!) {
     updateServiceDeployment(id: $id, attributes: $attributes) {
         ...ServiceDeploymentExtended

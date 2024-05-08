@@ -1771,6 +1771,9 @@ type KubernetesDatasource struct {
 }
 
 type KubernetesUnstructured struct {
+	Group    *string                `json:"group,omitempty"`
+	Version  string                 `json:"version"`
+	Kind     string                 `json:"kind"`
 	Raw      map[string]interface{} `json:"raw,omitempty"`
 	Metadata Metadata               `json:"metadata"`
 	Events   []*Event               `json:"events,omitempty"`
@@ -5845,17 +5848,19 @@ const (
 	StepStagePlan   StepStage = "PLAN"
 	StepStageVerify StepStage = "VERIFY"
 	StepStageApply  StepStage = "APPLY"
+	StepStageInit   StepStage = "INIT"
 )
 
 var AllStepStage = []StepStage{
 	StepStagePlan,
 	StepStageVerify,
 	StepStageApply,
+	StepStageInit,
 }
 
 func (e StepStage) IsValid() bool {
 	switch e {
-	case StepStagePlan, StepStageVerify, StepStageApply:
+	case StepStagePlan, StepStageVerify, StepStageApply, StepStageInit:
 		return true
 	}
 	return false

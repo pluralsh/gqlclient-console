@@ -941,6 +941,7 @@ enum StepStage {
   PLAN
   VERIFY
   APPLY
+  INIT
 }
 
 input StackAttributes {
@@ -4581,6 +4582,9 @@ type ResourceSpec {
 }
 
 type KubernetesUnstructured {
+  group: String
+  version: String!
+  kind: String!
   raw: Map
   metadata: Metadata!
   events: [Event]

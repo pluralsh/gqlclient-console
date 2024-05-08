@@ -41,6 +41,7 @@ type ConsoleClient interface {
 	CreateServiceDeployment(ctx context.Context, clusterID string, attributes ServiceDeploymentAttributes, interceptors ...clientv2.RequestInterceptor) (*CreateServiceDeployment, error)
 	CreateServiceDeploymentWithHandle(ctx context.Context, cluster string, attributes ServiceDeploymentAttributes, interceptors ...clientv2.RequestInterceptor) (*CreateServiceDeploymentWithHandle, error)
 	DeleteServiceDeployment(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DeleteServiceDeployment, error)
+	DetachServiceDeployment(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DetachServiceDeployment, error)
 	UpdateServiceDeployment(ctx context.Context, id string, attributes ServiceUpdateAttributes, interceptors ...clientv2.RequestInterceptor) (*UpdateServiceDeployment, error)
 	UpdateServiceDeploymentWithHandle(ctx context.Context, cluster string, name string, attributes ServiceUpdateAttributes, interceptors ...clientv2.RequestInterceptor) (*UpdateServiceDeploymentWithHandle, error)
 	CloneServiceDeployment(ctx context.Context, clusterID string, id string, attributes ServiceCloneAttributes, interceptors ...clientv2.RequestInterceptor) (*CloneServiceDeployment, error)
@@ -6552,6 +6553,91 @@ func (t *DeleteServiceDeployment_DeleteServiceDeployment_ServiceDeploymentFragme
 	return t.Value
 }
 
+type DetachServiceDeployment_DetachServiceDeployment_ServiceDeploymentFragment_Components struct {
+	ID        string                    "json:\"id\" graphql:\"id\""
+	Name      string                    "json:\"name\" graphql:\"name\""
+	Group     *string                   "json:\"group,omitempty\" graphql:\"group\""
+	Kind      string                    "json:\"kind\" graphql:\"kind\""
+	Namespace *string                   "json:\"namespace,omitempty\" graphql:\"namespace\""
+	State     *ComponentState           "json:\"state,omitempty\" graphql:\"state\""
+	Synced    bool                      "json:\"synced\" graphql:\"synced\""
+	Version   *string                   "json:\"version,omitempty\" graphql:\"version\""
+	Content   *ComponentContentFragment "json:\"content,omitempty\" graphql:\"content\""
+}
+
+func (t *DetachServiceDeployment_DetachServiceDeployment_ServiceDeploymentFragment_Components) GetID() string {
+	if t == nil {
+		t = &DetachServiceDeployment_DetachServiceDeployment_ServiceDeploymentFragment_Components{}
+	}
+	return t.ID
+}
+func (t *DetachServiceDeployment_DetachServiceDeployment_ServiceDeploymentFragment_Components) GetName() string {
+	if t == nil {
+		t = &DetachServiceDeployment_DetachServiceDeployment_ServiceDeploymentFragment_Components{}
+	}
+	return t.Name
+}
+func (t *DetachServiceDeployment_DetachServiceDeployment_ServiceDeploymentFragment_Components) GetGroup() *string {
+	if t == nil {
+		t = &DetachServiceDeployment_DetachServiceDeployment_ServiceDeploymentFragment_Components{}
+	}
+	return t.Group
+}
+func (t *DetachServiceDeployment_DetachServiceDeployment_ServiceDeploymentFragment_Components) GetKind() string {
+	if t == nil {
+		t = &DetachServiceDeployment_DetachServiceDeployment_ServiceDeploymentFragment_Components{}
+	}
+	return t.Kind
+}
+func (t *DetachServiceDeployment_DetachServiceDeployment_ServiceDeploymentFragment_Components) GetNamespace() *string {
+	if t == nil {
+		t = &DetachServiceDeployment_DetachServiceDeployment_ServiceDeploymentFragment_Components{}
+	}
+	return t.Namespace
+}
+func (t *DetachServiceDeployment_DetachServiceDeployment_ServiceDeploymentFragment_Components) GetState() *ComponentState {
+	if t == nil {
+		t = &DetachServiceDeployment_DetachServiceDeployment_ServiceDeploymentFragment_Components{}
+	}
+	return t.State
+}
+func (t *DetachServiceDeployment_DetachServiceDeployment_ServiceDeploymentFragment_Components) GetSynced() bool {
+	if t == nil {
+		t = &DetachServiceDeployment_DetachServiceDeployment_ServiceDeploymentFragment_Components{}
+	}
+	return t.Synced
+}
+func (t *DetachServiceDeployment_DetachServiceDeployment_ServiceDeploymentFragment_Components) GetVersion() *string {
+	if t == nil {
+		t = &DetachServiceDeployment_DetachServiceDeployment_ServiceDeploymentFragment_Components{}
+	}
+	return t.Version
+}
+func (t *DetachServiceDeployment_DetachServiceDeployment_ServiceDeploymentFragment_Components) GetContent() *ComponentContentFragment {
+	if t == nil {
+		t = &DetachServiceDeployment_DetachServiceDeployment_ServiceDeploymentFragment_Components{}
+	}
+	return t.Content
+}
+
+type DetachServiceDeployment_DetachServiceDeployment_ServiceDeploymentFragment_Configuration struct {
+	Name  string "json:\"name\" graphql:\"name\""
+	Value string "json:\"value\" graphql:\"value\""
+}
+
+func (t *DetachServiceDeployment_DetachServiceDeployment_ServiceDeploymentFragment_Configuration) GetName() string {
+	if t == nil {
+		t = &DetachServiceDeployment_DetachServiceDeployment_ServiceDeploymentFragment_Configuration{}
+	}
+	return t.Name
+}
+func (t *DetachServiceDeployment_DetachServiceDeployment_ServiceDeploymentFragment_Configuration) GetValue() string {
+	if t == nil {
+		t = &DetachServiceDeployment_DetachServiceDeployment_ServiceDeploymentFragment_Configuration{}
+	}
+	return t.Value
+}
+
 type UpdateServiceDeployment_UpdateServiceDeployment_ServiceDeploymentExtended_Revision_RevisionFragment_Git struct {
 	Ref    string "json:\"ref\" graphql:\"ref\""
 	Folder string "json:\"folder\" graphql:\"folder\""
@@ -9743,6 +9829,17 @@ func (t *DeleteServiceDeployment) GetDeleteServiceDeployment() *ServiceDeploymen
 		t = &DeleteServiceDeployment{}
 	}
 	return t.DeleteServiceDeployment
+}
+
+type DetachServiceDeployment struct {
+	DetachServiceDeployment *ServiceDeploymentFragment "json:\"detachServiceDeployment,omitempty\" graphql:\"detachServiceDeployment\""
+}
+
+func (t *DetachServiceDeployment) GetDetachServiceDeployment() *ServiceDeploymentFragment {
+	if t == nil {
+		t = &DetachServiceDeployment{}
+	}
+	return t.DetachServiceDeployment
 }
 
 type UpdateServiceDeployment struct {
@@ -13901,6 +13998,97 @@ func (c *Client) DeleteServiceDeployment(ctx context.Context, id string, interce
 
 	var res DeleteServiceDeployment
 	if err := c.Client.Post(ctx, "DeleteServiceDeployment", DeleteServiceDeploymentDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const DetachServiceDeploymentDocument = `mutation DetachServiceDeployment ($id: ID!) {
+	detachServiceDeployment(id: $id) {
+		... ServiceDeploymentFragment
+	}
+}
+fragment ServiceDeploymentFragment on ServiceDeployment {
+	... ServiceDeploymentBaseFragment
+	components {
+		id
+		name
+		group
+		kind
+		namespace
+		state
+		synced
+		version
+		content {
+			... ComponentContentFragment
+		}
+	}
+	protect
+	deletedAt
+	sha
+	tarball
+	dryRun
+	templated
+	configuration {
+		name
+		value
+	}
+}
+fragment ServiceDeploymentBaseFragment on ServiceDeployment {
+	id
+	name
+	namespace
+	version
+	kustomize {
+		... KustomizeFragment
+	}
+	git {
+		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
+	}
+	repository {
+		... GitRepositoryFragment
+	}
+}
+fragment KustomizeFragment on Kustomize {
+	path
+}
+fragment GitRefFragment on GitRef {
+	folder
+	ref
+}
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
+fragment GitRepositoryFragment on GitRepository {
+	id
+	error
+	health
+	authMethod
+	url
+	decrypt
+}
+fragment ComponentContentFragment on ComponentContent {
+	id
+	live
+	desired
+}
+`
+
+func (c *Client) DetachServiceDeployment(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DetachServiceDeployment, error) {
+	vars := map[string]interface{}{
+		"id": id,
+	}
+
+	var res DetachServiceDeployment
+	if err := c.Client.Post(ctx, "DetachServiceDeployment", DetachServiceDeploymentDocument, &res, vars, interceptors...); err != nil {
 		if c.Client.ParseDataWhenErrors {
 			return &res, err
 		}
@@ -20798,6 +20986,7 @@ var DocumentOperationNames = map[string]string{
 	CreateServiceDeploymentDocument:                   "CreateServiceDeployment",
 	CreateServiceDeploymentWithHandleDocument:         "CreateServiceDeploymentWithHandle",
 	DeleteServiceDeploymentDocument:                   "DeleteServiceDeployment",
+	DetachServiceDeploymentDocument:                   "DetachServiceDeployment",
 	UpdateServiceDeploymentDocument:                   "UpdateServiceDeployment",
 	UpdateServiceDeploymentWithHandleDocument:         "UpdateServiceDeploymentWithHandle",
 	CloneServiceDeploymentDocument:                    "CloneServiceDeployment",
