@@ -1619,9 +1619,13 @@ type InfrastructureStack struct {
 	// whether this stack was previously deleted and is pending cleanup
 	DeletedAt *string `json:"deletedAt,omitempty"`
 	// why this run was cancelled
-	CancellationReason *string                `json:"cancellationReason,omitempty"`
-	Runs               *StackRunConnection    `json:"runs,omitempty"`
-	PullRequests       *PullRequestConnection `json:"pullRequests,omitempty"`
+	CancellationReason *string `json:"cancellationReason,omitempty"`
+	// the subdirectory you want to run the stack's commands w/in
+	Workdir *string `json:"workdir,omitempty"`
+	// whether you want Plural to manage the state of this stack
+	ManageState  *bool                  `json:"manageState,omitempty"`
+	Runs         *StackRunConnection    `json:"runs,omitempty"`
+	PullRequests *PullRequestConnection `json:"pullRequests,omitempty"`
 	// files bound to a run of this stack
 	Files []*StackFile `json:"files,omitempty"`
 	// environment variables for this stack
@@ -1988,6 +1992,10 @@ type NamespacedName struct {
 	Namespace string `json:"namespace"`
 }
 
+type NewRelicCredentialsAttributes struct {
+	APIKey string `json:"apiKey"`
+}
+
 type Node struct {
 	Status   NodeStatus `json:"status"`
 	Spec     NodeSpec   `json:"spec"`
@@ -2228,7 +2236,8 @@ type ObservabilityProviderConnection struct {
 }
 
 type ObservabilityProviderCredentialsAttributes struct {
-	Datadog *DatadogCredentialsAttributes `json:"datadog,omitempty"`
+	Datadog  *DatadogCredentialsAttributes  `json:"datadog,omitempty"`
+	Newrelic *NewRelicCredentialsAttributes `json:"newrelic,omitempty"`
 }
 
 type ObservabilityProviderEdge struct {
@@ -2294,6 +2303,8 @@ type PersonaAttributes struct {
 type PersonaConfiguration struct {
 	// enable full ui for this persona
 	All *bool `json:"all,omitempty"`
+	// settings for the home page for this persona
+	Home *PersonaHome `json:"home,omitempty"`
 	// enable individual parts of the deployments views
 	Deployments *PersonaDeployment `json:"deployments,omitempty"`
 	// enable individual aspects of the sidebar
@@ -2303,6 +2314,8 @@ type PersonaConfiguration struct {
 type PersonaConfigurationAttributes struct {
 	// enable full ui for this persona
 	All *bool `json:"all,omitempty"`
+	// configuration for the homepage for the given persona
+	Home *PersonaHomeAttributes `json:"home,omitempty"`
 	// enable individual parts of the deployments views
 	Deployments *PersonaDeploymentAttributes `json:"deployments,omitempty"`
 	// enable individual aspects of the sidebar
@@ -2337,6 +2350,16 @@ type PersonaDeploymentAttributes struct {
 type PersonaEdge struct {
 	Node   *Persona `json:"node,omitempty"`
 	Cursor *string  `json:"cursor,omitempty"`
+}
+
+type PersonaHome struct {
+	Manager  *bool `json:"manager,omitempty"`
+	Security *bool `json:"security,omitempty"`
+}
+
+type PersonaHomeAttributes struct {
+	Manager  *bool `json:"manager,omitempty"`
+	Security *bool `json:"security,omitempty"`
 }
 
 type PersonaSidebar struct {
@@ -2720,6 +2743,14 @@ type PolicyConstraintConnection struct {
 type PolicyConstraintEdge struct {
 	Node   *PolicyConstraint `json:"node,omitempty"`
 	Cursor *string           `json:"cursor,omitempty"`
+}
+
+// Aggregate statistics for policies across your fleet
+type PolicyStatistic struct {
+	// the field you're computing this statistic on
+	Aggregate *string `json:"aggregate,omitempty"`
+	// the count for this aggregate
+	Count *int64 `json:"count,omitempty"`
 }
 
 type Port struct {
@@ -3875,7 +3906,11 @@ type StackAttributes struct {
 	// version/image config for the tool you're using
 	Configuration StackConfigurationAttributes `json:"configuration"`
 	// whether to require approval
-	Approval          *bool                         `json:"approval,omitempty"`
+	Approval *bool `json:"approval,omitempty"`
+	// whether you want Plural to manage your terraform state for this stack
+	ManageState *bool `json:"manageState,omitempty"`
+	// the subdirectory you want to run the stack's commands w/in
+	Workdir           *string                       `json:"workdir,omitempty"`
 	ReadBindings      []*PolicyBindingAttributes    `json:"readBindings,omitempty"`
 	WriteBindings     []*PolicyBindingAttributes    `json:"writeBindings,omitempty"`
 	Files             []*StackFileAttributes        `json:"files,omitempty"`
@@ -3888,13 +3923,21 @@ type StackConfiguration struct {
 	Image *string `json:"image,omitempty"`
 	// the semver of the tool you wish to use
 	Version string `json:"version"`
+	// the docker image tag you wish to use if you're customizing the version
+	Tag *string `json:"tag,omitempty"`
+	// the hooks to customize execution for this stack
+	Hooks []*StackHook `json:"hooks,omitempty"`
 }
 
 type StackConfigurationAttributes struct {
 	// optional custom image you might want to use
 	Image *string `json:"image,omitempty"`
 	// the semver of the tool you wish to use
-	Version string `json:"version"`
+	Version *string `json:"version,omitempty"`
+	// the docker image tag you wish to use if you're customizing the version
+	Tag *string `json:"tag,omitempty"`
+	// the hooks to customize execution for this stack
+	Hooks []*StackHookAttributes `json:"hooks,omitempty"`
 }
 
 type StackEnvironment struct {
@@ -3917,6 +3960,24 @@ type StackFile struct {
 type StackFileAttributes struct {
 	Path    string `json:"path"`
 	Content string `json:"content"`
+}
+
+type StackHook struct {
+	// a script hook to run at a stage
+	Cmd string `json:"cmd"`
+	// args for `cmd`
+	Args []*string `json:"args,omitempty"`
+	// the stage to run this hook before
+	AfterStage StepStage `json:"afterStage"`
+}
+
+type StackHookAttributes struct {
+	// a script hook to run at a stage
+	Cmd string `json:"cmd"`
+	// args for `cmd`
+	Args []*string `json:"args,omitempty"`
+	// the stage to run this hook before
+	AfterStage StepStage `json:"afterStage"`
 }
 
 type StackOutput struct {
@@ -3949,6 +4010,10 @@ type StackRun struct {
 	Message *string `json:"message,omitempty"`
 	// when this run was approved
 	ApprovedAt *string `json:"approvedAt,omitempty"`
+	// the subdirectory you want to run the stack's commands w/in
+	Workdir *string `json:"workdir,omitempty"`
+	// whether you want Plural to manage the state of this stack
+	ManageState *bool `json:"manageState,omitempty"`
 	// https url to fetch the latest tarball of stack IaC
 	Tarball string `json:"tarball"`
 	// the approver of this job
@@ -3959,6 +4024,8 @@ type StackRun struct {
 	Files []*StackFile `json:"files,omitempty"`
 	// environment variables for this stack
 	Environment []*StackEnvironment `json:"environment,omitempty"`
+	// the stack attached to this run
+	Stack *InfrastructureStack `json:"stack,omitempty"`
 	// the most recent output for this stack
 	Output []*StackOutput `json:"output,omitempty"`
 	// the most recent state of this stack
@@ -5308,6 +5375,49 @@ func (e Permission) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+type PolicyAggregate string
+
+const (
+	PolicyAggregateCluster     PolicyAggregate = "CLUSTER"
+	PolicyAggregateEnforcement PolicyAggregate = "ENFORCEMENT"
+	PolicyAggregateInstalled   PolicyAggregate = "INSTALLED"
+)
+
+var AllPolicyAggregate = []PolicyAggregate{
+	PolicyAggregateCluster,
+	PolicyAggregateEnforcement,
+	PolicyAggregateInstalled,
+}
+
+func (e PolicyAggregate) IsValid() bool {
+	switch e {
+	case PolicyAggregateCluster, PolicyAggregateEnforcement, PolicyAggregateInstalled:
+		return true
+	}
+	return false
+}
+
+func (e PolicyAggregate) String() string {
+	return string(e)
+}
+
+func (e *PolicyAggregate) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = PolicyAggregate(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid PolicyAggregate", str)
+	}
+	return nil
+}
+
+func (e PolicyAggregate) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 type PrRole string
 
 const (
@@ -5706,12 +5816,13 @@ func (e SinkType) MarshalGQL(w io.Writer) {
 type StackStatus string
 
 const (
-	StackStatusQueued     StackStatus = "QUEUED"
-	StackStatusPending    StackStatus = "PENDING"
-	StackStatusRunning    StackStatus = "RUNNING"
-	StackStatusSuccessful StackStatus = "SUCCESSFUL"
-	StackStatusFailed     StackStatus = "FAILED"
-	StackStatusCancelled  StackStatus = "CANCELLED"
+	StackStatusQueued          StackStatus = "QUEUED"
+	StackStatusPending         StackStatus = "PENDING"
+	StackStatusRunning         StackStatus = "RUNNING"
+	StackStatusSuccessful      StackStatus = "SUCCESSFUL"
+	StackStatusFailed          StackStatus = "FAILED"
+	StackStatusCancelled       StackStatus = "CANCELLED"
+	StackStatusPendingApproval StackStatus = "PENDING_APPROVAL"
 )
 
 var AllStackStatus = []StackStatus{
@@ -5721,11 +5832,12 @@ var AllStackStatus = []StackStatus{
 	StackStatusSuccessful,
 	StackStatusFailed,
 	StackStatusCancelled,
+	StackStatusPendingApproval,
 }
 
 func (e StackStatus) IsValid() bool {
 	switch e {
-	case StackStatusQueued, StackStatusPending, StackStatusRunning, StackStatusSuccessful, StackStatusFailed, StackStatusCancelled:
+	case StackStatusQueued, StackStatusPending, StackStatusRunning, StackStatusSuccessful, StackStatusFailed, StackStatusCancelled, StackStatusPendingApproval:
 		return true
 	}
 	return false
