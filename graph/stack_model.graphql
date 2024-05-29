@@ -47,6 +47,13 @@ fragment StackRunBaseFragment on StackRun {
     tarball
     workdir
     manageState
+    stateUrls {
+        terraform {
+            address
+            lock
+            unlock
+        }
+    }
     actor { ...UserFragment }
     stack { ...InfrastructureStackFragment }
     state { ...StackStateFragment}
