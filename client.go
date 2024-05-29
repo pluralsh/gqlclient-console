@@ -2742,6 +2742,7 @@ type StackRunFragment struct {
 	Tarball       string                       "json:\"tarball\" graphql:\"tarball\""
 	Workdir       *string                      "json:\"workdir,omitempty\" graphql:\"workdir\""
 	ManageState   *bool                        "json:\"manageState,omitempty\" graphql:\"manageState\""
+	Actor         *UserFragment                "json:\"actor,omitempty\" graphql:\"actor\""
 	Stack         *InfrastructureStackFragment "json:\"stack,omitempty\" graphql:\"stack\""
 	State         *StackStateFragment          "json:\"state,omitempty\" graphql:\"state\""
 	Steps         []*RunStepFragment           "json:\"steps,omitempty\" graphql:\"steps\""
@@ -2803,6 +2804,12 @@ func (t *StackRunFragment) GetManageState() *bool {
 		t = &StackRunFragment{}
 	}
 	return t.ManageState
+}
+func (t *StackRunFragment) GetActor() *UserFragment {
+	if t == nil {
+		t = &StackRunFragment{}
+	}
+	return t.Actor
 }
 func (t *StackRunFragment) GetStack() *InfrastructureStackFragment {
 	if t == nil {
@@ -2886,6 +2893,7 @@ type StackRunBaseFragment struct {
 	Tarball       string                       "json:\"tarball\" graphql:\"tarball\""
 	Workdir       *string                      "json:\"workdir,omitempty\" graphql:\"workdir\""
 	ManageState   *bool                        "json:\"manageState,omitempty\" graphql:\"manageState\""
+	Actor         *UserFragment                "json:\"actor,omitempty\" graphql:\"actor\""
 	Stack         *InfrastructureStackFragment "json:\"stack,omitempty\" graphql:\"stack\""
 	State         *StackStateFragment          "json:\"state,omitempty\" graphql:\"state\""
 	Steps         []*RunStepFragment           "json:\"steps,omitempty\" graphql:\"steps\""
@@ -2946,6 +2954,12 @@ func (t *StackRunBaseFragment) GetManageState() *bool {
 		t = &StackRunBaseFragment{}
 	}
 	return t.ManageState
+}
+func (t *StackRunBaseFragment) GetActor() *UserFragment {
+	if t == nil {
+		t = &StackRunBaseFragment{}
+	}
+	return t.Actor
 }
 func (t *StackRunBaseFragment) GetStack() *InfrastructureStackFragment {
 	if t == nil {
@@ -19192,6 +19206,9 @@ fragment StackRunBaseFragment on StackRun {
 	tarball
 	workdir
 	manageState
+	actor {
+		... UserFragment
+	}
 	stack {
 		... InfrastructureStackFragment
 	}
@@ -19225,6 +19242,11 @@ fragment StackRunBaseFragment on StackRun {
 	errors {
 		... ServiceErrorFragment
 	}
+}
+fragment UserFragment on User {
+	name
+	id
+	email
 }
 fragment InfrastructureStackFragment on InfrastructureStack {
 	id
@@ -19353,11 +19375,6 @@ fragment GroupFragment on Group {
 	id
 	name
 	description
-}
-fragment UserFragment on User {
-	name
-	id
-	email
 }
 fragment RunStepFragment on RunStep {
 	id
@@ -19588,6 +19605,9 @@ fragment StackRunBaseFragment on StackRun {
 	tarball
 	workdir
 	manageState
+	actor {
+		... UserFragment
+	}
 	stack {
 		... InfrastructureStackFragment
 	}
@@ -19621,6 +19641,11 @@ fragment StackRunBaseFragment on StackRun {
 	errors {
 		... ServiceErrorFragment
 	}
+}
+fragment UserFragment on User {
+	name
+	id
+	email
 }
 fragment InfrastructureStackFragment on InfrastructureStack {
 	id
@@ -19749,11 +19774,6 @@ fragment GroupFragment on Group {
 	id
 	name
 	description
-}
-fragment UserFragment on User {
-	name
-	id
-	email
 }
 fragment RunStepFragment on RunStep {
 	id
@@ -19801,6 +19821,9 @@ fragment StackRunBaseFragment on StackRun {
 	tarball
 	workdir
 	manageState
+	actor {
+		... UserFragment
+	}
 	stack {
 		... InfrastructureStackFragment
 	}
@@ -19834,6 +19857,11 @@ fragment StackRunBaseFragment on StackRun {
 	errors {
 		... ServiceErrorFragment
 	}
+}
+fragment UserFragment on User {
+	name
+	id
+	email
 }
 fragment InfrastructureStackFragment on InfrastructureStack {
 	id
@@ -19962,11 +19990,6 @@ fragment GroupFragment on Group {
 	id
 	name
 	description
-}
-fragment UserFragment on User {
-	name
-	id
-	email
 }
 fragment RunStepFragment on RunStep {
 	id
@@ -20014,6 +20037,9 @@ fragment StackRunBaseFragment on StackRun {
 	tarball
 	workdir
 	manageState
+	actor {
+		... UserFragment
+	}
 	stack {
 		... InfrastructureStackFragment
 	}
@@ -20047,6 +20073,11 @@ fragment StackRunBaseFragment on StackRun {
 	errors {
 		... ServiceErrorFragment
 	}
+}
+fragment UserFragment on User {
+	name
+	id
+	email
 }
 fragment InfrastructureStackFragment on InfrastructureStack {
 	id
@@ -20175,11 +20206,6 @@ fragment GroupFragment on Group {
 	id
 	name
 	description
-}
-fragment UserFragment on User {
-	name
-	id
-	email
 }
 fragment RunStepFragment on RunStep {
 	id
@@ -20228,6 +20254,9 @@ fragment StackRunBaseFragment on StackRun {
 	tarball
 	workdir
 	manageState
+	actor {
+		... UserFragment
+	}
 	stack {
 		... InfrastructureStackFragment
 	}
@@ -20261,6 +20290,11 @@ fragment StackRunBaseFragment on StackRun {
 	errors {
 		... ServiceErrorFragment
 	}
+}
+fragment UserFragment on User {
+	name
+	id
+	email
 }
 fragment InfrastructureStackFragment on InfrastructureStack {
 	id
@@ -20389,11 +20423,6 @@ fragment GroupFragment on Group {
 	id
 	name
 	description
-}
-fragment UserFragment on User {
-	name
-	id
-	email
 }
 fragment RunStepFragment on RunStep {
 	id
@@ -21227,6 +21256,9 @@ fragment StackRunBaseFragment on StackRun {
 	tarball
 	workdir
 	manageState
+	actor {
+		... UserFragment
+	}
 	stack {
 		... InfrastructureStackFragment
 	}
@@ -21260,6 +21292,11 @@ fragment StackRunBaseFragment on StackRun {
 	errors {
 		... ServiceErrorFragment
 	}
+}
+fragment UserFragment on User {
+	name
+	id
+	email
 }
 fragment InfrastructureStackFragment on InfrastructureStack {
 	id
@@ -21388,11 +21425,6 @@ fragment GroupFragment on Group {
 	id
 	name
 	description
-}
-fragment UserFragment on User {
-	name
-	id
-	email
 }
 fragment RunStepFragment on RunStep {
 	id

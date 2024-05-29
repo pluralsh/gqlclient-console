@@ -47,6 +47,7 @@ fragment StackRunBaseFragment on StackRun {
     tarball
     workdir
     manageState
+    actor { ...UserFragment }
     stack { ...InfrastructureStackFragment }
     state { ...StackStateFragment}
     steps { ...RunStepFragment}
