@@ -54,6 +54,10 @@ fragment StackRunBaseFragment on StackRun {
             unlock
         }
     }
+    pluralCreds {
+        url
+        token
+    }
     actor { ...UserFragment }
     stack { ...InfrastructureStackFragment }
     state { ...StackStateFragment}

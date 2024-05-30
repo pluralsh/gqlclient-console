@@ -795,6 +795,12 @@ type Command struct {
 	UpdatedAt   *string `json:"updatedAt,omitempty"`
 }
 
+type CommandAttributes struct {
+	Cmd  string    `json:"cmd"`
+	Args []*string `json:"args,omitempty"`
+	Dir  *string   `json:"dir,omitempty"`
+}
+
 type CommandConnection struct {
 	PageInfo PageInfo       `json:"pageInfo"`
 	Edges    []*CommandEdge `json:"edges,omitempty"`
@@ -1062,6 +1068,44 @@ type CrossVersionResourceTarget struct {
 	APIVersion *string `json:"apiVersion,omitempty"`
 	Kind       *string `json:"kind,omitempty"`
 	Name       *string `json:"name,omitempty"`
+}
+
+type CustomStackRun struct {
+	ID string `json:"id"`
+	// Name of the custom stack run
+	Name string `json:"name"`
+	// Documentation to explain to users what this will do
+	Documentation *string `json:"documentation,omitempty"`
+	// the list of commands that will be executed
+	Commands []*StackCommand `json:"commands,omitempty"`
+	// self-service configuration fields presented in the UI to configure how this run executes
+	Configuration []*PrConfiguration   `json:"configuration,omitempty"`
+	Stack         *InfrastructureStack `json:"stack,omitempty"`
+	InsertedAt    *string              `json:"insertedAt,omitempty"`
+	UpdatedAt     *string              `json:"updatedAt,omitempty"`
+}
+
+type CustomStackRunAttributes struct {
+	// human readable name for this custom run
+	Name string `json:"name"`
+	// extended documentation to explain what this will do
+	Documentation *string `json:"documentation,omitempty"`
+	// the stack to attach it to
+	StackID *string `json:"stackId,omitempty"`
+	// the commands for this custom run
+	Commands []*CommandAttributes `json:"commands,omitempty"`
+	// self-service configuration which will be presented in UI before triggering
+	Configuration []*PrConfigurationAttributes `json:"configuration,omitempty"`
+}
+
+type CustomStackRunConnection struct {
+	PageInfo PageInfo              `json:"pageInfo"`
+	Edges    []*CustomStackRunEdge `json:"edges,omitempty"`
+}
+
+type CustomStackRunEdge struct {
+	Node   *CustomStackRun `json:"node,omitempty"`
+	Cursor *string         `json:"cursor,omitempty"`
 }
 
 type DaemonSet struct {
@@ -1643,11 +1687,12 @@ type InfrastructureStack struct {
 	// the git repository you're sourcing IaC from
 	Repository *GitRepository `json:"repository,omitempty"`
 	// the actor of this stack (defaults to root console user)
-	Actor         *User            `json:"actor,omitempty"`
-	ReadBindings  []*PolicyBinding `json:"readBindings,omitempty"`
-	WriteBindings []*PolicyBinding `json:"writeBindings,omitempty"`
-	InsertedAt    *string          `json:"insertedAt,omitempty"`
-	UpdatedAt     *string          `json:"updatedAt,omitempty"`
+	Actor           *User                     `json:"actor,omitempty"`
+	CustomStackRuns *CustomStackRunConnection `json:"customStackRuns,omitempty"`
+	ReadBindings    []*PolicyBinding          `json:"readBindings,omitempty"`
+	WriteBindings   []*PolicyBinding          `json:"writeBindings,omitempty"`
+	InsertedAt      *string                   `json:"insertedAt,omitempty"`
+	UpdatedAt       *string                   `json:"updatedAt,omitempty"`
 }
 
 type InfrastructureStackConnection struct {
@@ -3930,6 +3975,15 @@ type StackAttributes struct {
 	Files             []*StackFileAttributes        `json:"files,omitempty"`
 	Environment       []*StackEnvironmentAttributes `json:"environment,omitempty"`
 	ObservableMetrics []*ObservableMetricAttributes `json:"observableMetrics,omitempty"`
+}
+
+type StackCommand struct {
+	// the executable to call
+	Cmd string `json:"cmd"`
+	// cli args to pass
+	Args []*string `json:"args,omitempty"`
+	// working directory for this command (not required)
+	Dir *string `json:"dir,omitempty"`
 }
 
 type StackConfiguration struct {

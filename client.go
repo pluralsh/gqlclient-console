@@ -2734,28 +2734,29 @@ func (t *InfrastructureStackFragment) GetReadBindings() []*PolicyBindingFragment
 }
 
 type StackRunFragment struct {
-	ID            string                                           "json:\"id\" graphql:\"id\""
-	Type          StackType                                        "json:\"type\" graphql:\"type\""
-	Status        StackStatus                                      "json:\"status\" graphql:\"status\""
-	Approval      *bool                                            "json:\"approval,omitempty\" graphql:\"approval\""
-	ApprovedAt    *string                                          "json:\"approvedAt,omitempty\" graphql:\"approvedAt\""
-	Tarball       string                                           "json:\"tarball\" graphql:\"tarball\""
-	Workdir       *string                                          "json:\"workdir,omitempty\" graphql:\"workdir\""
-	ManageState   *bool                                            "json:\"manageState,omitempty\" graphql:\"manageState\""
-	StateUrls     *StackRunFragment_StackRunBaseFragment_StateUrls "json:\"stateUrls,omitempty\" graphql:\"stateUrls\""
-	Actor         *UserFragment                                    "json:\"actor,omitempty\" graphql:\"actor\""
-	Stack         *InfrastructureStackFragment                     "json:\"stack,omitempty\" graphql:\"stack\""
-	State         *StackStateFragment                              "json:\"state,omitempty\" graphql:\"state\""
-	Steps         []*RunStepFragment                               "json:\"steps,omitempty\" graphql:\"steps\""
-	Files         []*StackFileFragment                             "json:\"files,omitempty\" graphql:\"files\""
-	Git           *GitRefFragment                                  "json:\"git\" graphql:\"git\""
-	Repository    *GitRepositoryFragment                           "json:\"repository,omitempty\" graphql:\"repository\""
-	JobSpec       *JobSpecFragment                                 "json:\"jobSpec,omitempty\" graphql:\"jobSpec\""
-	Configuration *StackConfigurationFragment                      "json:\"configuration\" graphql:\"configuration\""
-	Environment   []*StackEnvironmentFragment                      "json:\"environment,omitempty\" graphql:\"environment\""
-	Output        []*StackOutputFragment                           "json:\"output,omitempty\" graphql:\"output\""
-	Errors        []*ServiceErrorFragment                          "json:\"errors,omitempty\" graphql:\"errors\""
-	Approver      *UserFragment                                    "json:\"approver,omitempty\" graphql:\"approver\""
+	ID            string                                             "json:\"id\" graphql:\"id\""
+	Type          StackType                                          "json:\"type\" graphql:\"type\""
+	Status        StackStatus                                        "json:\"status\" graphql:\"status\""
+	Approval      *bool                                              "json:\"approval,omitempty\" graphql:\"approval\""
+	ApprovedAt    *string                                            "json:\"approvedAt,omitempty\" graphql:\"approvedAt\""
+	Tarball       string                                             "json:\"tarball\" graphql:\"tarball\""
+	Workdir       *string                                            "json:\"workdir,omitempty\" graphql:\"workdir\""
+	ManageState   *bool                                              "json:\"manageState,omitempty\" graphql:\"manageState\""
+	StateUrls     *StackRunFragment_StackRunBaseFragment_StateUrls   "json:\"stateUrls,omitempty\" graphql:\"stateUrls\""
+	PluralCreds   *StackRunFragment_StackRunBaseFragment_PluralCreds "json:\"pluralCreds,omitempty\" graphql:\"pluralCreds\""
+	Actor         *UserFragment                                      "json:\"actor,omitempty\" graphql:\"actor\""
+	Stack         *InfrastructureStackFragment                       "json:\"stack,omitempty\" graphql:\"stack\""
+	State         *StackStateFragment                                "json:\"state,omitempty\" graphql:\"state\""
+	Steps         []*RunStepFragment                                 "json:\"steps,omitempty\" graphql:\"steps\""
+	Files         []*StackFileFragment                               "json:\"files,omitempty\" graphql:\"files\""
+	Git           *GitRefFragment                                    "json:\"git\" graphql:\"git\""
+	Repository    *GitRepositoryFragment                             "json:\"repository,omitempty\" graphql:\"repository\""
+	JobSpec       *JobSpecFragment                                   "json:\"jobSpec,omitempty\" graphql:\"jobSpec\""
+	Configuration *StackConfigurationFragment                        "json:\"configuration\" graphql:\"configuration\""
+	Environment   []*StackEnvironmentFragment                        "json:\"environment,omitempty\" graphql:\"environment\""
+	Output        []*StackOutputFragment                             "json:\"output,omitempty\" graphql:\"output\""
+	Errors        []*ServiceErrorFragment                            "json:\"errors,omitempty\" graphql:\"errors\""
+	Approver      *UserFragment                                      "json:\"approver,omitempty\" graphql:\"approver\""
 }
 
 func (t *StackRunFragment) GetID() string {
@@ -2811,6 +2812,12 @@ func (t *StackRunFragment) GetStateUrls() *StackRunFragment_StackRunBaseFragment
 		t = &StackRunFragment{}
 	}
 	return t.StateUrls
+}
+func (t *StackRunFragment) GetPluralCreds() *StackRunFragment_StackRunBaseFragment_PluralCreds {
+	if t == nil {
+		t = &StackRunFragment{}
+	}
+	return t.PluralCreds
 }
 func (t *StackRunFragment) GetActor() *UserFragment {
 	if t == nil {
@@ -2892,27 +2899,28 @@ func (t *StackRunFragment) GetApprover() *UserFragment {
 }
 
 type StackRunBaseFragment struct {
-	ID            string                          "json:\"id\" graphql:\"id\""
-	Type          StackType                       "json:\"type\" graphql:\"type\""
-	Status        StackStatus                     "json:\"status\" graphql:\"status\""
-	Approval      *bool                           "json:\"approval,omitempty\" graphql:\"approval\""
-	ApprovedAt    *string                         "json:\"approvedAt,omitempty\" graphql:\"approvedAt\""
-	Tarball       string                          "json:\"tarball\" graphql:\"tarball\""
-	Workdir       *string                         "json:\"workdir,omitempty\" graphql:\"workdir\""
-	ManageState   *bool                           "json:\"manageState,omitempty\" graphql:\"manageState\""
-	StateUrls     *StackRunBaseFragment_StateUrls "json:\"stateUrls,omitempty\" graphql:\"stateUrls\""
-	Actor         *UserFragment                   "json:\"actor,omitempty\" graphql:\"actor\""
-	Stack         *InfrastructureStackFragment    "json:\"stack,omitempty\" graphql:\"stack\""
-	State         *StackStateFragment             "json:\"state,omitempty\" graphql:\"state\""
-	Steps         []*RunStepFragment              "json:\"steps,omitempty\" graphql:\"steps\""
-	Files         []*StackFileFragment            "json:\"files,omitempty\" graphql:\"files\""
-	Git           *GitRefFragment                 "json:\"git\" graphql:\"git\""
-	Repository    *GitRepositoryFragment          "json:\"repository,omitempty\" graphql:\"repository\""
-	JobSpec       *JobSpecFragment                "json:\"jobSpec,omitempty\" graphql:\"jobSpec\""
-	Configuration *StackConfigurationFragment     "json:\"configuration\" graphql:\"configuration\""
-	Environment   []*StackEnvironmentFragment     "json:\"environment,omitempty\" graphql:\"environment\""
-	Output        []*StackOutputFragment          "json:\"output,omitempty\" graphql:\"output\""
-	Errors        []*ServiceErrorFragment         "json:\"errors,omitempty\" graphql:\"errors\""
+	ID            string                            "json:\"id\" graphql:\"id\""
+	Type          StackType                         "json:\"type\" graphql:\"type\""
+	Status        StackStatus                       "json:\"status\" graphql:\"status\""
+	Approval      *bool                             "json:\"approval,omitempty\" graphql:\"approval\""
+	ApprovedAt    *string                           "json:\"approvedAt,omitempty\" graphql:\"approvedAt\""
+	Tarball       string                            "json:\"tarball\" graphql:\"tarball\""
+	Workdir       *string                           "json:\"workdir,omitempty\" graphql:\"workdir\""
+	ManageState   *bool                             "json:\"manageState,omitempty\" graphql:\"manageState\""
+	StateUrls     *StackRunBaseFragment_StateUrls   "json:\"stateUrls,omitempty\" graphql:\"stateUrls\""
+	PluralCreds   *StackRunBaseFragment_PluralCreds "json:\"pluralCreds,omitempty\" graphql:\"pluralCreds\""
+	Actor         *UserFragment                     "json:\"actor,omitempty\" graphql:\"actor\""
+	Stack         *InfrastructureStackFragment      "json:\"stack,omitempty\" graphql:\"stack\""
+	State         *StackStateFragment               "json:\"state,omitempty\" graphql:\"state\""
+	Steps         []*RunStepFragment                "json:\"steps,omitempty\" graphql:\"steps\""
+	Files         []*StackFileFragment              "json:\"files,omitempty\" graphql:\"files\""
+	Git           *GitRefFragment                   "json:\"git\" graphql:\"git\""
+	Repository    *GitRepositoryFragment            "json:\"repository,omitempty\" graphql:\"repository\""
+	JobSpec       *JobSpecFragment                  "json:\"jobSpec,omitempty\" graphql:\"jobSpec\""
+	Configuration *StackConfigurationFragment       "json:\"configuration\" graphql:\"configuration\""
+	Environment   []*StackEnvironmentFragment       "json:\"environment,omitempty\" graphql:\"environment\""
+	Output        []*StackOutputFragment            "json:\"output,omitempty\" graphql:\"output\""
+	Errors        []*ServiceErrorFragment           "json:\"errors,omitempty\" graphql:\"errors\""
 }
 
 func (t *StackRunBaseFragment) GetID() string {
@@ -2968,6 +2976,12 @@ func (t *StackRunBaseFragment) GetStateUrls() *StackRunBaseFragment_StateUrls {
 		t = &StackRunBaseFragment{}
 	}
 	return t.StateUrls
+}
+func (t *StackRunBaseFragment) GetPluralCreds() *StackRunBaseFragment_PluralCreds {
+	if t == nil {
+		t = &StackRunBaseFragment{}
+	}
+	return t.PluralCreds
 }
 func (t *StackRunBaseFragment) GetActor() *UserFragment {
 	if t == nil {
@@ -4536,6 +4550,24 @@ func (t *StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_StateUr
 	return t.Terraform
 }
 
+type StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_PluralCreds struct {
+	URL   *string "json:\"url,omitempty\" graphql:\"url\""
+	Token *string "json:\"token,omitempty\" graphql:\"token\""
+}
+
+func (t *StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_PluralCreds) GetURL() *string {
+	if t == nil {
+		t = &StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_PluralCreds{}
+	}
+	return t.URL
+}
+func (t *StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_PluralCreds) GetToken() *string {
+	if t == nil {
+		t = &StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_PluralCreds{}
+	}
+	return t.Token
+}
+
 type StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_Stack_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env struct {
 	Name  string "json:\"name\" graphql:\"name\""
 	Value string "json:\"value\" graphql:\"value\""
@@ -4680,6 +4712,24 @@ func (t *StackRunFragment_StackRunBaseFragment_StateUrls) GetTerraform() *StackR
 	return t.Terraform
 }
 
+type StackRunFragment_StackRunBaseFragment_PluralCreds struct {
+	URL   *string "json:\"url,omitempty\" graphql:\"url\""
+	Token *string "json:\"token,omitempty\" graphql:\"token\""
+}
+
+func (t *StackRunFragment_StackRunBaseFragment_PluralCreds) GetURL() *string {
+	if t == nil {
+		t = &StackRunFragment_StackRunBaseFragment_PluralCreds{}
+	}
+	return t.URL
+}
+func (t *StackRunFragment_StackRunBaseFragment_PluralCreds) GetToken() *string {
+	if t == nil {
+		t = &StackRunFragment_StackRunBaseFragment_PluralCreds{}
+	}
+	return t.Token
+}
+
 type StackRunFragment_StackRunBaseFragment_Stack_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env struct {
 	Name  string "json:\"name\" graphql:\"name\""
 	Value string "json:\"value\" graphql:\"value\""
@@ -4786,6 +4836,24 @@ func (t *StackRunBaseFragment_StateUrls) GetTerraform() *StackRunBaseFragment_St
 		t = &StackRunBaseFragment_StateUrls{}
 	}
 	return t.Terraform
+}
+
+type StackRunBaseFragment_PluralCreds struct {
+	URL   *string "json:\"url,omitempty\" graphql:\"url\""
+	Token *string "json:\"token,omitempty\" graphql:\"token\""
+}
+
+func (t *StackRunBaseFragment_PluralCreds) GetURL() *string {
+	if t == nil {
+		t = &StackRunBaseFragment_PluralCreds{}
+	}
+	return t.URL
+}
+func (t *StackRunBaseFragment_PluralCreds) GetToken() *string {
+	if t == nil {
+		t = &StackRunBaseFragment_PluralCreds{}
+	}
+	return t.Token
 }
 
 type StackRunBaseFragment_Stack_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env struct {
@@ -9217,6 +9285,24 @@ func (t *ListClusterStacks_ClusterStackRuns_Edges_StackRunEdgeFragment_Node_Stac
 	return t.Terraform
 }
 
+type ListClusterStacks_ClusterStackRuns_Edges_StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_PluralCreds struct {
+	URL   *string "json:\"url,omitempty\" graphql:\"url\""
+	Token *string "json:\"token,omitempty\" graphql:\"token\""
+}
+
+func (t *ListClusterStacks_ClusterStackRuns_Edges_StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_PluralCreds) GetURL() *string {
+	if t == nil {
+		t = &ListClusterStacks_ClusterStackRuns_Edges_StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_PluralCreds{}
+	}
+	return t.URL
+}
+func (t *ListClusterStacks_ClusterStackRuns_Edges_StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_PluralCreds) GetToken() *string {
+	if t == nil {
+		t = &ListClusterStacks_ClusterStackRuns_Edges_StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_PluralCreds{}
+	}
+	return t.Token
+}
+
 type ListClusterStacks_ClusterStackRuns_Edges_StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_Stack_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env struct {
 	Name  string "json:\"name\" graphql:\"name\""
 	Value string "json:\"value\" graphql:\"value\""
@@ -9397,6 +9483,24 @@ func (t *GetStackRun_StackRun_StackRunFragment_StackRunBaseFragment_StateUrls) G
 	return t.Terraform
 }
 
+type GetStackRun_StackRun_StackRunFragment_StackRunBaseFragment_PluralCreds struct {
+	URL   *string "json:\"url,omitempty\" graphql:\"url\""
+	Token *string "json:\"token,omitempty\" graphql:\"token\""
+}
+
+func (t *GetStackRun_StackRun_StackRunFragment_StackRunBaseFragment_PluralCreds) GetURL() *string {
+	if t == nil {
+		t = &GetStackRun_StackRun_StackRunFragment_StackRunBaseFragment_PluralCreds{}
+	}
+	return t.URL
+}
+func (t *GetStackRun_StackRun_StackRunFragment_StackRunBaseFragment_PluralCreds) GetToken() *string {
+	if t == nil {
+		t = &GetStackRun_StackRun_StackRunFragment_StackRunBaseFragment_PluralCreds{}
+	}
+	return t.Token
+}
+
 type GetStackRun_StackRun_StackRunFragment_StackRunBaseFragment_Stack_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env struct {
 	Name  string "json:\"name\" graphql:\"name\""
 	Value string "json:\"value\" graphql:\"value\""
@@ -9503,6 +9607,24 @@ func (t *GetStackRunBase_StackRun_StackRunBaseFragment_StateUrls) GetTerraform()
 		t = &GetStackRunBase_StackRun_StackRunBaseFragment_StateUrls{}
 	}
 	return t.Terraform
+}
+
+type GetStackRunBase_StackRun_StackRunBaseFragment_PluralCreds struct {
+	URL   *string "json:\"url,omitempty\" graphql:\"url\""
+	Token *string "json:\"token,omitempty\" graphql:\"token\""
+}
+
+func (t *GetStackRunBase_StackRun_StackRunBaseFragment_PluralCreds) GetURL() *string {
+	if t == nil {
+		t = &GetStackRunBase_StackRun_StackRunBaseFragment_PluralCreds{}
+	}
+	return t.URL
+}
+func (t *GetStackRunBase_StackRun_StackRunBaseFragment_PluralCreds) GetToken() *string {
+	if t == nil {
+		t = &GetStackRunBase_StackRun_StackRunBaseFragment_PluralCreds{}
+	}
+	return t.Token
 }
 
 type GetStackRunBase_StackRun_StackRunBaseFragment_Stack_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env struct {
@@ -9613,6 +9735,24 @@ func (t *UpdateStackRun_UpdateStackRun_StackRunBaseFragment_StateUrls) GetTerraf
 	return t.Terraform
 }
 
+type UpdateStackRun_UpdateStackRun_StackRunBaseFragment_PluralCreds struct {
+	URL   *string "json:\"url,omitempty\" graphql:\"url\""
+	Token *string "json:\"token,omitempty\" graphql:\"token\""
+}
+
+func (t *UpdateStackRun_UpdateStackRun_StackRunBaseFragment_PluralCreds) GetURL() *string {
+	if t == nil {
+		t = &UpdateStackRun_UpdateStackRun_StackRunBaseFragment_PluralCreds{}
+	}
+	return t.URL
+}
+func (t *UpdateStackRun_UpdateStackRun_StackRunBaseFragment_PluralCreds) GetToken() *string {
+	if t == nil {
+		t = &UpdateStackRun_UpdateStackRun_StackRunBaseFragment_PluralCreds{}
+	}
+	return t.Token
+}
+
 type UpdateStackRun_UpdateStackRun_StackRunBaseFragment_Stack_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env struct {
 	Name  string "json:\"name\" graphql:\"name\""
 	Value string "json:\"value\" graphql:\"value\""
@@ -9719,6 +9859,24 @@ func (t *ApproveStackRun_ApproveStackRun_StackRunBaseFragment_StateUrls) GetTerr
 		t = &ApproveStackRun_ApproveStackRun_StackRunBaseFragment_StateUrls{}
 	}
 	return t.Terraform
+}
+
+type ApproveStackRun_ApproveStackRun_StackRunBaseFragment_PluralCreds struct {
+	URL   *string "json:\"url,omitempty\" graphql:\"url\""
+	Token *string "json:\"token,omitempty\" graphql:\"token\""
+}
+
+func (t *ApproveStackRun_ApproveStackRun_StackRunBaseFragment_PluralCreds) GetURL() *string {
+	if t == nil {
+		t = &ApproveStackRun_ApproveStackRun_StackRunBaseFragment_PluralCreds{}
+	}
+	return t.URL
+}
+func (t *ApproveStackRun_ApproveStackRun_StackRunBaseFragment_PluralCreds) GetToken() *string {
+	if t == nil {
+		t = &ApproveStackRun_ApproveStackRun_StackRunBaseFragment_PluralCreds{}
+	}
+	return t.Token
 }
 
 type ApproveStackRun_ApproveStackRun_StackRunBaseFragment_Stack_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env struct {
@@ -10007,6 +10165,24 @@ func (t *CompletesStackRun_CompleteStackRun_StackRunBaseFragment_StateUrls) GetT
 		t = &CompletesStackRun_CompleteStackRun_StackRunBaseFragment_StateUrls{}
 	}
 	return t.Terraform
+}
+
+type CompletesStackRun_CompleteStackRun_StackRunBaseFragment_PluralCreds struct {
+	URL   *string "json:\"url,omitempty\" graphql:\"url\""
+	Token *string "json:\"token,omitempty\" graphql:\"token\""
+}
+
+func (t *CompletesStackRun_CompleteStackRun_StackRunBaseFragment_PluralCreds) GetURL() *string {
+	if t == nil {
+		t = &CompletesStackRun_CompleteStackRun_StackRunBaseFragment_PluralCreds{}
+	}
+	return t.URL
+}
+func (t *CompletesStackRun_CompleteStackRun_StackRunBaseFragment_PluralCreds) GetToken() *string {
+	if t == nil {
+		t = &CompletesStackRun_CompleteStackRun_StackRunBaseFragment_PluralCreds{}
+	}
+	return t.Token
 }
 
 type CompletesStackRun_CompleteStackRun_StackRunBaseFragment_Stack_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env struct {
@@ -19551,6 +19727,10 @@ fragment StackRunBaseFragment on StackRun {
 			unlock
 		}
 	}
+	pluralCreds {
+		url
+		token
+	}
 	actor {
 		... UserFragment
 	}
@@ -19957,6 +20137,10 @@ fragment StackRunBaseFragment on StackRun {
 			unlock
 		}
 	}
+	pluralCreds {
+		url
+		token
+	}
 	actor {
 		... UserFragment
 	}
@@ -20179,6 +20363,10 @@ fragment StackRunBaseFragment on StackRun {
 			lock
 			unlock
 		}
+	}
+	pluralCreds {
+		url
+		token
 	}
 	actor {
 		... UserFragment
@@ -20403,6 +20591,10 @@ fragment StackRunBaseFragment on StackRun {
 			unlock
 		}
 	}
+	pluralCreds {
+		url
+		token
+	}
 	actor {
 		... UserFragment
 	}
@@ -20626,6 +20818,10 @@ fragment StackRunBaseFragment on StackRun {
 			lock
 			unlock
 		}
+	}
+	pluralCreds {
+		url
+		token
 	}
 	actor {
 		... UserFragment
@@ -21635,6 +21831,10 @@ fragment StackRunBaseFragment on StackRun {
 			lock
 			unlock
 		}
+	}
+	pluralCreds {
+		url
+		token
 	}
 	actor {
 		... UserFragment
