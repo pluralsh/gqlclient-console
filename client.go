@@ -3260,8 +3260,9 @@ func (t *RunStepFragment) GetStage() *StepStage {
 }
 
 type StackConfigurationFragment struct {
-	Image   *string "json:\"image,omitempty\" graphql:\"image\""
-	Version string  "json:\"version\" graphql:\"version\""
+	Image   *string              "json:\"image,omitempty\" graphql:\"image\""
+	Version string               "json:\"version\" graphql:\"version\""
+	Hooks   []*StackHookFragment "json:\"hooks,omitempty\" graphql:\"hooks\""
 }
 
 func (t *StackConfigurationFragment) GetImage() *string {
@@ -3275,6 +3276,37 @@ func (t *StackConfigurationFragment) GetVersion() string {
 		t = &StackConfigurationFragment{}
 	}
 	return t.Version
+}
+func (t *StackConfigurationFragment) GetHooks() []*StackHookFragment {
+	if t == nil {
+		t = &StackConfigurationFragment{}
+	}
+	return t.Hooks
+}
+
+type StackHookFragment struct {
+	Cmd        string    "json:\"cmd\" graphql:\"cmd\""
+	Args       []*string "json:\"args,omitempty\" graphql:\"args\""
+	AfterStage StepStage "json:\"afterStage\" graphql:\"afterStage\""
+}
+
+func (t *StackHookFragment) GetCmd() string {
+	if t == nil {
+		t = &StackHookFragment{}
+	}
+	return t.Cmd
+}
+func (t *StackHookFragment) GetArgs() []*string {
+	if t == nil {
+		t = &StackHookFragment{}
+	}
+	return t.Args
+}
+func (t *StackHookFragment) GetAfterStage() *StepStage {
+	if t == nil {
+		t = &StackHookFragment{}
+	}
+	return &t.AfterStage
 }
 
 type PipelineGateEdgeFragment_Node_PipelineGateFragment_Spec_GateSpecFragment_Job_JobSpecFragment_Containers_ContainerSpecFragment_Env struct {
@@ -19844,6 +19876,14 @@ fragment ContainerSpecFragment on ContainerSpec {
 fragment StackConfigurationFragment on StackConfiguration {
 	image
 	version
+	hooks {
+		... StackHookFragment
+	}
+}
+fragment StackHookFragment on StackHook {
+	cmd
+	args
+	afterStage
 }
 fragment TinyClusterFragment on Cluster {
 	id
@@ -20026,6 +20066,14 @@ fragment ContainerSpecFragment on ContainerSpec {
 fragment StackConfigurationFragment on StackConfiguration {
 	image
 	version
+	hooks {
+		... StackHookFragment
+	}
+}
+fragment StackHookFragment on StackHook {
+	cmd
+	args
+	afterStage
 }
 fragment TinyClusterFragment on Cluster {
 	id
@@ -20254,6 +20302,14 @@ fragment ContainerSpecFragment on ContainerSpec {
 fragment StackConfigurationFragment on StackConfiguration {
 	image
 	version
+	hooks {
+		... StackHookFragment
+	}
+}
+fragment StackHookFragment on StackHook {
+	cmd
+	args
+	afterStage
 }
 fragment TinyClusterFragment on Cluster {
 	id
@@ -20481,6 +20537,14 @@ fragment ContainerSpecFragment on ContainerSpec {
 fragment StackConfigurationFragment on StackConfiguration {
 	image
 	version
+	hooks {
+		... StackHookFragment
+	}
+}
+fragment StackHookFragment on StackHook {
+	cmd
+	args
+	afterStage
 }
 fragment TinyClusterFragment on Cluster {
 	id
@@ -20708,6 +20772,14 @@ fragment ContainerSpecFragment on ContainerSpec {
 fragment StackConfigurationFragment on StackConfiguration {
 	image
 	version
+	hooks {
+		... StackHookFragment
+	}
+}
+fragment StackHookFragment on StackHook {
+	cmd
+	args
+	afterStage
 }
 fragment TinyClusterFragment on Cluster {
 	id
@@ -20936,6 +21008,14 @@ fragment ContainerSpecFragment on ContainerSpec {
 fragment StackConfigurationFragment on StackConfiguration {
 	image
 	version
+	hooks {
+		... StackHookFragment
+	}
+}
+fragment StackHookFragment on StackHook {
+	cmd
+	args
+	afterStage
 }
 fragment TinyClusterFragment on Cluster {
 	id
@@ -21101,6 +21181,14 @@ fragment ContainerSpecFragment on ContainerSpec {
 fragment StackConfigurationFragment on StackConfiguration {
 	image
 	version
+	hooks {
+		... StackHookFragment
+	}
+}
+fragment StackHookFragment on StackHook {
+	cmd
+	args
+	afterStage
 }
 fragment TinyClusterFragment on Cluster {
 	id
@@ -21258,6 +21346,14 @@ fragment ContainerSpecFragment on ContainerSpec {
 fragment StackConfigurationFragment on StackConfiguration {
 	image
 	version
+	hooks {
+		... StackHookFragment
+	}
+}
+fragment StackHookFragment on StackHook {
+	cmd
+	args
+	afterStage
 }
 fragment TinyClusterFragment on Cluster {
 	id
@@ -21416,6 +21512,14 @@ fragment ContainerSpecFragment on ContainerSpec {
 fragment StackConfigurationFragment on StackConfiguration {
 	image
 	version
+	hooks {
+		... StackHookFragment
+	}
+}
+fragment StackHookFragment on StackHook {
+	cmd
+	args
+	afterStage
 }
 fragment TinyClusterFragment on Cluster {
 	id
@@ -21573,6 +21677,14 @@ fragment ContainerSpecFragment on ContainerSpec {
 fragment StackConfigurationFragment on StackConfiguration {
 	image
 	version
+	hooks {
+		... StackHookFragment
+	}
+}
+fragment StackHookFragment on StackHook {
+	cmd
+	args
+	afterStage
 }
 fragment TinyClusterFragment on Cluster {
 	id
@@ -21730,6 +21842,14 @@ fragment ContainerSpecFragment on ContainerSpec {
 fragment StackConfigurationFragment on StackConfiguration {
 	image
 	version
+	hooks {
+		... StackHookFragment
+	}
+}
+fragment StackHookFragment on StackHook {
+	cmd
+	args
+	afterStage
 }
 fragment TinyClusterFragment on Cluster {
 	id
@@ -21949,6 +22069,14 @@ fragment ContainerSpecFragment on ContainerSpec {
 fragment StackConfigurationFragment on StackConfiguration {
 	image
 	version
+	hooks {
+		... StackHookFragment
+	}
+}
+fragment StackHookFragment on StackHook {
+	cmd
+	args
+	afterStage
 }
 fragment TinyClusterFragment on Cluster {
 	id

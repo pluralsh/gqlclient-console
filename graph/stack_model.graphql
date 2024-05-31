@@ -122,4 +122,11 @@ fragment RunStepFragment on RunStep {
 fragment StackConfigurationFragment on StackConfiguration {
     image
     version
+    hooks {...StackHookFragment}
+}
+
+fragment StackHookFragment on StackHook {
+    cmd
+    args
+    afterStage
 }
