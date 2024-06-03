@@ -129,6 +129,8 @@ type ConsoleClient interface {
 	CompletesStackRun(ctx context.Context, id string, attributes StackRunAttributes, interceptors ...clientv2.RequestInterceptor) (*CompletesStackRun, error)
 	AddStackRunLogs(ctx context.Context, id string, attributes RunLogAttributes, interceptors ...clientv2.RequestInterceptor) (*AddStackRunLogs, error)
 	UpdateStackRunStep(ctx context.Context, id string, attributes RunStepAttributes, interceptors ...clientv2.RequestInterceptor) (*UpdateStackRunStep, error)
+	UpsertCustomStackRun(ctx context.Context, attributes CustomStackRunAttributes, interceptors ...clientv2.RequestInterceptor) (*UpsertCustomStackRun, error)
+	DeleteCustomStackRun(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DeleteCustomStackRun, error)
 	CreateAccessToken(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*CreateAccessToken, error)
 	DeleteAccessToken(ctx context.Context, token string, interceptors ...clientv2.RequestInterceptor) (*DeleteAccessToken, error)
 	ListAccessTokens(ctx context.Context, cursor *string, before *string, last *int64, interceptors ...clientv2.RequestInterceptor) (*ListAccessTokens, error)
@@ -3309,6 +3311,162 @@ func (t *StackHookFragment) GetAfterStage() *StepStage {
 	return &t.AfterStage
 }
 
+type CustomStackRunFragment struct {
+	ID            string                        "json:\"id\" graphql:\"id\""
+	Name          string                        "json:\"name\" graphql:\"name\""
+	Stack         *CustomStackRunFragment_Stack "json:\"stack,omitempty\" graphql:\"stack\""
+	Documentation *string                       "json:\"documentation,omitempty\" graphql:\"documentation\""
+	Commands      []*StackCommandFragment       "json:\"commands,omitempty\" graphql:\"commands\""
+	Configuration []*PrConfigurationFragment    "json:\"configuration,omitempty\" graphql:\"configuration\""
+}
+
+func (t *CustomStackRunFragment) GetID() string {
+	if t == nil {
+		t = &CustomStackRunFragment{}
+	}
+	return t.ID
+}
+func (t *CustomStackRunFragment) GetName() string {
+	if t == nil {
+		t = &CustomStackRunFragment{}
+	}
+	return t.Name
+}
+func (t *CustomStackRunFragment) GetStack() *CustomStackRunFragment_Stack {
+	if t == nil {
+		t = &CustomStackRunFragment{}
+	}
+	return t.Stack
+}
+func (t *CustomStackRunFragment) GetDocumentation() *string {
+	if t == nil {
+		t = &CustomStackRunFragment{}
+	}
+	return t.Documentation
+}
+func (t *CustomStackRunFragment) GetCommands() []*StackCommandFragment {
+	if t == nil {
+		t = &CustomStackRunFragment{}
+	}
+	return t.Commands
+}
+func (t *CustomStackRunFragment) GetConfiguration() []*PrConfigurationFragment {
+	if t == nil {
+		t = &CustomStackRunFragment{}
+	}
+	return t.Configuration
+}
+
+type StackCommandFragment struct {
+	Cmd  string    "json:\"cmd\" graphql:\"cmd\""
+	Args []*string "json:\"args,omitempty\" graphql:\"args\""
+	Dir  *string   "json:\"dir,omitempty\" graphql:\"dir\""
+}
+
+func (t *StackCommandFragment) GetCmd() string {
+	if t == nil {
+		t = &StackCommandFragment{}
+	}
+	return t.Cmd
+}
+func (t *StackCommandFragment) GetArgs() []*string {
+	if t == nil {
+		t = &StackCommandFragment{}
+	}
+	return t.Args
+}
+func (t *StackCommandFragment) GetDir() *string {
+	if t == nil {
+		t = &StackCommandFragment{}
+	}
+	return t.Dir
+}
+
+type PrConfigurationFragment struct {
+	Type          ConfigurationType                 "json:\"type\" graphql:\"type\""
+	Name          string                            "json:\"name\" graphql:\"name\""
+	Default       *string                           "json:\"default,omitempty\" graphql:\"default\""
+	Documentation *string                           "json:\"documentation,omitempty\" graphql:\"documentation\""
+	Longform      *string                           "json:\"longform,omitempty\" graphql:\"longform\""
+	Placeholder   *string                           "json:\"placeholder,omitempty\" graphql:\"placeholder\""
+	Optional      *bool                             "json:\"optional,omitempty\" graphql:\"optional\""
+	Condition     *PrConfigurationConditionFragment "json:\"condition,omitempty\" graphql:\"condition\""
+}
+
+func (t *PrConfigurationFragment) GetType() *ConfigurationType {
+	if t == nil {
+		t = &PrConfigurationFragment{}
+	}
+	return &t.Type
+}
+func (t *PrConfigurationFragment) GetName() string {
+	if t == nil {
+		t = &PrConfigurationFragment{}
+	}
+	return t.Name
+}
+func (t *PrConfigurationFragment) GetDefault() *string {
+	if t == nil {
+		t = &PrConfigurationFragment{}
+	}
+	return t.Default
+}
+func (t *PrConfigurationFragment) GetDocumentation() *string {
+	if t == nil {
+		t = &PrConfigurationFragment{}
+	}
+	return t.Documentation
+}
+func (t *PrConfigurationFragment) GetLongform() *string {
+	if t == nil {
+		t = &PrConfigurationFragment{}
+	}
+	return t.Longform
+}
+func (t *PrConfigurationFragment) GetPlaceholder() *string {
+	if t == nil {
+		t = &PrConfigurationFragment{}
+	}
+	return t.Placeholder
+}
+func (t *PrConfigurationFragment) GetOptional() *bool {
+	if t == nil {
+		t = &PrConfigurationFragment{}
+	}
+	return t.Optional
+}
+func (t *PrConfigurationFragment) GetCondition() *PrConfigurationConditionFragment {
+	if t == nil {
+		t = &PrConfigurationFragment{}
+	}
+	return t.Condition
+}
+
+type PrConfigurationConditionFragment struct {
+	Operation Operation "json:\"operation\" graphql:\"operation\""
+	Field     string    "json:\"field\" graphql:\"field\""
+	Value     *string   "json:\"value,omitempty\" graphql:\"value\""
+}
+
+func (t *PrConfigurationConditionFragment) GetOperation() *Operation {
+	if t == nil {
+		t = &PrConfigurationConditionFragment{}
+	}
+	return &t.Operation
+}
+func (t *PrConfigurationConditionFragment) GetField() string {
+	if t == nil {
+		t = &PrConfigurationConditionFragment{}
+	}
+	return t.Field
+}
+func (t *PrConfigurationConditionFragment) GetValue() *string {
+	if t == nil {
+		t = &PrConfigurationConditionFragment{}
+	}
+	return t.Value
+}
+
 type PipelineGateEdgeFragment_Node_PipelineGateFragment_Spec_GateSpecFragment_Job_JobSpecFragment_Containers_ContainerSpecFragment_Env struct {
 	Name  string "json:\"name\" graphql:\"name\""
 	Value string "json:\"value\" graphql:\"value\""
@@ -4958,6 +5116,17 @@ func (t *StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFr
 		t = &StackRunBaseFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_EnvFrom{}
 	}
 	return t.Secret
+}
+
+type CustomStackRunFragment_Stack struct {
+	ID *string "json:\"id,omitempty\" graphql:\"id\""
+}
+
+func (t *CustomStackRunFragment_Stack) GetID() *string {
+	if t == nil {
+		t = &CustomStackRunFragment_Stack{}
+	}
+	return t.ID
 }
 
 type CreateClusterBackup_CreateClusterBackup_ClusterBackupFragment_Cluster struct {
@@ -10300,6 +10469,28 @@ func (t *AddStackRunLogs_AddRunLogs) GetUpdatedAt() *string {
 	return t.UpdatedAt
 }
 
+type UpsertCustomStackRun_UpsertCustomStackRun_CustomStackRunFragment_Stack struct {
+	ID *string "json:\"id,omitempty\" graphql:\"id\""
+}
+
+func (t *UpsertCustomStackRun_UpsertCustomStackRun_CustomStackRunFragment_Stack) GetID() *string {
+	if t == nil {
+		t = &UpsertCustomStackRun_UpsertCustomStackRun_CustomStackRunFragment_Stack{}
+	}
+	return t.ID
+}
+
+type DeleteCustomStackRun_DeleteCustomStackRun_CustomStackRunFragment_Stack struct {
+	ID *string "json:\"id,omitempty\" graphql:\"id\""
+}
+
+func (t *DeleteCustomStackRun_DeleteCustomStackRun_CustomStackRunFragment_Stack) GetID() *string {
+	if t == nil {
+		t = &DeleteCustomStackRun_DeleteCustomStackRun_CustomStackRunFragment_Stack{}
+	}
+	return t.ID
+}
+
 type ListAccessTokens_AccessTokens struct {
 	Edges []*AccessTokenEdgeFragment "json:\"edges,omitempty\" graphql:\"edges\""
 }
@@ -11737,6 +11928,28 @@ func (t *UpdateStackRunStep) GetUpdateRunStep() *RunStepFragment {
 		t = &UpdateStackRunStep{}
 	}
 	return t.UpdateRunStep
+}
+
+type UpsertCustomStackRun struct {
+	UpsertCustomStackRun *CustomStackRunFragment "json:\"upsertCustomStackRun,omitempty\" graphql:\"upsertCustomStackRun\""
+}
+
+func (t *UpsertCustomStackRun) GetUpsertCustomStackRun() *CustomStackRunFragment {
+	if t == nil {
+		t = &UpsertCustomStackRun{}
+	}
+	return t.UpsertCustomStackRun
+}
+
+type DeleteCustomStackRun struct {
+	DeleteCustomStackRun *CustomStackRunFragment "json:\"deleteCustomStackRun,omitempty\" graphql:\"deleteCustomStackRun\""
+}
+
+func (t *DeleteCustomStackRun) GetDeleteCustomStackRun() *CustomStackRunFragment {
+	if t == nil {
+		t = &DeleteCustomStackRun{}
+	}
+	return t.DeleteCustomStackRun
 }
 
 type CreateAccessToken struct {
@@ -22226,6 +22439,126 @@ func (c *Client) UpdateStackRunStep(ctx context.Context, id string, attributes R
 	return &res, nil
 }
 
+const UpsertCustomStackRunDocument = `mutation UpsertCustomStackRun ($attributes: CustomStackRunAttributes!) {
+	upsertCustomStackRun(attributes: $attributes) {
+		... CustomStackRunFragment
+	}
+}
+fragment CustomStackRunFragment on CustomStackRun {
+	id
+	name
+	stack {
+		id
+	}
+	documentation
+	commands {
+		... StackCommandFragment
+	}
+	configuration {
+		... PrConfigurationFragment
+	}
+}
+fragment StackCommandFragment on StackCommand {
+	cmd
+	args
+	dir
+}
+fragment PrConfigurationFragment on PrConfiguration {
+	type
+	name
+	default
+	documentation
+	longform
+	placeholder
+	optional
+	condition {
+		... PrConfigurationConditionFragment
+	}
+}
+fragment PrConfigurationConditionFragment on PrConfigurationCondition {
+	operation
+	field
+	value
+}
+`
+
+func (c *Client) UpsertCustomStackRun(ctx context.Context, attributes CustomStackRunAttributes, interceptors ...clientv2.RequestInterceptor) (*UpsertCustomStackRun, error) {
+	vars := map[string]interface{}{
+		"attributes": attributes,
+	}
+
+	var res UpsertCustomStackRun
+	if err := c.Client.Post(ctx, "UpsertCustomStackRun", UpsertCustomStackRunDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const DeleteCustomStackRunDocument = `mutation DeleteCustomStackRun ($id: ID!) {
+	deleteCustomStackRun(id: $id) {
+		... CustomStackRunFragment
+	}
+}
+fragment CustomStackRunFragment on CustomStackRun {
+	id
+	name
+	stack {
+		id
+	}
+	documentation
+	commands {
+		... StackCommandFragment
+	}
+	configuration {
+		... PrConfigurationFragment
+	}
+}
+fragment StackCommandFragment on StackCommand {
+	cmd
+	args
+	dir
+}
+fragment PrConfigurationFragment on PrConfiguration {
+	type
+	name
+	default
+	documentation
+	longform
+	placeholder
+	optional
+	condition {
+		... PrConfigurationConditionFragment
+	}
+}
+fragment PrConfigurationConditionFragment on PrConfigurationCondition {
+	operation
+	field
+	value
+}
+`
+
+func (c *Client) DeleteCustomStackRun(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DeleteCustomStackRun, error) {
+	vars := map[string]interface{}{
+		"id": id,
+	}
+
+	var res DeleteCustomStackRun
+	if err := c.Client.Post(ctx, "DeleteCustomStackRun", DeleteCustomStackRunDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
 const CreateAccessTokenDocument = `mutation CreateAccessToken {
 	createAccessToken {
 		... AccessTokenFragment
@@ -22628,6 +22961,8 @@ var DocumentOperationNames = map[string]string{
 	CompletesStackRunDocument:                         "CompletesStackRun",
 	AddStackRunLogsDocument:                           "AddStackRunLogs",
 	UpdateStackRunStepDocument:                        "UpdateStackRunStep",
+	UpsertCustomStackRunDocument:                      "UpsertCustomStackRun",
+	DeleteCustomStackRunDocument:                      "DeleteCustomStackRun",
 	CreateAccessTokenDocument:                         "CreateAccessToken",
 	DeleteAccessTokenDocument:                         "DeleteAccessToken",
 	ListAccessTokensDocument:                          "ListAccessTokens",

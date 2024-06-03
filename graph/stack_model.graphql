@@ -130,3 +130,37 @@ fragment StackHookFragment on StackHook {
     args
     afterStage
 }
+
+fragment CustomStackRunFragment on CustomStackRun {
+    id
+    name
+    stack {
+        id
+    }
+    documentation
+    commands { ...StackCommandFragment}
+    configuration { ...PrConfigurationFragment}
+}
+
+fragment StackCommandFragment on StackCommand {
+    cmd
+    args
+    dir
+}
+
+fragment PrConfigurationFragment on PrConfiguration {
+    type
+    name
+    default
+    documentation
+    longform
+    placeholder
+    optional
+    condition { ...PrConfigurationConditionFragment}
+}
+
+fragment PrConfigurationConditionFragment on PrConfigurationCondition {
+    operation
+    field
+    value
+}

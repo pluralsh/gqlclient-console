@@ -1210,6 +1210,8 @@ type DeploymentSettings struct {
 	PrometheusConnection *HTTPConnection `json:"prometheusConnection,omitempty"`
 	// custom helm values to apply to all agents (useful for things like adding customary annotations/labels)
 	AgentHelmValues *string `json:"agentHelmValues,omitempty"`
+	// global settings for stack configuration
+	Stacks *StackSettings `json:"stacks,omitempty"`
 	// The console's expected agent version
 	AgentVsn string `json:"agentVsn"`
 	// the latest known k8s version
@@ -1237,6 +1239,8 @@ type DeploymentSettingsAttributes struct {
 	DeployerRepositoryID *string `json:"deployerRepositoryId,omitempty"`
 	// custom helm values to apply to all agents (useful for things like adding customary annotations/labels)
 	AgentHelmValues *string `json:"agentHelmValues,omitempty"`
+	// global configuration for stack execution
+	Stacks *StackSettingsAttributes `json:"stacks,omitempty"`
 	// connection details for a prometheus instance to use
 	PrometheusConnection *HTTPConnectionAttributes `json:"prometheusConnection,omitempty"`
 	// connection details for a loki instance to use
@@ -3768,6 +3772,8 @@ type ServiceDeployment struct {
 	Contexts []*ServiceContext `json:"contexts,omitempty"`
 	// the dependencies of this service, actualization will not happen until all are HEALTHY
 	Dependencies []*ServiceDependency `json:"dependencies,omitempty"`
+	// imports from stack outputs
+	Imports []*ServiceImport `json:"imports,omitempty"`
 	// a relay connection of all revisions of this service, these are periodically pruned up to a history limit
 	Revisions *RevisionConnection `json:"revisions,omitempty"`
 	// whether this service is editable
@@ -3796,6 +3802,7 @@ type ServiceDeploymentAttributes struct {
 	ReadBindings    []*PolicyBindingAttributes     `json:"readBindings,omitempty"`
 	WriteBindings   []*PolicyBindingAttributes     `json:"writeBindings,omitempty"`
 	ContextBindings []*ContextBindingAttributes    `json:"contextBindings,omitempty"`
+	Imports         []*ServiceImportAttributes     `json:"imports,omitempty"`
 }
 
 type ServiceDeploymentConnection struct {
@@ -3817,6 +3824,21 @@ type ServiceError struct {
 type ServiceErrorAttributes struct {
 	Source  string `json:"source"`
 	Message string `json:"message"`
+}
+
+// Import of stack data into a service's context
+type ServiceImport struct {
+	ID string `json:"id"`
+	// The stack you're importing from
+	Stack *InfrastructureStack `json:"stack,omitempty"`
+	// The outputs of that stack
+	Outputs    []*StackOutput `json:"outputs,omitempty"`
+	InsertedAt *string        `json:"insertedAt,omitempty"`
+	UpdatedAt  *string        `json:"updatedAt,omitempty"`
+}
+
+type ServiceImportAttributes struct {
+	StackID string `json:"stackId"`
 }
 
 type ServicePort struct {
@@ -4138,6 +4160,14 @@ type StackRunConnection struct {
 type StackRunEdge struct {
 	Node   *StackRun `json:"node,omitempty"`
 	Cursor *string   `json:"cursor,omitempty"`
+}
+
+type StackSettings struct {
+	JobSpec *JobGateSpec `json:"jobSpec,omitempty"`
+}
+
+type StackSettingsAttributes struct {
+	JobSpec *GateJobAttributes `json:"jobSpec,omitempty"`
 }
 
 type StackState struct {

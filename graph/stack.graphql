@@ -87,3 +87,15 @@ mutation UpdateStackRunStep($id: ID!, $attributes: RunStepAttributes!) {
         ...RunStepFragment
     }
 }
+
+mutation UpsertCustomStackRun($attributes: CustomStackRunAttributes!) {
+    upsertCustomStackRun(attributes: $attributes) {
+        ...CustomStackRunFragment
+    }
+}
+
+mutation DeleteCustomStackRun($id: ID!) {
+    deleteCustomStackRun(id: $id) {
+        ...CustomStackRunFragment
+    }
+}
