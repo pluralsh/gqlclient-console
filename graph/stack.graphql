@@ -105,3 +105,9 @@ mutation DeleteCustomStackRun($id: ID!) {
         ...CustomStackRunFragment
     }
 }
+
+query GetCustomStackRun($id: ID!) {
+    customStackRun(id: $id) {
+        ...CustomStackRunFragment
+    }
+}

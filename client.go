@@ -132,6 +132,7 @@ type ConsoleClient interface {
 	UpdateCustomStackRun(ctx context.Context, id string, attributes CustomStackRunAttributes, interceptors ...clientv2.RequestInterceptor) (*UpdateCustomStackRun, error)
 	CreateCustomStackRun(ctx context.Context, attributes CustomStackRunAttributes, interceptors ...clientv2.RequestInterceptor) (*CreateCustomStackRun, error)
 	DeleteCustomStackRun(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DeleteCustomStackRun, error)
+	GetCustomStackRun(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*GetCustomStackRun, error)
 	CreateAccessToken(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*CreateAccessToken, error)
 	DeleteAccessToken(ctx context.Context, token string, interceptors ...clientv2.RequestInterceptor) (*DeleteAccessToken, error)
 	ListAccessTokens(ctx context.Context, cursor *string, before *string, last *int64, interceptors ...clientv2.RequestInterceptor) (*ListAccessTokens, error)
@@ -10503,6 +10504,17 @@ func (t *DeleteCustomStackRun_DeleteCustomStackRun_CustomStackRunFragment_Stack)
 	return t.ID
 }
 
+type GetCustomStackRun_CustomStackRun_CustomStackRunFragment_Stack struct {
+	ID *string "json:\"id,omitempty\" graphql:\"id\""
+}
+
+func (t *GetCustomStackRun_CustomStackRun_CustomStackRunFragment_Stack) GetID() *string {
+	if t == nil {
+		t = &GetCustomStackRun_CustomStackRun_CustomStackRunFragment_Stack{}
+	}
+	return t.ID
+}
+
 type ListAccessTokens_AccessTokens struct {
 	Edges []*AccessTokenEdgeFragment "json:\"edges,omitempty\" graphql:\"edges\""
 }
@@ -11973,6 +11985,17 @@ func (t *DeleteCustomStackRun) GetDeleteCustomStackRun() *CustomStackRunFragment
 		t = &DeleteCustomStackRun{}
 	}
 	return t.DeleteCustomStackRun
+}
+
+type GetCustomStackRun struct {
+	CustomStackRun *CustomStackRunFragment "json:\"customStackRun,omitempty\" graphql:\"customStackRun\""
+}
+
+func (t *GetCustomStackRun) GetCustomStackRun() *CustomStackRunFragment {
+	if t == nil {
+		t = &GetCustomStackRun{}
+	}
+	return t.CustomStackRun
 }
 
 type CreateAccessToken struct {
@@ -22643,6 +22666,66 @@ func (c *Client) DeleteCustomStackRun(ctx context.Context, id string, intercepto
 	return &res, nil
 }
 
+const GetCustomStackRunDocument = `query GetCustomStackRun ($id: ID!) {
+	customStackRun(id: $id) {
+		... CustomStackRunFragment
+	}
+}
+fragment CustomStackRunFragment on CustomStackRun {
+	id
+	name
+	stack {
+		id
+	}
+	documentation
+	commands {
+		... StackCommandFragment
+	}
+	configuration {
+		... PrConfigurationFragment
+	}
+}
+fragment StackCommandFragment on StackCommand {
+	cmd
+	args
+	dir
+}
+fragment PrConfigurationFragment on PrConfiguration {
+	type
+	name
+	default
+	documentation
+	longform
+	placeholder
+	optional
+	condition {
+		... PrConfigurationConditionFragment
+	}
+}
+fragment PrConfigurationConditionFragment on PrConfigurationCondition {
+	operation
+	field
+	value
+}
+`
+
+func (c *Client) GetCustomStackRun(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*GetCustomStackRun, error) {
+	vars := map[string]interface{}{
+		"id": id,
+	}
+
+	var res GetCustomStackRun
+	if err := c.Client.Post(ctx, "GetCustomStackRun", GetCustomStackRunDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
 const CreateAccessTokenDocument = `mutation CreateAccessToken {
 	createAccessToken {
 		... AccessTokenFragment
@@ -23048,6 +23131,7 @@ var DocumentOperationNames = map[string]string{
 	UpdateCustomStackRunDocument:                      "UpdateCustomStackRun",
 	CreateCustomStackRunDocument:                      "CreateCustomStackRun",
 	DeleteCustomStackRunDocument:                      "DeleteCustomStackRun",
+	GetCustomStackRunDocument:                         "GetCustomStackRun",
 	CreateAccessTokenDocument:                         "CreateAccessToken",
 	DeleteAccessTokenDocument:                         "DeleteAccessToken",
 	ListAccessTokensDocument:                          "ListAccessTokens",
