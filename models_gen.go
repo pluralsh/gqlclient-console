@@ -4163,11 +4163,13 @@ type StackRunEdge struct {
 }
 
 type StackSettings struct {
-	JobSpec *JobGateSpec `json:"jobSpec,omitempty"`
+	JobSpec      *JobGateSpec `json:"jobSpec,omitempty"`
+	ConnectionID *string      `json:"connectionId,omitempty"`
 }
 
 type StackSettingsAttributes struct {
-	JobSpec *GateJobAttributes `json:"jobSpec,omitempty"`
+	JobSpec      *GateJobAttributes `json:"jobSpec,omitempty"`
+	ConnectionID *string            `json:"connectionId,omitempty"`
 }
 
 type StackState struct {

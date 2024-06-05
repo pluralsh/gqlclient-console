@@ -129,7 +129,8 @@ type ConsoleClient interface {
 	CompletesStackRun(ctx context.Context, id string, attributes StackRunAttributes, interceptors ...clientv2.RequestInterceptor) (*CompletesStackRun, error)
 	AddStackRunLogs(ctx context.Context, id string, attributes RunLogAttributes, interceptors ...clientv2.RequestInterceptor) (*AddStackRunLogs, error)
 	UpdateStackRunStep(ctx context.Context, id string, attributes RunStepAttributes, interceptors ...clientv2.RequestInterceptor) (*UpdateStackRunStep, error)
-	UpsertCustomStackRun(ctx context.Context, attributes CustomStackRunAttributes, interceptors ...clientv2.RequestInterceptor) (*UpsertCustomStackRun, error)
+	UpdateCustomStackRun(ctx context.Context, id string, attributes CustomStackRunAttributes, interceptors ...clientv2.RequestInterceptor) (*UpdateCustomStackRun, error)
+	CreateCustomStackRun(ctx context.Context, attributes CustomStackRunAttributes, interceptors ...clientv2.RequestInterceptor) (*CreateCustomStackRun, error)
 	DeleteCustomStackRun(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DeleteCustomStackRun, error)
 	CreateAccessToken(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*CreateAccessToken, error)
 	DeleteAccessToken(ctx context.Context, token string, interceptors ...clientv2.RequestInterceptor) (*DeleteAccessToken, error)
@@ -10469,13 +10470,24 @@ func (t *AddStackRunLogs_AddRunLogs) GetUpdatedAt() *string {
 	return t.UpdatedAt
 }
 
-type UpsertCustomStackRun_UpsertCustomStackRun_CustomStackRunFragment_Stack struct {
+type UpdateCustomStackRun_UpdateCustomStackRun_CustomStackRunFragment_Stack struct {
 	ID *string "json:\"id,omitempty\" graphql:\"id\""
 }
 
-func (t *UpsertCustomStackRun_UpsertCustomStackRun_CustomStackRunFragment_Stack) GetID() *string {
+func (t *UpdateCustomStackRun_UpdateCustomStackRun_CustomStackRunFragment_Stack) GetID() *string {
 	if t == nil {
-		t = &UpsertCustomStackRun_UpsertCustomStackRun_CustomStackRunFragment_Stack{}
+		t = &UpdateCustomStackRun_UpdateCustomStackRun_CustomStackRunFragment_Stack{}
+	}
+	return t.ID
+}
+
+type CreateCustomStackRun_CreateCustomStackRun_CustomStackRunFragment_Stack struct {
+	ID *string "json:\"id,omitempty\" graphql:\"id\""
+}
+
+func (t *CreateCustomStackRun_CreateCustomStackRun_CustomStackRunFragment_Stack) GetID() *string {
+	if t == nil {
+		t = &CreateCustomStackRun_CreateCustomStackRun_CustomStackRunFragment_Stack{}
 	}
 	return t.ID
 }
@@ -11930,15 +11942,26 @@ func (t *UpdateStackRunStep) GetUpdateRunStep() *RunStepFragment {
 	return t.UpdateRunStep
 }
 
-type UpsertCustomStackRun struct {
-	UpsertCustomStackRun *CustomStackRunFragment "json:\"upsertCustomStackRun,omitempty\" graphql:\"upsertCustomStackRun\""
+type UpdateCustomStackRun struct {
+	UpdateCustomStackRun *CustomStackRunFragment "json:\"updateCustomStackRun,omitempty\" graphql:\"updateCustomStackRun\""
 }
 
-func (t *UpsertCustomStackRun) GetUpsertCustomStackRun() *CustomStackRunFragment {
+func (t *UpdateCustomStackRun) GetUpdateCustomStackRun() *CustomStackRunFragment {
 	if t == nil {
-		t = &UpsertCustomStackRun{}
+		t = &UpdateCustomStackRun{}
 	}
-	return t.UpsertCustomStackRun
+	return t.UpdateCustomStackRun
+}
+
+type CreateCustomStackRun struct {
+	CreateCustomStackRun *CustomStackRunFragment "json:\"createCustomStackRun,omitempty\" graphql:\"createCustomStackRun\""
+}
+
+func (t *CreateCustomStackRun) GetCreateCustomStackRun() *CustomStackRunFragment {
+	if t == nil {
+		t = &CreateCustomStackRun{}
+	}
+	return t.CreateCustomStackRun
 }
 
 type DeleteCustomStackRun struct {
@@ -22439,8 +22462,8 @@ func (c *Client) UpdateStackRunStep(ctx context.Context, id string, attributes R
 	return &res, nil
 }
 
-const UpsertCustomStackRunDocument = `mutation UpsertCustomStackRun ($attributes: CustomStackRunAttributes!) {
-	upsertCustomStackRun(attributes: $attributes) {
+const UpdateCustomStackRunDocument = `mutation UpdateCustomStackRun ($id: ID!, $attributes: CustomStackRunAttributes!) {
+	updateCustomStackRun(id: $id, attributes: $attributes) {
 		... CustomStackRunFragment
 	}
 }
@@ -22482,13 +22505,74 @@ fragment PrConfigurationConditionFragment on PrConfigurationCondition {
 }
 `
 
-func (c *Client) UpsertCustomStackRun(ctx context.Context, attributes CustomStackRunAttributes, interceptors ...clientv2.RequestInterceptor) (*UpsertCustomStackRun, error) {
+func (c *Client) UpdateCustomStackRun(ctx context.Context, id string, attributes CustomStackRunAttributes, interceptors ...clientv2.RequestInterceptor) (*UpdateCustomStackRun, error) {
+	vars := map[string]interface{}{
+		"id":         id,
+		"attributes": attributes,
+	}
+
+	var res UpdateCustomStackRun
+	if err := c.Client.Post(ctx, "UpdateCustomStackRun", UpdateCustomStackRunDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const CreateCustomStackRunDocument = `mutation CreateCustomStackRun ($attributes: CustomStackRunAttributes!) {
+	createCustomStackRun(attributes: $attributes) {
+		... CustomStackRunFragment
+	}
+}
+fragment CustomStackRunFragment on CustomStackRun {
+	id
+	name
+	stack {
+		id
+	}
+	documentation
+	commands {
+		... StackCommandFragment
+	}
+	configuration {
+		... PrConfigurationFragment
+	}
+}
+fragment StackCommandFragment on StackCommand {
+	cmd
+	args
+	dir
+}
+fragment PrConfigurationFragment on PrConfiguration {
+	type
+	name
+	default
+	documentation
+	longform
+	placeholder
+	optional
+	condition {
+		... PrConfigurationConditionFragment
+	}
+}
+fragment PrConfigurationConditionFragment on PrConfigurationCondition {
+	operation
+	field
+	value
+}
+`
+
+func (c *Client) CreateCustomStackRun(ctx context.Context, attributes CustomStackRunAttributes, interceptors ...clientv2.RequestInterceptor) (*CreateCustomStackRun, error) {
 	vars := map[string]interface{}{
 		"attributes": attributes,
 	}
 
-	var res UpsertCustomStackRun
-	if err := c.Client.Post(ctx, "UpsertCustomStackRun", UpsertCustomStackRunDocument, &res, vars, interceptors...); err != nil {
+	var res CreateCustomStackRun
+	if err := c.Client.Post(ctx, "CreateCustomStackRun", CreateCustomStackRunDocument, &res, vars, interceptors...); err != nil {
 		if c.Client.ParseDataWhenErrors {
 			return &res, err
 		}
@@ -22961,7 +23045,8 @@ var DocumentOperationNames = map[string]string{
 	CompletesStackRunDocument:                         "CompletesStackRun",
 	AddStackRunLogsDocument:                           "AddStackRunLogs",
 	UpdateStackRunStepDocument:                        "UpdateStackRunStep",
-	UpsertCustomStackRunDocument:                      "UpsertCustomStackRun",
+	UpdateCustomStackRunDocument:                      "UpdateCustomStackRun",
+	CreateCustomStackRunDocument:                      "CreateCustomStackRun",
 	DeleteCustomStackRunDocument:                      "DeleteCustomStackRun",
 	CreateAccessTokenDocument:                         "CreateAccessToken",
 	DeleteAccessTokenDocument:                         "DeleteAccessToken",
