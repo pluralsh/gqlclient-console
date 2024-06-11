@@ -476,6 +476,8 @@ type Cluster struct {
 	Metadata map[string]interface{} `json:"metadata,omitempty"`
 	// current k8s version as told to us by the deployment operator
 	CurrentVersion *string `json:"currentVersion,omitempty"`
+	// The lowest discovered kubelet version for all nodes in the cluster
+	KubeletVersion *string `json:"kubeletVersion,omitempty"`
 	// a short, unique human readable name used to identify this cluster and does not necessarily map to the cloud resource name
 	Handle *string `json:"handle,omitempty"`
 	// whether the deploy operator has been registered for this cluster
@@ -496,6 +498,8 @@ type Cluster struct {
 	ReadBindings []*PolicyBinding `json:"readBindings,omitempty"`
 	// write policy for this cluster
 	WriteBindings []*PolicyBinding `json:"writeBindings,omitempty"`
+	// the project this cluster belongs to
+	Project *Project `json:"project,omitempty"`
 	// list of node pool specs managed by CAPI
 	NodePools []*NodePool `json:"nodePools,omitempty"`
 	// the provider we use to create this cluster (null if BYOK)
@@ -564,6 +568,8 @@ type ClusterAttributes struct {
 	Protect       *bool                    `json:"protect,omitempty"`
 	Kubeconfig    *KubeconfigAttributes    `json:"kubeconfig,omitempty"`
 	CloudSettings *CloudSettingsAttributes `json:"cloudSettings,omitempty"`
+	// the project id this cluster will belong to
+	ProjectID *string `json:"projectId,omitempty"`
 	// status of the upgrade plan for this cluster
 	UpgradePlan   *UpgradePlanAttributes     `json:"upgradePlan,omitempty"`
 	NodePools     []*NodePoolAttributes      `json:"nodePools,omitempty"`
@@ -624,6 +630,7 @@ type ClusterInfo struct {
 
 type ClusterPing struct {
 	CurrentVersion string         `json:"currentVersion"`
+	KubeletVersion *string        `json:"kubeletVersion,omitempty"`
 	Distro         *ClusterDistro `json:"distro,omitempty"`
 }
 
@@ -1222,13 +1229,13 @@ type DeploymentSettings struct {
 	ArtifactRepository *GitRepository `json:"artifactRepository,omitempty"`
 	// the repo to fetch the deploy operators manifests from
 	DeployerRepository *GitRepository `json:"deployerRepository,omitempty"`
-	// read policy across all clusters
+	// read policy across all objects
 	ReadBindings []*PolicyBinding `json:"readBindings,omitempty"`
-	// write policy across all clusters
+	// write policy across all objects
 	WriteBindings []*PolicyBinding `json:"writeBindings,omitempty"`
 	// policy for managing git repos
 	GitBindings []*PolicyBinding `json:"gitBindings,omitempty"`
-	// policy for creation of new clusters
+	// policy for creation of new objects
 	CreateBindings []*PolicyBinding `json:"createBindings,omitempty"`
 	InsertedAt     *string          `json:"insertedAt,omitempty"`
 	UpdatedAt      *string          `json:"updatedAt,omitempty"`
@@ -1455,6 +1462,8 @@ type GlobalService struct {
 	Reparent *bool `json:"reparent,omitempty"`
 	// behavior for all owned resources when this global service is deleted
 	Cascade *Cascade `json:"cascade,omitempty"`
+	// a project this global service is bound to
+	Project *Project `json:"project,omitempty"`
 	// the service template used to spawn services
 	Template *ServiceTemplate `json:"template,omitempty"`
 	// the service to replicate across clusters
@@ -1476,6 +1485,8 @@ type GlobalServiceAttributes struct {
 	Distro *ClusterDistro `json:"distro,omitempty"`
 	// cluster api provider to target
 	ProviderID *string `json:"providerId,omitempty"`
+	// a project this global service will sync across
+	ProjectID *string `json:"projectId,omitempty"`
 	// whether you want the global service to take ownership of existing plural services
 	Reparent *bool                      `json:"reparent,omitempty"`
 	Template *ServiceTemplateAttributes `json:"template,omitempty"`
@@ -1686,6 +1697,8 @@ type InfrastructureStack struct {
 	Output []*StackOutput `json:"output,omitempty"`
 	// the most recent state of this stack
 	State *StackState `json:"state,omitempty"`
+	// The project this stack belongs to
+	Project *Project `json:"project,omitempty"`
 	// the cluster this stack runs on
 	Cluster *Cluster `json:"cluster,omitempty"`
 	// the git repository you're sourcing IaC from
@@ -1693,10 +1706,12 @@ type InfrastructureStack struct {
 	// the actor of this stack (defaults to root console user)
 	Actor           *User                     `json:"actor,omitempty"`
 	CustomStackRuns *CustomStackRunConnection `json:"customStackRuns,omitempty"`
-	ReadBindings    []*PolicyBinding          `json:"readBindings,omitempty"`
-	WriteBindings   []*PolicyBinding          `json:"writeBindings,omitempty"`
-	InsertedAt      *string                   `json:"insertedAt,omitempty"`
-	UpdatedAt       *string                   `json:"updatedAt,omitempty"`
+	// key/value tags to filter stacks
+	Tags          []*Tag           `json:"tags,omitempty"`
+	ReadBindings  []*PolicyBinding `json:"readBindings,omitempty"`
+	WriteBindings []*PolicyBinding `json:"writeBindings,omitempty"`
+	InsertedAt    *string          `json:"insertedAt,omitempty"`
+	UpdatedAt     *string          `json:"updatedAt,omitempty"`
 }
 
 type InfrastructureStackConnection struct {
@@ -1954,6 +1969,8 @@ type ManagedNamespace struct {
 	DeletedAt *string `json:"deletedAt,omitempty"`
 	// behavior for all owned resources when this global service is deleted
 	Cascade *Cascade `json:"cascade,omitempty"`
+	// a project this global service is bound to
+	Project *Project `json:"project,omitempty"`
 	// A template for creating the core service for this namespace
 	Service    *ServiceTemplate             `json:"service,omitempty"`
 	Services   *ServiceDeploymentConnection `json:"services,omitempty"`
@@ -1972,9 +1989,11 @@ type ManagedNamespaceAttributes struct {
 	// annotations for this namespace
 	Annotations *string `json:"annotations,omitempty"`
 	// a list of pull secrets to attach to this namespace
-	PullSecrets []*string                  `json:"pullSecrets,omitempty"`
-	Service     *ServiceTemplateAttributes `json:"service,omitempty"`
-	Target      *ClusterTargetAttributes   `json:"target,omitempty"`
+	PullSecrets []*string `json:"pullSecrets,omitempty"`
+	// a project this managed namespace will sync across
+	ProjectID *string                    `json:"projectId,omitempty"`
+	Service   *ServiceTemplateAttributes `json:"service,omitempty"`
+	Target    *ClusterTargetAttributes   `json:"target,omitempty"`
 	// behavior for all owned resources when this global service is deleted
 	Cascade *CascadeAttributes `json:"cascade,omitempty"`
 }
@@ -2463,6 +2482,8 @@ type Pipeline struct {
 	// the stages of this pipeline
 	Stages []*PipelineStage `json:"stages,omitempty"`
 	Status *PipelineStatus  `json:"status,omitempty"`
+	// the project this pipeline belongs to
+	Project *Project `json:"project,omitempty"`
 	// edges linking two stages w/in the pipeline in a full DAG
 	Edges []*PipelineStageEdge `json:"edges,omitempty"`
 	// lists the contexts applied to a pipeline
@@ -2473,8 +2494,9 @@ type Pipeline struct {
 
 // the top level input object for creating/deleting pipelines
 type PipelineAttributes struct {
-	Stages []*PipelineStageAttributes `json:"stages,omitempty"`
-	Edges  []*PipelineEdgeAttributes  `json:"edges,omitempty"`
+	ProjectID *string                    `json:"projectId,omitempty"`
+	Stages    []*PipelineStageAttributes `json:"stages,omitempty"`
+	Edges     []*PipelineEdgeAttributes  `json:"edges,omitempty"`
 }
 
 type PipelineConnection struct {
@@ -3003,6 +3025,37 @@ type PrUpdateSpec struct {
 	ReplaceTemplate   *string             `json:"replaceTemplate,omitempty"`
 	Yq                *string             `json:"yq,omitempty"`
 	MatchStrategy     *MatchStrategy      `json:"matchStrategy,omitempty"`
+}
+
+// A unit of organization to control permissions for a set of objects within your Console instance
+type Project struct {
+	ID          string  `json:"id"`
+	Name        string  `json:"name"`
+	Description *string `json:"description,omitempty"`
+	Default     *bool   `json:"default,omitempty"`
+	// read policy across this project
+	ReadBindings []*PolicyBinding `json:"readBindings,omitempty"`
+	// write policy across this project
+	WriteBindings []*PolicyBinding `json:"writeBindings,omitempty"`
+	InsertedAt    *string          `json:"insertedAt,omitempty"`
+	UpdatedAt     *string          `json:"updatedAt,omitempty"`
+}
+
+type ProjectAttributes struct {
+	Name          string                     `json:"name"`
+	Description   *string                    `json:"description,omitempty"`
+	ReadBindings  []*PolicyBindingAttributes `json:"readBindings,omitempty"`
+	WriteBindings []*PolicyBindingAttributes `json:"writeBindings,omitempty"`
+}
+
+type ProjectConnection struct {
+	PageInfo PageInfo       `json:"pageInfo"`
+	Edges    []*ProjectEdge `json:"edges,omitempty"`
+}
+
+type ProjectEdge struct {
+	Node   *Project `json:"node,omitempty"`
+	Cursor *string  `json:"cursor,omitempty"`
 }
 
 type PrometheusDatasource struct {
@@ -3991,9 +4044,14 @@ type StackAttributes struct {
 	// the subdirectory you want to run the stack's commands w/in
 	Workdir *string `json:"workdir,omitempty"`
 	// user id to use for default Plural authentication in this stack
-	ActorID           *string                       `json:"actorId,omitempty"`
+	ActorID *string `json:"actorId,omitempty"`
+	// the project id this stack will belong to
+	ProjectID *string `json:"projectId,omitempty"`
+	// id of an scm connection to use for pr callbacks
+	ConnectionID      *string                       `json:"connectionId,omitempty"`
 	ReadBindings      []*PolicyBindingAttributes    `json:"readBindings,omitempty"`
 	WriteBindings     []*PolicyBindingAttributes    `json:"writeBindings,omitempty"`
+	Tags              []*TagAttributes              `json:"tags,omitempty"`
 	Files             []*StackFileAttributes        `json:"files,omitempty"`
 	Environment       []*StackEnvironmentAttributes `json:"environment,omitempty"`
 	ObservableMetrics []*ObservableMetricAttributes `json:"observableMetrics,omitempty"`
