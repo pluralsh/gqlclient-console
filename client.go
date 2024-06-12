@@ -8111,6 +8111,45 @@ func (t *GetServiceDeploymentForAgent_ServiceDeployment_SyncConfig) GetNamespace
 	return t.NamespaceMetadata
 }
 
+type GetServiceDeploymentForAgent_ServiceDeployment_Components struct {
+	ID    string          "json:\"id\" graphql:\"id\""
+	Name  string          "json:\"name\" graphql:\"name\""
+	Group *string         "json:\"group,omitempty\" graphql:\"group\""
+	Kind  string          "json:\"kind\" graphql:\"kind\""
+	State *ComponentState "json:\"state,omitempty\" graphql:\"state\""
+}
+
+func (t *GetServiceDeploymentForAgent_ServiceDeployment_Components) GetID() string {
+	if t == nil {
+		t = &GetServiceDeploymentForAgent_ServiceDeployment_Components{}
+	}
+	return t.ID
+}
+func (t *GetServiceDeploymentForAgent_ServiceDeployment_Components) GetName() string {
+	if t == nil {
+		t = &GetServiceDeploymentForAgent_ServiceDeployment_Components{}
+	}
+	return t.Name
+}
+func (t *GetServiceDeploymentForAgent_ServiceDeployment_Components) GetGroup() *string {
+	if t == nil {
+		t = &GetServiceDeploymentForAgent_ServiceDeployment_Components{}
+	}
+	return t.Group
+}
+func (t *GetServiceDeploymentForAgent_ServiceDeployment_Components) GetKind() string {
+	if t == nil {
+		t = &GetServiceDeploymentForAgent_ServiceDeployment_Components{}
+	}
+	return t.Kind
+}
+func (t *GetServiceDeploymentForAgent_ServiceDeployment_Components) GetState() *ComponentState {
+	if t == nil {
+		t = &GetServiceDeploymentForAgent_ServiceDeployment_Components{}
+	}
+	return t.State
+}
+
 type GetServiceDeploymentForAgent_ServiceDeployment struct {
 	ID            string                                                          "json:\"id\" graphql:\"id\""
 	Name          string                                                          "json:\"name\" graphql:\"name\""
@@ -8126,6 +8165,7 @@ type GetServiceDeploymentForAgent_ServiceDeployment struct {
 	Configuration []*GetServiceDeploymentForAgent_ServiceDeployment_Configuration "json:\"configuration,omitempty\" graphql:\"configuration\""
 	Contexts      []*GetServiceDeploymentForAgent_ServiceDeployment_Contexts      "json:\"contexts,omitempty\" graphql:\"contexts\""
 	SyncConfig    *GetServiceDeploymentForAgent_ServiceDeployment_SyncConfig      "json:\"syncConfig,omitempty\" graphql:\"syncConfig\""
+	Components    []*GetServiceDeploymentForAgent_ServiceDeployment_Components    "json:\"components,omitempty\" graphql:\"components\""
 }
 
 func (t *GetServiceDeploymentForAgent_ServiceDeployment) GetID() string {
@@ -8211,6 +8251,12 @@ func (t *GetServiceDeploymentForAgent_ServiceDeployment) GetSyncConfig() *GetSer
 		t = &GetServiceDeploymentForAgent_ServiceDeployment{}
 	}
 	return t.SyncConfig
+}
+func (t *GetServiceDeploymentForAgent_ServiceDeployment) GetComponents() []*GetServiceDeploymentForAgent_ServiceDeployment_Components {
+	if t == nil {
+		t = &GetServiceDeploymentForAgent_ServiceDeployment{}
+	}
+	return t.Components
 }
 
 type GetServiceDeploymentByHandle_ServiceDeployment_ServiceDeploymentExtended_Revision_RevisionFragment_Git struct {
@@ -16474,6 +16520,13 @@ const GetServiceDeploymentForAgentDocument = `query GetServiceDeploymentForAgent
 				labels
 				annotations
 			}
+		}
+		components {
+			id
+			name
+			group
+			kind
+			state
 		}
 	}
 }
