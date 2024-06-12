@@ -6139,10 +6139,11 @@ func (e Status) MarshalGQL(w io.Writer) {
 type StepStage string
 
 const (
-	StepStagePlan   StepStage = "PLAN"
-	StepStageVerify StepStage = "VERIFY"
-	StepStageApply  StepStage = "APPLY"
-	StepStageInit   StepStage = "INIT"
+	StepStagePlan    StepStage = "PLAN"
+	StepStageVerify  StepStage = "VERIFY"
+	StepStageApply   StepStage = "APPLY"
+	StepStageInit    StepStage = "INIT"
+	StepStageDestroy StepStage = "DESTROY"
 )
 
 var AllStepStage = []StepStage{
@@ -6150,11 +6151,12 @@ var AllStepStage = []StepStage{
 	StepStageVerify,
 	StepStageApply,
 	StepStageInit,
+	StepStageDestroy,
 }
 
 func (e StepStage) IsValid() bool {
 	switch e {
-	case StepStagePlan, StepStageVerify, StepStageApply, StepStageInit:
+	case StepStagePlan, StepStageVerify, StepStageApply, StepStageInit, StepStageDestroy:
 		return true
 	}
 	return false
