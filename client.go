@@ -111,6 +111,10 @@ type ConsoleClient interface {
 	GetPipelines(ctx context.Context, after *string, interceptors ...clientv2.RequestInterceptor) (*GetPipelines, error)
 	CreatePipelineContext(ctx context.Context, pipelineID string, attributes PipelineContextAttributes, interceptors ...clientv2.RequestInterceptor) (*CreatePipelineContext, error)
 	GetPipelineContext(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*GetPipelineContext, error)
+	ListProjects(ctx context.Context, after *string, before *string, first *int64, last *int64, q *string, interceptors ...clientv2.RequestInterceptor) (*ListProjects, error)
+	GetProject(ctx context.Context, id *string, name *string, interceptors ...clientv2.RequestInterceptor) (*GetProject, error)
+	CreateProject(ctx context.Context, attributes ProjectAttributes, interceptors ...clientv2.RequestInterceptor) (*CreateProject, error)
+	UpdateProject(ctx context.Context, id string, attributes ProjectAttributes, interceptors ...clientv2.RequestInterceptor) (*UpdateProject, error)
 	CreateProviderCredential(ctx context.Context, attributes ProviderCredentialAttributes, name string, interceptors ...clientv2.RequestInterceptor) (*CreateProviderCredential, error)
 	DeleteProviderCredential(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DeleteProviderCredential, error)
 	ListProviders(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*ListProviders, error)
@@ -2583,6 +2587,66 @@ func (t *ViolationStatisticFragment) GetCount() *int64 {
 		t = &ViolationStatisticFragment{}
 	}
 	return t.Count
+}
+
+type ProjectFragment struct {
+	ID            string                   "json:\"id\" graphql:\"id\""
+	InsertedAt    *string                  "json:\"insertedAt,omitempty\" graphql:\"insertedAt\""
+	UpdatedAt     *string                  "json:\"updatedAt,omitempty\" graphql:\"updatedAt\""
+	Name          string                   "json:\"name\" graphql:\"name\""
+	Default       *bool                    "json:\"default,omitempty\" graphql:\"default\""
+	Description   *string                  "json:\"description,omitempty\" graphql:\"description\""
+	ReadBindings  []*PolicyBindingFragment "json:\"readBindings,omitempty\" graphql:\"readBindings\""
+	WriteBindings []*PolicyBindingFragment "json:\"writeBindings,omitempty\" graphql:\"writeBindings\""
+}
+
+func (t *ProjectFragment) GetID() string {
+	if t == nil {
+		t = &ProjectFragment{}
+	}
+	return t.ID
+}
+func (t *ProjectFragment) GetInsertedAt() *string {
+	if t == nil {
+		t = &ProjectFragment{}
+	}
+	return t.InsertedAt
+}
+func (t *ProjectFragment) GetUpdatedAt() *string {
+	if t == nil {
+		t = &ProjectFragment{}
+	}
+	return t.UpdatedAt
+}
+func (t *ProjectFragment) GetName() string {
+	if t == nil {
+		t = &ProjectFragment{}
+	}
+	return t.Name
+}
+func (t *ProjectFragment) GetDefault() *bool {
+	if t == nil {
+		t = &ProjectFragment{}
+	}
+	return t.Default
+}
+func (t *ProjectFragment) GetDescription() *string {
+	if t == nil {
+		t = &ProjectFragment{}
+	}
+	return t.Description
+}
+func (t *ProjectFragment) GetReadBindings() []*PolicyBindingFragment {
+	if t == nil {
+		t = &ProjectFragment{}
+	}
+	return t.ReadBindings
+}
+func (t *ProjectFragment) GetWriteBindings() []*PolicyBindingFragment {
+	if t == nil {
+		t = &ProjectFragment{}
+	}
+	return t.WriteBindings
 }
 
 type InfrastructureStackEdgeFragment struct {
@@ -9413,6 +9477,35 @@ func (t *GetPipelines_Pipelines) GetEdges() []*PipelineEdgeFragment {
 	return t.Edges
 }
 
+type ListProjects_Projects_Edges struct {
+	Node *ProjectFragment "json:\"node,omitempty\" graphql:\"node\""
+}
+
+func (t *ListProjects_Projects_Edges) GetNode() *ProjectFragment {
+	if t == nil {
+		t = &ListProjects_Projects_Edges{}
+	}
+	return t.Node
+}
+
+type ListProjects_Projects struct {
+	PageInfo *PageInfoFragment              "json:\"pageInfo\" graphql:\"pageInfo\""
+	Edges    []*ListProjects_Projects_Edges "json:\"edges,omitempty\" graphql:\"edges\""
+}
+
+func (t *ListProjects_Projects) GetPageInfo() *PageInfoFragment {
+	if t == nil {
+		t = &ListProjects_Projects{}
+	}
+	return t.PageInfo
+}
+func (t *ListProjects_Projects) GetEdges() []*ListProjects_Projects_Edges {
+	if t == nil {
+		t = &ListProjects_Projects{}
+	}
+	return t.Edges
+}
+
 type ListProviders_ClusterProviders_ClusterProviderConnectionFragment_Edges_ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components struct {
 	ID        string                    "json:\"id\" graphql:\"id\""
 	Name      string                    "json:\"name\" graphql:\"name\""
@@ -11800,6 +11893,50 @@ func (t *GetPipelineContext) GetPipelineContext() *PipelineContextFragment {
 		t = &GetPipelineContext{}
 	}
 	return t.PipelineContext
+}
+
+type ListProjects struct {
+	Projects *ListProjects_Projects "json:\"projects,omitempty\" graphql:\"projects\""
+}
+
+func (t *ListProjects) GetProjects() *ListProjects_Projects {
+	if t == nil {
+		t = &ListProjects{}
+	}
+	return t.Projects
+}
+
+type GetProject struct {
+	Project *ProjectFragment "json:\"project,omitempty\" graphql:\"project\""
+}
+
+func (t *GetProject) GetProject() *ProjectFragment {
+	if t == nil {
+		t = &GetProject{}
+	}
+	return t.Project
+}
+
+type CreateProject struct {
+	CreateProject *ProjectFragment "json:\"createProject,omitempty\" graphql:\"createProject\""
+}
+
+func (t *CreateProject) GetCreateProject() *ProjectFragment {
+	if t == nil {
+		t = &CreateProject{}
+	}
+	return t.CreateProject
+}
+
+type UpdateProject struct {
+	UpdateProject *ProjectFragment "json:\"updateProject,omitempty\" graphql:\"updateProject\""
+}
+
+func (t *UpdateProject) GetUpdateProject() *ProjectFragment {
+	if t == nil {
+		t = &UpdateProject{}
+	}
+	return t.UpdateProject
 }
 
 type CreateProviderCredential struct {
@@ -19822,6 +19959,251 @@ func (c *Client) GetPipelineContext(ctx context.Context, id string, interceptors
 	return &res, nil
 }
 
+const ListProjectsDocument = `query ListProjects ($after: String, $before: String, $first: Int, $last: Int, $q: String) {
+	projects(after: $after, before: $before, first: $first, last: $last, q: $q) {
+		pageInfo {
+			... PageInfoFragment
+		}
+		edges {
+			node {
+				... ProjectFragment
+			}
+		}
+	}
+}
+fragment PageInfoFragment on PageInfo {
+	hasNextPage
+	endCursor
+}
+fragment ProjectFragment on Project {
+	id
+	insertedAt
+	updatedAt
+	name
+	default
+	description
+	readBindings {
+		... PolicyBindingFragment
+	}
+	writeBindings {
+		... PolicyBindingFragment
+	}
+}
+fragment PolicyBindingFragment on PolicyBinding {
+	id
+	group {
+		... GroupFragment
+	}
+	user {
+		... UserFragment
+	}
+}
+fragment GroupFragment on Group {
+	id
+	name
+	description
+}
+fragment UserFragment on User {
+	name
+	id
+	email
+}
+`
+
+func (c *Client) ListProjects(ctx context.Context, after *string, before *string, first *int64, last *int64, q *string, interceptors ...clientv2.RequestInterceptor) (*ListProjects, error) {
+	vars := map[string]interface{}{
+		"after":  after,
+		"before": before,
+		"first":  first,
+		"last":   last,
+		"q":      q,
+	}
+
+	var res ListProjects
+	if err := c.Client.Post(ctx, "ListProjects", ListProjectsDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const GetProjectDocument = `query GetProject ($id: ID, $name: String) {
+	project(id: $id, name: $name) {
+		... ProjectFragment
+	}
+}
+fragment ProjectFragment on Project {
+	id
+	insertedAt
+	updatedAt
+	name
+	default
+	description
+	readBindings {
+		... PolicyBindingFragment
+	}
+	writeBindings {
+		... PolicyBindingFragment
+	}
+}
+fragment PolicyBindingFragment on PolicyBinding {
+	id
+	group {
+		... GroupFragment
+	}
+	user {
+		... UserFragment
+	}
+}
+fragment GroupFragment on Group {
+	id
+	name
+	description
+}
+fragment UserFragment on User {
+	name
+	id
+	email
+}
+`
+
+func (c *Client) GetProject(ctx context.Context, id *string, name *string, interceptors ...clientv2.RequestInterceptor) (*GetProject, error) {
+	vars := map[string]interface{}{
+		"id":   id,
+		"name": name,
+	}
+
+	var res GetProject
+	if err := c.Client.Post(ctx, "GetProject", GetProjectDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const CreateProjectDocument = `mutation CreateProject ($attributes: ProjectAttributes!) {
+	createProject(attributes: $attributes) {
+		... ProjectFragment
+	}
+}
+fragment ProjectFragment on Project {
+	id
+	insertedAt
+	updatedAt
+	name
+	default
+	description
+	readBindings {
+		... PolicyBindingFragment
+	}
+	writeBindings {
+		... PolicyBindingFragment
+	}
+}
+fragment PolicyBindingFragment on PolicyBinding {
+	id
+	group {
+		... GroupFragment
+	}
+	user {
+		... UserFragment
+	}
+}
+fragment GroupFragment on Group {
+	id
+	name
+	description
+}
+fragment UserFragment on User {
+	name
+	id
+	email
+}
+`
+
+func (c *Client) CreateProject(ctx context.Context, attributes ProjectAttributes, interceptors ...clientv2.RequestInterceptor) (*CreateProject, error) {
+	vars := map[string]interface{}{
+		"attributes": attributes,
+	}
+
+	var res CreateProject
+	if err := c.Client.Post(ctx, "CreateProject", CreateProjectDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const UpdateProjectDocument = `mutation UpdateProject ($id: ID!, $attributes: ProjectAttributes!) {
+	updateProject(id: $id, attributes: $attributes) {
+		... ProjectFragment
+	}
+}
+fragment ProjectFragment on Project {
+	id
+	insertedAt
+	updatedAt
+	name
+	default
+	description
+	readBindings {
+		... PolicyBindingFragment
+	}
+	writeBindings {
+		... PolicyBindingFragment
+	}
+}
+fragment PolicyBindingFragment on PolicyBinding {
+	id
+	group {
+		... GroupFragment
+	}
+	user {
+		... UserFragment
+	}
+}
+fragment GroupFragment on Group {
+	id
+	name
+	description
+}
+fragment UserFragment on User {
+	name
+	id
+	email
+}
+`
+
+func (c *Client) UpdateProject(ctx context.Context, id string, attributes ProjectAttributes, interceptors ...clientv2.RequestInterceptor) (*UpdateProject, error) {
+	vars := map[string]interface{}{
+		"id":         id,
+		"attributes": attributes,
+	}
+
+	var res UpdateProject
+	if err := c.Client.Post(ctx, "UpdateProject", UpdateProjectDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
 const CreateProviderCredentialDocument = `mutation CreateProviderCredential ($attributes: ProviderCredentialAttributes!, $name: String!) {
 	createProviderCredential(attributes: $attributes, name: $name) {
 		... ProviderCredentialFragment
@@ -23163,6 +23545,10 @@ var DocumentOperationNames = map[string]string{
 	GetPipelinesDocument:                              "GetPipelines",
 	CreatePipelineContextDocument:                     "CreatePipelineContext",
 	GetPipelineContextDocument:                        "GetPipelineContext",
+	ListProjectsDocument:                              "ListProjects",
+	GetProjectDocument:                                "GetProject",
+	CreateProjectDocument:                             "CreateProject",
+	UpdateProjectDocument:                             "UpdateProject",
 	CreateProviderCredentialDocument:                  "CreateProviderCredential",
 	DeleteProviderCredentialDocument:                  "DeleteProviderCredential",
 	ListProvidersDocument:                             "ListProviders",
