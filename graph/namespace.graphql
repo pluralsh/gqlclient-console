@@ -1,41 +1,3 @@
-mutation CreateNamespace($attributes: ManagedNamespaceAttributes!) {
-    createManagedNamespace(attributes: $attributes) {
-        ...ManagedNamespaceFragment
-    }
-}
-
-mutation UpdateNamespace($id: ID!, $attributes: ManagedNamespaceAttributes!) {
-    updateManagedNamespace(id: $id, attributes: $attributes) {
-        ...ManagedNamespaceFragment
-    }
-}
-
-mutation DeleteNamespace($id: ID!) {
-    deleteManagedNamespace(id: $id) {
-        id
-    }
-}
-
-query ListNamespaces($after: String, $first: Int, $before: String, $last: Int) {
-    managedNamespaces(after: $after, first: $first, before: $before, last: $last) {
-        pageInfo { ...PageInfoFragment }
-        edges { ...ManagedNamespaceEdgeFragment }
-    }
-}
-
-query ListClusterNamespaces($after: String, $first: Int, $before: String, $last: Int) {
-    clusterManagedNamespaces(after: $after, first: $first, before: $before, last: $last) {
-        pageInfo { ...PageInfoFragment }
-        edges { ...ManagedNamespaceEdgeFragment }
-    }
-}
-
-query GetNamespace($id: ID!) {
-    managedNamespace(id: $id) {
-        ...ManagedNamespaceFragment
-    }
-}
-
 fragment ManagedNamespaceEdgeFragment on ManagedNamespaceEdge {
     cursor
     node { ...ManagedNamespaceMinimalFragment }
@@ -69,4 +31,42 @@ fragment ServiceTemplateFragment on ServiceTemplate {
     helm { ...HelmSpecFragment}
     kustomize { ...KustomizeFragment}
     syncConfig { ...SyncConfigFragment}
+}
+
+query ListNamespaces($after: String, $first: Int, $before: String, $last: Int) {
+    managedNamespaces(after: $after, first: $first, before: $before, last: $last) {
+        pageInfo { ...PageInfoFragment }
+        edges { ...ManagedNamespaceEdgeFragment }
+    }
+}
+
+query ListClusterNamespaces($after: String, $first: Int, $before: String, $last: Int) {
+    clusterManagedNamespaces(after: $after, first: $first, before: $before, last: $last) {
+        pageInfo { ...PageInfoFragment }
+        edges { ...ManagedNamespaceEdgeFragment }
+    }
+}
+
+query GetNamespace($id: ID!) {
+    managedNamespace(id: $id) {
+        ...ManagedNamespaceFragment
+    }
+}
+
+mutation CreateNamespace($attributes: ManagedNamespaceAttributes!) {
+    createManagedNamespace(attributes: $attributes) {
+        ...ManagedNamespaceFragment
+    }
+}
+
+mutation UpdateNamespace($id: ID!, $attributes: ManagedNamespaceAttributes!) {
+    updateManagedNamespace(id: $id, attributes: $attributes) {
+        ...ManagedNamespaceFragment
+    }
+}
+
+mutation DeleteNamespace($id: ID!) {
+    deleteManagedNamespace(id: $id) {
+        id
+    }
 }

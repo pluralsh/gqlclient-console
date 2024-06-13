@@ -1,7 +1,7 @@
 query GetClusterGates {
     clusterGates {
-      ...PipelineGateFragment
-  }
+        ...PipelineGateFragment
+    }
 }
 
 query PagedClusterGates($after: String, $first: Int, $before: String, $last: Int){
@@ -32,7 +32,7 @@ fragment GateSpecFragment on GateSpec {
 }
 
 fragment GateStatusFragment on GateStatus {
-  jobRef { ...JobReferenceFragment }
+    jobRef { ...JobReferenceFragment }
 }
 
 fragment JobSpecFragment on JobGateSpec {
@@ -45,8 +45,8 @@ fragment JobSpecFragment on JobGateSpec {
 }
 
 fragment JobReferenceFragment on JobReference {
-  name
-  namespace
+    name
+    namespace
 }
 
 fragment ContainerSpecFragment on ContainerSpec {
@@ -63,11 +63,11 @@ fragment ContainerSpecFragment on ContainerSpec {
 }
 
 mutation updateGate($id: ID!, $attributes: GateUpdateAttributes!) {
-  updateGate(id: $id, attributes: $attributes) {
-    ...PipelineGateFragment
-  }
+    updateGate(id: $id, attributes: $attributes) {
+        ...PipelineGateFragment
+    }
 }
 
 query GetClusterGate($id: ID!) {
-  clusterGate(id: $id) { ...PipelineGateFragment }
+    clusterGate(id: $id) { ...PipelineGateFragment }
 }

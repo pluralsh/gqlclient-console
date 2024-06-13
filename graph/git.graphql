@@ -1,3 +1,12 @@
+fragment GitRepositoryFragment on GitRepository {
+    id
+    error
+    health
+    authMethod
+    url
+    decrypt
+}
+
 mutation CreateGitRepository($attributes: GitAttributes!) {
     createGitRepository(attributes: $attributes) {
         ...GitRepositoryFragment
@@ -19,7 +28,7 @@ mutation DeleteGitRepository($id: ID!) {
 query ListGitRepositories($cursor: String, $before: String, $last: Int) {
     gitRepositories(after: $cursor, first: 100, before: $before, last: $last) {
         edges {
-                ...GitRepositoryEdgeFragment
+            ...GitRepositoryEdgeFragment
         }
     }
 }

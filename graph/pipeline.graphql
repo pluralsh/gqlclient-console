@@ -1,3 +1,33 @@
+fragment PipelineFragment on Pipeline {
+    id
+    name
+    stages { ...PipelineStageFragment }
+    edges { ...PipelineStageEdgeFragment }
+    project {...TinyProjectFragment }
+}
+
+fragment PipelineStageFragment on PipelineStage {
+    id
+    name
+    services {
+        service { ...ServiceDeploymentBaseFragment }
+        criteria {
+            source { ...ServiceDeploymentBaseFragment }
+            secrets
+        }
+    }
+}
+
+fragment PipelineStageEdgeFragment on PipelineStageEdge {
+    id
+    from { ...PipelineStageFragment }
+    to { ...PipelineStageFragment }
+}
+
+fragment PipelineEdgeFragment on PipelineEdge {
+    node { ...PipelineFragment }
+}
+
 mutation SavePipeline($name: String!, $attributes: PipelineAttributes!) {
     savePipeline(name: $name, attributes: $attributes) {
         ...PipelineFragment

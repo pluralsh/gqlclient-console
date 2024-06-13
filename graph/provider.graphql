@@ -1,6 +1,13 @@
+fragment ProviderCredentialFragment on ProviderCredential {
+    id
+    name
+    namespace
+    kind
+}
+
 mutation CreateProviderCredential($attributes: ProviderCredentialAttributes!, $name: String!) {
     createProviderCredential(attributes: $attributes, name: $name){
-       ...ProviderCredentialFragment
+        ...ProviderCredentialFragment
     }
 }
 
@@ -12,7 +19,7 @@ mutation DeleteProviderCredential($id: ID!) {
 
 query ListProviders {
     clusterProviders(first: 100){
-        ...ClusterProviderConnectionFragment
+        edges { node { ...ClusterProviderFragment }}
     }
 }
 

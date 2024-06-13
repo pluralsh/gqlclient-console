@@ -87,12 +87,12 @@ type ConsoleClient interface {
 	UpdatePrAutomation(ctx context.Context, id string, attributes PrAutomationAttributes, interceptors ...clientv2.RequestInterceptor) (*UpdatePrAutomation, error)
 	DeletePrAutomation(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DeletePrAutomation, error)
 	CreatePullRequest(ctx context.Context, id string, branch *string, context *string, interceptors ...clientv2.RequestInterceptor) (*CreatePullRequest, error)
-	CreateNamespace(ctx context.Context, attributes ManagedNamespaceAttributes, interceptors ...clientv2.RequestInterceptor) (*CreateNamespace, error)
-	UpdateNamespace(ctx context.Context, id string, attributes ManagedNamespaceAttributes, interceptors ...clientv2.RequestInterceptor) (*UpdateNamespace, error)
-	DeleteNamespace(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DeleteNamespace, error)
 	ListNamespaces(ctx context.Context, after *string, first *int64, before *string, last *int64, interceptors ...clientv2.RequestInterceptor) (*ListNamespaces, error)
 	ListClusterNamespaces(ctx context.Context, after *string, first *int64, before *string, last *int64, interceptors ...clientv2.RequestInterceptor) (*ListClusterNamespaces, error)
 	GetNamespace(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*GetNamespace, error)
+	CreateNamespace(ctx context.Context, attributes ManagedNamespaceAttributes, interceptors ...clientv2.RequestInterceptor) (*CreateNamespace, error)
+	UpdateNamespace(ctx context.Context, id string, attributes ManagedNamespaceAttributes, interceptors ...clientv2.RequestInterceptor) (*UpdateNamespace, error)
+	DeleteNamespace(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DeleteNamespace, error)
 	UpsertNotificationSink(ctx context.Context, attributes NotificationSinkAttributes, interceptors ...clientv2.RequestInterceptor) (*UpsertNotificationSink, error)
 	DeleteNotificationSink(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DeleteNotificationSink, error)
 	GetNotificationSink(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*GetNotificationSink, error)
@@ -137,11 +137,11 @@ type ConsoleClient interface {
 	CreateCustomStackRun(ctx context.Context, attributes CustomStackRunAttributes, interceptors ...clientv2.RequestInterceptor) (*CreateCustomStackRun, error)
 	DeleteCustomStackRun(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DeleteCustomStackRun, error)
 	GetCustomStackRun(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*GetCustomStackRun, error)
-	CreateAccessToken(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*CreateAccessToken, error)
-	DeleteAccessToken(ctx context.Context, token string, interceptors ...clientv2.RequestInterceptor) (*DeleteAccessToken, error)
 	ListAccessTokens(ctx context.Context, cursor *string, before *string, last *int64, interceptors ...clientv2.RequestInterceptor) (*ListAccessTokens, error)
 	GetAccessToken(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*GetAccessToken, error)
 	TokenExchange(ctx context.Context, token string, interceptors ...clientv2.RequestInterceptor) (*TokenExchange, error)
+	CreateAccessToken(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*CreateAccessToken, error)
+	DeleteAccessToken(ctx context.Context, token string, interceptors ...clientv2.RequestInterceptor) (*DeleteAccessToken, error)
 	GetUser(ctx context.Context, email string, interceptors ...clientv2.RequestInterceptor) (*GetUser, error)
 	GetGroup(ctx context.Context, name string, interceptors ...clientv2.RequestInterceptor) (*GetGroup, error)
 	AddGroupMember(ctx context.Context, groupID string, userID string, interceptors ...clientv2.RequestInterceptor) (*AddGroupMember, error)
@@ -154,6 +154,441 @@ type Client struct {
 
 func NewClient(cli *http.Client, baseURL string, options *clientv2.Options, interceptors ...clientv2.RequestInterceptor) ConsoleClient {
 	return &Client{Client: clientv2.NewClient(cli, baseURL, options, interceptors...)}
+}
+
+type ClusterBackupFragment struct {
+	ID               string                         "json:\"id\" graphql:\"id\""
+	Name             string                         "json:\"name\" graphql:\"name\""
+	Cluster          *ClusterBackupFragment_Cluster "json:\"cluster,omitempty\" graphql:\"cluster\""
+	GarbageCollected *bool                          "json:\"garbageCollected,omitempty\" graphql:\"garbageCollected\""
+}
+
+func (t *ClusterBackupFragment) GetID() string {
+	if t == nil {
+		t = &ClusterBackupFragment{}
+	}
+	return t.ID
+}
+func (t *ClusterBackupFragment) GetName() string {
+	if t == nil {
+		t = &ClusterBackupFragment{}
+	}
+	return t.Name
+}
+func (t *ClusterBackupFragment) GetCluster() *ClusterBackupFragment_Cluster {
+	if t == nil {
+		t = &ClusterBackupFragment{}
+	}
+	return t.Cluster
+}
+func (t *ClusterBackupFragment) GetGarbageCollected() *bool {
+	if t == nil {
+		t = &ClusterBackupFragment{}
+	}
+	return t.GarbageCollected
+}
+
+type ClusterRestoreFragment struct {
+	ID     string                 "json:\"id\" graphql:\"id\""
+	Status RestoreStatus          "json:\"status\" graphql:\"status\""
+	Backup *ClusterBackupFragment "json:\"backup,omitempty\" graphql:\"backup\""
+}
+
+func (t *ClusterRestoreFragment) GetID() string {
+	if t == nil {
+		t = &ClusterRestoreFragment{}
+	}
+	return t.ID
+}
+func (t *ClusterRestoreFragment) GetStatus() *RestoreStatus {
+	if t == nil {
+		t = &ClusterRestoreFragment{}
+	}
+	return &t.Status
+}
+func (t *ClusterRestoreFragment) GetBackup() *ClusterBackupFragment {
+	if t == nil {
+		t = &ClusterRestoreFragment{}
+	}
+	return t.Backup
+}
+
+type ClusterFragment struct {
+	ID             string                      "json:\"id\" graphql:\"id\""
+	Name           string                      "json:\"name\" graphql:\"name\""
+	Handle         *string                     "json:\"handle,omitempty\" graphql:\"handle\""
+	Self           *bool                       "json:\"self,omitempty\" graphql:\"self\""
+	Version        *string                     "json:\"version,omitempty\" graphql:\"version\""
+	InsertedAt     *string                     "json:\"insertedAt,omitempty\" graphql:\"insertedAt\""
+	PingedAt       *string                     "json:\"pingedAt,omitempty\" graphql:\"pingedAt\""
+	Protect        *bool                       "json:\"protect,omitempty\" graphql:\"protect\""
+	CurrentVersion *string                     "json:\"currentVersion,omitempty\" graphql:\"currentVersion\""
+	KasURL         *string                     "json:\"kasUrl,omitempty\" graphql:\"kasUrl\""
+	DeletedAt      *string                     "json:\"deletedAt,omitempty\" graphql:\"deletedAt\""
+	Metadata       map[string]interface{}      "json:\"metadata,omitempty\" graphql:\"metadata\""
+	Tags           []*ClusterTags              "json:\"tags,omitempty\" graphql:\"tags\""
+	Credential     *ProviderCredentialFragment "json:\"credential,omitempty\" graphql:\"credential\""
+	Provider       *ClusterProviderFragment    "json:\"provider,omitempty\" graphql:\"provider\""
+	NodePools      []*NodePoolFragment         "json:\"nodePools,omitempty\" graphql:\"nodePools\""
+	Status         *ClusterStatusFragment      "json:\"status,omitempty\" graphql:\"status\""
+	Project        *TinyProjectFragment        "json:\"project,omitempty\" graphql:\"project\""
+}
+
+func (t *ClusterFragment) GetID() string {
+	if t == nil {
+		t = &ClusterFragment{}
+	}
+	return t.ID
+}
+func (t *ClusterFragment) GetName() string {
+	if t == nil {
+		t = &ClusterFragment{}
+	}
+	return t.Name
+}
+func (t *ClusterFragment) GetHandle() *string {
+	if t == nil {
+		t = &ClusterFragment{}
+	}
+	return t.Handle
+}
+func (t *ClusterFragment) GetSelf() *bool {
+	if t == nil {
+		t = &ClusterFragment{}
+	}
+	return t.Self
+}
+func (t *ClusterFragment) GetVersion() *string {
+	if t == nil {
+		t = &ClusterFragment{}
+	}
+	return t.Version
+}
+func (t *ClusterFragment) GetInsertedAt() *string {
+	if t == nil {
+		t = &ClusterFragment{}
+	}
+	return t.InsertedAt
+}
+func (t *ClusterFragment) GetPingedAt() *string {
+	if t == nil {
+		t = &ClusterFragment{}
+	}
+	return t.PingedAt
+}
+func (t *ClusterFragment) GetProtect() *bool {
+	if t == nil {
+		t = &ClusterFragment{}
+	}
+	return t.Protect
+}
+func (t *ClusterFragment) GetCurrentVersion() *string {
+	if t == nil {
+		t = &ClusterFragment{}
+	}
+	return t.CurrentVersion
+}
+func (t *ClusterFragment) GetKasURL() *string {
+	if t == nil {
+		t = &ClusterFragment{}
+	}
+	return t.KasURL
+}
+func (t *ClusterFragment) GetDeletedAt() *string {
+	if t == nil {
+		t = &ClusterFragment{}
+	}
+	return t.DeletedAt
+}
+func (t *ClusterFragment) GetMetadata() map[string]interface{} {
+	if t == nil {
+		t = &ClusterFragment{}
+	}
+	return t.Metadata
+}
+func (t *ClusterFragment) GetTags() []*ClusterTags {
+	if t == nil {
+		t = &ClusterFragment{}
+	}
+	return t.Tags
+}
+func (t *ClusterFragment) GetCredential() *ProviderCredentialFragment {
+	if t == nil {
+		t = &ClusterFragment{}
+	}
+	return t.Credential
+}
+func (t *ClusterFragment) GetProvider() *ClusterProviderFragment {
+	if t == nil {
+		t = &ClusterFragment{}
+	}
+	return t.Provider
+}
+func (t *ClusterFragment) GetNodePools() []*NodePoolFragment {
+	if t == nil {
+		t = &ClusterFragment{}
+	}
+	return t.NodePools
+}
+func (t *ClusterFragment) GetStatus() *ClusterStatusFragment {
+	if t == nil {
+		t = &ClusterFragment{}
+	}
+	return t.Status
+}
+func (t *ClusterFragment) GetProject() *TinyProjectFragment {
+	if t == nil {
+		t = &ClusterFragment{}
+	}
+	return t.Project
+}
+
+type ClusterTags struct {
+	Name  string "json:\"name\" graphql:\"name\""
+	Value string "json:\"value\" graphql:\"value\""
+}
+
+func (t *ClusterTags) GetName() string {
+	if t == nil {
+		t = &ClusterTags{}
+	}
+	return t.Name
+}
+func (t *ClusterTags) GetValue() string {
+	if t == nil {
+		t = &ClusterTags{}
+	}
+	return t.Value
+}
+
+type ClusterProviderFragment struct {
+	ID          string                        "json:\"id\" graphql:\"id\""
+	Name        string                        "json:\"name\" graphql:\"name\""
+	Namespace   string                        "json:\"namespace\" graphql:\"namespace\""
+	Cloud       string                        "json:\"cloud\" graphql:\"cloud\""
+	Editable    *bool                         "json:\"editable,omitempty\" graphql:\"editable\""
+	DeletedAt   *string                       "json:\"deletedAt,omitempty\" graphql:\"deletedAt\""
+	Repository  *GitRepositoryFragment        "json:\"repository,omitempty\" graphql:\"repository\""
+	Service     *ServiceDeploymentFragment    "json:\"service,omitempty\" graphql:\"service\""
+	Credentials []*ProviderCredentialFragment "json:\"credentials,omitempty\" graphql:\"credentials\""
+}
+
+func (t *ClusterProviderFragment) GetID() string {
+	if t == nil {
+		t = &ClusterProviderFragment{}
+	}
+	return t.ID
+}
+func (t *ClusterProviderFragment) GetName() string {
+	if t == nil {
+		t = &ClusterProviderFragment{}
+	}
+	return t.Name
+}
+func (t *ClusterProviderFragment) GetNamespace() string {
+	if t == nil {
+		t = &ClusterProviderFragment{}
+	}
+	return t.Namespace
+}
+func (t *ClusterProviderFragment) GetCloud() string {
+	if t == nil {
+		t = &ClusterProviderFragment{}
+	}
+	return t.Cloud
+}
+func (t *ClusterProviderFragment) GetEditable() *bool {
+	if t == nil {
+		t = &ClusterProviderFragment{}
+	}
+	return t.Editable
+}
+func (t *ClusterProviderFragment) GetDeletedAt() *string {
+	if t == nil {
+		t = &ClusterProviderFragment{}
+	}
+	return t.DeletedAt
+}
+func (t *ClusterProviderFragment) GetRepository() *GitRepositoryFragment {
+	if t == nil {
+		t = &ClusterProviderFragment{}
+	}
+	return t.Repository
+}
+func (t *ClusterProviderFragment) GetService() *ServiceDeploymentFragment {
+	if t == nil {
+		t = &ClusterProviderFragment{}
+	}
+	return t.Service
+}
+func (t *ClusterProviderFragment) GetCredentials() []*ProviderCredentialFragment {
+	if t == nil {
+		t = &ClusterProviderFragment{}
+	}
+	return t.Credentials
+}
+
+type NodePoolFragment struct {
+	ID           string                   "json:\"id\" graphql:\"id\""
+	Name         string                   "json:\"name\" graphql:\"name\""
+	MinSize      int64                    "json:\"minSize\" graphql:\"minSize\""
+	MaxSize      int64                    "json:\"maxSize\" graphql:\"maxSize\""
+	InstanceType string                   "json:\"instanceType\" graphql:\"instanceType\""
+	Labels       map[string]interface{}   "json:\"labels,omitempty\" graphql:\"labels\""
+	Taints       []*NodePoolTaintFragment "json:\"taints,omitempty\" graphql:\"taints\""
+}
+
+func (t *NodePoolFragment) GetID() string {
+	if t == nil {
+		t = &NodePoolFragment{}
+	}
+	return t.ID
+}
+func (t *NodePoolFragment) GetName() string {
+	if t == nil {
+		t = &NodePoolFragment{}
+	}
+	return t.Name
+}
+func (t *NodePoolFragment) GetMinSize() int64 {
+	if t == nil {
+		t = &NodePoolFragment{}
+	}
+	return t.MinSize
+}
+func (t *NodePoolFragment) GetMaxSize() int64 {
+	if t == nil {
+		t = &NodePoolFragment{}
+	}
+	return t.MaxSize
+}
+func (t *NodePoolFragment) GetInstanceType() string {
+	if t == nil {
+		t = &NodePoolFragment{}
+	}
+	return t.InstanceType
+}
+func (t *NodePoolFragment) GetLabels() map[string]interface{} {
+	if t == nil {
+		t = &NodePoolFragment{}
+	}
+	return t.Labels
+}
+func (t *NodePoolFragment) GetTaints() []*NodePoolTaintFragment {
+	if t == nil {
+		t = &NodePoolFragment{}
+	}
+	return t.Taints
+}
+
+type NodePoolTaintFragment struct {
+	Key    string "json:\"key\" graphql:\"key\""
+	Value  string "json:\"value\" graphql:\"value\""
+	Effect string "json:\"effect\" graphql:\"effect\""
+}
+
+func (t *NodePoolTaintFragment) GetKey() string {
+	if t == nil {
+		t = &NodePoolTaintFragment{}
+	}
+	return t.Key
+}
+func (t *NodePoolTaintFragment) GetValue() string {
+	if t == nil {
+		t = &NodePoolTaintFragment{}
+	}
+	return t.Value
+}
+func (t *NodePoolTaintFragment) GetEffect() string {
+	if t == nil {
+		t = &NodePoolTaintFragment{}
+	}
+	return t.Effect
+}
+
+type ClusterStatusFragment struct {
+	Conditions        []*ClusterConditionFragment "json:\"conditions,omitempty\" graphql:\"conditions\""
+	ControlPlaneReady *bool                       "json:\"controlPlaneReady,omitempty\" graphql:\"controlPlaneReady\""
+	FailureMessage    *string                     "json:\"failureMessage,omitempty\" graphql:\"failureMessage\""
+	FailureReason     *string                     "json:\"failureReason,omitempty\" graphql:\"failureReason\""
+	Phase             *string                     "json:\"phase,omitempty\" graphql:\"phase\""
+}
+
+func (t *ClusterStatusFragment) GetConditions() []*ClusterConditionFragment {
+	if t == nil {
+		t = &ClusterStatusFragment{}
+	}
+	return t.Conditions
+}
+func (t *ClusterStatusFragment) GetControlPlaneReady() *bool {
+	if t == nil {
+		t = &ClusterStatusFragment{}
+	}
+	return t.ControlPlaneReady
+}
+func (t *ClusterStatusFragment) GetFailureMessage() *string {
+	if t == nil {
+		t = &ClusterStatusFragment{}
+	}
+	return t.FailureMessage
+}
+func (t *ClusterStatusFragment) GetFailureReason() *string {
+	if t == nil {
+		t = &ClusterStatusFragment{}
+	}
+	return t.FailureReason
+}
+func (t *ClusterStatusFragment) GetPhase() *string {
+	if t == nil {
+		t = &ClusterStatusFragment{}
+	}
+	return t.Phase
+}
+
+type ClusterConditionFragment struct {
+	LastTransitionTime *string "json:\"lastTransitionTime,omitempty\" graphql:\"lastTransitionTime\""
+	Status             *string "json:\"status,omitempty\" graphql:\"status\""
+	Type               *string "json:\"type,omitempty\" graphql:\"type\""
+	Message            *string "json:\"message,omitempty\" graphql:\"message\""
+	Reason             *string "json:\"reason,omitempty\" graphql:\"reason\""
+	Severity           *string "json:\"severity,omitempty\" graphql:\"severity\""
+}
+
+func (t *ClusterConditionFragment) GetLastTransitionTime() *string {
+	if t == nil {
+		t = &ClusterConditionFragment{}
+	}
+	return t.LastTransitionTime
+}
+func (t *ClusterConditionFragment) GetStatus() *string {
+	if t == nil {
+		t = &ClusterConditionFragment{}
+	}
+	return t.Status
+}
+func (t *ClusterConditionFragment) GetType() *string {
+	if t == nil {
+		t = &ClusterConditionFragment{}
+	}
+	return t.Type
+}
+func (t *ClusterConditionFragment) GetMessage() *string {
+	if t == nil {
+		t = &ClusterConditionFragment{}
+	}
+	return t.Message
+}
+func (t *ClusterConditionFragment) GetReason() *string {
+	if t == nil {
+		t = &ClusterConditionFragment{}
+	}
+	return t.Reason
+}
+func (t *ClusterConditionFragment) GetSeverity() *string {
+	if t == nil {
+		t = &ClusterConditionFragment{}
+	}
+	return t.Severity
 }
 
 type PipelineGateEdgeFragment struct {
@@ -336,6 +771,52 @@ func (t *ContainerSpecFragment) GetEnvFrom() []*ContainerSpecFragment_EnvFrom {
 		t = &ContainerSpecFragment{}
 	}
 	return t.EnvFrom
+}
+
+type GitRepositoryFragment struct {
+	ID         string      "json:\"id\" graphql:\"id\""
+	Error      *string     "json:\"error,omitempty\" graphql:\"error\""
+	Health     *GitHealth  "json:\"health,omitempty\" graphql:\"health\""
+	AuthMethod *AuthMethod "json:\"authMethod,omitempty\" graphql:\"authMethod\""
+	URL        string      "json:\"url\" graphql:\"url\""
+	Decrypt    *bool       "json:\"decrypt,omitempty\" graphql:\"decrypt\""
+}
+
+func (t *GitRepositoryFragment) GetID() string {
+	if t == nil {
+		t = &GitRepositoryFragment{}
+	}
+	return t.ID
+}
+func (t *GitRepositoryFragment) GetError() *string {
+	if t == nil {
+		t = &GitRepositoryFragment{}
+	}
+	return t.Error
+}
+func (t *GitRepositoryFragment) GetHealth() *GitHealth {
+	if t == nil {
+		t = &GitRepositoryFragment{}
+	}
+	return t.Health
+}
+func (t *GitRepositoryFragment) GetAuthMethod() *AuthMethod {
+	if t == nil {
+		t = &GitRepositoryFragment{}
+	}
+	return t.AuthMethod
+}
+func (t *GitRepositoryFragment) GetURL() string {
+	if t == nil {
+		t = &GitRepositoryFragment{}
+	}
+	return t.URL
+}
+func (t *GitRepositoryFragment) GetDecrypt() *bool {
+	if t == nil {
+		t = &GitRepositoryFragment{}
+	}
+	return t.Decrypt
 }
 
 type KustomizeFragment struct {
@@ -862,52 +1343,6 @@ func (t *GroupMemberFragment) GetGroup() *GroupMemberFragment_Group {
 	return t.Group
 }
 
-type GitRepositoryFragment struct {
-	ID         string      "json:\"id\" graphql:\"id\""
-	Error      *string     "json:\"error,omitempty\" graphql:\"error\""
-	Health     *GitHealth  "json:\"health,omitempty\" graphql:\"health\""
-	AuthMethod *AuthMethod "json:\"authMethod,omitempty\" graphql:\"authMethod\""
-	URL        string      "json:\"url\" graphql:\"url\""
-	Decrypt    *bool       "json:\"decrypt,omitempty\" graphql:\"decrypt\""
-}
-
-func (t *GitRepositoryFragment) GetID() string {
-	if t == nil {
-		t = &GitRepositoryFragment{}
-	}
-	return t.ID
-}
-func (t *GitRepositoryFragment) GetError() *string {
-	if t == nil {
-		t = &GitRepositoryFragment{}
-	}
-	return t.Error
-}
-func (t *GitRepositoryFragment) GetHealth() *GitHealth {
-	if t == nil {
-		t = &GitRepositoryFragment{}
-	}
-	return t.Health
-}
-func (t *GitRepositoryFragment) GetAuthMethod() *AuthMethod {
-	if t == nil {
-		t = &GitRepositoryFragment{}
-	}
-	return t.AuthMethod
-}
-func (t *GitRepositoryFragment) GetURL() string {
-	if t == nil {
-		t = &GitRepositoryFragment{}
-	}
-	return t.URL
-}
-func (t *GitRepositoryFragment) GetDecrypt() *bool {
-	if t == nil {
-		t = &GitRepositoryFragment{}
-	}
-	return t.Decrypt
-}
-
 type GitRefFragment struct {
 	Folder string "json:\"folder\" graphql:\"folder\""
 	Ref    string "json:\"ref\" graphql:\"ref\""
@@ -938,10 +1373,11 @@ func (t *HelmSpecFragment) GetValuesFiles() []*string {
 }
 
 type TinyClusterFragment struct {
-	ID     string  "json:\"id\" graphql:\"id\""
-	Name   string  "json:\"name\" graphql:\"name\""
-	Handle *string "json:\"handle,omitempty\" graphql:\"handle\""
-	Self   *bool   "json:\"self,omitempty\" graphql:\"self\""
+	ID      string               "json:\"id\" graphql:\"id\""
+	Name    string               "json:\"name\" graphql:\"name\""
+	Handle  *string              "json:\"handle,omitempty\" graphql:\"handle\""
+	Self    *bool                "json:\"self,omitempty\" graphql:\"self\""
+	Project *TinyProjectFragment "json:\"project,omitempty\" graphql:\"project\""
 }
 
 func (t *TinyClusterFragment) GetID() string {
@@ -968,6 +1404,12 @@ func (t *TinyClusterFragment) GetSelf() *bool {
 	}
 	return t.Self
 }
+func (t *TinyClusterFragment) GetProject() *TinyProjectFragment {
+	if t == nil {
+		t = &TinyClusterFragment{}
+	}
+	return t.Project
+}
 
 type BaseClusterFragment struct {
 	ID             string                       "json:\"id\" graphql:\"id\""
@@ -982,6 +1424,7 @@ type BaseClusterFragment struct {
 	Credential     *ProviderCredentialFragment  "json:\"credential,omitempty\" graphql:\"credential\""
 	Provider       *BaseClusterProviderFragment "json:\"provider,omitempty\" graphql:\"provider\""
 	NodePools      []*NodePoolFragment          "json:\"nodePools,omitempty\" graphql:\"nodePools\""
+	Project        *TinyProjectFragment         "json:\"project,omitempty\" graphql:\"project\""
 }
 
 func (t *BaseClusterFragment) GetID() string {
@@ -1056,309 +1499,11 @@ func (t *BaseClusterFragment) GetNodePools() []*NodePoolFragment {
 	}
 	return t.NodePools
 }
-
-type ClusterFragment struct {
-	ID             string                      "json:\"id\" graphql:\"id\""
-	Name           string                      "json:\"name\" graphql:\"name\""
-	Handle         *string                     "json:\"handle,omitempty\" graphql:\"handle\""
-	Self           *bool                       "json:\"self,omitempty\" graphql:\"self\""
-	Version        *string                     "json:\"version,omitempty\" graphql:\"version\""
-	InsertedAt     *string                     "json:\"insertedAt,omitempty\" graphql:\"insertedAt\""
-	PingedAt       *string                     "json:\"pingedAt,omitempty\" graphql:\"pingedAt\""
-	Protect        *bool                       "json:\"protect,omitempty\" graphql:\"protect\""
-	CurrentVersion *string                     "json:\"currentVersion,omitempty\" graphql:\"currentVersion\""
-	KasURL         *string                     "json:\"kasUrl,omitempty\" graphql:\"kasUrl\""
-	DeletedAt      *string                     "json:\"deletedAt,omitempty\" graphql:\"deletedAt\""
-	Metadata       map[string]interface{}      "json:\"metadata,omitempty\" graphql:\"metadata\""
-	Tags           []*ClusterTags              "json:\"tags,omitempty\" graphql:\"tags\""
-	Credential     *ProviderCredentialFragment "json:\"credential,omitempty\" graphql:\"credential\""
-	Provider       *ClusterProviderFragment    "json:\"provider,omitempty\" graphql:\"provider\""
-	NodePools      []*NodePoolFragment         "json:\"nodePools,omitempty\" graphql:\"nodePools\""
-	Status         *ClusterStatusFragment      "json:\"status,omitempty\" graphql:\"status\""
-}
-
-func (t *ClusterFragment) GetID() string {
+func (t *BaseClusterFragment) GetProject() *TinyProjectFragment {
 	if t == nil {
-		t = &ClusterFragment{}
+		t = &BaseClusterFragment{}
 	}
-	return t.ID
-}
-func (t *ClusterFragment) GetName() string {
-	if t == nil {
-		t = &ClusterFragment{}
-	}
-	return t.Name
-}
-func (t *ClusterFragment) GetHandle() *string {
-	if t == nil {
-		t = &ClusterFragment{}
-	}
-	return t.Handle
-}
-func (t *ClusterFragment) GetSelf() *bool {
-	if t == nil {
-		t = &ClusterFragment{}
-	}
-	return t.Self
-}
-func (t *ClusterFragment) GetVersion() *string {
-	if t == nil {
-		t = &ClusterFragment{}
-	}
-	return t.Version
-}
-func (t *ClusterFragment) GetInsertedAt() *string {
-	if t == nil {
-		t = &ClusterFragment{}
-	}
-	return t.InsertedAt
-}
-func (t *ClusterFragment) GetPingedAt() *string {
-	if t == nil {
-		t = &ClusterFragment{}
-	}
-	return t.PingedAt
-}
-func (t *ClusterFragment) GetProtect() *bool {
-	if t == nil {
-		t = &ClusterFragment{}
-	}
-	return t.Protect
-}
-func (t *ClusterFragment) GetCurrentVersion() *string {
-	if t == nil {
-		t = &ClusterFragment{}
-	}
-	return t.CurrentVersion
-}
-func (t *ClusterFragment) GetKasURL() *string {
-	if t == nil {
-		t = &ClusterFragment{}
-	}
-	return t.KasURL
-}
-func (t *ClusterFragment) GetDeletedAt() *string {
-	if t == nil {
-		t = &ClusterFragment{}
-	}
-	return t.DeletedAt
-}
-func (t *ClusterFragment) GetMetadata() map[string]interface{} {
-	if t == nil {
-		t = &ClusterFragment{}
-	}
-	return t.Metadata
-}
-func (t *ClusterFragment) GetTags() []*ClusterTags {
-	if t == nil {
-		t = &ClusterFragment{}
-	}
-	return t.Tags
-}
-func (t *ClusterFragment) GetCredential() *ProviderCredentialFragment {
-	if t == nil {
-		t = &ClusterFragment{}
-	}
-	return t.Credential
-}
-func (t *ClusterFragment) GetProvider() *ClusterProviderFragment {
-	if t == nil {
-		t = &ClusterFragment{}
-	}
-	return t.Provider
-}
-func (t *ClusterFragment) GetNodePools() []*NodePoolFragment {
-	if t == nil {
-		t = &ClusterFragment{}
-	}
-	return t.NodePools
-}
-func (t *ClusterFragment) GetStatus() *ClusterStatusFragment {
-	if t == nil {
-		t = &ClusterFragment{}
-	}
-	return t.Status
-}
-
-type ClusterStatusFragment struct {
-	Conditions        []*ClusterConditionFragment "json:\"conditions,omitempty\" graphql:\"conditions\""
-	ControlPlaneReady *bool                       "json:\"controlPlaneReady,omitempty\" graphql:\"controlPlaneReady\""
-	FailureMessage    *string                     "json:\"failureMessage,omitempty\" graphql:\"failureMessage\""
-	FailureReason     *string                     "json:\"failureReason,omitempty\" graphql:\"failureReason\""
-	Phase             *string                     "json:\"phase,omitempty\" graphql:\"phase\""
-}
-
-func (t *ClusterStatusFragment) GetConditions() []*ClusterConditionFragment {
-	if t == nil {
-		t = &ClusterStatusFragment{}
-	}
-	return t.Conditions
-}
-func (t *ClusterStatusFragment) GetControlPlaneReady() *bool {
-	if t == nil {
-		t = &ClusterStatusFragment{}
-	}
-	return t.ControlPlaneReady
-}
-func (t *ClusterStatusFragment) GetFailureMessage() *string {
-	if t == nil {
-		t = &ClusterStatusFragment{}
-	}
-	return t.FailureMessage
-}
-func (t *ClusterStatusFragment) GetFailureReason() *string {
-	if t == nil {
-		t = &ClusterStatusFragment{}
-	}
-	return t.FailureReason
-}
-func (t *ClusterStatusFragment) GetPhase() *string {
-	if t == nil {
-		t = &ClusterStatusFragment{}
-	}
-	return t.Phase
-}
-
-type ClusterConditionFragment struct {
-	LastTransitionTime *string "json:\"lastTransitionTime,omitempty\" graphql:\"lastTransitionTime\""
-	Status             *string "json:\"status,omitempty\" graphql:\"status\""
-	Type               *string "json:\"type,omitempty\" graphql:\"type\""
-	Message            *string "json:\"message,omitempty\" graphql:\"message\""
-	Reason             *string "json:\"reason,omitempty\" graphql:\"reason\""
-	Severity           *string "json:\"severity,omitempty\" graphql:\"severity\""
-}
-
-func (t *ClusterConditionFragment) GetLastTransitionTime() *string {
-	if t == nil {
-		t = &ClusterConditionFragment{}
-	}
-	return t.LastTransitionTime
-}
-func (t *ClusterConditionFragment) GetStatus() *string {
-	if t == nil {
-		t = &ClusterConditionFragment{}
-	}
-	return t.Status
-}
-func (t *ClusterConditionFragment) GetType() *string {
-	if t == nil {
-		t = &ClusterConditionFragment{}
-	}
-	return t.Type
-}
-func (t *ClusterConditionFragment) GetMessage() *string {
-	if t == nil {
-		t = &ClusterConditionFragment{}
-	}
-	return t.Message
-}
-func (t *ClusterConditionFragment) GetReason() *string {
-	if t == nil {
-		t = &ClusterConditionFragment{}
-	}
-	return t.Reason
-}
-func (t *ClusterConditionFragment) GetSeverity() *string {
-	if t == nil {
-		t = &ClusterConditionFragment{}
-	}
-	return t.Severity
-}
-
-type ClusterTags struct {
-	Name  string "json:\"name\" graphql:\"name\""
-	Value string "json:\"value\" graphql:\"value\""
-}
-
-func (t *ClusterTags) GetName() string {
-	if t == nil {
-		t = &ClusterTags{}
-	}
-	return t.Name
-}
-func (t *ClusterTags) GetValue() string {
-	if t == nil {
-		t = &ClusterTags{}
-	}
-	return t.Value
-}
-
-type NodePoolFragment struct {
-	ID           string                   "json:\"id\" graphql:\"id\""
-	Name         string                   "json:\"name\" graphql:\"name\""
-	MinSize      int64                    "json:\"minSize\" graphql:\"minSize\""
-	MaxSize      int64                    "json:\"maxSize\" graphql:\"maxSize\""
-	InstanceType string                   "json:\"instanceType\" graphql:\"instanceType\""
-	Labels       map[string]interface{}   "json:\"labels,omitempty\" graphql:\"labels\""
-	Taints       []*NodePoolTaintFragment "json:\"taints,omitempty\" graphql:\"taints\""
-}
-
-func (t *NodePoolFragment) GetID() string {
-	if t == nil {
-		t = &NodePoolFragment{}
-	}
-	return t.ID
-}
-func (t *NodePoolFragment) GetName() string {
-	if t == nil {
-		t = &NodePoolFragment{}
-	}
-	return t.Name
-}
-func (t *NodePoolFragment) GetMinSize() int64 {
-	if t == nil {
-		t = &NodePoolFragment{}
-	}
-	return t.MinSize
-}
-func (t *NodePoolFragment) GetMaxSize() int64 {
-	if t == nil {
-		t = &NodePoolFragment{}
-	}
-	return t.MaxSize
-}
-func (t *NodePoolFragment) GetInstanceType() string {
-	if t == nil {
-		t = &NodePoolFragment{}
-	}
-	return t.InstanceType
-}
-func (t *NodePoolFragment) GetLabels() map[string]interface{} {
-	if t == nil {
-		t = &NodePoolFragment{}
-	}
-	return t.Labels
-}
-func (t *NodePoolFragment) GetTaints() []*NodePoolTaintFragment {
-	if t == nil {
-		t = &NodePoolFragment{}
-	}
-	return t.Taints
-}
-
-type NodePoolTaintFragment struct {
-	Key    string "json:\"key\" graphql:\"key\""
-	Value  string "json:\"value\" graphql:\"value\""
-	Effect string "json:\"effect\" graphql:\"effect\""
-}
-
-func (t *NodePoolTaintFragment) GetKey() string {
-	if t == nil {
-		t = &NodePoolTaintFragment{}
-	}
-	return t.Key
-}
-func (t *NodePoolTaintFragment) GetValue() string {
-	if t == nil {
-		t = &NodePoolTaintFragment{}
-	}
-	return t.Value
-}
-func (t *NodePoolTaintFragment) GetEffect() string {
-	if t == nil {
-		t = &NodePoolTaintFragment{}
-	}
-	return t.Effect
+	return t.Project
 }
 
 type BaseClusterProviderFragment struct {
@@ -1405,102 +1550,6 @@ func (t *BaseClusterProviderFragment) GetRepository() *GitRepositoryFragment {
 		t = &BaseClusterProviderFragment{}
 	}
 	return t.Repository
-}
-
-type ClusterProviderFragment struct {
-	ID          string                        "json:\"id\" graphql:\"id\""
-	Name        string                        "json:\"name\" graphql:\"name\""
-	Namespace   string                        "json:\"namespace\" graphql:\"namespace\""
-	Cloud       string                        "json:\"cloud\" graphql:\"cloud\""
-	Editable    *bool                         "json:\"editable,omitempty\" graphql:\"editable\""
-	DeletedAt   *string                       "json:\"deletedAt,omitempty\" graphql:\"deletedAt\""
-	Repository  *GitRepositoryFragment        "json:\"repository,omitempty\" graphql:\"repository\""
-	Service     *ServiceDeploymentFragment    "json:\"service,omitempty\" graphql:\"service\""
-	Credentials []*ProviderCredentialFragment "json:\"credentials,omitempty\" graphql:\"credentials\""
-}
-
-func (t *ClusterProviderFragment) GetID() string {
-	if t == nil {
-		t = &ClusterProviderFragment{}
-	}
-	return t.ID
-}
-func (t *ClusterProviderFragment) GetName() string {
-	if t == nil {
-		t = &ClusterProviderFragment{}
-	}
-	return t.Name
-}
-func (t *ClusterProviderFragment) GetNamespace() string {
-	if t == nil {
-		t = &ClusterProviderFragment{}
-	}
-	return t.Namespace
-}
-func (t *ClusterProviderFragment) GetCloud() string {
-	if t == nil {
-		t = &ClusterProviderFragment{}
-	}
-	return t.Cloud
-}
-func (t *ClusterProviderFragment) GetEditable() *bool {
-	if t == nil {
-		t = &ClusterProviderFragment{}
-	}
-	return t.Editable
-}
-func (t *ClusterProviderFragment) GetDeletedAt() *string {
-	if t == nil {
-		t = &ClusterProviderFragment{}
-	}
-	return t.DeletedAt
-}
-func (t *ClusterProviderFragment) GetRepository() *GitRepositoryFragment {
-	if t == nil {
-		t = &ClusterProviderFragment{}
-	}
-	return t.Repository
-}
-func (t *ClusterProviderFragment) GetService() *ServiceDeploymentFragment {
-	if t == nil {
-		t = &ClusterProviderFragment{}
-	}
-	return t.Service
-}
-func (t *ClusterProviderFragment) GetCredentials() []*ProviderCredentialFragment {
-	if t == nil {
-		t = &ClusterProviderFragment{}
-	}
-	return t.Credentials
-}
-
-type AccessTokenFragment struct {
-	ID    *string "json:\"id,omitempty\" graphql:\"id\""
-	Token *string "json:\"token,omitempty\" graphql:\"token\""
-}
-
-func (t *AccessTokenFragment) GetID() *string {
-	if t == nil {
-		t = &AccessTokenFragment{}
-	}
-	return t.ID
-}
-func (t *AccessTokenFragment) GetToken() *string {
-	if t == nil {
-		t = &AccessTokenFragment{}
-	}
-	return t.Token
-}
-
-type AccessTokenEdgeFragment struct {
-	Node *AccessTokenFragment "json:\"node,omitempty\" graphql:\"node\""
-}
-
-func (t *AccessTokenEdgeFragment) GetNode() *AccessTokenFragment {
-	if t == nil {
-		t = &AccessTokenEdgeFragment{}
-	}
-	return t.Node
 }
 
 type GitRepositoryEdgeFragment struct {
@@ -1610,153 +1659,6 @@ func (t *ServiceDeploymentEdgeFragment) GetNode() *ServiceDeploymentBaseFragment
 	return t.Node
 }
 
-type ProviderCredentialFragment struct {
-	ID        string "json:\"id\" graphql:\"id\""
-	Name      string "json:\"name\" graphql:\"name\""
-	Namespace string "json:\"namespace\" graphql:\"namespace\""
-	Kind      string "json:\"kind\" graphql:\"kind\""
-}
-
-func (t *ProviderCredentialFragment) GetID() string {
-	if t == nil {
-		t = &ProviderCredentialFragment{}
-	}
-	return t.ID
-}
-func (t *ProviderCredentialFragment) GetName() string {
-	if t == nil {
-		t = &ProviderCredentialFragment{}
-	}
-	return t.Name
-}
-func (t *ProviderCredentialFragment) GetNamespace() string {
-	if t == nil {
-		t = &ProviderCredentialFragment{}
-	}
-	return t.Namespace
-}
-func (t *ProviderCredentialFragment) GetKind() string {
-	if t == nil {
-		t = &ProviderCredentialFragment{}
-	}
-	return t.Kind
-}
-
-type ClusterProviderConnectionFragment struct {
-	Edges []*ClusterProviderEdgeFragment "json:\"edges,omitempty\" graphql:\"edges\""
-}
-
-func (t *ClusterProviderConnectionFragment) GetEdges() []*ClusterProviderEdgeFragment {
-	if t == nil {
-		t = &ClusterProviderConnectionFragment{}
-	}
-	return t.Edges
-}
-
-type ClusterProviderEdgeFragment struct {
-	Node *ClusterProviderFragment "json:\"node,omitempty\" graphql:\"node\""
-}
-
-func (t *ClusterProviderEdgeFragment) GetNode() *ClusterProviderFragment {
-	if t == nil {
-		t = &ClusterProviderEdgeFragment{}
-	}
-	return t.Node
-}
-
-type PipelineStageFragment struct {
-	ID       string                            "json:\"id\" graphql:\"id\""
-	Name     string                            "json:\"name\" graphql:\"name\""
-	Services []*PipelineStageFragment_Services "json:\"services,omitempty\" graphql:\"services\""
-}
-
-func (t *PipelineStageFragment) GetID() string {
-	if t == nil {
-		t = &PipelineStageFragment{}
-	}
-	return t.ID
-}
-func (t *PipelineStageFragment) GetName() string {
-	if t == nil {
-		t = &PipelineStageFragment{}
-	}
-	return t.Name
-}
-func (t *PipelineStageFragment) GetServices() []*PipelineStageFragment_Services {
-	if t == nil {
-		t = &PipelineStageFragment{}
-	}
-	return t.Services
-}
-
-type PipelineStageEdgeFragment struct {
-	ID   string                 "json:\"id\" graphql:\"id\""
-	From *PipelineStageFragment "json:\"from\" graphql:\"from\""
-	To   *PipelineStageFragment "json:\"to\" graphql:\"to\""
-}
-
-func (t *PipelineStageEdgeFragment) GetID() string {
-	if t == nil {
-		t = &PipelineStageEdgeFragment{}
-	}
-	return t.ID
-}
-func (t *PipelineStageEdgeFragment) GetFrom() *PipelineStageFragment {
-	if t == nil {
-		t = &PipelineStageEdgeFragment{}
-	}
-	return t.From
-}
-func (t *PipelineStageEdgeFragment) GetTo() *PipelineStageFragment {
-	if t == nil {
-		t = &PipelineStageEdgeFragment{}
-	}
-	return t.To
-}
-
-type PipelineFragment struct {
-	ID     string                       "json:\"id\" graphql:\"id\""
-	Name   string                       "json:\"name\" graphql:\"name\""
-	Stages []*PipelineStageFragment     "json:\"stages,omitempty\" graphql:\"stages\""
-	Edges  []*PipelineStageEdgeFragment "json:\"edges,omitempty\" graphql:\"edges\""
-}
-
-func (t *PipelineFragment) GetID() string {
-	if t == nil {
-		t = &PipelineFragment{}
-	}
-	return t.ID
-}
-func (t *PipelineFragment) GetName() string {
-	if t == nil {
-		t = &PipelineFragment{}
-	}
-	return t.Name
-}
-func (t *PipelineFragment) GetStages() []*PipelineStageFragment {
-	if t == nil {
-		t = &PipelineFragment{}
-	}
-	return t.Stages
-}
-func (t *PipelineFragment) GetEdges() []*PipelineStageEdgeFragment {
-	if t == nil {
-		t = &PipelineFragment{}
-	}
-	return t.Edges
-}
-
-type PipelineEdgeFragment struct {
-	Node *PipelineFragment "json:\"node,omitempty\" graphql:\"node\""
-}
-
-func (t *PipelineEdgeFragment) GetNode() *PipelineFragment {
-	if t == nil {
-		t = &PipelineEdgeFragment{}
-	}
-	return t.Node
-}
-
 type GlobalServiceFragment struct {
 	ID       string                          "json:\"id\" graphql:\"id\""
 	Name     string                          "json:\"name\" graphql:\"name\""
@@ -1801,63 +1703,6 @@ func (t *GlobalServiceFragment) GetTags() []*ClusterTags {
 		t = &GlobalServiceFragment{}
 	}
 	return t.Tags
-}
-
-type ClusterBackupFragment struct {
-	ID               string                         "json:\"id\" graphql:\"id\""
-	Name             string                         "json:\"name\" graphql:\"name\""
-	Cluster          *ClusterBackupFragment_Cluster "json:\"cluster,omitempty\" graphql:\"cluster\""
-	GarbageCollected *bool                          "json:\"garbageCollected,omitempty\" graphql:\"garbageCollected\""
-}
-
-func (t *ClusterBackupFragment) GetID() string {
-	if t == nil {
-		t = &ClusterBackupFragment{}
-	}
-	return t.ID
-}
-func (t *ClusterBackupFragment) GetName() string {
-	if t == nil {
-		t = &ClusterBackupFragment{}
-	}
-	return t.Name
-}
-func (t *ClusterBackupFragment) GetCluster() *ClusterBackupFragment_Cluster {
-	if t == nil {
-		t = &ClusterBackupFragment{}
-	}
-	return t.Cluster
-}
-func (t *ClusterBackupFragment) GetGarbageCollected() *bool {
-	if t == nil {
-		t = &ClusterBackupFragment{}
-	}
-	return t.GarbageCollected
-}
-
-type ClusterRestoreFragment struct {
-	ID     string                 "json:\"id\" graphql:\"id\""
-	Status RestoreStatus          "json:\"status\" graphql:\"status\""
-	Backup *ClusterBackupFragment "json:\"backup,omitempty\" graphql:\"backup\""
-}
-
-func (t *ClusterRestoreFragment) GetID() string {
-	if t == nil {
-		t = &ClusterRestoreFragment{}
-	}
-	return t.ID
-}
-func (t *ClusterRestoreFragment) GetStatus() *RestoreStatus {
-	if t == nil {
-		t = &ClusterRestoreFragment{}
-	}
-	return &t.Status
-}
-func (t *ClusterRestoreFragment) GetBackup() *ClusterBackupFragment {
-	if t == nil {
-		t = &ClusterRestoreFragment{}
-	}
-	return t.Backup
 }
 
 type ScmConnectionFragment struct {
@@ -2589,6 +2434,106 @@ func (t *ViolationStatisticFragment) GetCount() *int64 {
 	return t.Count
 }
 
+type PipelineFragment struct {
+	ID      string                       "json:\"id\" graphql:\"id\""
+	Name    string                       "json:\"name\" graphql:\"name\""
+	Stages  []*PipelineStageFragment     "json:\"stages,omitempty\" graphql:\"stages\""
+	Edges   []*PipelineStageEdgeFragment "json:\"edges,omitempty\" graphql:\"edges\""
+	Project *TinyProjectFragment         "json:\"project,omitempty\" graphql:\"project\""
+}
+
+func (t *PipelineFragment) GetID() string {
+	if t == nil {
+		t = &PipelineFragment{}
+	}
+	return t.ID
+}
+func (t *PipelineFragment) GetName() string {
+	if t == nil {
+		t = &PipelineFragment{}
+	}
+	return t.Name
+}
+func (t *PipelineFragment) GetStages() []*PipelineStageFragment {
+	if t == nil {
+		t = &PipelineFragment{}
+	}
+	return t.Stages
+}
+func (t *PipelineFragment) GetEdges() []*PipelineStageEdgeFragment {
+	if t == nil {
+		t = &PipelineFragment{}
+	}
+	return t.Edges
+}
+func (t *PipelineFragment) GetProject() *TinyProjectFragment {
+	if t == nil {
+		t = &PipelineFragment{}
+	}
+	return t.Project
+}
+
+type PipelineStageFragment struct {
+	ID       string                            "json:\"id\" graphql:\"id\""
+	Name     string                            "json:\"name\" graphql:\"name\""
+	Services []*PipelineStageFragment_Services "json:\"services,omitempty\" graphql:\"services\""
+}
+
+func (t *PipelineStageFragment) GetID() string {
+	if t == nil {
+		t = &PipelineStageFragment{}
+	}
+	return t.ID
+}
+func (t *PipelineStageFragment) GetName() string {
+	if t == nil {
+		t = &PipelineStageFragment{}
+	}
+	return t.Name
+}
+func (t *PipelineStageFragment) GetServices() []*PipelineStageFragment_Services {
+	if t == nil {
+		t = &PipelineStageFragment{}
+	}
+	return t.Services
+}
+
+type PipelineStageEdgeFragment struct {
+	ID   string                 "json:\"id\" graphql:\"id\""
+	From *PipelineStageFragment "json:\"from\" graphql:\"from\""
+	To   *PipelineStageFragment "json:\"to\" graphql:\"to\""
+}
+
+func (t *PipelineStageEdgeFragment) GetID() string {
+	if t == nil {
+		t = &PipelineStageEdgeFragment{}
+	}
+	return t.ID
+}
+func (t *PipelineStageEdgeFragment) GetFrom() *PipelineStageFragment {
+	if t == nil {
+		t = &PipelineStageEdgeFragment{}
+	}
+	return t.From
+}
+func (t *PipelineStageEdgeFragment) GetTo() *PipelineStageFragment {
+	if t == nil {
+		t = &PipelineStageEdgeFragment{}
+	}
+	return t.To
+}
+
+type PipelineEdgeFragment struct {
+	Node *PipelineFragment "json:\"node,omitempty\" graphql:\"node\""
+}
+
+func (t *PipelineEdgeFragment) GetNode() *PipelineFragment {
+	if t == nil {
+		t = &PipelineEdgeFragment{}
+	}
+	return t.Node
+}
+
 type ProjectFragment struct {
 	ID            string                   "json:\"id\" graphql:\"id\""
 	InsertedAt    *string                  "json:\"insertedAt,omitempty\" graphql:\"insertedAt\""
@@ -2649,6 +2594,63 @@ func (t *ProjectFragment) GetWriteBindings() []*PolicyBindingFragment {
 	return t.WriteBindings
 }
 
+type TinyProjectFragment struct {
+	ID      string "json:\"id\" graphql:\"id\""
+	Name    string "json:\"name\" graphql:\"name\""
+	Default *bool  "json:\"default,omitempty\" graphql:\"default\""
+}
+
+func (t *TinyProjectFragment) GetID() string {
+	if t == nil {
+		t = &TinyProjectFragment{}
+	}
+	return t.ID
+}
+func (t *TinyProjectFragment) GetName() string {
+	if t == nil {
+		t = &TinyProjectFragment{}
+	}
+	return t.Name
+}
+func (t *TinyProjectFragment) GetDefault() *bool {
+	if t == nil {
+		t = &TinyProjectFragment{}
+	}
+	return t.Default
+}
+
+type ProviderCredentialFragment struct {
+	ID        string "json:\"id\" graphql:\"id\""
+	Name      string "json:\"name\" graphql:\"name\""
+	Namespace string "json:\"namespace\" graphql:\"namespace\""
+	Kind      string "json:\"kind\" graphql:\"kind\""
+}
+
+func (t *ProviderCredentialFragment) GetID() string {
+	if t == nil {
+		t = &ProviderCredentialFragment{}
+	}
+	return t.ID
+}
+func (t *ProviderCredentialFragment) GetName() string {
+	if t == nil {
+		t = &ProviderCredentialFragment{}
+	}
+	return t.Name
+}
+func (t *ProviderCredentialFragment) GetNamespace() string {
+	if t == nil {
+		t = &ProviderCredentialFragment{}
+	}
+	return t.Namespace
+}
+func (t *ProviderCredentialFragment) GetKind() string {
+	if t == nil {
+		t = &ProviderCredentialFragment{}
+	}
+	return t.Kind
+}
+
 type InfrastructureStackEdgeFragment struct {
 	Node *InfrastructureStackFragment "json:\"node,omitempty\" graphql:\"node\""
 }
@@ -2679,6 +2681,7 @@ type InfrastructureStackFragment struct {
 	JobSpec       *JobSpecFragment            "json:\"jobSpec,omitempty\" graphql:\"jobSpec\""
 	Configuration *StackConfigurationFragment "json:\"configuration\" graphql:\"configuration\""
 	Cluster       *TinyClusterFragment        "json:\"cluster,omitempty\" graphql:\"cluster\""
+	Project       *TinyProjectFragment        "json:\"project,omitempty\" graphql:\"project\""
 	Approval      *bool                       "json:\"approval,omitempty\" graphql:\"approval\""
 	Workdir       *string                     "json:\"workdir,omitempty\" graphql:\"workdir\""
 	ManageState   *bool                       "json:\"manageState,omitempty\" graphql:\"manageState\""
@@ -2733,6 +2736,12 @@ func (t *InfrastructureStackFragment) GetCluster() *TinyClusterFragment {
 		t = &InfrastructureStackFragment{}
 	}
 	return t.Cluster
+}
+func (t *InfrastructureStackFragment) GetProject() *TinyProjectFragment {
+	if t == nil {
+		t = &InfrastructureStackFragment{}
+	}
+	return t.Project
 }
 func (t *InfrastructureStackFragment) GetApproval() *bool {
 	if t == nil {
@@ -3533,6 +3542,216 @@ func (t *PrConfigurationConditionFragment) GetValue() *string {
 	return t.Value
 }
 
+type AccessTokenFragment struct {
+	ID    *string "json:\"id,omitempty\" graphql:\"id\""
+	Token *string "json:\"token,omitempty\" graphql:\"token\""
+}
+
+func (t *AccessTokenFragment) GetID() *string {
+	if t == nil {
+		t = &AccessTokenFragment{}
+	}
+	return t.ID
+}
+func (t *AccessTokenFragment) GetToken() *string {
+	if t == nil {
+		t = &AccessTokenFragment{}
+	}
+	return t.Token
+}
+
+type ClusterBackupFragment_Cluster struct {
+	ID string "json:\"id\" graphql:\"id\""
+}
+
+func (t *ClusterBackupFragment_Cluster) GetID() string {
+	if t == nil {
+		t = &ClusterBackupFragment_Cluster{}
+	}
+	return t.ID
+}
+
+type ClusterRestoreFragment_Backup_ClusterBackupFragment_Cluster struct {
+	ID string "json:\"id\" graphql:\"id\""
+}
+
+func (t *ClusterRestoreFragment_Backup_ClusterBackupFragment_Cluster) GetID() string {
+	if t == nil {
+		t = &ClusterRestoreFragment_Backup_ClusterBackupFragment_Cluster{}
+	}
+	return t.ID
+}
+
+type ClusterFragment_Provider_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components struct {
+	ID        string                    "json:\"id\" graphql:\"id\""
+	Name      string                    "json:\"name\" graphql:\"name\""
+	Group     *string                   "json:\"group,omitempty\" graphql:\"group\""
+	Kind      string                    "json:\"kind\" graphql:\"kind\""
+	Namespace *string                   "json:\"namespace,omitempty\" graphql:\"namespace\""
+	State     *ComponentState           "json:\"state,omitempty\" graphql:\"state\""
+	Synced    bool                      "json:\"synced\" graphql:\"synced\""
+	Version   *string                   "json:\"version,omitempty\" graphql:\"version\""
+	Content   *ComponentContentFragment "json:\"content,omitempty\" graphql:\"content\""
+}
+
+func (t *ClusterFragment_Provider_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetID() string {
+	if t == nil {
+		t = &ClusterFragment_Provider_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
+	}
+	return t.ID
+}
+func (t *ClusterFragment_Provider_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetName() string {
+	if t == nil {
+		t = &ClusterFragment_Provider_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
+	}
+	return t.Name
+}
+func (t *ClusterFragment_Provider_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetGroup() *string {
+	if t == nil {
+		t = &ClusterFragment_Provider_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
+	}
+	return t.Group
+}
+func (t *ClusterFragment_Provider_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetKind() string {
+	if t == nil {
+		t = &ClusterFragment_Provider_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
+	}
+	return t.Kind
+}
+func (t *ClusterFragment_Provider_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetNamespace() *string {
+	if t == nil {
+		t = &ClusterFragment_Provider_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
+	}
+	return t.Namespace
+}
+func (t *ClusterFragment_Provider_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetState() *ComponentState {
+	if t == nil {
+		t = &ClusterFragment_Provider_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
+	}
+	return t.State
+}
+func (t *ClusterFragment_Provider_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetSynced() bool {
+	if t == nil {
+		t = &ClusterFragment_Provider_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
+	}
+	return t.Synced
+}
+func (t *ClusterFragment_Provider_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetVersion() *string {
+	if t == nil {
+		t = &ClusterFragment_Provider_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
+	}
+	return t.Version
+}
+func (t *ClusterFragment_Provider_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetContent() *ComponentContentFragment {
+	if t == nil {
+		t = &ClusterFragment_Provider_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
+	}
+	return t.Content
+}
+
+type ClusterFragment_Provider_ClusterProviderFragment_Service_ServiceDeploymentFragment_Configuration struct {
+	Name  string "json:\"name\" graphql:\"name\""
+	Value string "json:\"value\" graphql:\"value\""
+}
+
+func (t *ClusterFragment_Provider_ClusterProviderFragment_Service_ServiceDeploymentFragment_Configuration) GetName() string {
+	if t == nil {
+		t = &ClusterFragment_Provider_ClusterProviderFragment_Service_ServiceDeploymentFragment_Configuration{}
+	}
+	return t.Name
+}
+func (t *ClusterFragment_Provider_ClusterProviderFragment_Service_ServiceDeploymentFragment_Configuration) GetValue() string {
+	if t == nil {
+		t = &ClusterFragment_Provider_ClusterProviderFragment_Service_ServiceDeploymentFragment_Configuration{}
+	}
+	return t.Value
+}
+
+type ClusterProviderFragment_Service_ServiceDeploymentFragment_Components struct {
+	ID        string                    "json:\"id\" graphql:\"id\""
+	Name      string                    "json:\"name\" graphql:\"name\""
+	Group     *string                   "json:\"group,omitempty\" graphql:\"group\""
+	Kind      string                    "json:\"kind\" graphql:\"kind\""
+	Namespace *string                   "json:\"namespace,omitempty\" graphql:\"namespace\""
+	State     *ComponentState           "json:\"state,omitempty\" graphql:\"state\""
+	Synced    bool                      "json:\"synced\" graphql:\"synced\""
+	Version   *string                   "json:\"version,omitempty\" graphql:\"version\""
+	Content   *ComponentContentFragment "json:\"content,omitempty\" graphql:\"content\""
+}
+
+func (t *ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetID() string {
+	if t == nil {
+		t = &ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
+	}
+	return t.ID
+}
+func (t *ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetName() string {
+	if t == nil {
+		t = &ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
+	}
+	return t.Name
+}
+func (t *ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetGroup() *string {
+	if t == nil {
+		t = &ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
+	}
+	return t.Group
+}
+func (t *ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetKind() string {
+	if t == nil {
+		t = &ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
+	}
+	return t.Kind
+}
+func (t *ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetNamespace() *string {
+	if t == nil {
+		t = &ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
+	}
+	return t.Namespace
+}
+func (t *ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetState() *ComponentState {
+	if t == nil {
+		t = &ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
+	}
+	return t.State
+}
+func (t *ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetSynced() bool {
+	if t == nil {
+		t = &ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
+	}
+	return t.Synced
+}
+func (t *ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetVersion() *string {
+	if t == nil {
+		t = &ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
+	}
+	return t.Version
+}
+func (t *ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetContent() *ComponentContentFragment {
+	if t == nil {
+		t = &ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
+	}
+	return t.Content
+}
+
+type ClusterProviderFragment_Service_ServiceDeploymentFragment_Configuration struct {
+	Name  string "json:\"name\" graphql:\"name\""
+	Value string "json:\"value\" graphql:\"value\""
+}
+
+func (t *ClusterProviderFragment_Service_ServiceDeploymentFragment_Configuration) GetName() string {
+	if t == nil {
+		t = &ClusterProviderFragment_Service_ServiceDeploymentFragment_Configuration{}
+	}
+	return t.Name
+}
+func (t *ClusterProviderFragment_Service_ServiceDeploymentFragment_Configuration) GetValue() string {
+	if t == nil {
+		t = &ClusterProviderFragment_Service_ServiceDeploymentFragment_Configuration{}
+	}
+	return t.Value
+}
+
 type PipelineGateEdgeFragment_Node_PipelineGateFragment_Spec_GateSpecFragment_Job_JobSpecFragment_Containers_ContainerSpecFragment_Env struct {
 	Name  string "json:\"name\" graphql:\"name\""
 	Value string "json:\"value\" graphql:\"value\""
@@ -3941,176 +4160,6 @@ func (t *GroupMemberFragment_Group) GetID() string {
 	return t.ID
 }
 
-type ClusterFragment_Provider_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components struct {
-	ID        string                    "json:\"id\" graphql:\"id\""
-	Name      string                    "json:\"name\" graphql:\"name\""
-	Group     *string                   "json:\"group,omitempty\" graphql:\"group\""
-	Kind      string                    "json:\"kind\" graphql:\"kind\""
-	Namespace *string                   "json:\"namespace,omitempty\" graphql:\"namespace\""
-	State     *ComponentState           "json:\"state,omitempty\" graphql:\"state\""
-	Synced    bool                      "json:\"synced\" graphql:\"synced\""
-	Version   *string                   "json:\"version,omitempty\" graphql:\"version\""
-	Content   *ComponentContentFragment "json:\"content,omitempty\" graphql:\"content\""
-}
-
-func (t *ClusterFragment_Provider_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetID() string {
-	if t == nil {
-		t = &ClusterFragment_Provider_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
-	}
-	return t.ID
-}
-func (t *ClusterFragment_Provider_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetName() string {
-	if t == nil {
-		t = &ClusterFragment_Provider_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
-	}
-	return t.Name
-}
-func (t *ClusterFragment_Provider_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetGroup() *string {
-	if t == nil {
-		t = &ClusterFragment_Provider_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
-	}
-	return t.Group
-}
-func (t *ClusterFragment_Provider_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetKind() string {
-	if t == nil {
-		t = &ClusterFragment_Provider_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
-	}
-	return t.Kind
-}
-func (t *ClusterFragment_Provider_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetNamespace() *string {
-	if t == nil {
-		t = &ClusterFragment_Provider_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
-	}
-	return t.Namespace
-}
-func (t *ClusterFragment_Provider_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetState() *ComponentState {
-	if t == nil {
-		t = &ClusterFragment_Provider_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
-	}
-	return t.State
-}
-func (t *ClusterFragment_Provider_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetSynced() bool {
-	if t == nil {
-		t = &ClusterFragment_Provider_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
-	}
-	return t.Synced
-}
-func (t *ClusterFragment_Provider_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetVersion() *string {
-	if t == nil {
-		t = &ClusterFragment_Provider_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
-	}
-	return t.Version
-}
-func (t *ClusterFragment_Provider_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetContent() *ComponentContentFragment {
-	if t == nil {
-		t = &ClusterFragment_Provider_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
-	}
-	return t.Content
-}
-
-type ClusterFragment_Provider_ClusterProviderFragment_Service_ServiceDeploymentFragment_Configuration struct {
-	Name  string "json:\"name\" graphql:\"name\""
-	Value string "json:\"value\" graphql:\"value\""
-}
-
-func (t *ClusterFragment_Provider_ClusterProviderFragment_Service_ServiceDeploymentFragment_Configuration) GetName() string {
-	if t == nil {
-		t = &ClusterFragment_Provider_ClusterProviderFragment_Service_ServiceDeploymentFragment_Configuration{}
-	}
-	return t.Name
-}
-func (t *ClusterFragment_Provider_ClusterProviderFragment_Service_ServiceDeploymentFragment_Configuration) GetValue() string {
-	if t == nil {
-		t = &ClusterFragment_Provider_ClusterProviderFragment_Service_ServiceDeploymentFragment_Configuration{}
-	}
-	return t.Value
-}
-
-type ClusterProviderFragment_Service_ServiceDeploymentFragment_Components struct {
-	ID        string                    "json:\"id\" graphql:\"id\""
-	Name      string                    "json:\"name\" graphql:\"name\""
-	Group     *string                   "json:\"group,omitempty\" graphql:\"group\""
-	Kind      string                    "json:\"kind\" graphql:\"kind\""
-	Namespace *string                   "json:\"namespace,omitempty\" graphql:\"namespace\""
-	State     *ComponentState           "json:\"state,omitempty\" graphql:\"state\""
-	Synced    bool                      "json:\"synced\" graphql:\"synced\""
-	Version   *string                   "json:\"version,omitempty\" graphql:\"version\""
-	Content   *ComponentContentFragment "json:\"content,omitempty\" graphql:\"content\""
-}
-
-func (t *ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetID() string {
-	if t == nil {
-		t = &ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
-	}
-	return t.ID
-}
-func (t *ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetName() string {
-	if t == nil {
-		t = &ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
-	}
-	return t.Name
-}
-func (t *ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetGroup() *string {
-	if t == nil {
-		t = &ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
-	}
-	return t.Group
-}
-func (t *ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetKind() string {
-	if t == nil {
-		t = &ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
-	}
-	return t.Kind
-}
-func (t *ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetNamespace() *string {
-	if t == nil {
-		t = &ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
-	}
-	return t.Namespace
-}
-func (t *ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetState() *ComponentState {
-	if t == nil {
-		t = &ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
-	}
-	return t.State
-}
-func (t *ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetSynced() bool {
-	if t == nil {
-		t = &ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
-	}
-	return t.Synced
-}
-func (t *ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetVersion() *string {
-	if t == nil {
-		t = &ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
-	}
-	return t.Version
-}
-func (t *ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetContent() *ComponentContentFragment {
-	if t == nil {
-		t = &ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
-	}
-	return t.Content
-}
-
-type ClusterProviderFragment_Service_ServiceDeploymentFragment_Configuration struct {
-	Name  string "json:\"name\" graphql:\"name\""
-	Value string "json:\"value\" graphql:\"value\""
-}
-
-func (t *ClusterProviderFragment_Service_ServiceDeploymentFragment_Configuration) GetName() string {
-	if t == nil {
-		t = &ClusterProviderFragment_Service_ServiceDeploymentFragment_Configuration{}
-	}
-	return t.Name
-}
-func (t *ClusterProviderFragment_Service_ServiceDeploymentFragment_Configuration) GetValue() string {
-	if t == nil {
-		t = &ClusterProviderFragment_Service_ServiceDeploymentFragment_Configuration{}
-	}
-	return t.Value
-}
-
 type ClusterEdgeFragment_Node_ClusterFragment_Provider_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components struct {
 	ID        string                    "json:\"id\" graphql:\"id\""
 	Name      string                    "json:\"name\" graphql:\"name\""
@@ -4196,282 +4245,26 @@ func (t *ClusterEdgeFragment_Node_ClusterFragment_Provider_ClusterProviderFragme
 	return t.Value
 }
 
-type ClusterProviderConnectionFragment_Edges_ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components struct {
-	ID        string                    "json:\"id\" graphql:\"id\""
-	Name      string                    "json:\"name\" graphql:\"name\""
-	Group     *string                   "json:\"group,omitempty\" graphql:\"group\""
-	Kind      string                    "json:\"kind\" graphql:\"kind\""
-	Namespace *string                   "json:\"namespace,omitempty\" graphql:\"namespace\""
-	State     *ComponentState           "json:\"state,omitempty\" graphql:\"state\""
-	Synced    bool                      "json:\"synced\" graphql:\"synced\""
-	Version   *string                   "json:\"version,omitempty\" graphql:\"version\""
-	Content   *ComponentContentFragment "json:\"content,omitempty\" graphql:\"content\""
+type GlobalServiceFragment_Provider struct {
+	ID string "json:\"id\" graphql:\"id\""
 }
 
-func (t *ClusterProviderConnectionFragment_Edges_ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetID() string {
+func (t *GlobalServiceFragment_Provider) GetID() string {
 	if t == nil {
-		t = &ClusterProviderConnectionFragment_Edges_ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
+		t = &GlobalServiceFragment_Provider{}
 	}
 	return t.ID
 }
-func (t *ClusterProviderConnectionFragment_Edges_ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetName() string {
-	if t == nil {
-		t = &ClusterProviderConnectionFragment_Edges_ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
-	}
-	return t.Name
-}
-func (t *ClusterProviderConnectionFragment_Edges_ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetGroup() *string {
-	if t == nil {
-		t = &ClusterProviderConnectionFragment_Edges_ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
-	}
-	return t.Group
-}
-func (t *ClusterProviderConnectionFragment_Edges_ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetKind() string {
-	if t == nil {
-		t = &ClusterProviderConnectionFragment_Edges_ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
-	}
-	return t.Kind
-}
-func (t *ClusterProviderConnectionFragment_Edges_ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetNamespace() *string {
-	if t == nil {
-		t = &ClusterProviderConnectionFragment_Edges_ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
-	}
-	return t.Namespace
-}
-func (t *ClusterProviderConnectionFragment_Edges_ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetState() *ComponentState {
-	if t == nil {
-		t = &ClusterProviderConnectionFragment_Edges_ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
-	}
-	return t.State
-}
-func (t *ClusterProviderConnectionFragment_Edges_ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetSynced() bool {
-	if t == nil {
-		t = &ClusterProviderConnectionFragment_Edges_ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
-	}
-	return t.Synced
-}
-func (t *ClusterProviderConnectionFragment_Edges_ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetVersion() *string {
-	if t == nil {
-		t = &ClusterProviderConnectionFragment_Edges_ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
-	}
-	return t.Version
-}
-func (t *ClusterProviderConnectionFragment_Edges_ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetContent() *ComponentContentFragment {
-	if t == nil {
-		t = &ClusterProviderConnectionFragment_Edges_ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
-	}
-	return t.Content
+
+type GlobalServiceFragment_Service struct {
+	ID string "json:\"id\" graphql:\"id\""
 }
 
-type ClusterProviderConnectionFragment_Edges_ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Configuration struct {
-	Name  string "json:\"name\" graphql:\"name\""
-	Value string "json:\"value\" graphql:\"value\""
-}
-
-func (t *ClusterProviderConnectionFragment_Edges_ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Configuration) GetName() string {
+func (t *GlobalServiceFragment_Service) GetID() string {
 	if t == nil {
-		t = &ClusterProviderConnectionFragment_Edges_ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Configuration{}
-	}
-	return t.Name
-}
-func (t *ClusterProviderConnectionFragment_Edges_ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Configuration) GetValue() string {
-	if t == nil {
-		t = &ClusterProviderConnectionFragment_Edges_ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Configuration{}
-	}
-	return t.Value
-}
-
-type ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components struct {
-	ID        string                    "json:\"id\" graphql:\"id\""
-	Name      string                    "json:\"name\" graphql:\"name\""
-	Group     *string                   "json:\"group,omitempty\" graphql:\"group\""
-	Kind      string                    "json:\"kind\" graphql:\"kind\""
-	Namespace *string                   "json:\"namespace,omitempty\" graphql:\"namespace\""
-	State     *ComponentState           "json:\"state,omitempty\" graphql:\"state\""
-	Synced    bool                      "json:\"synced\" graphql:\"synced\""
-	Version   *string                   "json:\"version,omitempty\" graphql:\"version\""
-	Content   *ComponentContentFragment "json:\"content,omitempty\" graphql:\"content\""
-}
-
-func (t *ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetID() string {
-	if t == nil {
-		t = &ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
+		t = &GlobalServiceFragment_Service{}
 	}
 	return t.ID
-}
-func (t *ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetName() string {
-	if t == nil {
-		t = &ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
-	}
-	return t.Name
-}
-func (t *ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetGroup() *string {
-	if t == nil {
-		t = &ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
-	}
-	return t.Group
-}
-func (t *ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetKind() string {
-	if t == nil {
-		t = &ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
-	}
-	return t.Kind
-}
-func (t *ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetNamespace() *string {
-	if t == nil {
-		t = &ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
-	}
-	return t.Namespace
-}
-func (t *ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetState() *ComponentState {
-	if t == nil {
-		t = &ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
-	}
-	return t.State
-}
-func (t *ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetSynced() bool {
-	if t == nil {
-		t = &ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
-	}
-	return t.Synced
-}
-func (t *ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetVersion() *string {
-	if t == nil {
-		t = &ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
-	}
-	return t.Version
-}
-func (t *ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetContent() *ComponentContentFragment {
-	if t == nil {
-		t = &ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
-	}
-	return t.Content
-}
-
-type ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Configuration struct {
-	Name  string "json:\"name\" graphql:\"name\""
-	Value string "json:\"value\" graphql:\"value\""
-}
-
-func (t *ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Configuration) GetName() string {
-	if t == nil {
-		t = &ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Configuration{}
-	}
-	return t.Name
-}
-func (t *ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Configuration) GetValue() string {
-	if t == nil {
-		t = &ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Configuration{}
-	}
-	return t.Value
-}
-
-type PipelineStageFragment_Services_Criteria struct {
-	Source  *ServiceDeploymentBaseFragment "json:\"source,omitempty\" graphql:\"source\""
-	Secrets []*string                      "json:\"secrets,omitempty\" graphql:\"secrets\""
-}
-
-func (t *PipelineStageFragment_Services_Criteria) GetSource() *ServiceDeploymentBaseFragment {
-	if t == nil {
-		t = &PipelineStageFragment_Services_Criteria{}
-	}
-	return t.Source
-}
-func (t *PipelineStageFragment_Services_Criteria) GetSecrets() []*string {
-	if t == nil {
-		t = &PipelineStageFragment_Services_Criteria{}
-	}
-	return t.Secrets
-}
-
-type PipelineStageFragment_Services struct {
-	Service  *ServiceDeploymentBaseFragment           "json:\"service,omitempty\" graphql:\"service\""
-	Criteria *PipelineStageFragment_Services_Criteria "json:\"criteria,omitempty\" graphql:\"criteria\""
-}
-
-func (t *PipelineStageFragment_Services) GetService() *ServiceDeploymentBaseFragment {
-	if t == nil {
-		t = &PipelineStageFragment_Services{}
-	}
-	return t.Service
-}
-func (t *PipelineStageFragment_Services) GetCriteria() *PipelineStageFragment_Services_Criteria {
-	if t == nil {
-		t = &PipelineStageFragment_Services{}
-	}
-	return t.Criteria
-}
-
-type PipelineStageEdgeFragment_From_PipelineStageFragment_Services_Criteria struct {
-	Source  *ServiceDeploymentBaseFragment "json:\"source,omitempty\" graphql:\"source\""
-	Secrets []*string                      "json:\"secrets,omitempty\" graphql:\"secrets\""
-}
-
-func (t *PipelineStageEdgeFragment_From_PipelineStageFragment_Services_Criteria) GetSource() *ServiceDeploymentBaseFragment {
-	if t == nil {
-		t = &PipelineStageEdgeFragment_From_PipelineStageFragment_Services_Criteria{}
-	}
-	return t.Source
-}
-func (t *PipelineStageEdgeFragment_From_PipelineStageFragment_Services_Criteria) GetSecrets() []*string {
-	if t == nil {
-		t = &PipelineStageEdgeFragment_From_PipelineStageFragment_Services_Criteria{}
-	}
-	return t.Secrets
-}
-
-type PipelineStageEdgeFragment_From_PipelineStageFragment_Services struct {
-	Service  *ServiceDeploymentBaseFragment                                          "json:\"service,omitempty\" graphql:\"service\""
-	Criteria *PipelineStageEdgeFragment_From_PipelineStageFragment_Services_Criteria "json:\"criteria,omitempty\" graphql:\"criteria\""
-}
-
-func (t *PipelineStageEdgeFragment_From_PipelineStageFragment_Services) GetService() *ServiceDeploymentBaseFragment {
-	if t == nil {
-		t = &PipelineStageEdgeFragment_From_PipelineStageFragment_Services{}
-	}
-	return t.Service
-}
-func (t *PipelineStageEdgeFragment_From_PipelineStageFragment_Services) GetCriteria() *PipelineStageEdgeFragment_From_PipelineStageFragment_Services_Criteria {
-	if t == nil {
-		t = &PipelineStageEdgeFragment_From_PipelineStageFragment_Services{}
-	}
-	return t.Criteria
-}
-
-type PipelineStageEdgeFragment_To_PipelineStageFragment_Services_Criteria struct {
-	Source  *ServiceDeploymentBaseFragment "json:\"source,omitempty\" graphql:\"source\""
-	Secrets []*string                      "json:\"secrets,omitempty\" graphql:\"secrets\""
-}
-
-func (t *PipelineStageEdgeFragment_To_PipelineStageFragment_Services_Criteria) GetSource() *ServiceDeploymentBaseFragment {
-	if t == nil {
-		t = &PipelineStageEdgeFragment_To_PipelineStageFragment_Services_Criteria{}
-	}
-	return t.Source
-}
-func (t *PipelineStageEdgeFragment_To_PipelineStageFragment_Services_Criteria) GetSecrets() []*string {
-	if t == nil {
-		t = &PipelineStageEdgeFragment_To_PipelineStageFragment_Services_Criteria{}
-	}
-	return t.Secrets
-}
-
-type PipelineStageEdgeFragment_To_PipelineStageFragment_Services struct {
-	Service  *ServiceDeploymentBaseFragment                                        "json:\"service,omitempty\" graphql:\"service\""
-	Criteria *PipelineStageEdgeFragment_To_PipelineStageFragment_Services_Criteria "json:\"criteria,omitempty\" graphql:\"criteria\""
-}
-
-func (t *PipelineStageEdgeFragment_To_PipelineStageFragment_Services) GetService() *ServiceDeploymentBaseFragment {
-	if t == nil {
-		t = &PipelineStageEdgeFragment_To_PipelineStageFragment_Services{}
-	}
-	return t.Service
-}
-func (t *PipelineStageEdgeFragment_To_PipelineStageFragment_Services) GetCriteria() *PipelineStageEdgeFragment_To_PipelineStageFragment_Services_Criteria {
-	if t == nil {
-		t = &PipelineStageEdgeFragment_To_PipelineStageFragment_Services{}
-	}
-	return t.Criteria
 }
 
 type PipelineFragment_Stages_PipelineStageFragment_Services_Criteria struct {
@@ -4582,6 +4375,114 @@ func (t *PipelineFragment_Edges_PipelineStageEdgeFragment_To_PipelineStageFragme
 	return t.Criteria
 }
 
+type PipelineStageFragment_Services_Criteria struct {
+	Source  *ServiceDeploymentBaseFragment "json:\"source,omitempty\" graphql:\"source\""
+	Secrets []*string                      "json:\"secrets,omitempty\" graphql:\"secrets\""
+}
+
+func (t *PipelineStageFragment_Services_Criteria) GetSource() *ServiceDeploymentBaseFragment {
+	if t == nil {
+		t = &PipelineStageFragment_Services_Criteria{}
+	}
+	return t.Source
+}
+func (t *PipelineStageFragment_Services_Criteria) GetSecrets() []*string {
+	if t == nil {
+		t = &PipelineStageFragment_Services_Criteria{}
+	}
+	return t.Secrets
+}
+
+type PipelineStageFragment_Services struct {
+	Service  *ServiceDeploymentBaseFragment           "json:\"service,omitempty\" graphql:\"service\""
+	Criteria *PipelineStageFragment_Services_Criteria "json:\"criteria,omitempty\" graphql:\"criteria\""
+}
+
+func (t *PipelineStageFragment_Services) GetService() *ServiceDeploymentBaseFragment {
+	if t == nil {
+		t = &PipelineStageFragment_Services{}
+	}
+	return t.Service
+}
+func (t *PipelineStageFragment_Services) GetCriteria() *PipelineStageFragment_Services_Criteria {
+	if t == nil {
+		t = &PipelineStageFragment_Services{}
+	}
+	return t.Criteria
+}
+
+type PipelineStageEdgeFragment_From_PipelineStageFragment_Services_Criteria struct {
+	Source  *ServiceDeploymentBaseFragment "json:\"source,omitempty\" graphql:\"source\""
+	Secrets []*string                      "json:\"secrets,omitempty\" graphql:\"secrets\""
+}
+
+func (t *PipelineStageEdgeFragment_From_PipelineStageFragment_Services_Criteria) GetSource() *ServiceDeploymentBaseFragment {
+	if t == nil {
+		t = &PipelineStageEdgeFragment_From_PipelineStageFragment_Services_Criteria{}
+	}
+	return t.Source
+}
+func (t *PipelineStageEdgeFragment_From_PipelineStageFragment_Services_Criteria) GetSecrets() []*string {
+	if t == nil {
+		t = &PipelineStageEdgeFragment_From_PipelineStageFragment_Services_Criteria{}
+	}
+	return t.Secrets
+}
+
+type PipelineStageEdgeFragment_From_PipelineStageFragment_Services struct {
+	Service  *ServiceDeploymentBaseFragment                                          "json:\"service,omitempty\" graphql:\"service\""
+	Criteria *PipelineStageEdgeFragment_From_PipelineStageFragment_Services_Criteria "json:\"criteria,omitempty\" graphql:\"criteria\""
+}
+
+func (t *PipelineStageEdgeFragment_From_PipelineStageFragment_Services) GetService() *ServiceDeploymentBaseFragment {
+	if t == nil {
+		t = &PipelineStageEdgeFragment_From_PipelineStageFragment_Services{}
+	}
+	return t.Service
+}
+func (t *PipelineStageEdgeFragment_From_PipelineStageFragment_Services) GetCriteria() *PipelineStageEdgeFragment_From_PipelineStageFragment_Services_Criteria {
+	if t == nil {
+		t = &PipelineStageEdgeFragment_From_PipelineStageFragment_Services{}
+	}
+	return t.Criteria
+}
+
+type PipelineStageEdgeFragment_To_PipelineStageFragment_Services_Criteria struct {
+	Source  *ServiceDeploymentBaseFragment "json:\"source,omitempty\" graphql:\"source\""
+	Secrets []*string                      "json:\"secrets,omitempty\" graphql:\"secrets\""
+}
+
+func (t *PipelineStageEdgeFragment_To_PipelineStageFragment_Services_Criteria) GetSource() *ServiceDeploymentBaseFragment {
+	if t == nil {
+		t = &PipelineStageEdgeFragment_To_PipelineStageFragment_Services_Criteria{}
+	}
+	return t.Source
+}
+func (t *PipelineStageEdgeFragment_To_PipelineStageFragment_Services_Criteria) GetSecrets() []*string {
+	if t == nil {
+		t = &PipelineStageEdgeFragment_To_PipelineStageFragment_Services_Criteria{}
+	}
+	return t.Secrets
+}
+
+type PipelineStageEdgeFragment_To_PipelineStageFragment_Services struct {
+	Service  *ServiceDeploymentBaseFragment                                        "json:\"service,omitempty\" graphql:\"service\""
+	Criteria *PipelineStageEdgeFragment_To_PipelineStageFragment_Services_Criteria "json:\"criteria,omitempty\" graphql:\"criteria\""
+}
+
+func (t *PipelineStageEdgeFragment_To_PipelineStageFragment_Services) GetService() *ServiceDeploymentBaseFragment {
+	if t == nil {
+		t = &PipelineStageEdgeFragment_To_PipelineStageFragment_Services{}
+	}
+	return t.Service
+}
+func (t *PipelineStageEdgeFragment_To_PipelineStageFragment_Services) GetCriteria() *PipelineStageEdgeFragment_To_PipelineStageFragment_Services_Criteria {
+	if t == nil {
+		t = &PipelineStageEdgeFragment_To_PipelineStageFragment_Services{}
+	}
+	return t.Criteria
+}
+
 type PipelineEdgeFragment_Node_PipelineFragment_Stages_PipelineStageFragment_Services_Criteria struct {
 	Source  *ServiceDeploymentBaseFragment "json:\"source,omitempty\" graphql:\"source\""
 	Secrets []*string                      "json:\"secrets,omitempty\" graphql:\"secrets\""
@@ -4688,50 +4589,6 @@ func (t *PipelineEdgeFragment_Node_PipelineFragment_Edges_PipelineStageEdgeFragm
 		t = &PipelineEdgeFragment_Node_PipelineFragment_Edges_PipelineStageEdgeFragment_To_PipelineStageFragment_Services{}
 	}
 	return t.Criteria
-}
-
-type GlobalServiceFragment_Provider struct {
-	ID string "json:\"id\" graphql:\"id\""
-}
-
-func (t *GlobalServiceFragment_Provider) GetID() string {
-	if t == nil {
-		t = &GlobalServiceFragment_Provider{}
-	}
-	return t.ID
-}
-
-type GlobalServiceFragment_Service struct {
-	ID string "json:\"id\" graphql:\"id\""
-}
-
-func (t *GlobalServiceFragment_Service) GetID() string {
-	if t == nil {
-		t = &GlobalServiceFragment_Service{}
-	}
-	return t.ID
-}
-
-type ClusterBackupFragment_Cluster struct {
-	ID string "json:\"id\" graphql:\"id\""
-}
-
-func (t *ClusterBackupFragment_Cluster) GetID() string {
-	if t == nil {
-		t = &ClusterBackupFragment_Cluster{}
-	}
-	return t.ID
-}
-
-type ClusterRestoreFragment_Backup_ClusterBackupFragment_Cluster struct {
-	ID string "json:\"id\" graphql:\"id\""
-}
-
-func (t *ClusterRestoreFragment_Backup_ClusterBackupFragment_Cluster) GetID() string {
-	if t == nil {
-		t = &ClusterRestoreFragment_Backup_ClusterBackupFragment_Cluster{}
-	}
-	return t.ID
 }
 
 type InfrastructureStackEdgeFragment_Node_InfrastructureStackFragment_JobSpec_JobSpecFragment_Containers_ContainerSpecFragment_Env struct {
@@ -5354,6 +5211,7 @@ type CreateCluster_CreateCluster struct {
 	Provider       *ClusterProviderFragment    "json:\"provider,omitempty\" graphql:\"provider\""
 	NodePools      []*NodePoolFragment         "json:\"nodePools,omitempty\" graphql:\"nodePools\""
 	Status         *ClusterStatusFragment      "json:\"status,omitempty\" graphql:\"status\""
+	Project        *TinyProjectFragment        "json:\"project,omitempty\" graphql:\"project\""
 }
 
 func (t *CreateCluster_CreateCluster) GetDeployToken() *string {
@@ -5463,6 +5321,12 @@ func (t *CreateCluster_CreateCluster) GetStatus() *ClusterStatusFragment {
 		t = &CreateCluster_CreateCluster{}
 	}
 	return t.Status
+}
+func (t *CreateCluster_CreateCluster) GetProject() *TinyProjectFragment {
+	if t == nil {
+		t = &CreateCluster_CreateCluster{}
+	}
+	return t.Project
 }
 
 type UpdateCluster_UpdateCluster_ClusterFragment_Provider_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components struct {
@@ -6277,6 +6141,7 @@ type GetClusterWithToken_Cluster struct {
 	Provider       *ClusterProviderFragment    "json:\"provider,omitempty\" graphql:\"provider\""
 	NodePools      []*NodePoolFragment         "json:\"nodePools,omitempty\" graphql:\"nodePools\""
 	Status         *ClusterStatusFragment      "json:\"status,omitempty\" graphql:\"status\""
+	Project        *TinyProjectFragment        "json:\"project,omitempty\" graphql:\"project\""
 	DeployToken    *string                     "json:\"deployToken,omitempty\" graphql:\"deployToken\""
 }
 
@@ -6381,6 +6246,12 @@ func (t *GetClusterWithToken_Cluster) GetStatus() *ClusterStatusFragment {
 		t = &GetClusterWithToken_Cluster{}
 	}
 	return t.Status
+}
+func (t *GetClusterWithToken_Cluster) GetProject() *TinyProjectFragment {
+	if t == nil {
+		t = &GetClusterWithToken_Cluster{}
+	}
+	return t.Project
 }
 func (t *GetClusterWithToken_Cluster) GetDeployToken() *string {
 	if t == nil {
@@ -8969,17 +8840,6 @@ func (t *ListPrAutomations_PrAutomations) GetEdges() []*ListPrAutomations_PrAuto
 	return t.Edges
 }
 
-type DeleteNamespace_DeleteManagedNamespace struct {
-	ID string "json:\"id\" graphql:\"id\""
-}
-
-func (t *DeleteNamespace_DeleteManagedNamespace) GetID() string {
-	if t == nil {
-		t = &DeleteNamespace_DeleteManagedNamespace{}
-	}
-	return t.ID
-}
-
 type ListNamespaces_ManagedNamespaces struct {
 	PageInfo *PageInfoFragment               "json:\"pageInfo\" graphql:\"pageInfo\""
 	Edges    []*ManagedNamespaceEdgeFragment "json:\"edges,omitempty\" graphql:\"edges\""
@@ -9014,6 +8874,17 @@ func (t *ListClusterNamespaces_ClusterManagedNamespaces) GetEdges() []*ManagedNa
 		t = &ListClusterNamespaces_ClusterManagedNamespaces{}
 	}
 	return t.Edges
+}
+
+type DeleteNamespace_DeleteManagedNamespace struct {
+	ID string "json:\"id\" graphql:\"id\""
+}
+
+func (t *DeleteNamespace_DeleteManagedNamespace) GetID() string {
+	if t == nil {
+		t = &DeleteNamespace_DeleteManagedNamespace{}
+	}
+	return t.ID
 }
 
 type ListNotificationSinks_NotificationSinks struct {
@@ -9506,7 +9377,7 @@ func (t *ListProjects_Projects) GetEdges() []*ListProjects_Projects_Edges {
 	return t.Edges
 }
 
-type ListProviders_ClusterProviders_ClusterProviderConnectionFragment_Edges_ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components struct {
+type ListProviders_ClusterProviders_Edges_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components struct {
 	ID        string                    "json:\"id\" graphql:\"id\""
 	Name      string                    "json:\"name\" graphql:\"name\""
 	Group     *string                   "json:\"group,omitempty\" graphql:\"group\""
@@ -9518,77 +9389,99 @@ type ListProviders_ClusterProviders_ClusterProviderConnectionFragment_Edges_Clus
 	Content   *ComponentContentFragment "json:\"content,omitempty\" graphql:\"content\""
 }
 
-func (t *ListProviders_ClusterProviders_ClusterProviderConnectionFragment_Edges_ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetID() string {
+func (t *ListProviders_ClusterProviders_Edges_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetID() string {
 	if t == nil {
-		t = &ListProviders_ClusterProviders_ClusterProviderConnectionFragment_Edges_ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
+		t = &ListProviders_ClusterProviders_Edges_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
 	}
 	return t.ID
 }
-func (t *ListProviders_ClusterProviders_ClusterProviderConnectionFragment_Edges_ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetName() string {
+func (t *ListProviders_ClusterProviders_Edges_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetName() string {
 	if t == nil {
-		t = &ListProviders_ClusterProviders_ClusterProviderConnectionFragment_Edges_ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
+		t = &ListProviders_ClusterProviders_Edges_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
 	}
 	return t.Name
 }
-func (t *ListProviders_ClusterProviders_ClusterProviderConnectionFragment_Edges_ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetGroup() *string {
+func (t *ListProviders_ClusterProviders_Edges_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetGroup() *string {
 	if t == nil {
-		t = &ListProviders_ClusterProviders_ClusterProviderConnectionFragment_Edges_ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
+		t = &ListProviders_ClusterProviders_Edges_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
 	}
 	return t.Group
 }
-func (t *ListProviders_ClusterProviders_ClusterProviderConnectionFragment_Edges_ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetKind() string {
+func (t *ListProviders_ClusterProviders_Edges_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetKind() string {
 	if t == nil {
-		t = &ListProviders_ClusterProviders_ClusterProviderConnectionFragment_Edges_ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
+		t = &ListProviders_ClusterProviders_Edges_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
 	}
 	return t.Kind
 }
-func (t *ListProviders_ClusterProviders_ClusterProviderConnectionFragment_Edges_ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetNamespace() *string {
+func (t *ListProviders_ClusterProviders_Edges_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetNamespace() *string {
 	if t == nil {
-		t = &ListProviders_ClusterProviders_ClusterProviderConnectionFragment_Edges_ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
+		t = &ListProviders_ClusterProviders_Edges_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
 	}
 	return t.Namespace
 }
-func (t *ListProviders_ClusterProviders_ClusterProviderConnectionFragment_Edges_ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetState() *ComponentState {
+func (t *ListProviders_ClusterProviders_Edges_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetState() *ComponentState {
 	if t == nil {
-		t = &ListProviders_ClusterProviders_ClusterProviderConnectionFragment_Edges_ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
+		t = &ListProviders_ClusterProviders_Edges_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
 	}
 	return t.State
 }
-func (t *ListProviders_ClusterProviders_ClusterProviderConnectionFragment_Edges_ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetSynced() bool {
+func (t *ListProviders_ClusterProviders_Edges_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetSynced() bool {
 	if t == nil {
-		t = &ListProviders_ClusterProviders_ClusterProviderConnectionFragment_Edges_ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
+		t = &ListProviders_ClusterProviders_Edges_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
 	}
 	return t.Synced
 }
-func (t *ListProviders_ClusterProviders_ClusterProviderConnectionFragment_Edges_ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetVersion() *string {
+func (t *ListProviders_ClusterProviders_Edges_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetVersion() *string {
 	if t == nil {
-		t = &ListProviders_ClusterProviders_ClusterProviderConnectionFragment_Edges_ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
+		t = &ListProviders_ClusterProviders_Edges_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
 	}
 	return t.Version
 }
-func (t *ListProviders_ClusterProviders_ClusterProviderConnectionFragment_Edges_ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetContent() *ComponentContentFragment {
+func (t *ListProviders_ClusterProviders_Edges_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components) GetContent() *ComponentContentFragment {
 	if t == nil {
-		t = &ListProviders_ClusterProviders_ClusterProviderConnectionFragment_Edges_ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
+		t = &ListProviders_ClusterProviders_Edges_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components{}
 	}
 	return t.Content
 }
 
-type ListProviders_ClusterProviders_ClusterProviderConnectionFragment_Edges_ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Configuration struct {
+type ListProviders_ClusterProviders_Edges_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Configuration struct {
 	Name  string "json:\"name\" graphql:\"name\""
 	Value string "json:\"value\" graphql:\"value\""
 }
 
-func (t *ListProviders_ClusterProviders_ClusterProviderConnectionFragment_Edges_ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Configuration) GetName() string {
+func (t *ListProviders_ClusterProviders_Edges_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Configuration) GetName() string {
 	if t == nil {
-		t = &ListProviders_ClusterProviders_ClusterProviderConnectionFragment_Edges_ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Configuration{}
+		t = &ListProviders_ClusterProviders_Edges_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Configuration{}
 	}
 	return t.Name
 }
-func (t *ListProviders_ClusterProviders_ClusterProviderConnectionFragment_Edges_ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Configuration) GetValue() string {
+func (t *ListProviders_ClusterProviders_Edges_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Configuration) GetValue() string {
 	if t == nil {
-		t = &ListProviders_ClusterProviders_ClusterProviderConnectionFragment_Edges_ClusterProviderEdgeFragment_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Configuration{}
+		t = &ListProviders_ClusterProviders_Edges_Node_ClusterProviderFragment_Service_ServiceDeploymentFragment_Configuration{}
 	}
 	return t.Value
+}
+
+type ListProviders_ClusterProviders_Edges struct {
+	Node *ClusterProviderFragment "json:\"node,omitempty\" graphql:\"node\""
+}
+
+func (t *ListProviders_ClusterProviders_Edges) GetNode() *ClusterProviderFragment {
+	if t == nil {
+		t = &ListProviders_ClusterProviders_Edges{}
+	}
+	return t.Node
+}
+
+type ListProviders_ClusterProviders struct {
+	Edges []*ListProviders_ClusterProviders_Edges "json:\"edges,omitempty\" graphql:\"edges\""
+}
+
+func (t *ListProviders_ClusterProviders) GetEdges() []*ListProviders_ClusterProviders_Edges {
+	if t == nil {
+		t = &ListProviders_ClusterProviders{}
+	}
+	return t.Edges
 }
 
 type ListClusterStacks_ClusterStackRuns_Edges_StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_StateUrls_Terraform struct {
@@ -10654,11 +10547,22 @@ func (t *GetCustomStackRun_CustomStackRun_CustomStackRunFragment_Stack) GetID() 
 	return t.ID
 }
 
-type ListAccessTokens_AccessTokens struct {
-	Edges []*AccessTokenEdgeFragment "json:\"edges,omitempty\" graphql:\"edges\""
+type ListAccessTokens_AccessTokens_Edges struct {
+	Node *AccessTokenFragment "json:\"node,omitempty\" graphql:\"node\""
 }
 
-func (t *ListAccessTokens_AccessTokens) GetEdges() []*AccessTokenEdgeFragment {
+func (t *ListAccessTokens_AccessTokens_Edges) GetNode() *AccessTokenFragment {
+	if t == nil {
+		t = &ListAccessTokens_AccessTokens_Edges{}
+	}
+	return t.Node
+}
+
+type ListAccessTokens_AccessTokens struct {
+	Edges []*ListAccessTokens_AccessTokens_Edges "json:\"edges,omitempty\" graphql:\"edges\""
+}
+
+func (t *ListAccessTokens_AccessTokens) GetEdges() []*ListAccessTokens_AccessTokens_Edges {
 	if t == nil {
 		t = &ListAccessTokens_AccessTokens{}
 	}
@@ -11631,39 +11535,6 @@ func (t *CreatePullRequest) GetCreatePullRequest() *PullRequestFragment {
 	return t.CreatePullRequest
 }
 
-type CreateNamespace struct {
-	CreateManagedNamespace *ManagedNamespaceFragment "json:\"createManagedNamespace,omitempty\" graphql:\"createManagedNamespace\""
-}
-
-func (t *CreateNamespace) GetCreateManagedNamespace() *ManagedNamespaceFragment {
-	if t == nil {
-		t = &CreateNamespace{}
-	}
-	return t.CreateManagedNamespace
-}
-
-type UpdateNamespace struct {
-	UpdateManagedNamespace *ManagedNamespaceFragment "json:\"updateManagedNamespace,omitempty\" graphql:\"updateManagedNamespace\""
-}
-
-func (t *UpdateNamespace) GetUpdateManagedNamespace() *ManagedNamespaceFragment {
-	if t == nil {
-		t = &UpdateNamespace{}
-	}
-	return t.UpdateManagedNamespace
-}
-
-type DeleteNamespace struct {
-	DeleteManagedNamespace *DeleteNamespace_DeleteManagedNamespace "json:\"deleteManagedNamespace,omitempty\" graphql:\"deleteManagedNamespace\""
-}
-
-func (t *DeleteNamespace) GetDeleteManagedNamespace() *DeleteNamespace_DeleteManagedNamespace {
-	if t == nil {
-		t = &DeleteNamespace{}
-	}
-	return t.DeleteManagedNamespace
-}
-
 type ListNamespaces struct {
 	ManagedNamespaces *ListNamespaces_ManagedNamespaces "json:\"managedNamespaces,omitempty\" graphql:\"managedNamespaces\""
 }
@@ -11695,6 +11566,39 @@ func (t *GetNamespace) GetManagedNamespace() *ManagedNamespaceFragment {
 		t = &GetNamespace{}
 	}
 	return t.ManagedNamespace
+}
+
+type CreateNamespace struct {
+	CreateManagedNamespace *ManagedNamespaceFragment "json:\"createManagedNamespace,omitempty\" graphql:\"createManagedNamespace\""
+}
+
+func (t *CreateNamespace) GetCreateManagedNamespace() *ManagedNamespaceFragment {
+	if t == nil {
+		t = &CreateNamespace{}
+	}
+	return t.CreateManagedNamespace
+}
+
+type UpdateNamespace struct {
+	UpdateManagedNamespace *ManagedNamespaceFragment "json:\"updateManagedNamespace,omitempty\" graphql:\"updateManagedNamespace\""
+}
+
+func (t *UpdateNamespace) GetUpdateManagedNamespace() *ManagedNamespaceFragment {
+	if t == nil {
+		t = &UpdateNamespace{}
+	}
+	return t.UpdateManagedNamespace
+}
+
+type DeleteNamespace struct {
+	DeleteManagedNamespace *DeleteNamespace_DeleteManagedNamespace "json:\"deleteManagedNamespace,omitempty\" graphql:\"deleteManagedNamespace\""
+}
+
+func (t *DeleteNamespace) GetDeleteManagedNamespace() *DeleteNamespace_DeleteManagedNamespace {
+	if t == nil {
+		t = &DeleteNamespace{}
+	}
+	return t.DeleteManagedNamespace
 }
 
 type UpsertNotificationSink struct {
@@ -11962,10 +11866,10 @@ func (t *DeleteProviderCredential) GetDeleteProviderCredential() *ProviderCreden
 }
 
 type ListProviders struct {
-	ClusterProviders *ClusterProviderConnectionFragment "json:\"clusterProviders,omitempty\" graphql:\"clusterProviders\""
+	ClusterProviders *ListProviders_ClusterProviders "json:\"clusterProviders,omitempty\" graphql:\"clusterProviders\""
 }
 
-func (t *ListProviders) GetClusterProviders() *ClusterProviderConnectionFragment {
+func (t *ListProviders) GetClusterProviders() *ListProviders_ClusterProviders {
 	if t == nil {
 		t = &ListProviders{}
 	}
@@ -12181,28 +12085,6 @@ func (t *GetCustomStackRun) GetCustomStackRun() *CustomStackRunFragment {
 	return t.CustomStackRun
 }
 
-type CreateAccessToken struct {
-	CreateAccessToken *AccessTokenFragment "json:\"createAccessToken,omitempty\" graphql:\"createAccessToken\""
-}
-
-func (t *CreateAccessToken) GetCreateAccessToken() *AccessTokenFragment {
-	if t == nil {
-		t = &CreateAccessToken{}
-	}
-	return t.CreateAccessToken
-}
-
-type DeleteAccessToken struct {
-	DeleteAccessToken *AccessTokenFragment "json:\"deleteAccessToken,omitempty\" graphql:\"deleteAccessToken\""
-}
-
-func (t *DeleteAccessToken) GetDeleteAccessToken() *AccessTokenFragment {
-	if t == nil {
-		t = &DeleteAccessToken{}
-	}
-	return t.DeleteAccessToken
-}
-
 type ListAccessTokens struct {
 	AccessTokens *ListAccessTokens_AccessTokens "json:\"accessTokens,omitempty\" graphql:\"accessTokens\""
 }
@@ -12234,6 +12116,28 @@ func (t *TokenExchange) GetTokenExchange() *TokenExchange_TokenExchange {
 		t = &TokenExchange{}
 	}
 	return t.TokenExchange
+}
+
+type CreateAccessToken struct {
+	CreateAccessToken *AccessTokenFragment "json:\"createAccessToken,omitempty\" graphql:\"createAccessToken\""
+}
+
+func (t *CreateAccessToken) GetCreateAccessToken() *AccessTokenFragment {
+	if t == nil {
+		t = &CreateAccessToken{}
+	}
+	return t.CreateAccessToken
+}
+
+type DeleteAccessToken struct {
+	DeleteAccessToken *AccessTokenFragment "json:\"deleteAccessToken,omitempty\" graphql:\"deleteAccessToken\""
+}
+
+func (t *DeleteAccessToken) GetDeleteAccessToken() *AccessTokenFragment {
+	if t == nil {
+		t = &DeleteAccessToken{}
+	}
+	return t.DeleteAccessToken
 }
 
 type GetUser struct {
@@ -12499,6 +12403,9 @@ fragment ClusterFragment on Cluster {
 	status {
 		... ClusterStatusFragment
 	}
+	project {
+		... TinyProjectFragment
+	}
 }
 fragment ClusterTags on Tag {
 	name
@@ -12626,6 +12533,11 @@ fragment ClusterConditionFragment on ClusterCondition {
 	message
 	reason
 	severity
+}
+fragment TinyProjectFragment on Project {
+	id
+	name
+	default
 }
 `
 
@@ -12679,6 +12591,9 @@ fragment ClusterFragment on Cluster {
 	status {
 		... ClusterStatusFragment
 	}
+	project {
+		... TinyProjectFragment
+	}
 }
 fragment ClusterTags on Tag {
 	name
@@ -12806,6 +12721,11 @@ fragment ClusterConditionFragment on ClusterCondition {
 	message
 	reason
 	severity
+}
+fragment TinyProjectFragment on Project {
+	id
+	name
+	default
 }
 `
 
@@ -12860,6 +12780,9 @@ fragment ClusterFragment on Cluster {
 	status {
 		... ClusterStatusFragment
 	}
+	project {
+		... TinyProjectFragment
+	}
 }
 fragment ClusterTags on Tag {
 	name
@@ -12987,6 +12910,11 @@ fragment ClusterConditionFragment on ClusterCondition {
 	message
 	reason
 	severity
+}
+fragment TinyProjectFragment on Project {
+	id
+	name
+	default
 }
 `
 
@@ -13040,6 +12968,9 @@ fragment ClusterFragment on Cluster {
 	status {
 		... ClusterStatusFragment
 	}
+	project {
+		... TinyProjectFragment
+	}
 }
 fragment ClusterTags on Tag {
 	name
@@ -13167,6 +13098,11 @@ fragment ClusterConditionFragment on ClusterCondition {
 	message
 	reason
 	severity
+}
+fragment TinyProjectFragment on Project {
+	id
+	name
+	default
 }
 `
 
@@ -13618,6 +13554,9 @@ fragment ClusterFragment on Cluster {
 	status {
 		... ClusterStatusFragment
 	}
+	project {
+		... TinyProjectFragment
+	}
 }
 fragment ClusterTags on Tag {
 	name
@@ -13745,6 +13684,11 @@ fragment ClusterConditionFragment on ClusterCondition {
 	message
 	reason
 	severity
+}
+fragment TinyProjectFragment on Project {
+	id
+	name
+	default
 }
 `
 
@@ -13800,6 +13744,9 @@ fragment ClusterFragment on Cluster {
 	status {
 		... ClusterStatusFragment
 	}
+	project {
+		... TinyProjectFragment
+	}
 }
 fragment ClusterTags on Tag {
 	name
@@ -13927,6 +13874,11 @@ fragment ClusterConditionFragment on ClusterCondition {
 	message
 	reason
 	severity
+}
+fragment TinyProjectFragment on Project {
+	id
+	name
+	default
 }
 `
 
@@ -13981,6 +13933,9 @@ fragment ClusterFragment on Cluster {
 	status {
 		... ClusterStatusFragment
 	}
+	project {
+		... TinyProjectFragment
+	}
 }
 fragment ClusterTags on Tag {
 	name
@@ -14108,6 +14063,11 @@ fragment ClusterConditionFragment on ClusterCondition {
 	message
 	reason
 	severity
+}
+fragment TinyProjectFragment on Project {
+	id
+	name
+	default
 }
 `
 
@@ -14162,6 +14122,9 @@ fragment ClusterFragment on Cluster {
 	status {
 		... ClusterStatusFragment
 	}
+	project {
+		... TinyProjectFragment
+	}
 }
 fragment ClusterTags on Tag {
 	name
@@ -14289,6 +14252,11 @@ fragment ClusterConditionFragment on ClusterCondition {
 	message
 	reason
 	severity
+}
+fragment TinyProjectFragment on Project {
+	id
+	name
+	default
 }
 `
 
@@ -14986,6 +14954,9 @@ fragment BaseClusterFragment on Cluster {
 	nodePools {
 		... NodePoolFragment
 	}
+	project {
+		... TinyProjectFragment
+	}
 }
 fragment ProviderCredentialFragment on ProviderCredential {
 	id
@@ -15026,6 +14997,11 @@ fragment NodePoolTaintFragment on Taint {
 	key
 	value
 	effect
+}
+fragment TinyProjectFragment on Project {
+	id
+	name
+	default
 }
 fragment ErrorFragment on ServiceError {
 	source
@@ -15162,6 +15138,9 @@ fragment BaseClusterFragment on Cluster {
 	nodePools {
 		... NodePoolFragment
 	}
+	project {
+		... TinyProjectFragment
+	}
 }
 fragment ProviderCredentialFragment on ProviderCredential {
 	id
@@ -15202,6 +15181,11 @@ fragment NodePoolTaintFragment on Taint {
 	key
 	value
 	effect
+}
+fragment TinyProjectFragment on Project {
+	id
+	name
+	default
 }
 fragment ErrorFragment on ServiceError {
 	source
@@ -15520,6 +15504,9 @@ fragment BaseClusterFragment on Cluster {
 	nodePools {
 		... NodePoolFragment
 	}
+	project {
+		... TinyProjectFragment
+	}
 }
 fragment ProviderCredentialFragment on ProviderCredential {
 	id
@@ -15560,6 +15547,11 @@ fragment NodePoolTaintFragment on Taint {
 	key
 	value
 	effect
+}
+fragment TinyProjectFragment on Project {
+	id
+	name
+	default
 }
 fragment ErrorFragment on ServiceError {
 	source
@@ -15696,6 +15688,9 @@ fragment BaseClusterFragment on Cluster {
 	nodePools {
 		... NodePoolFragment
 	}
+	project {
+		... TinyProjectFragment
+	}
 }
 fragment ProviderCredentialFragment on ProviderCredential {
 	id
@@ -15736,6 +15731,11 @@ fragment NodePoolTaintFragment on Taint {
 	key
 	value
 	effect
+}
+fragment TinyProjectFragment on Project {
+	id
+	name
+	default
 }
 fragment ErrorFragment on ServiceError {
 	source
@@ -16479,6 +16479,9 @@ fragment BaseClusterFragment on Cluster {
 	nodePools {
 		... NodePoolFragment
 	}
+	project {
+		... TinyProjectFragment
+	}
 }
 fragment ProviderCredentialFragment on ProviderCredential {
 	id
@@ -16519,6 +16522,11 @@ fragment NodePoolTaintFragment on Taint {
 	key
 	value
 	effect
+}
+fragment TinyProjectFragment on Project {
+	id
+	name
+	default
 }
 fragment ErrorFragment on ServiceError {
 	source
@@ -16725,6 +16733,9 @@ fragment BaseClusterFragment on Cluster {
 	nodePools {
 		... NodePoolFragment
 	}
+	project {
+		... TinyProjectFragment
+	}
 }
 fragment ProviderCredentialFragment on ProviderCredential {
 	id
@@ -16765,6 +16776,11 @@ fragment NodePoolTaintFragment on Taint {
 	key
 	value
 	effect
+}
+fragment TinyProjectFragment on Project {
+	id
+	name
+	default
 }
 fragment ErrorFragment on ServiceError {
 	source
@@ -17333,6 +17349,9 @@ fragment BaseClusterFragment on Cluster {
 	nodePools {
 		... NodePoolFragment
 	}
+	project {
+		... TinyProjectFragment
+	}
 }
 fragment ProviderCredentialFragment on ProviderCredential {
 	id
@@ -17373,6 +17392,11 @@ fragment NodePoolTaintFragment on Taint {
 	key
 	value
 	effect
+}
+fragment TinyProjectFragment on Project {
+	id
+	name
+	default
 }
 fragment ErrorFragment on ServiceError {
 	source
@@ -17508,6 +17532,9 @@ fragment BaseClusterFragment on Cluster {
 	nodePools {
 		... NodePoolFragment
 	}
+	project {
+		... TinyProjectFragment
+	}
 }
 fragment ProviderCredentialFragment on ProviderCredential {
 	id
@@ -17548,6 +17575,11 @@ fragment NodePoolTaintFragment on Taint {
 	key
 	value
 	effect
+}
+fragment TinyProjectFragment on Project {
+	id
+	name
+	default
 }
 fragment ErrorFragment on ServiceError {
 	source
@@ -18582,6 +18614,182 @@ func (c *Client) CreatePullRequest(ctx context.Context, id string, branch *strin
 	return &res, nil
 }
 
+const ListNamespacesDocument = `query ListNamespaces ($after: String, $first: Int, $before: String, $last: Int) {
+	managedNamespaces(after: $after, first: $first, before: $before, last: $last) {
+		pageInfo {
+			... PageInfoFragment
+		}
+		edges {
+			... ManagedNamespaceEdgeFragment
+		}
+	}
+}
+fragment PageInfoFragment on PageInfo {
+	hasNextPage
+	endCursor
+}
+fragment ManagedNamespaceEdgeFragment on ManagedNamespaceEdge {
+	cursor
+	node {
+		... ManagedNamespaceMinimalFragment
+	}
+}
+fragment ManagedNamespaceMinimalFragment on ManagedNamespace {
+	id
+	name
+	description
+}
+`
+
+func (c *Client) ListNamespaces(ctx context.Context, after *string, first *int64, before *string, last *int64, interceptors ...clientv2.RequestInterceptor) (*ListNamespaces, error) {
+	vars := map[string]interface{}{
+		"after":  after,
+		"first":  first,
+		"before": before,
+		"last":   last,
+	}
+
+	var res ListNamespaces
+	if err := c.Client.Post(ctx, "ListNamespaces", ListNamespacesDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const ListClusterNamespacesDocument = `query ListClusterNamespaces ($after: String, $first: Int, $before: String, $last: Int) {
+	clusterManagedNamespaces(after: $after, first: $first, before: $before, last: $last) {
+		pageInfo {
+			... PageInfoFragment
+		}
+		edges {
+			... ManagedNamespaceEdgeFragment
+		}
+	}
+}
+fragment PageInfoFragment on PageInfo {
+	hasNextPage
+	endCursor
+}
+fragment ManagedNamespaceEdgeFragment on ManagedNamespaceEdge {
+	cursor
+	node {
+		... ManagedNamespaceMinimalFragment
+	}
+}
+fragment ManagedNamespaceMinimalFragment on ManagedNamespace {
+	id
+	name
+	description
+}
+`
+
+func (c *Client) ListClusterNamespaces(ctx context.Context, after *string, first *int64, before *string, last *int64, interceptors ...clientv2.RequestInterceptor) (*ListClusterNamespaces, error) {
+	vars := map[string]interface{}{
+		"after":  after,
+		"first":  first,
+		"before": before,
+		"last":   last,
+	}
+
+	var res ListClusterNamespaces
+	if err := c.Client.Post(ctx, "ListClusterNamespaces", ListClusterNamespacesDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const GetNamespaceDocument = `query GetNamespace ($id: ID!) {
+	managedNamespace(id: $id) {
+		... ManagedNamespaceFragment
+	}
+}
+fragment ManagedNamespaceFragment on ManagedNamespace {
+	id
+	name
+	description
+	labels
+	annotations
+	pullSecrets
+	service {
+		... ServiceTemplateFragment
+	}
+	target {
+		... ClusterTargetFragment
+	}
+	deletedAt
+}
+fragment ServiceTemplateFragment on ServiceTemplate {
+	name
+	namespace
+	templated
+	repositoryId
+	contexts
+	git {
+		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
+	}
+	kustomize {
+		... KustomizeFragment
+	}
+	syncConfig {
+		... SyncConfigFragment
+	}
+}
+fragment GitRefFragment on GitRef {
+	folder
+	ref
+}
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
+fragment KustomizeFragment on Kustomize {
+	path
+}
+fragment SyncConfigFragment on SyncConfig {
+	createNamespace
+	namespaceMetadata {
+		... NamespaceMetadataFragment
+	}
+}
+fragment NamespaceMetadataFragment on NamespaceMetadata {
+	labels
+	annotations
+}
+fragment ClusterTargetFragment on ClusterTarget {
+	tags
+	distro
+}
+`
+
+func (c *Client) GetNamespace(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*GetNamespace, error) {
+	vars := map[string]interface{}{
+		"id": id,
+	}
+
+	var res GetNamespace
+	if err := c.Client.Post(ctx, "GetNamespace", GetNamespaceDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
 const CreateNamespaceDocument = `mutation CreateNamespace ($attributes: ManagedNamespaceAttributes!) {
 	createManagedNamespace(attributes: $attributes) {
 		... ManagedNamespaceFragment
@@ -18761,182 +18969,6 @@ func (c *Client) DeleteNamespace(ctx context.Context, id string, interceptors ..
 
 	var res DeleteNamespace
 	if err := c.Client.Post(ctx, "DeleteNamespace", DeleteNamespaceDocument, &res, vars, interceptors...); err != nil {
-		if c.Client.ParseDataWhenErrors {
-			return &res, err
-		}
-
-		return nil, err
-	}
-
-	return &res, nil
-}
-
-const ListNamespacesDocument = `query ListNamespaces ($after: String, $first: Int, $before: String, $last: Int) {
-	managedNamespaces(after: $after, first: $first, before: $before, last: $last) {
-		pageInfo {
-			... PageInfoFragment
-		}
-		edges {
-			... ManagedNamespaceEdgeFragment
-		}
-	}
-}
-fragment PageInfoFragment on PageInfo {
-	hasNextPage
-	endCursor
-}
-fragment ManagedNamespaceEdgeFragment on ManagedNamespaceEdge {
-	cursor
-	node {
-		... ManagedNamespaceMinimalFragment
-	}
-}
-fragment ManagedNamespaceMinimalFragment on ManagedNamespace {
-	id
-	name
-	description
-}
-`
-
-func (c *Client) ListNamespaces(ctx context.Context, after *string, first *int64, before *string, last *int64, interceptors ...clientv2.RequestInterceptor) (*ListNamespaces, error) {
-	vars := map[string]interface{}{
-		"after":  after,
-		"first":  first,
-		"before": before,
-		"last":   last,
-	}
-
-	var res ListNamespaces
-	if err := c.Client.Post(ctx, "ListNamespaces", ListNamespacesDocument, &res, vars, interceptors...); err != nil {
-		if c.Client.ParseDataWhenErrors {
-			return &res, err
-		}
-
-		return nil, err
-	}
-
-	return &res, nil
-}
-
-const ListClusterNamespacesDocument = `query ListClusterNamespaces ($after: String, $first: Int, $before: String, $last: Int) {
-	clusterManagedNamespaces(after: $after, first: $first, before: $before, last: $last) {
-		pageInfo {
-			... PageInfoFragment
-		}
-		edges {
-			... ManagedNamespaceEdgeFragment
-		}
-	}
-}
-fragment PageInfoFragment on PageInfo {
-	hasNextPage
-	endCursor
-}
-fragment ManagedNamespaceEdgeFragment on ManagedNamespaceEdge {
-	cursor
-	node {
-		... ManagedNamespaceMinimalFragment
-	}
-}
-fragment ManagedNamespaceMinimalFragment on ManagedNamespace {
-	id
-	name
-	description
-}
-`
-
-func (c *Client) ListClusterNamespaces(ctx context.Context, after *string, first *int64, before *string, last *int64, interceptors ...clientv2.RequestInterceptor) (*ListClusterNamespaces, error) {
-	vars := map[string]interface{}{
-		"after":  after,
-		"first":  first,
-		"before": before,
-		"last":   last,
-	}
-
-	var res ListClusterNamespaces
-	if err := c.Client.Post(ctx, "ListClusterNamespaces", ListClusterNamespacesDocument, &res, vars, interceptors...); err != nil {
-		if c.Client.ParseDataWhenErrors {
-			return &res, err
-		}
-
-		return nil, err
-	}
-
-	return &res, nil
-}
-
-const GetNamespaceDocument = `query GetNamespace ($id: ID!) {
-	managedNamespace(id: $id) {
-		... ManagedNamespaceFragment
-	}
-}
-fragment ManagedNamespaceFragment on ManagedNamespace {
-	id
-	name
-	description
-	labels
-	annotations
-	pullSecrets
-	service {
-		... ServiceTemplateFragment
-	}
-	target {
-		... ClusterTargetFragment
-	}
-	deletedAt
-}
-fragment ServiceTemplateFragment on ServiceTemplate {
-	name
-	namespace
-	templated
-	repositoryId
-	contexts
-	git {
-		... GitRefFragment
-	}
-	helm {
-		... HelmSpecFragment
-	}
-	kustomize {
-		... KustomizeFragment
-	}
-	syncConfig {
-		... SyncConfigFragment
-	}
-}
-fragment GitRefFragment on GitRef {
-	folder
-	ref
-}
-fragment HelmSpecFragment on HelmSpec {
-	valuesFiles
-}
-fragment KustomizeFragment on Kustomize {
-	path
-}
-fragment SyncConfigFragment on SyncConfig {
-	createNamespace
-	namespaceMetadata {
-		... NamespaceMetadataFragment
-	}
-}
-fragment NamespaceMetadataFragment on NamespaceMetadata {
-	labels
-	annotations
-}
-fragment ClusterTargetFragment on ClusterTarget {
-	tags
-	distro
-}
-`
-
-func (c *Client) GetNamespace(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*GetNamespace, error) {
-	vars := map[string]interface{}{
-		"id": id,
-	}
-
-	var res GetNamespace
-	if err := c.Client.Post(ctx, "GetNamespace", GetNamespaceDocument, &res, vars, interceptors...); err != nil {
 		if c.Client.ParseDataWhenErrors {
 			return &res, err
 		}
@@ -19532,6 +19564,9 @@ fragment PipelineFragment on Pipeline {
 	edges {
 		... PipelineStageEdgeFragment
 	}
+	project {
+		... TinyProjectFragment
+	}
 }
 fragment PipelineStageFragment on PipelineStage {
 	id
@@ -19592,6 +19627,11 @@ fragment PipelineStageEdgeFragment on PipelineStageEdge {
 	to {
 		... PipelineStageFragment
 	}
+}
+fragment TinyProjectFragment on Project {
+	id
+	name
+	default
 }
 `
 
@@ -19627,6 +19667,9 @@ fragment PipelineFragment on Pipeline {
 	edges {
 		... PipelineStageEdgeFragment
 	}
+	project {
+		... TinyProjectFragment
+	}
 }
 fragment PipelineStageFragment on PipelineStage {
 	id
@@ -19687,6 +19730,11 @@ fragment PipelineStageEdgeFragment on PipelineStageEdge {
 	to {
 		... PipelineStageFragment
 	}
+}
+fragment TinyProjectFragment on Project {
+	id
+	name
+	default
 }
 `
 
@@ -19721,6 +19769,9 @@ fragment PipelineFragment on Pipeline {
 	edges {
 		... PipelineStageEdgeFragment
 	}
+	project {
+		... TinyProjectFragment
+	}
 }
 fragment PipelineStageFragment on PipelineStage {
 	id
@@ -19781,6 +19832,11 @@ fragment PipelineStageEdgeFragment on PipelineStageEdge {
 	to {
 		... PipelineStageFragment
 	}
+}
+fragment TinyProjectFragment on Project {
+	id
+	name
+	default
 }
 `
 
@@ -19822,6 +19878,9 @@ fragment PipelineFragment on Pipeline {
 	edges {
 		... PipelineStageEdgeFragment
 	}
+	project {
+		... TinyProjectFragment
+	}
 }
 fragment PipelineStageFragment on PipelineStage {
 	id
@@ -19882,6 +19941,11 @@ fragment PipelineStageEdgeFragment on PipelineStageEdge {
 	to {
 		... PipelineStageFragment
 	}
+}
+fragment TinyProjectFragment on Project {
+	id
+	name
+	default
 }
 `
 
@@ -20267,17 +20331,11 @@ func (c *Client) DeleteProviderCredential(ctx context.Context, id string, interc
 
 const ListProvidersDocument = `query ListProviders {
 	clusterProviders(first: 100) {
-		... ClusterProviderConnectionFragment
-	}
-}
-fragment ClusterProviderConnectionFragment on ClusterProviderConnection {
-	edges {
-		... ClusterProviderEdgeFragment
-	}
-}
-fragment ClusterProviderEdgeFragment on ClusterProviderEdge {
-	node {
-		... ClusterProviderFragment
+		edges {
+			node {
+				... ClusterProviderFragment
+			}
+		}
 	}
 }
 fragment ClusterProviderFragment on ClusterProvider {
@@ -20515,6 +20573,9 @@ fragment InfrastructureStackFragment on InfrastructureStack {
 	cluster {
 		... TinyClusterFragment
 	}
+	project {
+		... TinyProjectFragment
+	}
 	approval
 	workdir
 	manageState
@@ -20584,6 +20645,14 @@ fragment TinyClusterFragment on Cluster {
 	name
 	handle
 	self
+	project {
+		... TinyProjectFragment
+	}
+}
+fragment TinyProjectFragment on Project {
+	id
+	name
+	default
 }
 fragment StackFileFragment on StackFile {
 	path
@@ -20705,6 +20774,9 @@ fragment InfrastructureStackFragment on InfrastructureStack {
 	cluster {
 		... TinyClusterFragment
 	}
+	project {
+		... TinyProjectFragment
+	}
 	approval
 	workdir
 	manageState
@@ -20774,6 +20846,14 @@ fragment TinyClusterFragment on Cluster {
 	name
 	handle
 	self
+	project {
+		... TinyProjectFragment
+	}
+}
+fragment TinyProjectFragment on Project {
+	id
+	name
+	default
 }
 fragment StackFileFragment on StackFile {
 	path
@@ -20941,6 +21021,9 @@ fragment InfrastructureStackFragment on InfrastructureStack {
 	cluster {
 		... TinyClusterFragment
 	}
+	project {
+		... TinyProjectFragment
+	}
 	approval
 	workdir
 	manageState
@@ -21010,6 +21093,14 @@ fragment TinyClusterFragment on Cluster {
 	name
 	handle
 	self
+	project {
+		... TinyProjectFragment
+	}
+}
+fragment TinyProjectFragment on Project {
+	id
+	name
+	default
 }
 fragment StackFileFragment on StackFile {
 	path
@@ -21176,6 +21267,9 @@ fragment InfrastructureStackFragment on InfrastructureStack {
 	cluster {
 		... TinyClusterFragment
 	}
+	project {
+		... TinyProjectFragment
+	}
 	approval
 	workdir
 	manageState
@@ -21245,6 +21339,14 @@ fragment TinyClusterFragment on Cluster {
 	name
 	handle
 	self
+	project {
+		... TinyProjectFragment
+	}
+}
+fragment TinyProjectFragment on Project {
+	id
+	name
+	default
 }
 fragment StackFileFragment on StackFile {
 	path
@@ -21411,6 +21513,9 @@ fragment InfrastructureStackFragment on InfrastructureStack {
 	cluster {
 		... TinyClusterFragment
 	}
+	project {
+		... TinyProjectFragment
+	}
 	approval
 	workdir
 	manageState
@@ -21480,6 +21585,14 @@ fragment TinyClusterFragment on Cluster {
 	name
 	handle
 	self
+	project {
+		... TinyProjectFragment
+	}
+}
+fragment TinyProjectFragment on Project {
+	id
+	name
+	default
 }
 fragment StackFileFragment on StackFile {
 	path
@@ -21647,6 +21760,9 @@ fragment InfrastructureStackFragment on InfrastructureStack {
 	cluster {
 		... TinyClusterFragment
 	}
+	project {
+		... TinyProjectFragment
+	}
 	approval
 	workdir
 	manageState
@@ -21716,6 +21832,14 @@ fragment TinyClusterFragment on Cluster {
 	name
 	handle
 	self
+	project {
+		... TinyProjectFragment
+	}
+}
+fragment TinyProjectFragment on Project {
+	id
+	name
+	default
 }
 fragment StackFileFragment on StackFile {
 	path
@@ -21820,6 +21944,9 @@ fragment InfrastructureStackFragment on InfrastructureStack {
 	cluster {
 		... TinyClusterFragment
 	}
+	project {
+		... TinyProjectFragment
+	}
 	approval
 	workdir
 	manageState
@@ -21889,6 +22016,14 @@ fragment TinyClusterFragment on Cluster {
 	name
 	handle
 	self
+	project {
+		... TinyProjectFragment
+	}
+}
+fragment TinyProjectFragment on Project {
+	id
+	name
+	default
 }
 fragment StackFileFragment on StackFile {
 	path
@@ -21985,6 +22120,9 @@ fragment InfrastructureStackFragment on InfrastructureStack {
 	cluster {
 		... TinyClusterFragment
 	}
+	project {
+		... TinyProjectFragment
+	}
 	approval
 	workdir
 	manageState
@@ -22054,6 +22192,14 @@ fragment TinyClusterFragment on Cluster {
 	name
 	handle
 	self
+	project {
+		... TinyProjectFragment
+	}
+}
+fragment TinyProjectFragment on Project {
+	id
+	name
+	default
 }
 fragment StackFileFragment on StackFile {
 	path
@@ -22151,6 +22297,9 @@ fragment InfrastructureStackFragment on InfrastructureStack {
 	cluster {
 		... TinyClusterFragment
 	}
+	project {
+		... TinyProjectFragment
+	}
 	approval
 	workdir
 	manageState
@@ -22220,6 +22369,14 @@ fragment TinyClusterFragment on Cluster {
 	name
 	handle
 	self
+	project {
+		... TinyProjectFragment
+	}
+}
+fragment TinyProjectFragment on Project {
+	id
+	name
+	default
 }
 fragment StackFileFragment on StackFile {
 	path
@@ -22316,6 +22473,9 @@ fragment InfrastructureStackFragment on InfrastructureStack {
 	cluster {
 		... TinyClusterFragment
 	}
+	project {
+		... TinyProjectFragment
+	}
 	approval
 	workdir
 	manageState
@@ -22385,6 +22545,14 @@ fragment TinyClusterFragment on Cluster {
 	name
 	handle
 	self
+	project {
+		... TinyProjectFragment
+	}
+}
+fragment TinyProjectFragment on Project {
+	id
+	name
+	default
 }
 fragment StackFileFragment on StackFile {
 	path
@@ -22481,6 +22649,9 @@ fragment InfrastructureStackFragment on InfrastructureStack {
 	cluster {
 		... TinyClusterFragment
 	}
+	project {
+		... TinyProjectFragment
+	}
 	approval
 	workdir
 	manageState
@@ -22550,6 +22721,14 @@ fragment TinyClusterFragment on Cluster {
 	name
 	handle
 	self
+	project {
+		... TinyProjectFragment
+	}
+}
+fragment TinyProjectFragment on Project {
+	id
+	name
+	default
 }
 fragment StackFileFragment on StackFile {
 	path
@@ -22708,6 +22887,9 @@ fragment InfrastructureStackFragment on InfrastructureStack {
 	cluster {
 		... TinyClusterFragment
 	}
+	project {
+		... TinyProjectFragment
+	}
 	approval
 	workdir
 	manageState
@@ -22777,6 +22959,14 @@ fragment TinyClusterFragment on Cluster {
 	name
 	handle
 	self
+	project {
+		... TinyProjectFragment
+	}
+}
+fragment TinyProjectFragment on Project {
+	id
+	name
+	default
 }
 fragment StackFileFragment on StackFile {
 	path
@@ -23161,70 +23351,13 @@ func (c *Client) GetCustomStackRun(ctx context.Context, id string, interceptors 
 	return &res, nil
 }
 
-const CreateAccessTokenDocument = `mutation CreateAccessToken {
-	createAccessToken {
-		... AccessTokenFragment
-	}
-}
-fragment AccessTokenFragment on AccessToken {
-	id
-	token
-}
-`
-
-func (c *Client) CreateAccessToken(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*CreateAccessToken, error) {
-	vars := map[string]interface{}{}
-
-	var res CreateAccessToken
-	if err := c.Client.Post(ctx, "CreateAccessToken", CreateAccessTokenDocument, &res, vars, interceptors...); err != nil {
-		if c.Client.ParseDataWhenErrors {
-			return &res, err
-		}
-
-		return nil, err
-	}
-
-	return &res, nil
-}
-
-const DeleteAccessTokenDocument = `mutation DeleteAccessToken ($token: String!) {
-	deleteAccessToken(token: $token) {
-		... AccessTokenFragment
-	}
-}
-fragment AccessTokenFragment on AccessToken {
-	id
-	token
-}
-`
-
-func (c *Client) DeleteAccessToken(ctx context.Context, token string, interceptors ...clientv2.RequestInterceptor) (*DeleteAccessToken, error) {
-	vars := map[string]interface{}{
-		"token": token,
-	}
-
-	var res DeleteAccessToken
-	if err := c.Client.Post(ctx, "DeleteAccessToken", DeleteAccessTokenDocument, &res, vars, interceptors...); err != nil {
-		if c.Client.ParseDataWhenErrors {
-			return &res, err
-		}
-
-		return nil, err
-	}
-
-	return &res, nil
-}
-
 const ListAccessTokensDocument = `query ListAccessTokens ($cursor: String, $before: String, $last: Int) {
 	accessTokens(after: $cursor, first: 100, before: $before, last: $last) {
 		edges {
-			... AccessTokenEdgeFragment
+			node {
+				... AccessTokenFragment
+			}
 		}
-	}
-}
-fragment AccessTokenEdgeFragment on AccessTokenEdge {
-	node {
-		... AccessTokenFragment
 	}
 }
 fragment AccessTokenFragment on AccessToken {
@@ -23307,6 +23440,60 @@ func (c *Client) TokenExchange(ctx context.Context, token string, interceptors .
 
 	var res TokenExchange
 	if err := c.Client.Post(ctx, "TokenExchange", TokenExchangeDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const CreateAccessTokenDocument = `mutation CreateAccessToken {
+	createAccessToken {
+		... AccessTokenFragment
+	}
+}
+fragment AccessTokenFragment on AccessToken {
+	id
+	token
+}
+`
+
+func (c *Client) CreateAccessToken(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*CreateAccessToken, error) {
+	vars := map[string]interface{}{}
+
+	var res CreateAccessToken
+	if err := c.Client.Post(ctx, "CreateAccessToken", CreateAccessTokenDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const DeleteAccessTokenDocument = `mutation DeleteAccessToken ($token: String!) {
+	deleteAccessToken(token: $token) {
+		... AccessTokenFragment
+	}
+}
+fragment AccessTokenFragment on AccessToken {
+	id
+	token
+}
+`
+
+func (c *Client) DeleteAccessToken(ctx context.Context, token string, interceptors ...clientv2.RequestInterceptor) (*DeleteAccessToken, error) {
+	vars := map[string]interface{}{
+		"token": token,
+	}
+
+	var res DeleteAccessToken
+	if err := c.Client.Post(ctx, "DeleteAccessToken", DeleteAccessTokenDocument, &res, vars, interceptors...); err != nil {
 		if c.Client.ParseDataWhenErrors {
 			return &res, err
 		}
@@ -23521,12 +23708,12 @@ var DocumentOperationNames = map[string]string{
 	UpdatePrAutomationDocument:                        "UpdatePrAutomation",
 	DeletePrAutomationDocument:                        "DeletePrAutomation",
 	CreatePullRequestDocument:                         "CreatePullRequest",
-	CreateNamespaceDocument:                           "CreateNamespace",
-	UpdateNamespaceDocument:                           "UpdateNamespace",
-	DeleteNamespaceDocument:                           "DeleteNamespace",
 	ListNamespacesDocument:                            "ListNamespaces",
 	ListClusterNamespacesDocument:                     "ListClusterNamespaces",
 	GetNamespaceDocument:                              "GetNamespace",
+	CreateNamespaceDocument:                           "CreateNamespace",
+	UpdateNamespaceDocument:                           "UpdateNamespace",
+	DeleteNamespaceDocument:                           "DeleteNamespace",
 	UpsertNotificationSinkDocument:                    "UpsertNotificationSink",
 	DeleteNotificationSinkDocument:                    "DeleteNotificationSink",
 	GetNotificationSinkDocument:                       "GetNotificationSink",
@@ -23571,11 +23758,11 @@ var DocumentOperationNames = map[string]string{
 	CreateCustomStackRunDocument:                      "CreateCustomStackRun",
 	DeleteCustomStackRunDocument:                      "DeleteCustomStackRun",
 	GetCustomStackRunDocument:                         "GetCustomStackRun",
-	CreateAccessTokenDocument:                         "CreateAccessToken",
-	DeleteAccessTokenDocument:                         "DeleteAccessToken",
 	ListAccessTokensDocument:                          "ListAccessTokens",
 	GetAccessTokenDocument:                            "GetAccessToken",
 	TokenExchangeDocument:                             "TokenExchange",
+	CreateAccessTokenDocument:                         "CreateAccessToken",
+	DeleteAccessTokenDocument:                         "DeleteAccessToken",
 	GetUserDocument:                                   "GetUser",
 	GetGroupDocument:                                  "GetGroup",
 	AddGroupMemberDocument:                            "AddGroupMember",

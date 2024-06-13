@@ -1,3 +1,165 @@
+fragment InfrastructureStackEdgeFragment on InfrastructureStackEdge {
+    node { ...InfrastructureStackFragment}
+}
+
+fragment StackRunEdgeFragment on StackRunEdge {
+    node { ...StackRunFragment}
+}
+
+fragment InfrastructureStackFragment on InfrastructureStack {
+    id
+    name
+    type
+    git { ...GitRefFragment }
+    jobSpec { ...JobSpecFragment}
+    configuration { ...StackConfigurationFragment}
+    cluster { ...TinyClusterFragment }
+    project {...TinyProjectFragment }
+    approval
+    workdir
+    manageState
+    deletedAt
+    files { ...StackFileFragment}
+    environment { ...StackEnvironmentFragment}
+    output { ...StackOutputFragment}
+    state { ...StackStateFragment}
+    repository { ...GitRepositoryFragment}
+    writeBindings { ...PolicyBindingFragment }
+    readBindings { ...PolicyBindingFragment }
+}
+
+fragment StackRunFragment on StackRun {
+    ...StackRunBaseFragment
+    approver { ...UserFragment}
+}
+
+fragment StackRunBaseFragment on StackRun {
+    id
+    type
+    status
+    approval
+    approvedAt
+    tarball
+    workdir
+    manageState
+    stateUrls {
+        terraform {
+            address
+            lock
+            unlock
+        }
+    }
+    pluralCreds {
+        url
+        token
+    }
+    actor { ...UserFragment }
+    stack { ...InfrastructureStackFragment }
+    state { ...StackStateFragment}
+    steps { ...RunStepFragment}
+    files { ...StackFileFragment}
+    git { ...GitRefFragment }
+    repository { ...GitRepositoryFragment}
+    jobSpec { ...JobSpecFragment}
+    configuration { ...StackConfigurationFragment}
+    environment { ...StackEnvironmentFragment}
+    output { ...StackOutputFragment}
+    errors { ...ServiceErrorFragment}
+}
+
+fragment ServiceErrorFragment on ServiceError {
+    source
+    message
+}
+
+fragment StackOutputFragment on StackOutput {
+    name
+    value
+    secret
+}
+
+fragment StackStateFragment on StackState {
+    id
+    plan
+    state { ...StackStateResourceFragment}
+}
+
+fragment StackStateResourceFragment on StackStateResource {
+    identifier
+    resource
+    name
+    configuration
+    links
+}
+
+fragment StackEnvironmentFragment on StackEnvironment {
+    name
+    value
+    secret
+}
+
+fragment StackFileFragment on StackFile {
+    path
+    content
+}
+
+fragment RunStepFragment on RunStep {
+    id
+    status
+    name
+    cmd
+    args
+    index
+    stage
+}
+
+
+fragment StackConfigurationFragment on StackConfiguration {
+    image
+    version
+    hooks {...StackHookFragment}
+}
+
+fragment StackHookFragment on StackHook {
+    cmd
+    args
+    afterStage
+}
+
+fragment CustomStackRunFragment on CustomStackRun {
+    id
+    name
+    stack {
+        id
+    }
+    documentation
+    commands { ...StackCommandFragment}
+    configuration { ...PrConfigurationFragment}
+}
+
+fragment StackCommandFragment on StackCommand {
+    cmd
+    args
+    dir
+}
+
+fragment PrConfigurationFragment on PrConfiguration {
+    type
+    name
+    default
+    documentation
+    longform
+    placeholder
+    optional
+    condition { ...PrConfigurationConditionFragment}
+}
+
+fragment PrConfigurationConditionFragment on PrConfigurationCondition {
+    operation
+    field
+    value
+}
+
 query ListClusterStacks($after: String, $first: Int, $before: String, $last: Int) {
     clusterStackRuns(after: $after, first: $first, before: $before, last: $last) {
         pageInfo { ...PageInfoFragment}

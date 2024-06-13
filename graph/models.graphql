@@ -19,7 +19,7 @@ fragment ServiceContextFragment on ServiceContext {
     configuration
 }
 
-fragment ComponentContentFragment on ComponentContent{
+fragment ComponentContentFragment on ComponentContent {
     id
     live
     desired
@@ -68,12 +68,8 @@ fragment RevisionFragment on Revision {
 
 fragment PolicyBindingFragment on PolicyBinding {
     id
-    group {
-        ...GroupFragment
-    }
-    user {
-        ...UserFragment
-    }
+    group { ...GroupFragment }
+    user { ...UserFragment }
 }
 
 fragment UserFragment on User {
@@ -94,15 +90,6 @@ fragment GroupMemberFragment on GroupMember {
     group { id }
 }
 
-fragment GitRepositoryFragment on GitRepository {
-    id
-    error
-    health
-    authMethod
-    url
-    decrypt
-}
-
 fragment GitRefFragment on GitRef {
     folder
     ref
@@ -117,6 +104,7 @@ fragment TinyClusterFragment on Cluster {
     name
     handle
     self
+    project {...TinyProjectFragment }
 }
 
 fragment BaseClusterFragment on Cluster {
@@ -132,66 +120,7 @@ fragment BaseClusterFragment on Cluster {
     credential { ...ProviderCredentialFragment }
     provider { ...BaseClusterProviderFragment }
     nodePools { ...NodePoolFragment }
-}
-
-fragment ClusterFragment on Cluster {
-    id
-    name
-    handle
-    self
-    version
-    insertedAt
-    pingedAt
-    protect
-    currentVersion
-    kasUrl
-    deletedAt
-    metadata
-    tags { ...ClusterTags }
-    credential { ...ProviderCredentialFragment }
-    provider { ...ClusterProviderFragment }
-    nodePools { ...NodePoolFragment }
-    status { ...ClusterStatusFragment }
-}
-
-fragment ClusterStatusFragment on ClusterStatus {
-    conditions { ...ClusterConditionFragment }
-    controlPlaneReady
-    failureMessage
-    failureReason
-    phase
-}
-
-fragment ClusterConditionFragment on ClusterCondition {
-    lastTransitionTime
-    status
-    type
-    message
-    reason
-    severity
-}
-
-fragment ClusterTags on Tag {
-    name
-    value
-}
-
-fragment NodePoolFragment on NodePool {
-    id
-    name
-    minSize
-    maxSize
-    instanceType
-    labels
-    taints {
-        ...NodePoolTaintFragment
-    }
-}
-
-fragment NodePoolTaintFragment on Taint {
-    key
-    value
-    effect
+    project {...TinyProjectFragment }
 }
 
 fragment BaseClusterProviderFragment on ClusterProvider {
@@ -202,35 +131,6 @@ fragment BaseClusterProviderFragment on ClusterProvider {
     editable
     repository {
         ...GitRepositoryFragment
-    }
-}
-
-fragment ClusterProviderFragment on ClusterProvider {
-    id
-    name
-    namespace
-    cloud
-    editable
-    deletedAt
-    repository {
-        ...GitRepositoryFragment
-    }
-    service {
-        ...ServiceDeploymentFragment
-    }
-    credentials {
-        ...ProviderCredentialFragment
-    }
-}
-
-fragment AccessTokenFragment on AccessToken {
-    id
-    token
-}
-
-fragment AccessTokenEdgeFragment on AccessTokenEdge {
-    node {
-        ...AccessTokenFragment
     }
 }
 
@@ -246,21 +146,11 @@ fragment DeploymentSettingsFragment on DeploymentSettings {
     name
     agentHelmValues
     agentVsn
-    writeBindings {
-        ...PolicyBindingFragment
-    }
-    readBindings {
-        ...PolicyBindingFragment
-    }
-    createBindings {
-        ...PolicyBindingFragment
-    }
-    artifactRepository {
-        ...GitRepositoryFragment
-    }
-    deployerRepository {
-        ...GitRepositoryFragment
-    }
+    writeBindings { ...PolicyBindingFragment }
+    readBindings { ...PolicyBindingFragment }
+    createBindings { ...PolicyBindingFragment }
+    artifactRepository { ...GitRepositoryFragment }
+    deployerRepository { ...GitRepositoryFragment }
 }
 
 fragment ClusterEdgeFragment on ClusterEdge {
@@ -268,58 +158,7 @@ fragment ClusterEdgeFragment on ClusterEdge {
 }
 
 fragment ServiceDeploymentEdgeFragment on ServiceDeploymentEdge {
-    node {
-        ...ServiceDeploymentBaseFragment
-    }
-}
-
-fragment ProviderCredentialFragment on ProviderCredential {
-    id
-    name
-    namespace
-    kind
-}
-
-fragment ClusterProviderConnectionFragment on ClusterProviderConnection {
-    edges {
-        ... ClusterProviderEdgeFragment
-    }
-}
-
-fragment ClusterProviderEdgeFragment on ClusterProviderEdge {
-    node {
-        ...ClusterProviderFragment
-    }
-}
-
-fragment PipelineStageFragment on PipelineStage {
-    id
-    name
-    services { 
-        service { ...ServiceDeploymentBaseFragment }
-        criteria { 
-            source { ...ServiceDeploymentBaseFragment }
-            secrets
-        }
-    }
-}
-
-fragment PipelineStageEdgeFragment on PipelineStageEdge {
-    id
-    from { ...PipelineStageFragment }
-    to { ...PipelineStageFragment }
-}
-
-
-fragment PipelineFragment on Pipeline {
-    id
-    name
-    stages { ...PipelineStageFragment }
-    edges { ...PipelineStageEdgeFragment }
-}
-
-fragment PipelineEdgeFragment on PipelineEdge {
-    node { ...PipelineFragment }
+    node { ...ServiceDeploymentBaseFragment }
 }
 
 fragment GlobalServiceFragment on GlobalService {
@@ -329,19 +168,6 @@ fragment GlobalServiceFragment on GlobalService {
     provider { id }
     service { id }
     tags { ...ClusterTags }
-}
-
-fragment ClusterBackupFragment on ClusterBackup {
-    id
-    name
-    cluster { id }
-    garbageCollected
-}
-
-fragment ClusterRestoreFragment on ClusterRestore {
-    id
-    status
-    backup { ... ClusterBackupFragment}
 }
 
 fragment ScmConnectionFragment on ScmConnection {

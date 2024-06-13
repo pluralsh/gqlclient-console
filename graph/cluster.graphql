@@ -1,3 +1,82 @@
+fragment ClusterFragment on Cluster {
+    id
+    name
+    handle
+    self
+    version
+    insertedAt
+    pingedAt
+    protect
+    currentVersion
+    kasUrl
+    deletedAt
+    metadata
+    tags { ...ClusterTags }
+    credential { ...ProviderCredentialFragment }
+    provider { ...ClusterProviderFragment }
+    nodePools { ...NodePoolFragment }
+    status { ...ClusterStatusFragment }
+    project {...TinyProjectFragment }
+}
+
+fragment ClusterTags on Tag {
+    name
+    value
+}
+
+fragment ClusterProviderFragment on ClusterProvider {
+    id
+    name
+    namespace
+    cloud
+    editable
+    deletedAt
+    repository {
+        ...GitRepositoryFragment
+    }
+    service {
+        ...ServiceDeploymentFragment
+    }
+    credentials {
+        ...ProviderCredentialFragment
+    }
+}
+
+fragment NodePoolFragment on NodePool {
+    id
+    name
+    minSize
+    maxSize
+    instanceType
+    labels
+    taints {
+        ...NodePoolTaintFragment
+    }
+}
+
+fragment NodePoolTaintFragment on Taint {
+    key
+    value
+    effect
+}
+
+fragment ClusterStatusFragment on ClusterStatus {
+    conditions { ...ClusterConditionFragment }
+    controlPlaneReady
+    failureMessage
+    failureReason
+    phase
+}
+
+fragment ClusterConditionFragment on ClusterCondition {
+    lastTransitionTime
+    status
+    type
+    message
+    reason
+    severity
+}
+
 mutation CreateCluster($attributes: ClusterAttributes!) {
     createCluster(attributes: $attributes) {
         deployToken

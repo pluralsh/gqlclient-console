@@ -11,9 +11,9 @@ query GetGroup($name: String!) {
 }
 
 mutation AddGroupMember($groupId: ID!, $userId: ID!) {
-    createGroupMember(groupId: $groupId, userId: $userId) { 
+    createGroupMember(groupId: $groupId, userId: $userId) {
         ...GroupMemberFragment
-     }
+    }
 }
 
 mutation DeleteGroupMember($userId: ID!, $groupId: ID!) {

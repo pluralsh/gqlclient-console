@@ -2484,6 +2484,10 @@ type Pipeline struct {
 	Status *PipelineStatus  `json:"status,omitempty"`
 	// the project this pipeline belongs to
 	Project *Project `json:"project,omitempty"`
+	// read policy for this pipeline
+	ReadBindings []*PolicyBinding `json:"readBindings,omitempty"`
+	// write policy of this pipeline
+	WriteBindings []*PolicyBinding `json:"writeBindings,omitempty"`
 	// edges linking two stages w/in the pipeline in a full DAG
 	Edges []*PipelineStageEdge `json:"edges,omitempty"`
 	// lists the contexts applied to a pipeline
@@ -2494,9 +2498,11 @@ type Pipeline struct {
 
 // the top level input object for creating/deleting pipelines
 type PipelineAttributes struct {
-	ProjectID *string                    `json:"projectId,omitempty"`
-	Stages    []*PipelineStageAttributes `json:"stages,omitempty"`
-	Edges     []*PipelineEdgeAttributes  `json:"edges,omitempty"`
+	ProjectID     *string                    `json:"projectId,omitempty"`
+	Stages        []*PipelineStageAttributes `json:"stages,omitempty"`
+	Edges         []*PipelineEdgeAttributes  `json:"edges,omitempty"`
+	ReadBindings  []*PolicyBindingAttributes `json:"readBindings,omitempty"`
+	WriteBindings []*PolicyBindingAttributes `json:"writeBindings,omitempty"`
 }
 
 type PipelineConnection struct {

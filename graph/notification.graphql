@@ -1,3 +1,32 @@
+fragment NotificationRouterFragment on NotificationRouter {
+    id
+    name
+    sinks { ...NotificationSinkFragment }
+    events
+}
+
+fragment NotificationSinkEdgeFragment on NotificationSinkEdge {
+    cursor
+    node { ...NotificationSinkFragment }
+}
+
+fragment NotificationSinkFragment on NotificationSink {
+    id
+    name
+    type
+    configuration { ...SinkConfigurationFragment }
+}
+
+fragment SinkConfigurationFragment on SinkConfiguration {
+    id
+    slack {...UrlSinkConfigurationFragment}
+    teams {...UrlSinkConfigurationFragment}
+}
+
+fragment UrlSinkConfigurationFragment on UrlSinkConfiguration {
+    url
+}
+
 mutation UpsertNotificationSink($attributes: NotificationSinkAttributes!) {
     upsertNotificationSink(attributes: $attributes) {
         ...NotificationSinkFragment
@@ -51,33 +80,4 @@ mutation UpsertNotificationRouter($attributes: NotificationRouterAttributes!) {
     upsertNotificationRouter(attributes: $attributes) {
         ...NotificationRouterFragment
     }
-}
-
-fragment NotificationRouterFragment on NotificationRouter {
-    id
-    name
-    sinks { ...NotificationSinkFragment }
-    events
-}
-
-fragment NotificationSinkEdgeFragment on NotificationSinkEdge {
-    cursor
-    node { ...NotificationSinkFragment }
-}
-
-fragment NotificationSinkFragment on NotificationSink {
-    id
-    name
-    type
-    configuration { ...SinkConfigurationFragment }
-}
-
-fragment SinkConfigurationFragment on SinkConfiguration {
-    id
-    slack {...UrlSinkConfigurationFragment}
-    teams {...UrlSinkConfigurationFragment}
-}
-
-fragment UrlSinkConfigurationFragment on UrlSinkConfiguration {
-    url
 }

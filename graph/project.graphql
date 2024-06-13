@@ -5,14 +5,15 @@ fragment ProjectFragment on Project {
     name
     default
     description
-    readBindings {
-        ...PolicyBindingFragment
-    }
-    writeBindings {
-        ...PolicyBindingFragment
-    }
+    readBindings { ...PolicyBindingFragment }
+    writeBindings { ...PolicyBindingFragment }
 }
 
+fragment TinyProjectFragment on Project {
+    id
+    name
+    default
+}
 
 query ListProjects(
     $after: String
@@ -22,14 +23,8 @@ query ListProjects(
     $q: String
 ) {
     projects(after: $after, before: $before, first: $first, last: $last, q: $q) {
-        pageInfo {
-            ...PageInfoFragment
-        }
-        edges {
-            node {
-                ...ProjectFragment
-            }
-        }
+        pageInfo { ...PageInfoFragment }
+        edges { node { ...ProjectFragment }}
     }
 }
 
