@@ -1666,6 +1666,7 @@ type GlobalServiceFragment struct {
 	Provider *GlobalServiceFragment_Provider "json:\"provider,omitempty\" graphql:\"provider\""
 	Service  *GlobalServiceFragment_Service  "json:\"service,omitempty\" graphql:\"service\""
 	Tags     []*ClusterTags                  "json:\"tags,omitempty\" graphql:\"tags\""
+	Project  *TinyProjectFragment            "json:\"project,omitempty\" graphql:\"project\""
 }
 
 func (t *GlobalServiceFragment) GetID() string {
@@ -1703,6 +1704,12 @@ func (t *GlobalServiceFragment) GetTags() []*ClusterTags {
 		t = &GlobalServiceFragment{}
 	}
 	return t.Tags
+}
+func (t *GlobalServiceFragment) GetProject() *TinyProjectFragment {
+	if t == nil {
+		t = &GlobalServiceFragment{}
+	}
+	return t.Project
 }
 
 type ScmConnectionFragment struct {
@@ -14721,10 +14728,18 @@ fragment GlobalServiceFragment on GlobalService {
 	tags {
 		... ClusterTags
 	}
+	project {
+		... TinyProjectFragment
+	}
 }
 fragment ClusterTags on Tag {
 	name
 	value
+}
+fragment TinyProjectFragment on Project {
+	id
+	name
+	default
 }
 `
 
@@ -14763,10 +14778,18 @@ fragment GlobalServiceFragment on GlobalService {
 	tags {
 		... ClusterTags
 	}
+	project {
+		... TinyProjectFragment
+	}
 }
 fragment ClusterTags on Tag {
 	name
 	value
+}
+fragment TinyProjectFragment on Project {
+	id
+	name
+	default
 }
 `
 
@@ -14806,10 +14829,18 @@ fragment GlobalServiceFragment on GlobalService {
 	tags {
 		... ClusterTags
 	}
+	project {
+		... TinyProjectFragment
+	}
 }
 fragment ClusterTags on Tag {
 	name
 	value
+}
+fragment TinyProjectFragment on Project {
+	id
+	name
+	default
 }
 `
 
@@ -14848,10 +14879,18 @@ fragment GlobalServiceFragment on GlobalService {
 	tags {
 		... ClusterTags
 	}
+	project {
+		... TinyProjectFragment
+	}
 }
 fragment ClusterTags on Tag {
 	name
 	value
+}
+fragment TinyProjectFragment on Project {
+	id
+	name
+	default
 }
 `
 
@@ -14891,10 +14930,18 @@ fragment GlobalServiceFragment on GlobalService {
 	tags {
 		... ClusterTags
 	}
+	project {
+		... TinyProjectFragment
+	}
 }
 fragment ClusterTags on Tag {
 	name
 	value
+}
+fragment TinyProjectFragment on Project {
+	id
+	name
+	default
 }
 `
 
@@ -17201,10 +17248,18 @@ fragment GlobalServiceFragment on GlobalService {
 	tags {
 		... ClusterTags
 	}
+	project {
+		... TinyProjectFragment
+	}
 }
 fragment ClusterTags on Tag {
 	name
 	value
+}
+fragment TinyProjectFragment on Project {
+	id
+	name
+	default
 }
 `
 
@@ -17243,10 +17298,18 @@ fragment GlobalServiceFragment on GlobalService {
 	tags {
 		... ClusterTags
 	}
+	project {
+		... TinyProjectFragment
+	}
 }
 fragment ClusterTags on Tag {
 	name
 	value
+}
+fragment TinyProjectFragment on Project {
+	id
+	name
+	default
 }
 `
 
@@ -17286,10 +17349,18 @@ fragment GlobalServiceFragment on GlobalService {
 	tags {
 		... ClusterTags
 	}
+	project {
+		... TinyProjectFragment
+	}
 }
 fragment ClusterTags on Tag {
 	name
 	value
+}
+fragment TinyProjectFragment on Project {
+	id
+	name
+	default
 }
 `
 
