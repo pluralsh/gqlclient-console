@@ -1379,6 +1379,8 @@ type GitAttributes struct {
 	HTTPSPath *string `json:"httpsPath,omitempty"`
 	// similar to https_path, a manually supplied url format for custom git.  Should be something like {url}/tree/{ref}/{folder}
 	URLFormat *string `json:"urlFormat,omitempty"`
+	// id of a scm connection to use for authentication
+	ConnectionID *string `json:"connectionId,omitempty"`
 	// whether to run plural crypto on this repo
 	Decrypt *bool `json:"decrypt,omitempty"`
 }
@@ -3620,14 +3622,12 @@ type ScmConnectionAttributes struct {
 	Name string  `json:"name"`
 	Type ScmType `json:"type"`
 	// the owning entity in this scm provider, eg a github organization
-	Owner    *string `json:"owner,omitempty"`
-	Username *string `json:"username,omitempty"`
-	Token    *string `json:"token,omitempty"`
-	BaseURL  *string `json:"baseUrl,omitempty"`
-	APIURL   *string `json:"apiUrl,omitempty"`
-	// id of a scm connection to use for authentication
-	ConnectionID *string              `json:"connectionId,omitempty"`
-	Github       *GithubAppAttributes `json:"github,omitempty"`
+	Owner    *string              `json:"owner,omitempty"`
+	Username *string              `json:"username,omitempty"`
+	Token    *string              `json:"token,omitempty"`
+	BaseURL  *string              `json:"baseUrl,omitempty"`
+	APIURL   *string              `json:"apiUrl,omitempty"`
+	Github   *GithubAppAttributes `json:"github,omitempty"`
 	// a ssh private key to be used for commit signing
 	SigningPrivateKey *string `json:"signingPrivateKey,omitempty"`
 }
