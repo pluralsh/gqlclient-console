@@ -1448,6 +1448,16 @@ type GitStatus struct {
 	Output *string `json:"output,omitempty"`
 }
 
+// Requirements to perform Github App authentication
+type GithubAppAttributes struct {
+	// Github App ID
+	AppID string `json:"appId"`
+	// ID of this github app installation
+	InstallationID string `json:"installationId"`
+	// PEM-encoded private key for this app
+	PrivateKey string `json:"privateKey"`
+}
+
 // a rules based mechanism to redeploy a service across a fleet of clusters
 type GlobalService struct {
 	// internal id of this global service
@@ -2997,6 +3007,7 @@ type PrConfigurationAttributes struct {
 	Placeholder   *string              `json:"placeholder,omitempty"`
 	Optional      *bool                `json:"optional,omitempty"`
 	Condition     *ConditionAttributes `json:"condition,omitempty"`
+	Values        []*string            `json:"values,omitempty"`
 }
 
 // declaritive spec for whether a config item is relevant given prior config
@@ -3614,6 +3625,9 @@ type ScmConnectionAttributes struct {
 	Token    *string `json:"token,omitempty"`
 	BaseURL  *string `json:"baseUrl,omitempty"`
 	APIURL   *string `json:"apiUrl,omitempty"`
+	// id of a scm connection to use for authentication
+	ConnectionID *string              `json:"connectionId,omitempty"`
+	Github       *GithubAppAttributes `json:"github,omitempty"`
 	// a ssh private key to be used for commit signing
 	SigningPrivateKey *string `json:"signingPrivateKey,omitempty"`
 }
@@ -5001,6 +5015,7 @@ const (
 	ConfigurationTypeFile     ConfigurationType = "FILE"
 	ConfigurationTypeFunction ConfigurationType = "FUNCTION"
 	ConfigurationTypePassword ConfigurationType = "PASSWORD"
+	ConfigurationTypeEnum     ConfigurationType = "ENUM"
 )
 
 var AllConfigurationType = []ConfigurationType{
@@ -5012,11 +5027,12 @@ var AllConfigurationType = []ConfigurationType{
 	ConfigurationTypeFile,
 	ConfigurationTypeFunction,
 	ConfigurationTypePassword,
+	ConfigurationTypeEnum,
 }
 
 func (e ConfigurationType) IsValid() bool {
 	switch e {
-	case ConfigurationTypeString, ConfigurationTypeInt, ConfigurationTypeBool, ConfigurationTypeDomain, ConfigurationTypeBucket, ConfigurationTypeFile, ConfigurationTypeFunction, ConfigurationTypePassword:
+	case ConfigurationTypeString, ConfigurationTypeInt, ConfigurationTypeBool, ConfigurationTypeDomain, ConfigurationTypeBucket, ConfigurationTypeFile, ConfigurationTypeFunction, ConfigurationTypePassword, ConfigurationTypeEnum:
 		return true
 	}
 	return false
