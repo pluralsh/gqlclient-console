@@ -187,6 +187,67 @@ type ApplicationStatus struct {
 	ComponentsReady string             `json:"componentsReady"`
 }
 
+type ArgoAnalysis struct {
+	Templates []*ArgoAnalysisTemplate `json:"templates,omitempty"`
+}
+
+type ArgoAnalysisTemplate struct {
+	TemplateName *string `json:"templateName,omitempty"`
+}
+
+type ArgoBlueGreenStrategy struct {
+	ActiveService        *string `json:"activeService,omitempty"`
+	AutoPromotionEnabled *bool   `json:"autoPromotionEnabled,omitempty"`
+	AutoPromotionSeconds *int64  `json:"autoPromotionSeconds,omitempty"`
+}
+
+type ArgoCanaryStrategy struct {
+	Steps []*ArgoStrategyStep `json:"steps,omitempty"`
+}
+
+type ArgoExperiment struct {
+	Templates []*ArgoExperimentTemplate `json:"templates,omitempty"`
+}
+
+type ArgoExperimentTemplate struct {
+	Name *string `json:"name,omitempty"`
+}
+
+type ArgoRollout struct {
+	Metadata Metadata          `json:"metadata"`
+	Status   ArgoRolloutStatus `json:"status"`
+	Spec     ArgoRolloutSpec   `json:"spec"`
+	Pods     []*Pod            `json:"pods,omitempty"`
+	Raw      string            `json:"raw"`
+	Events   []*Event          `json:"events,omitempty"`
+}
+
+type ArgoRolloutSpec struct {
+	Replicas *int64               `json:"replicas,omitempty"`
+	Strategy *ArgoRolloutStrategy `json:"strategy,omitempty"`
+}
+
+type ArgoRolloutStatus struct {
+	Abort           *bool              `json:"abort,omitempty"`
+	Phase           *string            `json:"phase,omitempty"`
+	Replicas        *int64             `json:"replicas,omitempty"`
+	ReadyReplicas   *int64             `json:"readyReplicas,omitempty"`
+	PauseConditions []*PauseCondition  `json:"pauseConditions,omitempty"`
+	Conditions      []*StatusCondition `json:"conditions,omitempty"`
+}
+
+type ArgoRolloutStrategy struct {
+	BlueGreen *ArgoBlueGreenStrategy `json:"blueGreen,omitempty"`
+	Canary    *ArgoCanaryStrategy    `json:"canary,omitempty"`
+}
+
+type ArgoStrategyStep struct {
+	StepWeight *int64          `json:"stepWeight,omitempty"`
+	Pause      *CanaryPause    `json:"pause,omitempty"`
+	Experiment *ArgoExperiment `json:"experiment,omitempty"`
+	Analysis   *ArgoAnalysis   `json:"analysis,omitempty"`
+}
+
 type Audit struct {
 	ID         string      `json:"id"`
 	Action     AuditAction `json:"action"`
@@ -368,6 +429,10 @@ type CanaryAnalysis struct {
 	StepWeight  *int64   `json:"stepWeight,omitempty"`
 	StepWeights []*int64 `json:"stepWeights,omitempty"`
 	Threshold   *int64   `json:"threshold,omitempty"`
+}
+
+type CanaryPause struct {
+	Duration *string `json:"duration,omitempty"`
 }
 
 type CanarySpec struct {
@@ -1681,6 +1746,8 @@ type InfrastructureStack struct {
 	Git GitRef `json:"git"`
 	// whether the stack is actively tracking changes in git
 	Paused *bool `json:"paused,omitempty"`
+	// The status of the last run of the stack
+	Status StackStatus `json:"status"`
 	// optional k8s job configuration for the job that will apply this stack
 	JobSpec *JobGateSpec `json:"jobSpec,omitempty"`
 	// version/image config for the tool you're using
@@ -2362,6 +2429,11 @@ type PathUpdate struct {
 	ValueFrom string    `json:"valueFrom"`
 }
 
+type PauseCondition struct {
+	Reason    *string `json:"reason,omitempty"`
+	StartTime *string `json:"startTime,omitempty"`
+}
+
 type Persona struct {
 	ID string `json:"id"`
 	// the name for this persona
@@ -2996,6 +3068,7 @@ type PrConfiguration struct {
 	Longform      *string                   `json:"longform,omitempty"`
 	Placeholder   *string                   `json:"placeholder,omitempty"`
 	Optional      *bool                     `json:"optional,omitempty"`
+	Values        []*string                 `json:"values,omitempty"`
 	Condition     *PrConfigurationCondition `json:"condition,omitempty"`
 }
 

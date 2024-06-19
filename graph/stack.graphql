@@ -273,3 +273,18 @@ query GetCustomStackRun($id: ID!) {
         ...CustomStackRunFragment
     }
 }
+
+query ListStackRuns($id: ID!, $after: String, $before: String, $first: Int, $last: Int) {
+    infrastructureStack(id: $id) {
+        runs(after: $after, before: $before, first: $first, last: $last) {
+            pageInfo {
+                ...PageInfoFragment
+            }
+            edges {
+                node {
+                    ...StackRunFragment
+                }
+            }
+        }
+    }
+}
