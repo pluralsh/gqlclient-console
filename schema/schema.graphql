@@ -123,6 +123,8 @@ type RootQueryType {
 
   canary(namespace: String!, name: String!, serviceId: ID): Canary
 
+  argoRollout(namespace: String!, name: String!, serviceId: ID): ArgoRollout
+
   upgradePlan(namespace: String!, name: String!, serviceId: ID): UpgradePlan
 
   configurationOverlays(namespace: String!): [ConfigurationOverlay]
@@ -202,10 +204,10 @@ type RootQueryType {
   ): ClusterConnection
 
   "gets summary information for all healthy\/unhealthy clusters in your fleet"
-  clusterStatuses(q: String, tag: TagInput): [ClusterStatusInfo]
+  clusterStatuses(q: String, tag: TagInput, projectId: ID): [ClusterStatusInfo]
 
   "gets summary information for upgradeability in your fleet"
-  upgradeStatistics(q: String, tag: TagInput): UpgradeStatistics
+  upgradeStatistics(q: String, tag: TagInput, projectId: ID): UpgradeStatistics
 
   "lists tags applied to any clusters in the fleet"
   tags(tag: String): [String]
@@ -266,7 +268,7 @@ type RootQueryType {
     cluster: String
   ): ServiceDeploymentConnection
 
-  serviceStatuses(clusterId: ID, q: String, status: ServiceDeploymentStatus): [ServiceStatusCount]
+  serviceStatuses(clusterId: ID, q: String, status: ServiceDeploymentStatus, projectId: ID): [ServiceStatusCount]
 
   serviceContext(name: String!): ServiceContext
 
@@ -344,11 +346,11 @@ type RootQueryType {
 
   policyConstraint(id: ID!): PolicyConstraint
 
-  managedNamespaces(after: String, first: Int, before: String, last: Int): ManagedNamespaceConnection
+  managedNamespaces(after: String, first: Int, before: String, last: Int, projectId: ID): ManagedNamespaceConnection
 
   globalService(id: ID!): GlobalService
 
-  globalServices(after: String, first: Int, before: String, last: Int): GlobalServiceConnection
+  globalServices(after: String, first: Int, before: String, last: Int, projectId: ID): GlobalServiceConnection
 
   clusterManagedNamespaces(after: String, first: Int, before: String, last: Int): ManagedNamespaceConnection
 
@@ -1215,6 +1217,9 @@ type InfrastructureStack {
 
   "whether the stack is actively tracking changes in git"
   paused: Boolean
+
+  "The status of the last run of the stack"
+  status: StackStatus!
 
   "optional k8s job configuration for the job that will apply this stack"
   jobSpec: JobGateSpec
@@ -3941,6 +3946,7 @@ enum ConfigurationType {
   FILE
   FUNCTION
   PASSWORD
+  ENUM
 }
 
 enum Operation {
@@ -3976,6 +3982,9 @@ input GitAttributes {
   "similar to https_path, a manually supplied url format for custom git.  Should be something like {url}\/tree\/{ref}\/{folder}"
   urlFormat: String
 
+  "id of a scm connection to use for authentication"
+  connectionId: ID
+
   "whether to run plural crypto on this repo"
   decrypt: Boolean
 }
@@ -3997,8 +4006,22 @@ input ScmConnectionAttributes {
 
   apiUrl: String
 
+  github: GithubAppAttributes
+
   "a ssh private key to be used for commit signing"
   signingPrivateKey: String
+}
+
+"Requirements to perform Github App authentication"
+input GithubAppAttributes {
+  "Github App ID"
+  appId: String!
+
+  "ID of this github app installation"
+  installationId: String!
+
+  "PEM-encoded private key for this app"
+  privateKey: String!
 }
 
 "A way to create a self-service means of generating PRs against an IaC repo"
@@ -4056,6 +4079,7 @@ input PrConfigurationAttributes {
   placeholder: String
   optional: Boolean
   condition: ConditionAttributes
+  values: [String]
 }
 
 "attributes for declaratively specifying whether a config item is relevant given prior config"
@@ -4357,6 +4381,7 @@ type PrConfiguration {
   longform: String
   placeholder: String
   optional: Boolean
+  values: [String]
   condition: PrConfigurationCondition
 }
 
@@ -5003,6 +5028,76 @@ type UpgradePlanSpec {
   version: String
   cordon: Boolean
   concurrency: Int
+}
+
+type ArgoRollout {
+  metadata: Metadata!
+  status: ArgoRolloutStatus!
+  spec: ArgoRolloutSpec!
+  pods: [Pod]
+  raw: String!
+  events: [Event]
+}
+
+type ArgoRolloutSpec {
+  replicas: Int
+  strategy: ArgoRolloutStrategy
+}
+
+type ArgoRolloutStrategy {
+  blueGreen: ArgoBlueGreenStrategy
+  canary: ArgoCanaryStrategy
+}
+
+type ArgoBlueGreenStrategy {
+  activeService: String
+  autoPromotionEnabled: Boolean
+  autoPromotionSeconds: Int
+}
+
+type ArgoCanaryStrategy {
+  steps: [ArgoStrategyStep]
+}
+
+type ArgoStrategyStep {
+  stepWeight: Int
+  pause: CanaryPause
+  experiment: ArgoExperiment
+  analysis: ArgoAnalysis
+}
+
+type ArgoExperiment {
+  templates: [ArgoExperimentTemplate]
+}
+
+type ArgoAnalysis {
+  templates: [ArgoAnalysisTemplate]
+}
+
+type ArgoExperimentTemplate {
+  name: String
+}
+
+type ArgoAnalysisTemplate {
+  templateName: String
+}
+
+type CanaryPause {
+  duration: String
+}
+
+type PauseCondition {
+  reason: String
+  startTime: String
+}
+
+type ArgoRolloutStatus {
+  abort: Boolean
+  phase: String
+  replicas: Int
+  readyReplicas: Int
+  pauseConditions: [PauseCondition]
+  conditions: [StatusCondition]
 }
 
 type Canary {

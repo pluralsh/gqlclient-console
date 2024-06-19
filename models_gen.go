@@ -187,6 +187,67 @@ type ApplicationStatus struct {
 	ComponentsReady string             `json:"componentsReady"`
 }
 
+type ArgoAnalysis struct {
+	Templates []*ArgoAnalysisTemplate `json:"templates,omitempty"`
+}
+
+type ArgoAnalysisTemplate struct {
+	TemplateName *string `json:"templateName,omitempty"`
+}
+
+type ArgoBlueGreenStrategy struct {
+	ActiveService        *string `json:"activeService,omitempty"`
+	AutoPromotionEnabled *bool   `json:"autoPromotionEnabled,omitempty"`
+	AutoPromotionSeconds *int64  `json:"autoPromotionSeconds,omitempty"`
+}
+
+type ArgoCanaryStrategy struct {
+	Steps []*ArgoStrategyStep `json:"steps,omitempty"`
+}
+
+type ArgoExperiment struct {
+	Templates []*ArgoExperimentTemplate `json:"templates,omitempty"`
+}
+
+type ArgoExperimentTemplate struct {
+	Name *string `json:"name,omitempty"`
+}
+
+type ArgoRollout struct {
+	Metadata Metadata          `json:"metadata"`
+	Status   ArgoRolloutStatus `json:"status"`
+	Spec     ArgoRolloutSpec   `json:"spec"`
+	Pods     []*Pod            `json:"pods,omitempty"`
+	Raw      string            `json:"raw"`
+	Events   []*Event          `json:"events,omitempty"`
+}
+
+type ArgoRolloutSpec struct {
+	Replicas *int64               `json:"replicas,omitempty"`
+	Strategy *ArgoRolloutStrategy `json:"strategy,omitempty"`
+}
+
+type ArgoRolloutStatus struct {
+	Abort           *bool              `json:"abort,omitempty"`
+	Phase           *string            `json:"phase,omitempty"`
+	Replicas        *int64             `json:"replicas,omitempty"`
+	ReadyReplicas   *int64             `json:"readyReplicas,omitempty"`
+	PauseConditions []*PauseCondition  `json:"pauseConditions,omitempty"`
+	Conditions      []*StatusCondition `json:"conditions,omitempty"`
+}
+
+type ArgoRolloutStrategy struct {
+	BlueGreen *ArgoBlueGreenStrategy `json:"blueGreen,omitempty"`
+	Canary    *ArgoCanaryStrategy    `json:"canary,omitempty"`
+}
+
+type ArgoStrategyStep struct {
+	StepWeight *int64          `json:"stepWeight,omitempty"`
+	Pause      *CanaryPause    `json:"pause,omitempty"`
+	Experiment *ArgoExperiment `json:"experiment,omitempty"`
+	Analysis   *ArgoAnalysis   `json:"analysis,omitempty"`
+}
+
 type Audit struct {
 	ID         string      `json:"id"`
 	Action     AuditAction `json:"action"`
@@ -368,6 +429,10 @@ type CanaryAnalysis struct {
 	StepWeight  *int64   `json:"stepWeight,omitempty"`
 	StepWeights []*int64 `json:"stepWeights,omitempty"`
 	Threshold   *int64   `json:"threshold,omitempty"`
+}
+
+type CanaryPause struct {
+	Duration *string `json:"duration,omitempty"`
 }
 
 type CanarySpec struct {
@@ -1379,6 +1444,8 @@ type GitAttributes struct {
 	HTTPSPath *string `json:"httpsPath,omitempty"`
 	// similar to https_path, a manually supplied url format for custom git.  Should be something like {url}/tree/{ref}/{folder}
 	URLFormat *string `json:"urlFormat,omitempty"`
+	// id of a scm connection to use for authentication
+	ConnectionID *string `json:"connectionId,omitempty"`
 	// whether to run plural crypto on this repo
 	Decrypt *bool `json:"decrypt,omitempty"`
 }
@@ -1446,6 +1513,16 @@ type GitRepositoryEdge struct {
 type GitStatus struct {
 	Cloned *bool   `json:"cloned,omitempty"`
 	Output *string `json:"output,omitempty"`
+}
+
+// Requirements to perform Github App authentication
+type GithubAppAttributes struct {
+	// Github App ID
+	AppID string `json:"appId"`
+	// ID of this github app installation
+	InstallationID string `json:"installationId"`
+	// PEM-encoded private key for this app
+	PrivateKey string `json:"privateKey"`
 }
 
 // a rules based mechanism to redeploy a service across a fleet of clusters
@@ -1669,6 +1746,8 @@ type InfrastructureStack struct {
 	Git GitRef `json:"git"`
 	// whether the stack is actively tracking changes in git
 	Paused *bool `json:"paused,omitempty"`
+	// The status of the last run of the stack
+	Status StackStatus `json:"status"`
 	// optional k8s job configuration for the job that will apply this stack
 	JobSpec *JobGateSpec `json:"jobSpec,omitempty"`
 	// version/image config for the tool you're using
@@ -2350,6 +2429,11 @@ type PathUpdate struct {
 	ValueFrom string    `json:"valueFrom"`
 }
 
+type PauseCondition struct {
+	Reason    *string `json:"reason,omitempty"`
+	StartTime *string `json:"startTime,omitempty"`
+}
+
 type Persona struct {
 	ID string `json:"id"`
 	// the name for this persona
@@ -2984,6 +3068,7 @@ type PrConfiguration struct {
 	Longform      *string                   `json:"longform,omitempty"`
 	Placeholder   *string                   `json:"placeholder,omitempty"`
 	Optional      *bool                     `json:"optional,omitempty"`
+	Values        []*string                 `json:"values,omitempty"`
 	Condition     *PrConfigurationCondition `json:"condition,omitempty"`
 }
 
@@ -2997,6 +3082,7 @@ type PrConfigurationAttributes struct {
 	Placeholder   *string              `json:"placeholder,omitempty"`
 	Optional      *bool                `json:"optional,omitempty"`
 	Condition     *ConditionAttributes `json:"condition,omitempty"`
+	Values        []*string            `json:"values,omitempty"`
 }
 
 // declaritive spec for whether a config item is relevant given prior config
@@ -3609,11 +3695,12 @@ type ScmConnectionAttributes struct {
 	Name string  `json:"name"`
 	Type ScmType `json:"type"`
 	// the owning entity in this scm provider, eg a github organization
-	Owner    *string `json:"owner,omitempty"`
-	Username *string `json:"username,omitempty"`
-	Token    *string `json:"token,omitempty"`
-	BaseURL  *string `json:"baseUrl,omitempty"`
-	APIURL   *string `json:"apiUrl,omitempty"`
+	Owner    *string              `json:"owner,omitempty"`
+	Username *string              `json:"username,omitempty"`
+	Token    *string              `json:"token,omitempty"`
+	BaseURL  *string              `json:"baseUrl,omitempty"`
+	APIURL   *string              `json:"apiUrl,omitempty"`
+	Github   *GithubAppAttributes `json:"github,omitempty"`
 	// a ssh private key to be used for commit signing
 	SigningPrivateKey *string `json:"signingPrivateKey,omitempty"`
 }
@@ -5001,6 +5088,7 @@ const (
 	ConfigurationTypeFile     ConfigurationType = "FILE"
 	ConfigurationTypeFunction ConfigurationType = "FUNCTION"
 	ConfigurationTypePassword ConfigurationType = "PASSWORD"
+	ConfigurationTypeEnum     ConfigurationType = "ENUM"
 )
 
 var AllConfigurationType = []ConfigurationType{
@@ -5012,11 +5100,12 @@ var AllConfigurationType = []ConfigurationType{
 	ConfigurationTypeFile,
 	ConfigurationTypeFunction,
 	ConfigurationTypePassword,
+	ConfigurationTypeEnum,
 }
 
 func (e ConfigurationType) IsValid() bool {
 	switch e {
-	case ConfigurationTypeString, ConfigurationTypeInt, ConfigurationTypeBool, ConfigurationTypeDomain, ConfigurationTypeBucket, ConfigurationTypeFile, ConfigurationTypeFunction, ConfigurationTypePassword:
+	case ConfigurationTypeString, ConfigurationTypeInt, ConfigurationTypeBool, ConfigurationTypeDomain, ConfigurationTypeBucket, ConfigurationTypeFile, ConfigurationTypeFunction, ConfigurationTypePassword, ConfigurationTypeEnum:
 		return true
 	}
 	return false
