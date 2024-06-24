@@ -242,7 +242,7 @@ type ArgoRolloutStrategy struct {
 }
 
 type ArgoStrategyStep struct {
-	StepWeight *int64          `json:"stepWeight,omitempty"`
+	SetWeight  *int64          `json:"setWeight,omitempty"`
 	Pause      *CanaryPause    `json:"pause,omitempty"`
 	Experiment *ArgoExperiment `json:"experiment,omitempty"`
 	Analysis   *ArgoAnalysis   `json:"analysis,omitempty"`
@@ -553,6 +553,8 @@ type Cluster struct {
 	UpgradePlan *ClusterUpgradePlan `json:"upgradePlan,omitempty"`
 	// the url of the kas server you can access this cluster from
 	KasURL *string `json:"kasUrl,omitempty"`
+	// the url this clusters deployment operator will use for gql requests
+	AgentURL *string `json:"agentUrl,omitempty"`
 	// a auth token to be used by the deploy operator, only readable on create
 	DeployToken *string `json:"deployToken,omitempty"`
 	// when this cluster was scheduled for deletion
@@ -4262,6 +4264,8 @@ type StackRun struct {
 	PluralCreds *PluralCreds `json:"pluralCreds,omitempty"`
 	// https url to fetch the latest tarball of stack IaC
 	Tarball string `json:"tarball"`
+	// the pull request this stack belongs to
+	PullRequest *PullRequest `json:"pullRequest,omitempty"`
 	// the approver of this job
 	Approver *User `json:"approver,omitempty"`
 	// the actor of this run (defaults to root console user)

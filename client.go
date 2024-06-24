@@ -26,6 +26,7 @@ type ConsoleClient interface {
 	RegisterRuntimeServices(ctx context.Context, services []*RuntimeServiceAttributes, serviceID *string, interceptors ...clientv2.RequestInterceptor) (*RegisterRuntimeServices, error)
 	ListClusters(ctx context.Context, cursor *string, before *string, last *int64, interceptors ...clientv2.RequestInterceptor) (*ListClusters, error)
 	GetCluster(ctx context.Context, id *string, interceptors ...clientv2.RequestInterceptor) (*GetCluster, error)
+	GetAgentURL(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*GetAgentURL, error)
 	GetClusterWithToken(ctx context.Context, id *string, handle *string, interceptors ...clientv2.RequestInterceptor) (*GetClusterWithToken, error)
 	GetClusterByHandle(ctx context.Context, handle *string, interceptors ...clientv2.RequestInterceptor) (*GetClusterByHandle, error)
 	GetClusterProvider(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*GetClusterProvider, error)
@@ -6046,6 +6047,17 @@ func (t *GetCluster_Cluster_ClusterFragment_Provider_ClusterProviderFragment_Ser
 	return t.Value
 }
 
+type GetAgentUrl_Cluster struct {
+	AgentURL *string "json:\"agentUrl,omitempty\" graphql:\"agentUrl\""
+}
+
+func (t *GetAgentUrl_Cluster) GetAgentURL() *string {
+	if t == nil {
+		t = &GetAgentUrl_Cluster{}
+	}
+	return t.AgentURL
+}
+
 type GetClusterWithToken_Cluster_ClusterFragment_Provider_ClusterProviderFragment_Service_ServiceDeploymentFragment_Components struct {
 	ID        string                    "json:\"id\" graphql:\"id\""
 	Name      string                    "json:\"name\" graphql:\"name\""
@@ -11038,6 +11050,17 @@ func (t *GetCluster) GetCluster() *ClusterFragment {
 	return t.Cluster
 }
 
+type GetAgentURL struct {
+	Cluster *GetAgentUrl_Cluster "json:\"cluster,omitempty\" graphql:\"cluster\""
+}
+
+func (t *GetAgentURL) GetCluster() *GetAgentUrl_Cluster {
+	if t == nil {
+		t = &GetAgentURL{}
+	}
+	return t.Cluster
+}
+
 type GetClusterWithToken struct {
 	Cluster *GetClusterWithToken_Cluster "json:\"cluster,omitempty\" graphql:\"cluster\""
 }
@@ -14074,6 +14097,30 @@ func (c *Client) GetCluster(ctx context.Context, id *string, interceptors ...cli
 
 	var res GetCluster
 	if err := c.Client.Post(ctx, "GetCluster", GetClusterDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const GetAgentURLDocument = `query GetAgentUrl ($id: ID!) {
+	cluster(id: $id) {
+		agentUrl
+	}
+}
+`
+
+func (c *Client) GetAgentURL(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*GetAgentURL, error) {
+	vars := map[string]interface{}{
+		"id": id,
+	}
+
+	var res GetAgentURL
+	if err := c.Client.Post(ctx, "GetAgentUrl", GetAgentURLDocument, &res, vars, interceptors...); err != nil {
 		if c.Client.ParseDataWhenErrors {
 			return &res, err
 		}
@@ -24165,6 +24212,7 @@ var DocumentOperationNames = map[string]string{
 	RegisterRuntimeServicesDocument:                   "RegisterRuntimeServices",
 	ListClustersDocument:                              "ListClusters",
 	GetClusterDocument:                                "GetCluster",
+	GetAgentURLDocument:                               "GetAgentUrl",
 	GetClusterWithTokenDocument:                       "GetClusterWithToken",
 	GetClusterByHandleDocument:                        "GetClusterByHandle",
 	GetClusterProviderDocument:                        "GetClusterProvider",
