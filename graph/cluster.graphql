@@ -143,6 +143,10 @@ query GetCluster($id: ID) {
     }
 }
 
+query GetAgentUrl($id: ID!) {
+    cluster(id: $id) { agentUrl }
+}
+
 query GetClusterWithToken($id: ID, $handle: String) {
     cluster(id: $id, handle: $handle) {
         ...ClusterFragment
