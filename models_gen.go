@@ -2718,6 +2718,8 @@ type PipelineStage struct {
 	ID string `json:"id"`
 	// the name of this stage (eg dev, prod, staging)
 	Name string `json:"name"`
+	// the errors for this stage
+	Errors []*ServiceError `json:"errors,omitempty"`
 	// the services within this stage
 	Services []*StageService `json:"services,omitempty"`
 	// the context that is to be applied to this stage for PR promotions
@@ -3161,6 +3163,8 @@ type PrometheusDatasource struct {
 // how a promotion for a service will be performed
 type PromotionCriteria struct {
 	ID string `json:"id"`
+	// overrides the repository slug for the referenced pr automation
+	Repository *string `json:"repository,omitempty"`
 	// the source service in a prior stage to promote settings from
 	Source *ServiceDeployment `json:"source,omitempty"`
 	// whether you want to copy any configuration values from the source service
@@ -3179,6 +3183,8 @@ type PromotionCriteriaAttributes struct {
 	SourceID *string `json:"sourceId,omitempty"`
 	// the id of a pr automation to update this service
 	PrAutomationID *string `json:"prAutomationId,omitempty"`
+	// overrides the repository slug for the referenced pr automation
+	Repository *string `json:"repository,omitempty"`
 	// the secrets to copy over in a promotion
 	Secrets []*string `json:"secrets,omitempty"`
 }
