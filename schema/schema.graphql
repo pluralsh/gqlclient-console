@@ -514,6 +514,8 @@ type RootMutationType {
     "the id of the PR automation instance to use"
     id: ID!
 
+    identifier: String
+
     branch: String
 
     context: Json
@@ -742,7 +744,7 @@ type RootMutationType {
   deleteCustomStackRun(id: ID!): CustomStackRun
 
   "Creates a custom run, with the given command list, to execute w\/in the stack's environment"
-  onDemandRun(stackId: ID!, commands: [CommandAttributes]): StackRun
+  onDemandRun(stackId: ID!, commands: [CommandAttributes], context: Json): StackRun
 
   upsertObservabilityProvider(attributes: ObservabilityProviderAttributes!): ObservabilityProvider
 
@@ -757,7 +759,7 @@ type RootMutationType {
   updateProject(id: ID!, attributes: ProjectAttributes!): Project
 
   "a reusable mutation for updating rbac settings on core services"
-  updateRbac(rbac: RbacAttributes!, serviceId: ID, clusterId: ID, providerId: ID, pipelineId: ID): Boolean
+  updateRbac(rbac: RbacAttributes!, serviceId: ID, clusterId: ID, providerId: ID, pipelineId: ID, stackId: ID): Boolean
 }
 
 type RootSubscriptionType {
@@ -2312,6 +2314,9 @@ input PromotionCriteriaAttributes {
   "the id of a pr automation to update this service"
   prAutomationId: ID
 
+  "overrides the repository slug for the referenced pr automation"
+  repository: String
+
   "the secrets to copy over in a promotion"
   secrets: [String]
 }
@@ -2374,6 +2379,9 @@ type PipelineStage {
 
   "the name of this stage (eg dev, prod, staging)"
   name: String!
+
+  "the errors for this stage"
+  errors: [ServiceError]
 
   "the services within this stage"
   services: [StageService]
@@ -2514,6 +2522,9 @@ type StageService {
 "how a promotion for a service will be performed"
 type PromotionCriteria {
   id: ID!
+
+  "overrides the repository slug for the referenced pr automation"
+  repository: String
 
   "the source service in a prior stage to promote settings from"
   source: ServiceDeployment
