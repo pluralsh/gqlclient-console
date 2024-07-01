@@ -120,6 +120,9 @@ type ConsoleClient interface {
 	DeleteProviderCredential(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DeleteProviderCredential, error)
 	ListProviders(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*ListProviders, error)
 	UpdateRbac(ctx context.Context, rbac RbacAttributes, serviceID *string, clusterID *string, providerID *string, interceptors ...clientv2.RequestInterceptor) (*UpdateRbac, error)
+	ServiceAccounts(ctx context.Context, after *string, first *int64, before *string, last *int64, q *string, interceptors ...clientv2.RequestInterceptor) (*ServiceAccounts, error)
+	CreateServiceAccount(ctx context.Context, attributes ServiceAccountAttributes, interceptors ...clientv2.RequestInterceptor) (*CreateServiceAccount, error)
+	UpdateServiceAccount(ctx context.Context, id string, attributes ServiceAccountAttributes, interceptors ...clientv2.RequestInterceptor) (*UpdateServiceAccount, error)
 	ListClusterStacks(ctx context.Context, after *string, first *int64, before *string, last *int64, interceptors ...clientv2.RequestInterceptor) (*ListClusterStacks, error)
 	ListInfrastructureStacks(ctx context.Context, after *string, first *int64, before *string, last *int64, interceptors ...clientv2.RequestInterceptor) (*ListInfrastructureStacks, error)
 	GetStackRun(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*GetStackRun, error)
@@ -148,6 +151,7 @@ type ConsoleClient interface {
 	GetGroup(ctx context.Context, name string, interceptors ...clientv2.RequestInterceptor) (*GetGroup, error)
 	AddGroupMember(ctx context.Context, groupID string, userID string, interceptors ...clientv2.RequestInterceptor) (*AddGroupMember, error)
 	DeleteGroupMember(ctx context.Context, userID string, groupID string, interceptors ...clientv2.RequestInterceptor) (*DeleteGroupMember, error)
+	DeleteUser(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DeleteUser, error)
 }
 
 type Client struct {
@@ -9504,6 +9508,35 @@ func (t *ListProviders_ClusterProviders) GetEdges() []*ListProviders_ClusterProv
 	return t.Edges
 }
 
+type ServiceAccounts_ServiceAccounts_Edges struct {
+	Node *UserFragment "json:\"node,omitempty\" graphql:\"node\""
+}
+
+func (t *ServiceAccounts_ServiceAccounts_Edges) GetNode() *UserFragment {
+	if t == nil {
+		t = &ServiceAccounts_ServiceAccounts_Edges{}
+	}
+	return t.Node
+}
+
+type ServiceAccounts_ServiceAccounts struct {
+	PageInfo *PageInfoFragment                        "json:\"pageInfo\" graphql:\"pageInfo\""
+	Edges    []*ServiceAccounts_ServiceAccounts_Edges "json:\"edges,omitempty\" graphql:\"edges\""
+}
+
+func (t *ServiceAccounts_ServiceAccounts) GetPageInfo() *PageInfoFragment {
+	if t == nil {
+		t = &ServiceAccounts_ServiceAccounts{}
+	}
+	return t.PageInfo
+}
+func (t *ServiceAccounts_ServiceAccounts) GetEdges() []*ServiceAccounts_ServiceAccounts_Edges {
+	if t == nil {
+		t = &ServiceAccounts_ServiceAccounts{}
+	}
+	return t.Edges
+}
+
 type ListClusterStacks_ClusterStackRuns_Edges_StackRunEdgeFragment_Node_StackRunFragment_StackRunBaseFragment_StateUrls_Terraform struct {
 	Address *string "json:\"address,omitempty\" graphql:\"address\""
 	Lock    *string "json:\"lock,omitempty\" graphql:\"lock\""
@@ -12084,6 +12117,39 @@ func (t *UpdateRbac) GetUpdateRbac() *bool {
 	return t.UpdateRbac
 }
 
+type ServiceAccounts struct {
+	ServiceAccounts *ServiceAccounts_ServiceAccounts "json:\"serviceAccounts,omitempty\" graphql:\"serviceAccounts\""
+}
+
+func (t *ServiceAccounts) GetServiceAccounts() *ServiceAccounts_ServiceAccounts {
+	if t == nil {
+		t = &ServiceAccounts{}
+	}
+	return t.ServiceAccounts
+}
+
+type CreateServiceAccount struct {
+	CreateServiceAccount *UserFragment "json:\"createServiceAccount,omitempty\" graphql:\"createServiceAccount\""
+}
+
+func (t *CreateServiceAccount) GetCreateServiceAccount() *UserFragment {
+	if t == nil {
+		t = &CreateServiceAccount{}
+	}
+	return t.CreateServiceAccount
+}
+
+type UpdateServiceAccount struct {
+	UpdateServiceAccount *UserFragment "json:\"updateServiceAccount,omitempty\" graphql:\"updateServiceAccount\""
+}
+
+func (t *UpdateServiceAccount) GetUpdateServiceAccount() *UserFragment {
+	if t == nil {
+		t = &UpdateServiceAccount{}
+	}
+	return t.UpdateServiceAccount
+}
+
 type ListClusterStacks struct {
 	ClusterStackRuns *ListClusterStacks_ClusterStackRuns "json:\"clusterStackRuns,omitempty\" graphql:\"clusterStackRuns\""
 }
@@ -12390,6 +12456,17 @@ func (t *DeleteGroupMember) GetDeleteGroupMember() *GroupMemberFragment {
 		t = &DeleteGroupMember{}
 	}
 	return t.DeleteGroupMember
+}
+
+type DeleteUser struct {
+	DeleteUser *UserFragment "json:\"deleteUser,omitempty\" graphql:\"deleteUser\""
+}
+
+func (t *DeleteUser) GetDeleteUser() *UserFragment {
+	if t == nil {
+		t = &DeleteUser{}
+	}
+	return t.DeleteUser
 }
 
 const CreateClusterBackupDocument = `mutation CreateClusterBackup ($attributes: BackupAttributes!) {
@@ -20766,6 +20843,109 @@ func (c *Client) UpdateRbac(ctx context.Context, rbac RbacAttributes, serviceID 
 	return &res, nil
 }
 
+const ServiceAccountsDocument = `query ServiceAccounts ($after: String, $first: Int, $before: String, $last: Int, $q: String) {
+	serviceAccounts(after: $after, first: $first, before: $before, last: $last, q: $q) {
+		pageInfo {
+			... PageInfoFragment
+		}
+		edges {
+			node {
+				... UserFragment
+			}
+		}
+	}
+}
+fragment PageInfoFragment on PageInfo {
+	hasNextPage
+	endCursor
+}
+fragment UserFragment on User {
+	name
+	id
+	email
+}
+`
+
+func (c *Client) ServiceAccounts(ctx context.Context, after *string, first *int64, before *string, last *int64, q *string, interceptors ...clientv2.RequestInterceptor) (*ServiceAccounts, error) {
+	vars := map[string]interface{}{
+		"after":  after,
+		"first":  first,
+		"before": before,
+		"last":   last,
+		"q":      q,
+	}
+
+	var res ServiceAccounts
+	if err := c.Client.Post(ctx, "ServiceAccounts", ServiceAccountsDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const CreateServiceAccountDocument = `mutation CreateServiceAccount ($attributes: ServiceAccountAttributes!) {
+	createServiceAccount(attributes: $attributes) {
+		... UserFragment
+	}
+}
+fragment UserFragment on User {
+	name
+	id
+	email
+}
+`
+
+func (c *Client) CreateServiceAccount(ctx context.Context, attributes ServiceAccountAttributes, interceptors ...clientv2.RequestInterceptor) (*CreateServiceAccount, error) {
+	vars := map[string]interface{}{
+		"attributes": attributes,
+	}
+
+	var res CreateServiceAccount
+	if err := c.Client.Post(ctx, "CreateServiceAccount", CreateServiceAccountDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const UpdateServiceAccountDocument = `mutation UpdateServiceAccount ($id: ID!, $attributes: ServiceAccountAttributes!) {
+	updateServiceAccount(id: $id, attributes: $attributes) {
+		... UserFragment
+	}
+}
+fragment UserFragment on User {
+	name
+	id
+	email
+}
+`
+
+func (c *Client) UpdateServiceAccount(ctx context.Context, id string, attributes ServiceAccountAttributes, interceptors ...clientv2.RequestInterceptor) (*UpdateServiceAccount, error) {
+	vars := map[string]interface{}{
+		"id":         id,
+		"attributes": attributes,
+	}
+
+	var res UpdateServiceAccount
+	if err := c.Client.Post(ctx, "UpdateServiceAccount", UpdateServiceAccountDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
 const ListClusterStacksDocument = `query ListClusterStacks ($after: String, $first: Int, $before: String, $last: Int) {
 	clusterStackRuns(after: $after, first: $first, before: $before, last: $last) {
 		pageInfo {
@@ -24195,6 +24375,35 @@ func (c *Client) DeleteGroupMember(ctx context.Context, userID string, groupID s
 	return &res, nil
 }
 
+const DeleteUserDocument = `mutation DeleteUser ($id: ID!) {
+	deleteUser(id: $id) {
+		... UserFragment
+	}
+}
+fragment UserFragment on User {
+	name
+	id
+	email
+}
+`
+
+func (c *Client) DeleteUser(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DeleteUser, error) {
+	vars := map[string]interface{}{
+		"id": id,
+	}
+
+	var res DeleteUser
+	if err := c.Client.Post(ctx, "DeleteUser", DeleteUserDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
 var DocumentOperationNames = map[string]string{
 	CreateClusterBackupDocument:                       "CreateClusterBackup",
 	GetClusterBackupDocument:                          "GetClusterBackup",
@@ -24306,6 +24515,9 @@ var DocumentOperationNames = map[string]string{
 	DeleteProviderCredentialDocument:                  "DeleteProviderCredential",
 	ListProvidersDocument:                             "ListProviders",
 	UpdateRbacDocument:                                "UpdateRbac",
+	ServiceAccountsDocument:                           "ServiceAccounts",
+	CreateServiceAccountDocument:                      "CreateServiceAccount",
+	UpdateServiceAccountDocument:                      "UpdateServiceAccount",
 	ListClusterStacksDocument:                         "ListClusterStacks",
 	ListInfrastructureStacksDocument:                  "ListInfrastructureStacks",
 	GetStackRunDocument:                               "GetStackRun",
@@ -24334,4 +24546,5 @@ var DocumentOperationNames = map[string]string{
 	GetGroupDocument:                                  "GetGroup",
 	AddGroupMemberDocument:                            "AddGroupMember",
 	DeleteGroupMemberDocument:                         "DeleteGroupMember",
+	DeleteUserDocument:                                "DeleteUser",
 }
