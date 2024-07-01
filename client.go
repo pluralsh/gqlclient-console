@@ -123,6 +123,7 @@ type ConsoleClient interface {
 	ServiceAccounts(ctx context.Context, after *string, first *int64, before *string, last *int64, q *string, interceptors ...clientv2.RequestInterceptor) (*ServiceAccounts, error)
 	CreateServiceAccount(ctx context.Context, attributes ServiceAccountAttributes, interceptors ...clientv2.RequestInterceptor) (*CreateServiceAccount, error)
 	UpdateServiceAccount(ctx context.Context, id string, attributes ServiceAccountAttributes, interceptors ...clientv2.RequestInterceptor) (*UpdateServiceAccount, error)
+	CreateServiceAccountToken(ctx context.Context, id string, scopes []*ScopeAttributes, interceptors ...clientv2.RequestInterceptor) (*CreateServiceAccountToken, error)
 	ListClusterStacks(ctx context.Context, after *string, first *int64, before *string, last *int64, interceptors ...clientv2.RequestInterceptor) (*ListClusterStacks, error)
 	ListInfrastructureStacks(ctx context.Context, after *string, first *int64, before *string, last *int64, interceptors ...clientv2.RequestInterceptor) (*ListInfrastructureStacks, error)
 	GetStackRun(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*GetStackRun, error)
@@ -12150,6 +12151,17 @@ func (t *UpdateServiceAccount) GetUpdateServiceAccount() *UserFragment {
 	return t.UpdateServiceAccount
 }
 
+type CreateServiceAccountToken struct {
+	CreateServiceAccountToken *AccessTokenFragment "json:\"createServiceAccountToken,omitempty\" graphql:\"createServiceAccountToken\""
+}
+
+func (t *CreateServiceAccountToken) GetCreateServiceAccountToken() *AccessTokenFragment {
+	if t == nil {
+		t = &CreateServiceAccountToken{}
+	}
+	return t.CreateServiceAccountToken
+}
+
 type ListClusterStacks struct {
 	ClusterStackRuns *ListClusterStacks_ClusterStackRuns "json:\"clusterStackRuns,omitempty\" graphql:\"clusterStackRuns\""
 }
@@ -20946,6 +20958,35 @@ func (c *Client) UpdateServiceAccount(ctx context.Context, id string, attributes
 	return &res, nil
 }
 
+const CreateServiceAccountTokenDocument = `mutation CreateServiceAccountToken ($id: ID!, $scopes: [ScopeAttributes]) {
+	createServiceAccountToken(id: $id, scopes: $scopes) {
+		... AccessTokenFragment
+	}
+}
+fragment AccessTokenFragment on AccessToken {
+	id
+	token
+}
+`
+
+func (c *Client) CreateServiceAccountToken(ctx context.Context, id string, scopes []*ScopeAttributes, interceptors ...clientv2.RequestInterceptor) (*CreateServiceAccountToken, error) {
+	vars := map[string]interface{}{
+		"id":     id,
+		"scopes": scopes,
+	}
+
+	var res CreateServiceAccountToken
+	if err := c.Client.Post(ctx, "CreateServiceAccountToken", CreateServiceAccountTokenDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
 const ListClusterStacksDocument = `query ListClusterStacks ($after: String, $first: Int, $before: String, $last: Int) {
 	clusterStackRuns(after: $after, first: $first, before: $before, last: $last) {
 		pageInfo {
@@ -24518,6 +24559,7 @@ var DocumentOperationNames = map[string]string{
 	ServiceAccountsDocument:                           "ServiceAccounts",
 	CreateServiceAccountDocument:                      "CreateServiceAccount",
 	UpdateServiceAccountDocument:                      "UpdateServiceAccount",
+	CreateServiceAccountTokenDocument:                 "CreateServiceAccountToken",
 	ListClusterStacksDocument:                         "ListClusterStacks",
 	ListInfrastructureStacksDocument:                  "ListInfrastructureStacks",
 	GetStackRunDocument:                               "GetStackRun",
