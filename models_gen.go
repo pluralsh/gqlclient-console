@@ -1144,6 +1144,13 @@ type CrossVersionResourceTarget struct {
 	Name       *string `json:"name,omitempty"`
 }
 
+type CustomRunStep struct {
+	Cmd             string    `json:"cmd"`
+	Args            []*string `json:"args,omitempty"`
+	Stage           StepStage `json:"stage"`
+	RequireApproval *bool     `json:"requireApproval,omitempty"`
+}
+
 type CustomStackRun struct {
 	ID string `json:"id"`
 	// Name of the custom stack run
@@ -1180,6 +1187,13 @@ type CustomStackRunConnection struct {
 type CustomStackRunEdge struct {
 	Node   *CustomStackRun `json:"node,omitempty"`
 	Cursor *string         `json:"cursor,omitempty"`
+}
+
+type CustomStepAttributes struct {
+	Stage           *StepStage `json:"stage,omitempty"`
+	Cmd             string     `json:"cmd"`
+	Args            []*string  `json:"args,omitempty"`
+	RequireApproval *bool      `json:"requireApproval,omitempty"`
 }
 
 type DaemonSet struct {
@@ -1784,6 +1798,10 @@ type InfrastructureStack struct {
 	Cluster *Cluster `json:"cluster,omitempty"`
 	// the git repository you're sourcing IaC from
 	Repository *GitRepository `json:"repository,omitempty"`
+	// the stack definition in-use by this stack
+	Definition *StackDefinition `json:"definition,omitempty"`
+	// a cron to spawn runs for this stack
+	Cron *StackCron `json:"cron,omitempty"`
 	// the actor of this stack (defaults to root console user)
 	Actor           *User                     `json:"actor,omitempty"`
 	CustomStackRuns *CustomStackRunConnection `json:"customStackRuns,omitempty"`
@@ -3531,16 +3549,17 @@ type RunLogsDelta struct {
 }
 
 type RunStep struct {
-	ID         string     `json:"id"`
-	Status     StepStatus `json:"status"`
-	Stage      StepStage  `json:"stage"`
-	Name       string     `json:"name"`
-	Cmd        string     `json:"cmd"`
-	Args       []string   `json:"args,omitempty"`
-	Index      int64      `json:"index"`
-	Logs       []*RunLogs `json:"logs,omitempty"`
-	InsertedAt *string    `json:"insertedAt,omitempty"`
-	UpdatedAt  *string    `json:"updatedAt,omitempty"`
+	ID              string     `json:"id"`
+	Status          StepStatus `json:"status"`
+	Stage           StepStage  `json:"stage"`
+	Name            string     `json:"name"`
+	Cmd             string     `json:"cmd"`
+	Args            []string   `json:"args,omitempty"`
+	RequireApproval *bool      `json:"requireApproval,omitempty"`
+	Index           int64      `json:"index"`
+	Logs            []*RunLogs `json:"logs,omitempty"`
+	InsertedAt      *string    `json:"insertedAt,omitempty"`
+	UpdatedAt       *string    `json:"updatedAt,omitempty"`
 }
 
 type RunStepAttributes struct {
@@ -4149,7 +4168,11 @@ type StackAttributes struct {
 	// the project id this stack will belong to
 	ProjectID *string `json:"projectId,omitempty"`
 	// id of an scm connection to use for pr callbacks
-	ConnectionID      *string                       `json:"connectionId,omitempty"`
+	ConnectionID *string `json:"connectionId,omitempty"`
+	// the id of a stack definition to use
+	DefinitionID *string `json:"definitionId,omitempty"`
+	// a cron to spawn runs for this stack
+	Cron              *StackCronAttributes          `json:"cron,omitempty"`
 	ReadBindings      []*PolicyBindingAttributes    `json:"readBindings,omitempty"`
 	WriteBindings     []*PolicyBindingAttributes    `json:"writeBindings,omitempty"`
 	Tags              []*TagAttributes              `json:"tags,omitempty"`
@@ -4187,6 +4210,37 @@ type StackConfigurationAttributes struct {
 	Tag *string `json:"tag,omitempty"`
 	// the hooks to customize execution for this stack
 	Hooks []*StackHookAttributes `json:"hooks,omitempty"`
+}
+
+type StackCron struct {
+	// the crontab used to independently spawn runs for this stack
+	Crontab string `json:"crontab"`
+	// whether you want any cron-derived runs to automatically approve changes
+	AutoApprove *bool `json:"autoApprove,omitempty"`
+}
+
+type StackCronAttributes struct {
+	// the crontab to use for spawning stack runs
+	Crontab string `json:"crontab"`
+	// whether you want to auto approve any changes spawned by the cron worker
+	AutoApprove *bool `json:"autoApprove,omitempty"`
+}
+
+type StackDefinition struct {
+	ID            string             `json:"id"`
+	Name          string             `json:"name"`
+	Description   *string            `json:"description,omitempty"`
+	Configuration StackConfiguration `json:"configuration"`
+	Steps         []*CustomRunStep   `json:"steps,omitempty"`
+	InsertedAt    *string            `json:"insertedAt,omitempty"`
+	UpdatedAt     *string            `json:"updatedAt,omitempty"`
+}
+
+type StackDefinitionAttributes struct {
+	Name          string                        `json:"name"`
+	Description   *string                       `json:"description,omitempty"`
+	Steps         []*CustomStepAttributes       `json:"steps,omitempty"`
+	Configuration *StackConfigurationAttributes `json:"configuration,omitempty"`
 }
 
 type StackEnvironment struct {
@@ -4437,12 +4491,15 @@ type StatusCondition struct {
 // Advanced configuration of how to sync resources
 type SyncConfig struct {
 	// whether the agent should auto-create the namespace for this service
-	CreateNamespace   *bool              `json:"createNamespace,omitempty"`
+	CreateNamespace *bool `json:"createNamespace,omitempty"`
+	// Whether to require all resources are placed in the same namespace
+	EnforceNamespace  *bool              `json:"enforceNamespace,omitempty"`
 	NamespaceMetadata *NamespaceMetadata `json:"namespaceMetadata,omitempty"`
 }
 
 type SyncConfigAttributes struct {
 	CreateNamespace   *bool               `json:"createNamespace,omitempty"`
+	EnforceNamespace  *bool               `json:"enforceNamespace,omitempty"`
 	NamespaceMetadata *MetadataAttributes `json:"namespaceMetadata,omitempty"`
 }
 
@@ -6156,16 +6213,18 @@ type StackType string
 const (
 	StackTypeTerraform StackType = "TERRAFORM"
 	StackTypeAnsible   StackType = "ANSIBLE"
+	StackTypeCustom    StackType = "CUSTOM"
 )
 
 var AllStackType = []StackType{
 	StackTypeTerraform,
 	StackTypeAnsible,
+	StackTypeCustom,
 }
 
 func (e StackType) IsValid() bool {
 	switch e {
-	case StackTypeTerraform, StackTypeAnsible:
+	case StackTypeTerraform, StackTypeAnsible, StackTypeCustom:
 		return true
 	}
 	return false
