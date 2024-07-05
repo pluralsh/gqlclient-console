@@ -157,8 +157,10 @@ query GetServiceDeploymentForAgent($id: ID!) {
         }
         components {
             id
+            namespace
             name
             group
+            version
             kind
             state
         }

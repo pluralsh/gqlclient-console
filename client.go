@@ -8072,11 +8072,13 @@ func (t *GetServiceDeploymentForAgent_ServiceDeployment_SyncConfig) GetNamespace
 }
 
 type GetServiceDeploymentForAgent_ServiceDeployment_Components struct {
-	ID    string          "json:\"id\" graphql:\"id\""
-	Name  string          "json:\"name\" graphql:\"name\""
-	Group *string         "json:\"group,omitempty\" graphql:\"group\""
-	Kind  string          "json:\"kind\" graphql:\"kind\""
-	State *ComponentState "json:\"state,omitempty\" graphql:\"state\""
+	ID        string          "json:\"id\" graphql:\"id\""
+	Namespace *string         "json:\"namespace,omitempty\" graphql:\"namespace\""
+	Name      string          "json:\"name\" graphql:\"name\""
+	Group     *string         "json:\"group,omitempty\" graphql:\"group\""
+	Version   *string         "json:\"version,omitempty\" graphql:\"version\""
+	Kind      string          "json:\"kind\" graphql:\"kind\""
+	State     *ComponentState "json:\"state,omitempty\" graphql:\"state\""
 }
 
 func (t *GetServiceDeploymentForAgent_ServiceDeployment_Components) GetID() string {
@@ -8084,6 +8086,12 @@ func (t *GetServiceDeploymentForAgent_ServiceDeployment_Components) GetID() stri
 		t = &GetServiceDeploymentForAgent_ServiceDeployment_Components{}
 	}
 	return t.ID
+}
+func (t *GetServiceDeploymentForAgent_ServiceDeployment_Components) GetNamespace() *string {
+	if t == nil {
+		t = &GetServiceDeploymentForAgent_ServiceDeployment_Components{}
+	}
+	return t.Namespace
 }
 func (t *GetServiceDeploymentForAgent_ServiceDeployment_Components) GetName() string {
 	if t == nil {
@@ -8096,6 +8104,12 @@ func (t *GetServiceDeploymentForAgent_ServiceDeployment_Components) GetGroup() *
 		t = &GetServiceDeploymentForAgent_ServiceDeployment_Components{}
 	}
 	return t.Group
+}
+func (t *GetServiceDeploymentForAgent_ServiceDeployment_Components) GetVersion() *string {
+	if t == nil {
+		t = &GetServiceDeploymentForAgent_ServiceDeployment_Components{}
+	}
+	return t.Version
 }
 func (t *GetServiceDeploymentForAgent_ServiceDeployment_Components) GetKind() string {
 	if t == nil {
@@ -17029,8 +17043,10 @@ const GetServiceDeploymentForAgentDocument = `query GetServiceDeploymentForAgent
 		}
 		components {
 			id
+			namespace
 			name
 			group
+			version
 			kind
 			state
 		}
