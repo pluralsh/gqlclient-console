@@ -45,3 +45,9 @@ mutation UpdateProject($id: ID!, $attributes: ProjectAttributes!) {
         ...ProjectFragment
     }
 }
+
+mutation DeleteProject($id: ID!) {
+    deleteProject(id: $id) {
+        ...ProjectFragment
+    }
+}
