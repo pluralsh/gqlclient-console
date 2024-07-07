@@ -116,6 +116,7 @@ type ConsoleClient interface {
 	GetProject(ctx context.Context, id *string, name *string, interceptors ...clientv2.RequestInterceptor) (*GetProject, error)
 	CreateProject(ctx context.Context, attributes ProjectAttributes, interceptors ...clientv2.RequestInterceptor) (*CreateProject, error)
 	UpdateProject(ctx context.Context, id string, attributes ProjectAttributes, interceptors ...clientv2.RequestInterceptor) (*UpdateProject, error)
+	DeleteProject(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DeleteProject, error)
 	CreateProviderCredential(ctx context.Context, attributes ProviderCredentialAttributes, name string, interceptors ...clientv2.RequestInterceptor) (*CreateProviderCredential, error)
 	DeleteProviderCredential(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DeleteProviderCredential, error)
 	ListProviders(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*ListProviders, error)
@@ -12088,6 +12089,17 @@ func (t *UpdateProject) GetUpdateProject() *ProjectFragment {
 	return t.UpdateProject
 }
 
+type DeleteProject struct {
+	DeleteProject *ProjectFragment "json:\"deleteProject,omitempty\" graphql:\"deleteProject\""
+}
+
+func (t *DeleteProject) GetDeleteProject() *ProjectFragment {
+	if t == nil {
+		t = &DeleteProject{}
+	}
+	return t.DeleteProject
+}
+
 type CreateProviderCredential struct {
 	CreateProviderCredential *ProviderCredentialFragment "json:\"createProviderCredential,omitempty\" graphql:\"createProviderCredential\""
 }
@@ -20669,6 +20681,63 @@ func (c *Client) UpdateProject(ctx context.Context, id string, attributes Projec
 	return &res, nil
 }
 
+const DeleteProjectDocument = `mutation DeleteProject ($id: ID!) {
+	deleteProject(id: $id) {
+		... ProjectFragment
+	}
+}
+fragment ProjectFragment on Project {
+	id
+	insertedAt
+	updatedAt
+	name
+	default
+	description
+	readBindings {
+		... PolicyBindingFragment
+	}
+	writeBindings {
+		... PolicyBindingFragment
+	}
+}
+fragment PolicyBindingFragment on PolicyBinding {
+	id
+	group {
+		... GroupFragment
+	}
+	user {
+		... UserFragment
+	}
+}
+fragment GroupFragment on Group {
+	id
+	name
+	description
+}
+fragment UserFragment on User {
+	name
+	id
+	email
+}
+`
+
+func (c *Client) DeleteProject(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DeleteProject, error) {
+	vars := map[string]interface{}{
+		"id": id,
+	}
+
+	var res DeleteProject
+	if err := c.Client.Post(ctx, "DeleteProject", DeleteProjectDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
 const CreateProviderCredentialDocument = `mutation CreateProviderCredential ($attributes: ProviderCredentialAttributes!, $name: String!) {
 	createProviderCredential(attributes: $attributes, name: $name) {
 		... ProviderCredentialFragment
@@ -24568,6 +24637,7 @@ var DocumentOperationNames = map[string]string{
 	GetProjectDocument:                                "GetProject",
 	CreateProjectDocument:                             "CreateProject",
 	UpdateProjectDocument:                             "UpdateProject",
+	DeleteProjectDocument:                             "DeleteProject",
 	CreateProviderCredentialDocument:                  "CreateProviderCredential",
 	DeleteProviderCredentialDocument:                  "DeleteProviderCredential",
 	ListProvidersDocument:                             "ListProviders",
