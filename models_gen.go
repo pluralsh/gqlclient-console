@@ -102,6 +102,8 @@ type AddonVersion struct {
 	Requirements []*VersionReference `json:"requirements,omitempty"`
 	// any add-ons this might break
 	Incompatibilities []*VersionReference `json:"incompatibilities,omitempty"`
+	// the version of the helm chart to install for this version
+	ChartVersion *string `json:"chartVersion,omitempty"`
 	// the release page for a runtime service at a version, this is a heavy operation not suitable for lists
 	ReleaseURL *string `json:"releaseUrl,omitempty"`
 	// checks if this is blocking a specific kubernetes upgrade
@@ -3000,6 +3002,7 @@ type PrAutomation struct {
 	Message       string             `json:"message"`
 	Updates       *PrUpdateSpec      `json:"updates,omitempty"`
 	Creates       *PrCreateSpec      `json:"creates,omitempty"`
+	Deletes       *PrDeleteSpec      `json:"deletes,omitempty"`
 	Configuration []*PrConfiguration `json:"configuration,omitempty"`
 	// write policy for this pr automation, also propagates to the notifications list for any created PRs
 	WriteBindings []*PolicyBinding `json:"writeBindings,omitempty"`
@@ -3031,6 +3034,7 @@ type PrAutomationAttributes struct {
 	Branch        *string                           `json:"branch,omitempty"`
 	Updates       *PrAutomationUpdateSpecAttributes `json:"updates,omitempty"`
 	Creates       *PrAutomationCreateSpecAttributes `json:"creates,omitempty"`
+	Deletes       *PrAutomationDeleteSpecAttributes `json:"deletes,omitempty"`
 	// link to an add-on name if this can update it
 	Addon *string `json:"addon,omitempty"`
 	// link to a cluster if this is to perform an upgrade
@@ -3057,6 +3061,12 @@ type PrAutomationConnection struct {
 type PrAutomationCreateSpecAttributes struct {
 	Git       *GitRefAttributes                 `json:"git,omitempty"`
 	Templates []*PrAutomationTemplateAttributes `json:"templates,omitempty"`
+}
+
+// Operations to delete files within this pr
+type PrAutomationDeleteSpecAttributes struct {
+	Files   []string `json:"files,omitempty"`
+	Folders []string `json:"folders,omitempty"`
 }
 
 type PrAutomationEdge struct {
@@ -3124,6 +3134,12 @@ type PrCreateSpec struct {
 	// pointer within an external git repository to source templates from
 	Git       *GitRef           `json:"git,omitempty"`
 	Templates []*PrTemplateSpec `json:"templates,omitempty"`
+}
+
+// Files or folders you want to delete in this pr
+type PrDeleteSpec struct {
+	Files   []string `json:"files,omitempty"`
+	Folders []string `json:"folders,omitempty"`
 }
 
 // the details of where to find and place a templated file
