@@ -2058,6 +2058,8 @@ type ManagedNamespace struct {
 	ID string `json:"id"`
 	// the name of this namespace once its placed on a cluster
 	Name string `json:"name"`
+	// override the name of the kubernetes namespace if `name` is not usable
+	Namespace *string `json:"namespace,omitempty"`
 	// A short description of the purpose of this namespace
 	Description *string `json:"description,omitempty"`
 	// labels for this namespace
@@ -2083,8 +2085,10 @@ type ManagedNamespace struct {
 
 // Attributes for configuring a managed namespace
 type ManagedNamespaceAttributes struct {
-	// the name of this namespace once its placed on a cluster
+	// the name of this managed namespace (globally unique)
 	Name string `json:"name"`
+	// the name of the namespace if `name` doesn't align
+	Namespace *string `json:"namespace,omitempty"`
 	// A short description of the purpose of this namespace
 	Description *string `json:"description,omitempty"`
 	// labels for this namespace
