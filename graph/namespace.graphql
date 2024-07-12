@@ -53,6 +53,12 @@ query GetNamespace($id: ID!) {
     }
 }
 
+query GetNamespaceByName($name: String!) {
+    managedNamespace(name: $name) {
+        ...ManagedNamespaceFragment
+    }
+}
+
 mutation CreateNamespace($attributes: ManagedNamespaceAttributes!) {
     createManagedNamespace(attributes: $attributes) {
         ...ManagedNamespaceFragment

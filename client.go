@@ -91,6 +91,7 @@ type ConsoleClient interface {
 	ListNamespaces(ctx context.Context, after *string, first *int64, before *string, last *int64, interceptors ...clientv2.RequestInterceptor) (*ListNamespaces, error)
 	ListClusterNamespaces(ctx context.Context, after *string, first *int64, before *string, last *int64, interceptors ...clientv2.RequestInterceptor) (*ListClusterNamespaces, error)
 	GetNamespace(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*GetNamespace, error)
+	GetNamespaceByName(ctx context.Context, name string, interceptors ...clientv2.RequestInterceptor) (*GetNamespaceByName, error)
 	CreateNamespace(ctx context.Context, attributes ManagedNamespaceAttributes, interceptors ...clientv2.RequestInterceptor) (*CreateNamespace, error)
 	UpdateNamespace(ctx context.Context, id string, attributes ManagedNamespaceAttributes, interceptors ...clientv2.RequestInterceptor) (*UpdateNamespace, error)
 	DeleteNamespace(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DeleteNamespace, error)
@@ -11814,6 +11815,17 @@ func (t *GetNamespace) GetManagedNamespace() *ManagedNamespaceFragment {
 	return t.ManagedNamespace
 }
 
+type GetNamespaceByName struct {
+	ManagedNamespace *ManagedNamespaceFragment "json:\"managedNamespace,omitempty\" graphql:\"managedNamespace\""
+}
+
+func (t *GetNamespaceByName) GetManagedNamespace() *ManagedNamespaceFragment {
+	if t == nil {
+		t = &GetNamespaceByName{}
+	}
+	return t.ManagedNamespace
+}
+
 type CreateNamespace struct {
 	CreateManagedNamespace *ManagedNamespaceFragment "json:\"createManagedNamespace,omitempty\" graphql:\"createManagedNamespace\""
 }
@@ -19203,6 +19215,88 @@ func (c *Client) GetNamespace(ctx context.Context, id string, interceptors ...cl
 	return &res, nil
 }
 
+const GetNamespaceByNameDocument = `query GetNamespaceByName ($name: String!) {
+	managedNamespace(name: $name) {
+		... ManagedNamespaceFragment
+	}
+}
+fragment ManagedNamespaceFragment on ManagedNamespace {
+	id
+	name
+	description
+	labels
+	annotations
+	pullSecrets
+	service {
+		... ServiceTemplateFragment
+	}
+	target {
+		... ClusterTargetFragment
+	}
+	deletedAt
+}
+fragment ServiceTemplateFragment on ServiceTemplate {
+	name
+	namespace
+	templated
+	repositoryId
+	contexts
+	git {
+		... GitRefFragment
+	}
+	helm {
+		... HelmSpecFragment
+	}
+	kustomize {
+		... KustomizeFragment
+	}
+	syncConfig {
+		... SyncConfigFragment
+	}
+}
+fragment GitRefFragment on GitRef {
+	folder
+	ref
+}
+fragment HelmSpecFragment on HelmSpec {
+	valuesFiles
+}
+fragment KustomizeFragment on Kustomize {
+	path
+}
+fragment SyncConfigFragment on SyncConfig {
+	createNamespace
+	namespaceMetadata {
+		... NamespaceMetadataFragment
+	}
+}
+fragment NamespaceMetadataFragment on NamespaceMetadata {
+	labels
+	annotations
+}
+fragment ClusterTargetFragment on ClusterTarget {
+	tags
+	distro
+}
+`
+
+func (c *Client) GetNamespaceByName(ctx context.Context, name string, interceptors ...clientv2.RequestInterceptor) (*GetNamespaceByName, error) {
+	vars := map[string]interface{}{
+		"name": name,
+	}
+
+	var res GetNamespaceByName
+	if err := c.Client.Post(ctx, "GetNamespaceByName", GetNamespaceByNameDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
 const CreateNamespaceDocument = `mutation CreateNamespace ($attributes: ManagedNamespaceAttributes!) {
 	createManagedNamespace(attributes: $attributes) {
 		... ManagedNamespaceFragment
@@ -24612,6 +24706,7 @@ var DocumentOperationNames = map[string]string{
 	ListNamespacesDocument:                            "ListNamespaces",
 	ListClusterNamespacesDocument:                     "ListClusterNamespaces",
 	GetNamespaceDocument:                              "GetNamespace",
+	GetNamespaceByNameDocument:                        "GetNamespaceByName",
 	CreateNamespaceDocument:                           "CreateNamespace",
 	UpdateNamespaceDocument:                           "UpdateNamespace",
 	DeleteNamespaceDocument:                           "DeleteNamespace",
