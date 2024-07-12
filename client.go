@@ -1952,11 +1952,11 @@ func (t *NamespaceMetadataFragment) GetAnnotations() map[string]interface{} {
 }
 
 type ClusterTargetFragment struct {
-	Tags   *string        "json:\"tags,omitempty\" graphql:\"tags\""
-	Distro *ClusterDistro "json:\"distro,omitempty\" graphql:\"distro\""
+	Tags   map[string]interface{} "json:\"tags,omitempty\" graphql:\"tags\""
+	Distro *ClusterDistro         "json:\"distro,omitempty\" graphql:\"distro\""
 }
 
-func (t *ClusterTargetFragment) GetTags() *string {
+func (t *ClusterTargetFragment) GetTags() map[string]interface{} {
 	if t == nil {
 		t = &ClusterTargetFragment{}
 	}

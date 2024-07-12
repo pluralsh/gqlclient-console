@@ -820,7 +820,7 @@ type ClusterStatusInfo struct {
 // A spec for targeting clusters
 type ClusterTarget struct {
 	// the cluster tags to target
-	Tags *string `json:"tags,omitempty"`
+	Tags map[string]interface{} `json:"tags,omitempty"`
 	// kubernetes distribution to target
 	Distro *ClusterDistro `json:"distro,omitempty"`
 }
