@@ -8057,6 +8057,7 @@ func (t *GetServiceDeploymentForAgent_ServiceDeployment_SyncConfig_NamespaceMeta
 
 type GetServiceDeploymentForAgent_ServiceDeployment_SyncConfig struct {
 	CreateNamespace   *bool                                                                        "json:\"createNamespace,omitempty\" graphql:\"createNamespace\""
+	EnforceNamespace  *bool                                                                        "json:\"enforceNamespace,omitempty\" graphql:\"enforceNamespace\""
 	NamespaceMetadata *GetServiceDeploymentForAgent_ServiceDeployment_SyncConfig_NamespaceMetadata "json:\"namespaceMetadata,omitempty\" graphql:\"namespaceMetadata\""
 }
 
@@ -8065,6 +8066,12 @@ func (t *GetServiceDeploymentForAgent_ServiceDeployment_SyncConfig) GetCreateNam
 		t = &GetServiceDeploymentForAgent_ServiceDeployment_SyncConfig{}
 	}
 	return t.CreateNamespace
+}
+func (t *GetServiceDeploymentForAgent_ServiceDeployment_SyncConfig) GetEnforceNamespace() *bool {
+	if t == nil {
+		t = &GetServiceDeploymentForAgent_ServiceDeployment_SyncConfig{}
+	}
+	return t.EnforceNamespace
 }
 func (t *GetServiceDeploymentForAgent_ServiceDeployment_SyncConfig) GetNamespaceMetadata() *GetServiceDeploymentForAgent_ServiceDeployment_SyncConfig_NamespaceMetadata {
 	if t == nil {
@@ -17060,6 +17067,7 @@ const GetServiceDeploymentForAgentDocument = `query GetServiceDeploymentForAgent
 		}
 		syncConfig {
 			createNamespace
+			enforceNamespace
 			namespaceMetadata {
 				labels
 				annotations

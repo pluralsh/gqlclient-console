@@ -150,6 +150,7 @@ query GetServiceDeploymentForAgent($id: ID!) {
         }
         syncConfig {
             createNamespace
+            enforceNamespace
             namespaceMetadata {
                 labels
                 annotations
