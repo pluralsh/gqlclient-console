@@ -1,25 +1,24 @@
 query GetStackDefinition($id: ID!) {
-    stackDefinition(id: $id) {
-        ...StackDefinitionFragment
+    stackDefinition(id: $id) { ...StackDefinitionFragment }
+}
+
+query ListStackDefinitions($after: String, $first: Int, $before: String, $last: Int) {
+    stackDefinitions(after: $after, first: $first, before: $before, last: $last) {
+        pageInfo { ...PageInfoFragment }
+        edges { node { ...StackDefinitionFragment } }
     }
 }
 
 mutation CreateStackDefinition($attributes: StackDefinitionAttributes!) {
-    createStackDefinition(attributes: $attributes) {
-        ...StackDefinitionFragment
-    }
+    createStackDefinition(attributes: $attributes) { ...StackDefinitionFragment }
 }
 
 mutation UpdateStackDefinition($id: ID!, $attributes: StackDefinitionAttributes!) {
-    updateStackDefinition(id: $id, attributes: $attributes) {
-        ...StackDefinitionFragment
-    }
+    updateStackDefinition(id: $id, attributes: $attributes) { ...StackDefinitionFragment }
 }
 
 mutation DeleteStackDefinition($id: ID!) {
-    deleteStackDefinition(id: $id) {
-        ...StackDefinitionFragment
-    }
+    deleteStackDefinition(id: $id) { ...StackDefinitionFragment }
 }
 
 fragment StackDefinitionFragment on StackDefinition {

@@ -146,6 +146,7 @@ type ConsoleClient interface {
 	GetCustomStackRun(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*GetCustomStackRun, error)
 	ListStackRuns(ctx context.Context, id string, after *string, before *string, first *int64, last *int64, interceptors ...clientv2.RequestInterceptor) (*ListStackRuns, error)
 	GetStackDefinition(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*GetStackDefinition, error)
+	ListStackDefinitions(ctx context.Context, after *string, first *int64, before *string, last *int64, interceptors ...clientv2.RequestInterceptor) (*ListStackDefinitions, error)
 	CreateStackDefinition(ctx context.Context, attributes StackDefinitionAttributes, interceptors ...clientv2.RequestInterceptor) (*CreateStackDefinition, error)
 	UpdateStackDefinition(ctx context.Context, id string, attributes StackDefinitionAttributes, interceptors ...clientv2.RequestInterceptor) (*UpdateStackDefinition, error)
 	DeleteStackDefinition(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DeleteStackDefinition, error)
@@ -11025,6 +11026,124 @@ func (t *GetStackDefinition_StackDefinition_StackDefinitionFragment_Steps) GetRe
 	return t.RequireApproval
 }
 
+type ListStackDefinitions_StackDefinitions_Edges_Node_StackDefinitionFragment_Configuration_Hooks struct {
+	Cmd        string    "json:\"cmd\" graphql:\"cmd\""
+	Args       []*string "json:\"args,omitempty\" graphql:\"args\""
+	AfterStage StepStage "json:\"afterStage\" graphql:\"afterStage\""
+}
+
+func (t *ListStackDefinitions_StackDefinitions_Edges_Node_StackDefinitionFragment_Configuration_Hooks) GetCmd() string {
+	if t == nil {
+		t = &ListStackDefinitions_StackDefinitions_Edges_Node_StackDefinitionFragment_Configuration_Hooks{}
+	}
+	return t.Cmd
+}
+func (t *ListStackDefinitions_StackDefinitions_Edges_Node_StackDefinitionFragment_Configuration_Hooks) GetArgs() []*string {
+	if t == nil {
+		t = &ListStackDefinitions_StackDefinitions_Edges_Node_StackDefinitionFragment_Configuration_Hooks{}
+	}
+	return t.Args
+}
+func (t *ListStackDefinitions_StackDefinitions_Edges_Node_StackDefinitionFragment_Configuration_Hooks) GetAfterStage() *StepStage {
+	if t == nil {
+		t = &ListStackDefinitions_StackDefinitions_Edges_Node_StackDefinitionFragment_Configuration_Hooks{}
+	}
+	return &t.AfterStage
+}
+
+type ListStackDefinitions_StackDefinitions_Edges_Node_StackDefinitionFragment_Configuration struct {
+	Image   *string                                                                                         "json:\"image,omitempty\" graphql:\"image\""
+	Tag     *string                                                                                         "json:\"tag,omitempty\" graphql:\"tag\""
+	Version string                                                                                          "json:\"version\" graphql:\"version\""
+	Hooks   []*ListStackDefinitions_StackDefinitions_Edges_Node_StackDefinitionFragment_Configuration_Hooks "json:\"hooks,omitempty\" graphql:\"hooks\""
+}
+
+func (t *ListStackDefinitions_StackDefinitions_Edges_Node_StackDefinitionFragment_Configuration) GetImage() *string {
+	if t == nil {
+		t = &ListStackDefinitions_StackDefinitions_Edges_Node_StackDefinitionFragment_Configuration{}
+	}
+	return t.Image
+}
+func (t *ListStackDefinitions_StackDefinitions_Edges_Node_StackDefinitionFragment_Configuration) GetTag() *string {
+	if t == nil {
+		t = &ListStackDefinitions_StackDefinitions_Edges_Node_StackDefinitionFragment_Configuration{}
+	}
+	return t.Tag
+}
+func (t *ListStackDefinitions_StackDefinitions_Edges_Node_StackDefinitionFragment_Configuration) GetVersion() string {
+	if t == nil {
+		t = &ListStackDefinitions_StackDefinitions_Edges_Node_StackDefinitionFragment_Configuration{}
+	}
+	return t.Version
+}
+func (t *ListStackDefinitions_StackDefinitions_Edges_Node_StackDefinitionFragment_Configuration) GetHooks() []*ListStackDefinitions_StackDefinitions_Edges_Node_StackDefinitionFragment_Configuration_Hooks {
+	if t == nil {
+		t = &ListStackDefinitions_StackDefinitions_Edges_Node_StackDefinitionFragment_Configuration{}
+	}
+	return t.Hooks
+}
+
+type ListStackDefinitions_StackDefinitions_Edges_Node_StackDefinitionFragment_Steps struct {
+	Cmd             string    "json:\"cmd\" graphql:\"cmd\""
+	Args            []*string "json:\"args,omitempty\" graphql:\"args\""
+	Stage           StepStage "json:\"stage\" graphql:\"stage\""
+	RequireApproval *bool     "json:\"requireApproval,omitempty\" graphql:\"requireApproval\""
+}
+
+func (t *ListStackDefinitions_StackDefinitions_Edges_Node_StackDefinitionFragment_Steps) GetCmd() string {
+	if t == nil {
+		t = &ListStackDefinitions_StackDefinitions_Edges_Node_StackDefinitionFragment_Steps{}
+	}
+	return t.Cmd
+}
+func (t *ListStackDefinitions_StackDefinitions_Edges_Node_StackDefinitionFragment_Steps) GetArgs() []*string {
+	if t == nil {
+		t = &ListStackDefinitions_StackDefinitions_Edges_Node_StackDefinitionFragment_Steps{}
+	}
+	return t.Args
+}
+func (t *ListStackDefinitions_StackDefinitions_Edges_Node_StackDefinitionFragment_Steps) GetStage() *StepStage {
+	if t == nil {
+		t = &ListStackDefinitions_StackDefinitions_Edges_Node_StackDefinitionFragment_Steps{}
+	}
+	return &t.Stage
+}
+func (t *ListStackDefinitions_StackDefinitions_Edges_Node_StackDefinitionFragment_Steps) GetRequireApproval() *bool {
+	if t == nil {
+		t = &ListStackDefinitions_StackDefinitions_Edges_Node_StackDefinitionFragment_Steps{}
+	}
+	return t.RequireApproval
+}
+
+type ListStackDefinitions_StackDefinitions_Edges struct {
+	Node *StackDefinitionFragment "json:\"node,omitempty\" graphql:\"node\""
+}
+
+func (t *ListStackDefinitions_StackDefinitions_Edges) GetNode() *StackDefinitionFragment {
+	if t == nil {
+		t = &ListStackDefinitions_StackDefinitions_Edges{}
+	}
+	return t.Node
+}
+
+type ListStackDefinitions_StackDefinitions struct {
+	PageInfo *PageInfoFragment                              "json:\"pageInfo\" graphql:\"pageInfo\""
+	Edges    []*ListStackDefinitions_StackDefinitions_Edges "json:\"edges,omitempty\" graphql:\"edges\""
+}
+
+func (t *ListStackDefinitions_StackDefinitions) GetPageInfo() *PageInfoFragment {
+	if t == nil {
+		t = &ListStackDefinitions_StackDefinitions{}
+	}
+	return t.PageInfo
+}
+func (t *ListStackDefinitions_StackDefinitions) GetEdges() []*ListStackDefinitions_StackDefinitions_Edges {
+	if t == nil {
+		t = &ListStackDefinitions_StackDefinitions{}
+	}
+	return t.Edges
+}
+
 type CreateStackDefinition_CreateStackDefinition_StackDefinitionFragment_Configuration_Hooks struct {
 	Cmd        string    "json:\"cmd\" graphql:\"cmd\""
 	Args       []*string "json:\"args,omitempty\" graphql:\"args\""
@@ -12927,6 +13046,17 @@ func (t *GetStackDefinition) GetStackDefinition() *StackDefinitionFragment {
 		t = &GetStackDefinition{}
 	}
 	return t.StackDefinition
+}
+
+type ListStackDefinitions struct {
+	StackDefinitions *ListStackDefinitions_StackDefinitions "json:\"stackDefinitions,omitempty\" graphql:\"stackDefinitions\""
+}
+
+func (t *ListStackDefinitions) GetStackDefinitions() *ListStackDefinitions_StackDefinitions {
+	if t == nil {
+		t = &ListStackDefinitions{}
+	}
+	return t.StackDefinitions
 }
 
 type CreateStackDefinition struct {
@@ -24917,6 +25047,67 @@ func (c *Client) GetStackDefinition(ctx context.Context, id string, interceptors
 	return &res, nil
 }
 
+const ListStackDefinitionsDocument = `query ListStackDefinitions ($after: String, $first: Int, $before: String, $last: Int) {
+	stackDefinitions(after: $after, first: $first, before: $before, last: $last) {
+		pageInfo {
+			... PageInfoFragment
+		}
+		edges {
+			node {
+				... StackDefinitionFragment
+			}
+		}
+	}
+}
+fragment PageInfoFragment on PageInfo {
+	hasNextPage
+	endCursor
+}
+fragment StackDefinitionFragment on StackDefinition {
+	id
+	name
+	description
+	insertedAt
+	updatedAt
+	configuration {
+		image
+		tag
+		version
+		hooks {
+			cmd
+			args
+			afterStage
+		}
+	}
+	steps {
+		cmd
+		args
+		stage
+		requireApproval
+	}
+}
+`
+
+func (c *Client) ListStackDefinitions(ctx context.Context, after *string, first *int64, before *string, last *int64, interceptors ...clientv2.RequestInterceptor) (*ListStackDefinitions, error) {
+	vars := map[string]interface{}{
+		"after":  after,
+		"first":  first,
+		"before": before,
+		"last":   last,
+	}
+
+	var res ListStackDefinitions
+	if err := c.Client.Post(ctx, "ListStackDefinitions", ListStackDefinitionsDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
 const CreateStackDefinitionDocument = `mutation CreateStackDefinition ($attributes: StackDefinitionAttributes!) {
 	createStackDefinition(attributes: $attributes) {
 		... StackDefinitionFragment
@@ -25504,6 +25695,7 @@ var DocumentOperationNames = map[string]string{
 	GetCustomStackRunDocument:                         "GetCustomStackRun",
 	ListStackRunsDocument:                             "ListStackRuns",
 	GetStackDefinitionDocument:                        "GetStackDefinition",
+	ListStackDefinitionsDocument:                      "ListStackDefinitions",
 	CreateStackDefinitionDocument:                     "CreateStackDefinition",
 	UpdateStackDefinitionDocument:                     "UpdateStackDefinition",
 	DeleteStackDefinitionDocument:                     "DeleteStackDefinition",

@@ -4271,6 +4271,16 @@ type StackDefinitionAttributes struct {
 	Configuration *StackConfigurationAttributes `json:"configuration,omitempty"`
 }
 
+type StackDefinitionConnection struct {
+	PageInfo PageInfo               `json:"pageInfo"`
+	Edges    []*StackDefinitionEdge `json:"edges,omitempty"`
+}
+
+type StackDefinitionEdge struct {
+	Node   *StackDefinition `json:"node,omitempty"`
+	Cursor *string          `json:"cursor,omitempty"`
+}
+
 type StackEnvironment struct {
 	Name   string `json:"name"`
 	Value  string `json:"value"`
