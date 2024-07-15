@@ -145,6 +145,10 @@ type ConsoleClient interface {
 	DeleteCustomStackRun(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DeleteCustomStackRun, error)
 	GetCustomStackRun(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*GetCustomStackRun, error)
 	ListStackRuns(ctx context.Context, id string, after *string, before *string, first *int64, last *int64, interceptors ...clientv2.RequestInterceptor) (*ListStackRuns, error)
+	GetStackDefinition(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*GetStackDefinition, error)
+	CreateStackDefinition(ctx context.Context, attributes StackDefinitionAttributes, interceptors ...clientv2.RequestInterceptor) (*CreateStackDefinition, error)
+	UpdateStackDefinition(ctx context.Context, id string, attributes StackDefinitionAttributes, interceptors ...clientv2.RequestInterceptor) (*UpdateStackDefinition, error)
+	DeleteStackDefinition(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DeleteStackDefinition, error)
 	ListAccessTokens(ctx context.Context, cursor *string, before *string, last *int64, interceptors ...clientv2.RequestInterceptor) (*ListAccessTokens, error)
 	GetAccessToken(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*GetAccessToken, error)
 	TokenExchange(ctx context.Context, token string, interceptors ...clientv2.RequestInterceptor) (*TokenExchange, error)
@@ -3558,6 +3562,59 @@ func (t *PrConfigurationConditionFragment) GetValue() *string {
 	return t.Value
 }
 
+type StackDefinitionFragment struct {
+	ID            string                                "json:\"id\" graphql:\"id\""
+	Name          string                                "json:\"name\" graphql:\"name\""
+	Description   *string                               "json:\"description,omitempty\" graphql:\"description\""
+	InsertedAt    *string                               "json:\"insertedAt,omitempty\" graphql:\"insertedAt\""
+	UpdatedAt     *string                               "json:\"updatedAt,omitempty\" graphql:\"updatedAt\""
+	Configuration StackDefinitionFragment_Configuration "json:\"configuration\" graphql:\"configuration\""
+	Steps         []*StackDefinitionFragment_Steps      "json:\"steps,omitempty\" graphql:\"steps\""
+}
+
+func (t *StackDefinitionFragment) GetID() string {
+	if t == nil {
+		t = &StackDefinitionFragment{}
+	}
+	return t.ID
+}
+func (t *StackDefinitionFragment) GetName() string {
+	if t == nil {
+		t = &StackDefinitionFragment{}
+	}
+	return t.Name
+}
+func (t *StackDefinitionFragment) GetDescription() *string {
+	if t == nil {
+		t = &StackDefinitionFragment{}
+	}
+	return t.Description
+}
+func (t *StackDefinitionFragment) GetInsertedAt() *string {
+	if t == nil {
+		t = &StackDefinitionFragment{}
+	}
+	return t.InsertedAt
+}
+func (t *StackDefinitionFragment) GetUpdatedAt() *string {
+	if t == nil {
+		t = &StackDefinitionFragment{}
+	}
+	return t.UpdatedAt
+}
+func (t *StackDefinitionFragment) GetConfiguration() *StackDefinitionFragment_Configuration {
+	if t == nil {
+		t = &StackDefinitionFragment{}
+	}
+	return &t.Configuration
+}
+func (t *StackDefinitionFragment) GetSteps() []*StackDefinitionFragment_Steps {
+	if t == nil {
+		t = &StackDefinitionFragment{}
+	}
+	return t.Steps
+}
+
 type AccessTokenFragment struct {
 	ID    *string "json:\"id,omitempty\" graphql:\"id\""
 	Token *string "json:\"token,omitempty\" graphql:\"token\""
@@ -5066,6 +5123,95 @@ func (t *CustomStackRunFragment_Stack) GetID() *string {
 		t = &CustomStackRunFragment_Stack{}
 	}
 	return t.ID
+}
+
+type StackDefinitionFragment_Configuration_Hooks struct {
+	Cmd        string    "json:\"cmd\" graphql:\"cmd\""
+	Args       []*string "json:\"args,omitempty\" graphql:\"args\""
+	AfterStage StepStage "json:\"afterStage\" graphql:\"afterStage\""
+}
+
+func (t *StackDefinitionFragment_Configuration_Hooks) GetCmd() string {
+	if t == nil {
+		t = &StackDefinitionFragment_Configuration_Hooks{}
+	}
+	return t.Cmd
+}
+func (t *StackDefinitionFragment_Configuration_Hooks) GetArgs() []*string {
+	if t == nil {
+		t = &StackDefinitionFragment_Configuration_Hooks{}
+	}
+	return t.Args
+}
+func (t *StackDefinitionFragment_Configuration_Hooks) GetAfterStage() *StepStage {
+	if t == nil {
+		t = &StackDefinitionFragment_Configuration_Hooks{}
+	}
+	return &t.AfterStage
+}
+
+type StackDefinitionFragment_Configuration struct {
+	Image   *string                                        "json:\"image,omitempty\" graphql:\"image\""
+	Tag     *string                                        "json:\"tag,omitempty\" graphql:\"tag\""
+	Version string                                         "json:\"version\" graphql:\"version\""
+	Hooks   []*StackDefinitionFragment_Configuration_Hooks "json:\"hooks,omitempty\" graphql:\"hooks\""
+}
+
+func (t *StackDefinitionFragment_Configuration) GetImage() *string {
+	if t == nil {
+		t = &StackDefinitionFragment_Configuration{}
+	}
+	return t.Image
+}
+func (t *StackDefinitionFragment_Configuration) GetTag() *string {
+	if t == nil {
+		t = &StackDefinitionFragment_Configuration{}
+	}
+	return t.Tag
+}
+func (t *StackDefinitionFragment_Configuration) GetVersion() string {
+	if t == nil {
+		t = &StackDefinitionFragment_Configuration{}
+	}
+	return t.Version
+}
+func (t *StackDefinitionFragment_Configuration) GetHooks() []*StackDefinitionFragment_Configuration_Hooks {
+	if t == nil {
+		t = &StackDefinitionFragment_Configuration{}
+	}
+	return t.Hooks
+}
+
+type StackDefinitionFragment_Steps struct {
+	Cmd             string    "json:\"cmd\" graphql:\"cmd\""
+	Args            []*string "json:\"args,omitempty\" graphql:\"args\""
+	Stage           StepStage "json:\"stage\" graphql:\"stage\""
+	RequireApproval *bool     "json:\"requireApproval,omitempty\" graphql:\"requireApproval\""
+}
+
+func (t *StackDefinitionFragment_Steps) GetCmd() string {
+	if t == nil {
+		t = &StackDefinitionFragment_Steps{}
+	}
+	return t.Cmd
+}
+func (t *StackDefinitionFragment_Steps) GetArgs() []*string {
+	if t == nil {
+		t = &StackDefinitionFragment_Steps{}
+	}
+	return t.Args
+}
+func (t *StackDefinitionFragment_Steps) GetStage() *StepStage {
+	if t == nil {
+		t = &StackDefinitionFragment_Steps{}
+	}
+	return &t.Stage
+}
+func (t *StackDefinitionFragment_Steps) GetRequireApproval() *bool {
+	if t == nil {
+		t = &StackDefinitionFragment_Steps{}
+	}
+	return t.RequireApproval
 }
 
 type CreateClusterBackup_CreateClusterBackup_ClusterBackupFragment_Cluster struct {
@@ -10790,6 +10936,362 @@ func (t *ListStackRuns_InfrastructureStack) GetRuns() *ListStackRuns_Infrastruct
 	return t.Runs
 }
 
+type GetStackDefinition_StackDefinition_StackDefinitionFragment_Configuration_Hooks struct {
+	Cmd        string    "json:\"cmd\" graphql:\"cmd\""
+	Args       []*string "json:\"args,omitempty\" graphql:\"args\""
+	AfterStage StepStage "json:\"afterStage\" graphql:\"afterStage\""
+}
+
+func (t *GetStackDefinition_StackDefinition_StackDefinitionFragment_Configuration_Hooks) GetCmd() string {
+	if t == nil {
+		t = &GetStackDefinition_StackDefinition_StackDefinitionFragment_Configuration_Hooks{}
+	}
+	return t.Cmd
+}
+func (t *GetStackDefinition_StackDefinition_StackDefinitionFragment_Configuration_Hooks) GetArgs() []*string {
+	if t == nil {
+		t = &GetStackDefinition_StackDefinition_StackDefinitionFragment_Configuration_Hooks{}
+	}
+	return t.Args
+}
+func (t *GetStackDefinition_StackDefinition_StackDefinitionFragment_Configuration_Hooks) GetAfterStage() *StepStage {
+	if t == nil {
+		t = &GetStackDefinition_StackDefinition_StackDefinitionFragment_Configuration_Hooks{}
+	}
+	return &t.AfterStage
+}
+
+type GetStackDefinition_StackDefinition_StackDefinitionFragment_Configuration struct {
+	Image   *string                                                                           "json:\"image,omitempty\" graphql:\"image\""
+	Tag     *string                                                                           "json:\"tag,omitempty\" graphql:\"tag\""
+	Version string                                                                            "json:\"version\" graphql:\"version\""
+	Hooks   []*GetStackDefinition_StackDefinition_StackDefinitionFragment_Configuration_Hooks "json:\"hooks,omitempty\" graphql:\"hooks\""
+}
+
+func (t *GetStackDefinition_StackDefinition_StackDefinitionFragment_Configuration) GetImage() *string {
+	if t == nil {
+		t = &GetStackDefinition_StackDefinition_StackDefinitionFragment_Configuration{}
+	}
+	return t.Image
+}
+func (t *GetStackDefinition_StackDefinition_StackDefinitionFragment_Configuration) GetTag() *string {
+	if t == nil {
+		t = &GetStackDefinition_StackDefinition_StackDefinitionFragment_Configuration{}
+	}
+	return t.Tag
+}
+func (t *GetStackDefinition_StackDefinition_StackDefinitionFragment_Configuration) GetVersion() string {
+	if t == nil {
+		t = &GetStackDefinition_StackDefinition_StackDefinitionFragment_Configuration{}
+	}
+	return t.Version
+}
+func (t *GetStackDefinition_StackDefinition_StackDefinitionFragment_Configuration) GetHooks() []*GetStackDefinition_StackDefinition_StackDefinitionFragment_Configuration_Hooks {
+	if t == nil {
+		t = &GetStackDefinition_StackDefinition_StackDefinitionFragment_Configuration{}
+	}
+	return t.Hooks
+}
+
+type GetStackDefinition_StackDefinition_StackDefinitionFragment_Steps struct {
+	Cmd             string    "json:\"cmd\" graphql:\"cmd\""
+	Args            []*string "json:\"args,omitempty\" graphql:\"args\""
+	Stage           StepStage "json:\"stage\" graphql:\"stage\""
+	RequireApproval *bool     "json:\"requireApproval,omitempty\" graphql:\"requireApproval\""
+}
+
+func (t *GetStackDefinition_StackDefinition_StackDefinitionFragment_Steps) GetCmd() string {
+	if t == nil {
+		t = &GetStackDefinition_StackDefinition_StackDefinitionFragment_Steps{}
+	}
+	return t.Cmd
+}
+func (t *GetStackDefinition_StackDefinition_StackDefinitionFragment_Steps) GetArgs() []*string {
+	if t == nil {
+		t = &GetStackDefinition_StackDefinition_StackDefinitionFragment_Steps{}
+	}
+	return t.Args
+}
+func (t *GetStackDefinition_StackDefinition_StackDefinitionFragment_Steps) GetStage() *StepStage {
+	if t == nil {
+		t = &GetStackDefinition_StackDefinition_StackDefinitionFragment_Steps{}
+	}
+	return &t.Stage
+}
+func (t *GetStackDefinition_StackDefinition_StackDefinitionFragment_Steps) GetRequireApproval() *bool {
+	if t == nil {
+		t = &GetStackDefinition_StackDefinition_StackDefinitionFragment_Steps{}
+	}
+	return t.RequireApproval
+}
+
+type CreateStackDefinition_CreateStackDefinition_StackDefinitionFragment_Configuration_Hooks struct {
+	Cmd        string    "json:\"cmd\" graphql:\"cmd\""
+	Args       []*string "json:\"args,omitempty\" graphql:\"args\""
+	AfterStage StepStage "json:\"afterStage\" graphql:\"afterStage\""
+}
+
+func (t *CreateStackDefinition_CreateStackDefinition_StackDefinitionFragment_Configuration_Hooks) GetCmd() string {
+	if t == nil {
+		t = &CreateStackDefinition_CreateStackDefinition_StackDefinitionFragment_Configuration_Hooks{}
+	}
+	return t.Cmd
+}
+func (t *CreateStackDefinition_CreateStackDefinition_StackDefinitionFragment_Configuration_Hooks) GetArgs() []*string {
+	if t == nil {
+		t = &CreateStackDefinition_CreateStackDefinition_StackDefinitionFragment_Configuration_Hooks{}
+	}
+	return t.Args
+}
+func (t *CreateStackDefinition_CreateStackDefinition_StackDefinitionFragment_Configuration_Hooks) GetAfterStage() *StepStage {
+	if t == nil {
+		t = &CreateStackDefinition_CreateStackDefinition_StackDefinitionFragment_Configuration_Hooks{}
+	}
+	return &t.AfterStage
+}
+
+type CreateStackDefinition_CreateStackDefinition_StackDefinitionFragment_Configuration struct {
+	Image   *string                                                                                    "json:\"image,omitempty\" graphql:\"image\""
+	Tag     *string                                                                                    "json:\"tag,omitempty\" graphql:\"tag\""
+	Version string                                                                                     "json:\"version\" graphql:\"version\""
+	Hooks   []*CreateStackDefinition_CreateStackDefinition_StackDefinitionFragment_Configuration_Hooks "json:\"hooks,omitempty\" graphql:\"hooks\""
+}
+
+func (t *CreateStackDefinition_CreateStackDefinition_StackDefinitionFragment_Configuration) GetImage() *string {
+	if t == nil {
+		t = &CreateStackDefinition_CreateStackDefinition_StackDefinitionFragment_Configuration{}
+	}
+	return t.Image
+}
+func (t *CreateStackDefinition_CreateStackDefinition_StackDefinitionFragment_Configuration) GetTag() *string {
+	if t == nil {
+		t = &CreateStackDefinition_CreateStackDefinition_StackDefinitionFragment_Configuration{}
+	}
+	return t.Tag
+}
+func (t *CreateStackDefinition_CreateStackDefinition_StackDefinitionFragment_Configuration) GetVersion() string {
+	if t == nil {
+		t = &CreateStackDefinition_CreateStackDefinition_StackDefinitionFragment_Configuration{}
+	}
+	return t.Version
+}
+func (t *CreateStackDefinition_CreateStackDefinition_StackDefinitionFragment_Configuration) GetHooks() []*CreateStackDefinition_CreateStackDefinition_StackDefinitionFragment_Configuration_Hooks {
+	if t == nil {
+		t = &CreateStackDefinition_CreateStackDefinition_StackDefinitionFragment_Configuration{}
+	}
+	return t.Hooks
+}
+
+type CreateStackDefinition_CreateStackDefinition_StackDefinitionFragment_Steps struct {
+	Cmd             string    "json:\"cmd\" graphql:\"cmd\""
+	Args            []*string "json:\"args,omitempty\" graphql:\"args\""
+	Stage           StepStage "json:\"stage\" graphql:\"stage\""
+	RequireApproval *bool     "json:\"requireApproval,omitempty\" graphql:\"requireApproval\""
+}
+
+func (t *CreateStackDefinition_CreateStackDefinition_StackDefinitionFragment_Steps) GetCmd() string {
+	if t == nil {
+		t = &CreateStackDefinition_CreateStackDefinition_StackDefinitionFragment_Steps{}
+	}
+	return t.Cmd
+}
+func (t *CreateStackDefinition_CreateStackDefinition_StackDefinitionFragment_Steps) GetArgs() []*string {
+	if t == nil {
+		t = &CreateStackDefinition_CreateStackDefinition_StackDefinitionFragment_Steps{}
+	}
+	return t.Args
+}
+func (t *CreateStackDefinition_CreateStackDefinition_StackDefinitionFragment_Steps) GetStage() *StepStage {
+	if t == nil {
+		t = &CreateStackDefinition_CreateStackDefinition_StackDefinitionFragment_Steps{}
+	}
+	return &t.Stage
+}
+func (t *CreateStackDefinition_CreateStackDefinition_StackDefinitionFragment_Steps) GetRequireApproval() *bool {
+	if t == nil {
+		t = &CreateStackDefinition_CreateStackDefinition_StackDefinitionFragment_Steps{}
+	}
+	return t.RequireApproval
+}
+
+type UpdateStackDefinition_UpdateStackDefinition_StackDefinitionFragment_Configuration_Hooks struct {
+	Cmd        string    "json:\"cmd\" graphql:\"cmd\""
+	Args       []*string "json:\"args,omitempty\" graphql:\"args\""
+	AfterStage StepStage "json:\"afterStage\" graphql:\"afterStage\""
+}
+
+func (t *UpdateStackDefinition_UpdateStackDefinition_StackDefinitionFragment_Configuration_Hooks) GetCmd() string {
+	if t == nil {
+		t = &UpdateStackDefinition_UpdateStackDefinition_StackDefinitionFragment_Configuration_Hooks{}
+	}
+	return t.Cmd
+}
+func (t *UpdateStackDefinition_UpdateStackDefinition_StackDefinitionFragment_Configuration_Hooks) GetArgs() []*string {
+	if t == nil {
+		t = &UpdateStackDefinition_UpdateStackDefinition_StackDefinitionFragment_Configuration_Hooks{}
+	}
+	return t.Args
+}
+func (t *UpdateStackDefinition_UpdateStackDefinition_StackDefinitionFragment_Configuration_Hooks) GetAfterStage() *StepStage {
+	if t == nil {
+		t = &UpdateStackDefinition_UpdateStackDefinition_StackDefinitionFragment_Configuration_Hooks{}
+	}
+	return &t.AfterStage
+}
+
+type UpdateStackDefinition_UpdateStackDefinition_StackDefinitionFragment_Configuration struct {
+	Image   *string                                                                                    "json:\"image,omitempty\" graphql:\"image\""
+	Tag     *string                                                                                    "json:\"tag,omitempty\" graphql:\"tag\""
+	Version string                                                                                     "json:\"version\" graphql:\"version\""
+	Hooks   []*UpdateStackDefinition_UpdateStackDefinition_StackDefinitionFragment_Configuration_Hooks "json:\"hooks,omitempty\" graphql:\"hooks\""
+}
+
+func (t *UpdateStackDefinition_UpdateStackDefinition_StackDefinitionFragment_Configuration) GetImage() *string {
+	if t == nil {
+		t = &UpdateStackDefinition_UpdateStackDefinition_StackDefinitionFragment_Configuration{}
+	}
+	return t.Image
+}
+func (t *UpdateStackDefinition_UpdateStackDefinition_StackDefinitionFragment_Configuration) GetTag() *string {
+	if t == nil {
+		t = &UpdateStackDefinition_UpdateStackDefinition_StackDefinitionFragment_Configuration{}
+	}
+	return t.Tag
+}
+func (t *UpdateStackDefinition_UpdateStackDefinition_StackDefinitionFragment_Configuration) GetVersion() string {
+	if t == nil {
+		t = &UpdateStackDefinition_UpdateStackDefinition_StackDefinitionFragment_Configuration{}
+	}
+	return t.Version
+}
+func (t *UpdateStackDefinition_UpdateStackDefinition_StackDefinitionFragment_Configuration) GetHooks() []*UpdateStackDefinition_UpdateStackDefinition_StackDefinitionFragment_Configuration_Hooks {
+	if t == nil {
+		t = &UpdateStackDefinition_UpdateStackDefinition_StackDefinitionFragment_Configuration{}
+	}
+	return t.Hooks
+}
+
+type UpdateStackDefinition_UpdateStackDefinition_StackDefinitionFragment_Steps struct {
+	Cmd             string    "json:\"cmd\" graphql:\"cmd\""
+	Args            []*string "json:\"args,omitempty\" graphql:\"args\""
+	Stage           StepStage "json:\"stage\" graphql:\"stage\""
+	RequireApproval *bool     "json:\"requireApproval,omitempty\" graphql:\"requireApproval\""
+}
+
+func (t *UpdateStackDefinition_UpdateStackDefinition_StackDefinitionFragment_Steps) GetCmd() string {
+	if t == nil {
+		t = &UpdateStackDefinition_UpdateStackDefinition_StackDefinitionFragment_Steps{}
+	}
+	return t.Cmd
+}
+func (t *UpdateStackDefinition_UpdateStackDefinition_StackDefinitionFragment_Steps) GetArgs() []*string {
+	if t == nil {
+		t = &UpdateStackDefinition_UpdateStackDefinition_StackDefinitionFragment_Steps{}
+	}
+	return t.Args
+}
+func (t *UpdateStackDefinition_UpdateStackDefinition_StackDefinitionFragment_Steps) GetStage() *StepStage {
+	if t == nil {
+		t = &UpdateStackDefinition_UpdateStackDefinition_StackDefinitionFragment_Steps{}
+	}
+	return &t.Stage
+}
+func (t *UpdateStackDefinition_UpdateStackDefinition_StackDefinitionFragment_Steps) GetRequireApproval() *bool {
+	if t == nil {
+		t = &UpdateStackDefinition_UpdateStackDefinition_StackDefinitionFragment_Steps{}
+	}
+	return t.RequireApproval
+}
+
+type DeleteStackDefinition_DeleteStackDefinition_StackDefinitionFragment_Configuration_Hooks struct {
+	Cmd        string    "json:\"cmd\" graphql:\"cmd\""
+	Args       []*string "json:\"args,omitempty\" graphql:\"args\""
+	AfterStage StepStage "json:\"afterStage\" graphql:\"afterStage\""
+}
+
+func (t *DeleteStackDefinition_DeleteStackDefinition_StackDefinitionFragment_Configuration_Hooks) GetCmd() string {
+	if t == nil {
+		t = &DeleteStackDefinition_DeleteStackDefinition_StackDefinitionFragment_Configuration_Hooks{}
+	}
+	return t.Cmd
+}
+func (t *DeleteStackDefinition_DeleteStackDefinition_StackDefinitionFragment_Configuration_Hooks) GetArgs() []*string {
+	if t == nil {
+		t = &DeleteStackDefinition_DeleteStackDefinition_StackDefinitionFragment_Configuration_Hooks{}
+	}
+	return t.Args
+}
+func (t *DeleteStackDefinition_DeleteStackDefinition_StackDefinitionFragment_Configuration_Hooks) GetAfterStage() *StepStage {
+	if t == nil {
+		t = &DeleteStackDefinition_DeleteStackDefinition_StackDefinitionFragment_Configuration_Hooks{}
+	}
+	return &t.AfterStage
+}
+
+type DeleteStackDefinition_DeleteStackDefinition_StackDefinitionFragment_Configuration struct {
+	Image   *string                                                                                    "json:\"image,omitempty\" graphql:\"image\""
+	Tag     *string                                                                                    "json:\"tag,omitempty\" graphql:\"tag\""
+	Version string                                                                                     "json:\"version\" graphql:\"version\""
+	Hooks   []*DeleteStackDefinition_DeleteStackDefinition_StackDefinitionFragment_Configuration_Hooks "json:\"hooks,omitempty\" graphql:\"hooks\""
+}
+
+func (t *DeleteStackDefinition_DeleteStackDefinition_StackDefinitionFragment_Configuration) GetImage() *string {
+	if t == nil {
+		t = &DeleteStackDefinition_DeleteStackDefinition_StackDefinitionFragment_Configuration{}
+	}
+	return t.Image
+}
+func (t *DeleteStackDefinition_DeleteStackDefinition_StackDefinitionFragment_Configuration) GetTag() *string {
+	if t == nil {
+		t = &DeleteStackDefinition_DeleteStackDefinition_StackDefinitionFragment_Configuration{}
+	}
+	return t.Tag
+}
+func (t *DeleteStackDefinition_DeleteStackDefinition_StackDefinitionFragment_Configuration) GetVersion() string {
+	if t == nil {
+		t = &DeleteStackDefinition_DeleteStackDefinition_StackDefinitionFragment_Configuration{}
+	}
+	return t.Version
+}
+func (t *DeleteStackDefinition_DeleteStackDefinition_StackDefinitionFragment_Configuration) GetHooks() []*DeleteStackDefinition_DeleteStackDefinition_StackDefinitionFragment_Configuration_Hooks {
+	if t == nil {
+		t = &DeleteStackDefinition_DeleteStackDefinition_StackDefinitionFragment_Configuration{}
+	}
+	return t.Hooks
+}
+
+type DeleteStackDefinition_DeleteStackDefinition_StackDefinitionFragment_Steps struct {
+	Cmd             string    "json:\"cmd\" graphql:\"cmd\""
+	Args            []*string "json:\"args,omitempty\" graphql:\"args\""
+	Stage           StepStage "json:\"stage\" graphql:\"stage\""
+	RequireApproval *bool     "json:\"requireApproval,omitempty\" graphql:\"requireApproval\""
+}
+
+func (t *DeleteStackDefinition_DeleteStackDefinition_StackDefinitionFragment_Steps) GetCmd() string {
+	if t == nil {
+		t = &DeleteStackDefinition_DeleteStackDefinition_StackDefinitionFragment_Steps{}
+	}
+	return t.Cmd
+}
+func (t *DeleteStackDefinition_DeleteStackDefinition_StackDefinitionFragment_Steps) GetArgs() []*string {
+	if t == nil {
+		t = &DeleteStackDefinition_DeleteStackDefinition_StackDefinitionFragment_Steps{}
+	}
+	return t.Args
+}
+func (t *DeleteStackDefinition_DeleteStackDefinition_StackDefinitionFragment_Steps) GetStage() *StepStage {
+	if t == nil {
+		t = &DeleteStackDefinition_DeleteStackDefinition_StackDefinitionFragment_Steps{}
+	}
+	return &t.Stage
+}
+func (t *DeleteStackDefinition_DeleteStackDefinition_StackDefinitionFragment_Steps) GetRequireApproval() *bool {
+	if t == nil {
+		t = &DeleteStackDefinition_DeleteStackDefinition_StackDefinitionFragment_Steps{}
+	}
+	return t.RequireApproval
+}
+
 type ListAccessTokens_AccessTokens_Edges struct {
 	Node *AccessTokenFragment "json:\"node,omitempty\" graphql:\"node\""
 }
@@ -12414,6 +12916,50 @@ func (t *ListStackRuns) GetInfrastructureStack() *ListStackRuns_InfrastructureSt
 		t = &ListStackRuns{}
 	}
 	return t.InfrastructureStack
+}
+
+type GetStackDefinition struct {
+	StackDefinition *StackDefinitionFragment "json:\"stackDefinition,omitempty\" graphql:\"stackDefinition\""
+}
+
+func (t *GetStackDefinition) GetStackDefinition() *StackDefinitionFragment {
+	if t == nil {
+		t = &GetStackDefinition{}
+	}
+	return t.StackDefinition
+}
+
+type CreateStackDefinition struct {
+	CreateStackDefinition *StackDefinitionFragment "json:\"createStackDefinition,omitempty\" graphql:\"createStackDefinition\""
+}
+
+func (t *CreateStackDefinition) GetCreateStackDefinition() *StackDefinitionFragment {
+	if t == nil {
+		t = &CreateStackDefinition{}
+	}
+	return t.CreateStackDefinition
+}
+
+type UpdateStackDefinition struct {
+	UpdateStackDefinition *StackDefinitionFragment "json:\"updateStackDefinition,omitempty\" graphql:\"updateStackDefinition\""
+}
+
+func (t *UpdateStackDefinition) GetUpdateStackDefinition() *StackDefinitionFragment {
+	if t == nil {
+		t = &UpdateStackDefinition{}
+	}
+	return t.UpdateStackDefinition
+}
+
+type DeleteStackDefinition struct {
+	DeleteStackDefinition *StackDefinitionFragment "json:\"deleteStackDefinition,omitempty\" graphql:\"deleteStackDefinition\""
+}
+
+func (t *DeleteStackDefinition) GetDeleteStackDefinition() *StackDefinitionFragment {
+	if t == nil {
+		t = &DeleteStackDefinition{}
+	}
+	return t.DeleteStackDefinition
 }
 
 type ListAccessTokens struct {
@@ -24324,6 +24870,195 @@ func (c *Client) ListStackRuns(ctx context.Context, id string, after *string, be
 	return &res, nil
 }
 
+const GetStackDefinitionDocument = `query GetStackDefinition ($id: ID!) {
+	stackDefinition(id: $id) {
+		... StackDefinitionFragment
+	}
+}
+fragment StackDefinitionFragment on StackDefinition {
+	id
+	name
+	description
+	insertedAt
+	updatedAt
+	configuration {
+		image
+		tag
+		version
+		hooks {
+			cmd
+			args
+			afterStage
+		}
+	}
+	steps {
+		cmd
+		args
+		stage
+		requireApproval
+	}
+}
+`
+
+func (c *Client) GetStackDefinition(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*GetStackDefinition, error) {
+	vars := map[string]interface{}{
+		"id": id,
+	}
+
+	var res GetStackDefinition
+	if err := c.Client.Post(ctx, "GetStackDefinition", GetStackDefinitionDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const CreateStackDefinitionDocument = `mutation CreateStackDefinition ($attributes: StackDefinitionAttributes!) {
+	createStackDefinition(attributes: $attributes) {
+		... StackDefinitionFragment
+	}
+}
+fragment StackDefinitionFragment on StackDefinition {
+	id
+	name
+	description
+	insertedAt
+	updatedAt
+	configuration {
+		image
+		tag
+		version
+		hooks {
+			cmd
+			args
+			afterStage
+		}
+	}
+	steps {
+		cmd
+		args
+		stage
+		requireApproval
+	}
+}
+`
+
+func (c *Client) CreateStackDefinition(ctx context.Context, attributes StackDefinitionAttributes, interceptors ...clientv2.RequestInterceptor) (*CreateStackDefinition, error) {
+	vars := map[string]interface{}{
+		"attributes": attributes,
+	}
+
+	var res CreateStackDefinition
+	if err := c.Client.Post(ctx, "CreateStackDefinition", CreateStackDefinitionDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const UpdateStackDefinitionDocument = `mutation UpdateStackDefinition ($id: ID!, $attributes: StackDefinitionAttributes!) {
+	updateStackDefinition(id: $id, attributes: $attributes) {
+		... StackDefinitionFragment
+	}
+}
+fragment StackDefinitionFragment on StackDefinition {
+	id
+	name
+	description
+	insertedAt
+	updatedAt
+	configuration {
+		image
+		tag
+		version
+		hooks {
+			cmd
+			args
+			afterStage
+		}
+	}
+	steps {
+		cmd
+		args
+		stage
+		requireApproval
+	}
+}
+`
+
+func (c *Client) UpdateStackDefinition(ctx context.Context, id string, attributes StackDefinitionAttributes, interceptors ...clientv2.RequestInterceptor) (*UpdateStackDefinition, error) {
+	vars := map[string]interface{}{
+		"id":         id,
+		"attributes": attributes,
+	}
+
+	var res UpdateStackDefinition
+	if err := c.Client.Post(ctx, "UpdateStackDefinition", UpdateStackDefinitionDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const DeleteStackDefinitionDocument = `mutation DeleteStackDefinition ($id: ID!) {
+	deleteStackDefinition(id: $id) {
+		... StackDefinitionFragment
+	}
+}
+fragment StackDefinitionFragment on StackDefinition {
+	id
+	name
+	description
+	insertedAt
+	updatedAt
+	configuration {
+		image
+		tag
+		version
+		hooks {
+			cmd
+			args
+			afterStage
+		}
+	}
+	steps {
+		cmd
+		args
+		stage
+		requireApproval
+	}
+}
+`
+
+func (c *Client) DeleteStackDefinition(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DeleteStackDefinition, error) {
+	vars := map[string]interface{}{
+		"id": id,
+	}
+
+	var res DeleteStackDefinition
+	if err := c.Client.Post(ctx, "DeleteStackDefinition", DeleteStackDefinitionDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
 const ListAccessTokensDocument = `query ListAccessTokens ($cursor: String, $before: String, $last: Int) {
 	accessTokens(after: $cursor, first: 100, before: $before, last: $last) {
 		edges {
@@ -24768,6 +25503,10 @@ var DocumentOperationNames = map[string]string{
 	DeleteCustomStackRunDocument:                      "DeleteCustomStackRun",
 	GetCustomStackRunDocument:                         "GetCustomStackRun",
 	ListStackRunsDocument:                             "ListStackRuns",
+	GetStackDefinitionDocument:                        "GetStackDefinition",
+	CreateStackDefinitionDocument:                     "CreateStackDefinition",
+	UpdateStackDefinitionDocument:                     "UpdateStackDefinition",
+	DeleteStackDefinitionDocument:                     "DeleteStackDefinition",
 	ListAccessTokensDocument:                          "ListAccessTokens",
 	GetAccessTokenDocument:                            "GetAccessToken",
 	TokenExchangeDocument:                             "TokenExchange",
