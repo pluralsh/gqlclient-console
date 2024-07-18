@@ -1810,6 +1810,8 @@ type InfrastructureStack struct {
 	Definition *StackDefinition `json:"definition,omitempty"`
 	// a cron to spawn runs for this stack
 	Cron *StackCron `json:"cron,omitempty"`
+	// the service this stack was created w/in
+	Parent *ServiceDeployment `json:"parent,omitempty"`
 	// the actor of this stack (defaults to root console user)
 	Actor           *User                     `json:"actor,omitempty"`
 	CustomStackRuns *CustomStackRunConnection `json:"customStackRuns,omitempty"`
@@ -4201,6 +4203,8 @@ type StackAttributes struct {
 	ActorID *string `json:"actorId,omitempty"`
 	// the project id this stack will belong to
 	ProjectID *string `json:"projectId,omitempty"`
+	// the parent service this stack was created w/in
+	ParentID *string `json:"parentId,omitempty"`
 	// id of an scm connection to use for pr callbacks
 	ConnectionID *string `json:"connectionId,omitempty"`
 	// the id of a stack definition to use
