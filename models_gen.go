@@ -1557,6 +1557,8 @@ type GlobalService struct {
 	Reparent *bool `json:"reparent,omitempty"`
 	// behavior for all owned resources when this global service is deleted
 	Cascade *Cascade `json:"cascade,omitempty"`
+	// the service which created this global service
+	Parent *ServiceDeployment `json:"parent,omitempty"`
 	// a project this global service is bound to
 	Project *Project `json:"project,omitempty"`
 	// the service template used to spawn services
@@ -1582,6 +1584,8 @@ type GlobalServiceAttributes struct {
 	ProviderID *string `json:"providerId,omitempty"`
 	// a project this global service will sync across
 	ProjectID *string `json:"projectId,omitempty"`
+	// the id of the service creating this
+	ParentID *string `json:"parentId,omitempty"`
 	// whether you want the global service to take ownership of existing plural services
 	Reparent *bool                      `json:"reparent,omitempty"`
 	Template *ServiceTemplateAttributes `json:"template,omitempty"`
@@ -2074,6 +2078,8 @@ type ManagedNamespace struct {
 	DeletedAt *string `json:"deletedAt,omitempty"`
 	// behavior for all owned resources when this global service is deleted
 	Cascade *Cascade `json:"cascade,omitempty"`
+	// the service which created this managed namespace
+	Parent *ServiceDeployment `json:"parent,omitempty"`
 	// a project this global service is bound to
 	Project *Project `json:"project,omitempty"`
 	// A template for creating the core service for this namespace
@@ -2098,9 +2104,11 @@ type ManagedNamespaceAttributes struct {
 	// a list of pull secrets to attach to this namespace
 	PullSecrets []*string `json:"pullSecrets,omitempty"`
 	// a project this managed namespace will sync across
-	ProjectID *string                    `json:"projectId,omitempty"`
-	Service   *ServiceTemplateAttributes `json:"service,omitempty"`
-	Target    *ClusterTargetAttributes   `json:"target,omitempty"`
+	ProjectID *string `json:"projectId,omitempty"`
+	// the id of the service creating this
+	ParentID *string                    `json:"parentId,omitempty"`
+	Service  *ServiceTemplateAttributes `json:"service,omitempty"`
+	Target   *ClusterTargetAttributes   `json:"target,omitempty"`
 	// behavior for all owned resources when this global service is deleted
 	Cascade *CascadeAttributes `json:"cascade,omitempty"`
 }
@@ -5981,18 +5989,20 @@ func (e RestoreStatus) MarshalGQL(w io.Writer) {
 type ScmType string
 
 const (
-	ScmTypeGithub ScmType = "GITHUB"
-	ScmTypeGitlab ScmType = "GITLAB"
+	ScmTypeGithub    ScmType = "GITHUB"
+	ScmTypeGitlab    ScmType = "GITLAB"
+	ScmTypeBitbucket ScmType = "BITBUCKET"
 )
 
 var AllScmType = []ScmType{
 	ScmTypeGithub,
 	ScmTypeGitlab,
+	ScmTypeBitbucket,
 }
 
 func (e ScmType) IsValid() bool {
 	switch e {
-	case ScmTypeGithub, ScmTypeGitlab:
+	case ScmTypeGithub, ScmTypeGitlab, ScmTypeBitbucket:
 		return true
 	}
 	return false
